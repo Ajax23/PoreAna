@@ -10,7 +10,7 @@ import time
 import pickle
 import fileinput
 
-from shutil import copyfile, copytree
+from shutil import copyfile
 
 
 def mkdirp(directory):
@@ -36,7 +36,7 @@ def column(data):
     Returns
     -------
     data_col : list
-        Column data matrix
+        column data matrix
     """
     num_row = len(data)
     num_col = len(data[0])
@@ -50,35 +50,8 @@ def column(data):
     return data_col
 
 
-def copy(source, target):
-    """Copy a specified file to a specified location.
-
-    Parameters
-    ----------
-    source : string
-        Link to requested file
-    target : string
-        Link to requested new file
-    """
-    copyfile(source, target)
-
-
-def copy_dir(source, target):
-    """Copy a specified folder to a specified location if it does not exist.
-
-    Parameters
-    ----------
-    source : string
-        Link to requested folder
-    target : string
-        Link to requested new folder
-    """
-    if not os.path.isdir(target):
-        copytree(source, target)
-
-
 def tic():
-    """MATLAB tic reproduction - return current time.
+    """MATLAB tic replica - return current time.
 
     Returns
     -------
@@ -89,7 +62,7 @@ def tic():
 
 
 def toc(t, message="", is_print=True):
-    """MATLAB toc reproduction - return time difference to tic and alternatively
+    """MATLAB toc replica - return time difference to tic and alternatively
     print a message.
 
     Parameters
@@ -165,7 +138,7 @@ def load(link):
 
 
 def mumol_m2_to_mols(c, A):
-    """Convert the concntration in :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`
+    """Convert the concentration in :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`
     to number of molecules.
 
     The concentration is given as
@@ -206,7 +179,7 @@ def mumol_m2_to_mols(c, A):
 
 
 def mols_to_mumol_m2(N, A):
-    """Convert the number of molecules to concntration in
+    """Convert the number of molecules to concentration in
     :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`.
 
     The concentration is given as
@@ -245,8 +218,34 @@ def mols_to_mumol_m2(N, A):
     return N/0.6022/A
 
 
+def mmol_g_to_mumol_m2(c, A):
+    """Convert the concentration :math:`\\frac{\\text{mmol}}{\\text{g}}`
+    to :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`.
+
+    This is done by dividing the concentration per gram by the material surface
+    per gram property :math:`S_\\text{BET}`
+
+    .. math::
+
+        \\boxed{c_A=\\frac{c_g}{S_\\text{BET}}\\cdot10^3}\\ .
+
+    Parameters
+    ----------
+    c : float
+        Concentration in :math:`\\frac{\\text{mmol}}{\\text{g}}`
+    A : float
+        Surface in :math:`\\frac{\\text{m}^2}{\\text{g}}`
+
+    Returns
+    -------
+    c : float
+        Concentration in :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`
+    """
+    return c/A*1e3
+
+
 def mmol_l_to_mols(c, V):
-    """Convert the concntration in :math:`\\frac{\\text{mmol}}{\\text{l}}`
+    """Convert the concentration in :math:`\\frac{\\text{mmol}}{\\text{l}}`
     to number of molecules.
 
     The concentration in regard to volume is calculated by
@@ -286,7 +285,8 @@ def mmol_l_to_mols(c, V):
 
 
 def mols_to_mmol_l(N, V):
-    """Convert the number of molecules to concntration in :math:`\\frac{\\text{mmol}}{\\text{l}}`.
+    """Convert the number of molecules to concentration in
+    :math:`\\frac{\\text{mmol}}{\\text{l}}`.
 
     The concentration in regard to volume is calculated by
 
