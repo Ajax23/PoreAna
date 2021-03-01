@@ -1,0 +1,7 @@
+poreana.egg-info
+build
+__pycache__
+*.pyc
+.DS_Store
+._.DS_Store
+.ipynb_checkpoints
