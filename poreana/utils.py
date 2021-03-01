@@ -90,22 +90,6 @@ def toc(t, message="", is_print=True):
     return t_diff
 
 
-def replace(file_link, old, new):
-    """Replace a given string in a file.
-
-    Parameters
-    ----------
-    file_link : string
-        Link to requested file
-    old : string
-        String to be replaced in file
-    new : string
-        New string to be written
-    """
-    for line in fileinput.input(file_link, inplace=True):
-        print(line.rstrip().replace(old, new))
-
-
 def save(obj, link):
     """Save an object using pickle in the specified link.
 
