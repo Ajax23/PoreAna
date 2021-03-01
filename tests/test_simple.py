@@ -77,7 +77,7 @@ class UserModelCase(unittest.TestCase):
     # Density #
     ###########
     def test_density(self):
-        self.skipTest("Temporary")
+        # self.skipTest("Temporary")
 
         # Load molecule
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
@@ -99,7 +99,7 @@ class UserModelCase(unittest.TestCase):
     # Diffusion #
     #############
     def test_diffusion(self):
-        self.skipTest("Temporary")
+        # self.skipTest("Temporary")
 
         # Load molecule
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
