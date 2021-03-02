@@ -87,6 +87,8 @@ class UserModelCase(unittest.TestCase):
 
         # Calculate density
         dens = pa.density.calculate("output/dens.obj")
+        self.assertEqual(round(dens["in"] [3], 2), 992.88)
+        self.assertEqual(round(dens["out"][3], 2), 975.43)
 
         # Plot density
         plt.figure()

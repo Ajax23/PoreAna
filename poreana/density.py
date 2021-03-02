@@ -20,7 +20,7 @@ import poreana.geometry as geometry
 from porems import *
 
 
-def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=None, masses=None, bin_num=150, entry=0.5, is_force=False):
+def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=[], masses=[], bin_num=150, entry=0.5, is_force=False):
     """This function samples the density inside and outside of the pore. This
     function is to be run on the cluster due to a high time and resource
     consumption. The output, a data object, is then used to calculate the
@@ -46,10 +46,10 @@ def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=None, masses=None
         Link to output object file
     mol : Molecule
         Molecule to calculate the density for
-    atoms : string, list, None, optional
-        Atom name or list to consider, leave None for whole molecule
-    masses : float, list, None, optional
-        Atom masses, leave None to read molecule object masses
+    atoms : list, optional
+        List of atom names, leave empty for whole molecule
+    masses : list, optional
+        List of atom masses, leave empty to read molecule object masses
     bin_num : integer, optional
         Number of bins to be used
     entry : float, optional
@@ -57,22 +57,21 @@ def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=None, masses=None
     is_force : bool, optional
         True to force re-extraction of data
     """
-    # Get molecule information
-    atoms = [atoms] if atoms is not None and not isinstance(atoms, list) else atoms
-    num_atoms = mol.get_num() if atoms is None else len(atoms)
+    # Get molecule ids
+    atoms = [atom.get_name() for atom in mol.get_atom_list()] if not atoms else atoms
+    atoms = [atom_id for atom_id in range(mol.get_num()) if mol.get_atom_list()[atom_id].get_name() in atoms]
+    num_atoms = len(atoms)
 
     # Check masses
-    if masses is None:
-        if atoms is None:
+    if not masses:
+        if len(atoms)==mol.get_num():
             masses = mol.get_masses()
         elif num_atoms == 1:
             masses = [1]
-    elif not isinstance(masses, list):
-        masses = [masses]
 
     # Check consistency
-    if atoms is not None and not len(masses) == len(atoms):
-        print("Atoms number and Masses number does not match!")
+    if atoms and not len(masses) == len(atoms):
+        print("Length of variables *atoms* and *masses* do not match!")
         return
 
     # Get pore information
@@ -89,33 +88,23 @@ def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=None, masses=None
 
     # Check if already calculated
     if not os.path.exists(link_out) or is_force:
-        # Load topology
-        topo = cf.Trajectory(link_pdb).read().topology()
-        num_res = int(topo.natoms()/mol.get_num())
+        # Get number of atoms in system
+        num_res = int(len(cf.Trajectory(link_pdb).read().topology.atoms)/mol.get_num())
 
         # Create list of relevant atom ids
         res_list = {}
         for res_id in range(num_res):
-            res_list[res_id] = []
-
-            # Run through residue atoms
-            for atom in range(mol.get_num()):
-                # Set atom id
-                atom_id = int(res_id*mol.get_num()+atom)
-
-                # Add to list
-                if atoms is None or topo.atom(atom_id).name() in atoms:
-                    res_list[res_id].append(atom_id)
+            res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in atoms]
 
         # Load trajectory
         traj = cf.Trajectory(link_trr)
-        num_frame = traj.nsteps()
+        num_frame = traj.nsteps
 
         # Run through frames
         # com_list = []
         for frame_id in range(num_frame):
             frame = traj.read()
-            positions = frame.positions()
+            positions = frame.positions
 
             # Run through residues
             for res_id in res_list:
@@ -128,7 +117,7 @@ def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=None, masses=None
                 # Remove edge molecules
                 is_edge = False
                 for i in range(3):
-                    if abs(com[i]-pos[0][i])>box[2]/3:
+                    if abs(com[i]-pos[0][i])>res:
                         is_edge = True
 
                 # Check if com was calculated on edges
