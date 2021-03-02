@@ -1,4 +1,12 @@
-Pore system analysis tool
+.. raw:: html
+
+  <br>
+
+.. figure::  /pics/logo_text.svg
+  :align: center
+  :width: 40%
+
+Pore System Analysis Tool
 =========================
 
 .. raw:: html
@@ -7,9 +15,8 @@ Pore system analysis tool
      <div class="row">
        <div class="col-md-8">
 
-
-
-To see the code or report a bug, please visit the `Github repository
+This python package analyzes pore simulations run in Gromacs.
+To see the code or report a bug, please visit the `Github  repository
 <https://github.com/Ajax23/PoreAna>`_.
 
 

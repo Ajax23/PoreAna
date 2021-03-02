@@ -1,4 +1,6 @@
-# PoreAna: Pore analysis tool
+<img src="https://github.com/Ajax23/PoreAna/blob/master/docsrc/pics/logo_text_sub.svg" width="60%">
+
+--------------------------------------
 
 [![PyPI Version](https://img.shields.io/badge/PyPI-0.1.0-orange)](https://pypi.org/project/PoreAna/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/Ajax23/PoreAna/blob/master/LICENSE)
