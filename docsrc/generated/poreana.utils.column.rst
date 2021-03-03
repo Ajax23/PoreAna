@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-copy\_dir
-=========
+column
+======
 
 .. currentmodule:: poreana.utils
 
-.. autofunction:: copy_dir
+.. autofunction:: column

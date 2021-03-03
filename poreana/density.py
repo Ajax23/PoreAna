@@ -20,7 +20,7 @@ import poreana.geometry as geometry
 from porems import *
 
 
-def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=[], masses=[], bin_num=150, entry=0.5, is_force=False):
+def sample(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_num=150, entry=0.5, is_force=False):
     """This function samples the density inside and outside of the pore. This
     function is to be run on the cluster due to a high time and resource
     consumption. The output, a data object, is then used to calculate the
@@ -38,10 +38,8 @@ def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=[], masses=[], bi
     ----------
     link_pore : string
         Link to poresystem object file
-    link_pdb : string
-        Link to pdb file
-    link_trr : string
-        Link to trr file
+    link_traj : string
+        Link to trajectory file (trr or xtc)
     link_out : string
         Link to output object file
     mol : Molecule
@@ -74,37 +72,47 @@ def sample(link_pore, link_pdb, link_trr, link_out, mol, atoms=[], masses=[], bi
         print("Length of variables *atoms* and *masses* do not match!")
         return
 
-    # Get pore information
+    # Get pore properties
     pore = utils.load(link_pore)
-    res = pore.reservoir()
-    diam = pore.diameter()
-    focal = pore.centroid()
-    box = pore.box()
-    box[2] += 2*res
+    if isinstance(pore, PoreCylinder):
+        res = pore.reservoir()
+        diam = pore.diameter()
+        focal = pore.centroid()
+        box = pore.box()
+        box[2] += 2*res
 
-    # Define bins
-    bin_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
+        # Define bins intern
+        bin_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
+
+    # Define bins extern
     bin_out = [[res/bin_num*x for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
 
     # Check if already calculated
     if not os.path.exists(link_out) or is_force:
-        # Get number of atoms in system
-        num_res = int(len(cf.Trajectory(link_pdb).read().topology.atoms)/mol.get_num())
-
-        # Create list of relevant atom ids
-        res_list = {}
-        for res_id in range(num_res):
-            res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in atoms]
-
         # Load trajectory
-        traj = cf.Trajectory(link_trr)
+        traj = cf.Trajectory(link_traj)
         num_frame = traj.nsteps
+        res_list = {}
 
         # Run through frames
-        # com_list = []
         for frame_id in range(num_frame):
+            # Read frame
             frame = traj.read()
             positions = frame.positions
+
+            # Create list of relevant atom ids
+            if not res_list:
+                # Get number of residues in system
+                num_res = len(frame.topology.atoms)/mol.get_num()
+
+                # Check number of residues
+                if abs(int(num_res)-num_res) >= 1e-5:
+                    print("Number of atoms is inconsistent with number of residues.")
+                    return
+
+                # Check relevant atoms
+                for res_id in range(int(num_res)):
+                    res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in atoms]
 
             # Run through residues
             for res_id in res_list:

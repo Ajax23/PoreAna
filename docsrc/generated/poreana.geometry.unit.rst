@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-copy
+unit
 ====
 
-.. currentmodule:: poreana.utils
+.. currentmodule:: poreana.geometry
 
-.. autofunction:: copy
+.. autofunction:: unit

@@ -112,7 +112,7 @@
 <h1>sample<a class="headerlink" href="#sample" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="poreana.density.sample">
-<code class="descclassname">poreana.density.</code><code class="descname">sample</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_pdb</em>, <em>link_trr</em>, <em>link_out</em>, <em>mol</em>, <em>atoms=None</em>, <em>masses=None</em>, <em>bin_num=150</em>, <em>entry=0.5</em>, <em>is_force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.sample" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">poreana.density.</code><code class="descname">sample</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>link_out</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>bin_num=150</em>, <em>entry=0.5</em>, <em>is_force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function samples the density inside and outside of the pore. This
 function is to be run on the cluster due to a high time and resource
 consumption. The output, a data object, is then used to calculate the
@@ -131,11 +131,8 @@ with pore radius <span class="math">\(r_i\)</span> of radial slice <span class="
 <dt><strong>link_pore</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Link to poresystem object file</p>
 </dd>
-<dt><strong>link_pdb</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to pdb file</p>
-</dd>
-<dt><strong>link_trr</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to trr file</p>
+<dt><strong>link_traj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Link to trajectory file (trr or xtc)</p>
 </dd>
 <dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Link to output object file</p>
@@ -143,11 +140,11 @@ with pore radius <span class="math">\(r_i\)</span> of radial slice <span class="
 <dt><strong>mol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Molecule</span></dt>
 <dd><p class="first last">Molecule to calculate the density for</p>
 </dd>
-<dt><strong>atoms</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, list, None, optional</span></dt>
-<dd><p class="first last">Atom name or list to consider, leave None for whole molecule</p>
+<dt><strong>atoms</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd><p class="first last">List of atom names, leave empty for whole molecule</p>
 </dd>
-<dt><strong>masses</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, list, None, optional</span></dt>
-<dd><p class="first last">Atom masses, leave None to read molecule object masses</p>
+<dt><strong>masses</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd><p class="first last">List of atom masses, leave empty to read molecule object masses</p>
 </dd>
 <dt><strong>bin_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
 <dd><p class="first last">Number of bins to be used</p>

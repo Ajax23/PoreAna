@@ -83,7 +83,7 @@ class UserModelCase(unittest.TestCase):
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
 
         # Sample trajectory
-        pa.density.sample("data/pore_system.obj", "data/traj.pdb", "data/traj.trr", "output/dens.obj", mol, is_force=True)
+        pa.density.sample("data/pore_system.obj", "data/traj.trr", "output/dens.obj", mol, is_force=True)
 
         # Calculate density
         dens = pa.density.calculate("output/dens.obj")
@@ -107,7 +107,7 @@ class UserModelCase(unittest.TestCase):
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
 
         # Sample trajectory
-        pa.diffusion.sample("data/pore_system.obj", "data/traj.pdb", "data/traj.trr", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
+        pa.diffusion.sample("data/pore_system.obj", "data/traj.trr", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
 
         # Bin diffusion
         plt.figure()

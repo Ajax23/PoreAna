@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>mumol_m2_to_mols &#8212; PoreAna 0.1.0 documentation</title>
+    <title>length &#8212; PoreAna 0.1.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
@@ -77,7 +77,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">mumol_m2_to_mols</a></li>
+<li><a class="reference internal" href="#">length</a></li>
 </ul>
 </ul>
 </li>
@@ -108,43 +108,30 @@
     <div class="body col-md-12 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="mumol-m2-to-mols">
-<h1>mumol_m2_to_mols<a class="headerlink" href="#mumol-m2-to-mols" title="Permalink to this headline">¶</a></h1>
+<div class=col-md-9 content><div class="section" id="length">
+<h1>length<a class="headerlink" href="#length" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="poreana.utils.mumol_m2_to_mols">
-<code class="descclassname">poreana.utils.</code><code class="descname">mumol_m2_to_mols</code><span class="sig-paren">(</span><em>c</em>, <em>A</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.utils.mumol_m2_to_mols" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert the concentration in <span class="math">\(\frac{\mu\text{mol}}{\text{m}^2}\)</span>
-to number of molecules.</p>
-<p>The concentration is given as</p>
+<dt id="poreana.geometry.length">
+<code class="descclassname">poreana.geometry.</code><code class="descname">length</code><span class="sig-paren">(</span><em>vec</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.geometry.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the length of a vector
+<span class="math">\(\boldsymbol{a}\in\mathbb{R}^n\)</span></p>
 <div class="math">
-\[c=\frac{N}{N_A\cdot A}\]</div>
-<p>with surface <span class="math">\(A\)</span> and avogadro constant
-<span class="math">\(N_A=6.022\cdot10^{23}\,\text{mol}^{-1}\)</span>. Assuming that the unit of
-the concentration is <span class="math">\(\mu\text{mol}\cdot\text{m}^{-2}\)</span> and of the
-surface is <span class="math">\(\text{nm}^2\)</span>, the number of molecules is given by</p>
-<div class="math">
-\[N=c\cdot N_A\cdot A
-=[c]\cdot10^{-24}\,\frac{\text{mol}}{\text{nm}^2}\cdot6.022\cdot10^{23}\,\frac{1}{\text{mol}}\cdot[A]\,\text{nm}^2\]</div>
-<p>and thus</p>
-<div class="math">
-\[\boxed{N=0.6022\cdot[c]\cdot[A]}\ .\]</div>
+\[\text{length}(\boldsymbol{a})=|\boldsymbol{a}|
+=\sqrt{\boldsymbol{a}\cdot\boldsymbol{a}}\]</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>c</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Concentration in <span class="math">\(\frac{\mu\text{mol}}{\text{m}^2}\)</span></p>
-</dd>
-<dt><strong>A</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Surface in <span class="math">\(\text{nm}^2\)</span></p>
+<dt><strong>vec</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">Vector a</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>N</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Number of molecules</p>
+<dt><strong>length</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Vector length</p>
 </dd>
 </dl>
 </td>

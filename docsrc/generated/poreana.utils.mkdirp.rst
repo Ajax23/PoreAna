@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-replace
-=======
+mkdirp
+======
 
 .. currentmodule:: poreana.utils
 
-.. autofunction:: replace
+.. autofunction:: mkdirp

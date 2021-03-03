@@ -29,3 +29,4 @@ Utilities
     :toctree: generated/
 
     utils
+    geometry
