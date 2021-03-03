@@ -27,9 +27,9 @@ Installation requires [scipy](https://pypi.org/project/scipy/), [numpy](https://
 
 You may instead want to use the development version from GitHub:
 
-    pip install git+https://github.com/ajax23/PoreAna.git#egg=porems
+    pip install git+https://github.com/ajax23/PoreAna.git#egg=poreana
 
-    pip install git+https://github.com/ajax23/PoreAna.git@develop#egg=porems
+    pip install git+https://github.com/ajax23/PoreAna.git@develop#egg=poreana
 
 Or download the repository and install in the top directory via:
 

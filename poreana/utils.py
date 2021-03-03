@@ -8,9 +8,6 @@
 import os
 import time
 import pickle
-import fileinput
-
-from shutil import copyfile
 
 
 def mkdirp(directory):
