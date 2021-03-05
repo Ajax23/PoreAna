@@ -20,7 +20,7 @@ The docs include an example for analyzing [density](http://ajax23.github.io/Pore
 
 PoreAna supports Python 3.5+.
 
-Installation requires [scipy](https://pypi.org/project/scipy/), [numpy](https://pypi.org/project/numpy/), [chemfiles 0.8.0](https://pypi.org/project/chemfiles/0.8.0/), [seaborn](https://pypi.org/project/seaborn/), [pandas](https://pypi.org/project/pandas/) and [porems](https://pypi.org/project/porems/).
+Installation requires [numpy](https://pypi.org/project/numpy/), [pandas](https://pypi.org/project/pandas/), [chemfiles 0.10.0](https://pypi.org/project/chemfiles/0.8.0/), [seaborn](https://pypi.org/project/seaborn/) and [porems](https://pypi.org/project/porems/).
 
 
 ## Installation
