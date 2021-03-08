@@ -1,6 +1,7 @@
 import os
 import sys
 
+import copy
 import shutil
 import unittest
 
@@ -29,6 +30,15 @@ class UserModelCase(unittest.TestCase):
                 os.unlink(file_path)
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
+
+        # Load molecule
+        mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
+
+        # Sample density
+        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol)
+
+        # Sample diffusion
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12)
 
 
     #########
@@ -76,18 +86,28 @@ class UserModelCase(unittest.TestCase):
     ##########
     # Sample #
     ##########
-    @classmethod
-    def setUpClass(self):
+    def test_sample(self):
         # self.skipTest("Temporary")
+
+        print()
 
         # Load molecule
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
+        mol2 = copy.deepcopy(mol)
+        mol2.add("H", [1, 1, 1], name="H3")
+        mol2.add("H", [1, 1, 1], name="H4")
 
         # Sample density
-        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, is_force=True)
+        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, atoms=["O1"])
+        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, atoms=["O1"], masses=[1, 2])
+        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol2, is_force=True)
+
 
         # Sample diffusion
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, atoms=["O1"])
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, atoms=["O1"], masses=[1, 2])
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj",  mol2, is_force=True)
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj",  mol, len_obs=3e-12, is_force=True)
 
 
     ###########
