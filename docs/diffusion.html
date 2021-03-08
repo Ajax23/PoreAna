@@ -113,7 +113,7 @@
       <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="diffusion-analysis-in-a-pore">
 <h1>Diffusion analysis in a pore<a class="headerlink" href="#diffusion-analysis-in-a-pore" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
-<span class="kn">import</span> <span class="nn">moldyn</span> <span class="k">as</span> <span class="nn">md</span>
+<span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
 </pre></div>
 </div>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">Molecule</span><span class="p">(</span><span class="s2">&quot;spc216&quot;</span><span class="p">,</span> <span class="s2">&quot;SOL&quot;</span><span class="p">)</span>
@@ -162,16 +162,16 @@
       </tbody>
     </table>
   </div>
-</div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">&quot;pore.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;traj.pdb&quot;</span><span class="p">,</span> <span class="s2">&quot;traj.trr&quot;</span><span class="p">,</span> <span class="s2">&quot;diff.obj&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">len_obs</span><span class="o">=</span><span class="mf">4e-12</span><span class="p">,</span> <span class="n">is_force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">diffusion_bin</span><span class="p">(</span><span class="s2">&quot;pore.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;traj.xtc&quot;</span><span class="p">,</span> <span class="s2">&quot;diff.obj&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">len_obs</span><span class="o">=</span><span class="mf">4e-12</span><span class="p">,</span> <span class="n">is_force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">bins</span><span class="p">(</span><span class="s2">&quot;diff.obj&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">bins</span><span class="p">(</span><span class="s2">&quot;diff.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="fig1">
 <a class="reference internal image-reference" href="_images/diffusion_bins.svg"><img alt="_images/diffusion_bins.svg" src="_images/diffusion_bins.svg" width="50%" /></a>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">cui</span><span class="p">(</span><span class="s2">&quot;diff.obj&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">cui</span><span class="p">(</span><span class="s2">&quot;diff.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial:</span>&#160; <span class="pre">8.123</span> <span class="pre">10^-9</span> <span class="pre">m^2s^-1</span></code></p>
@@ -179,7 +179,7 @@
 <div class="figure align-center" id="fig2">
 <a class="reference internal image-reference" href="_images/diffusion_cui.svg"><img alt="_images/diffusion_cui.svg" src="_images/diffusion_cui.svg" width="50%" /></a>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;diff.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;dens.obj&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;diff.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;dens.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Mean</span> <span class="pre">Diffusion</span> <span class="pre">axial:</span> <span class="pre">4.594</span> <span class="pre">10^-9</span> <span class="pre">m^2s^-1</span></code></p>

@@ -13,7 +13,7 @@ Diffusion analysis in a pore
 .. code-block:: python
 
   import porems as pms
-  import moldyn as md
+  import poreana as pa
 
 .. code-block:: python
 
@@ -69,12 +69,12 @@ Diffusion analysis in a pore
 
 .. code-block:: python
 
-  md.pore.diffusion.sample("pore.obj", "traj.pdb", "traj.trr", "diff.obj", mol, len_obs=4e-12, is_force=True)
+  pa.sample.diffusion_bin("pore.obj", "traj.xtc", "diff.obj", mol, len_obs=4e-12, is_force=True)
 
 
 .. code-block:: python
 
-  md.pore.diffusion.bins("diff.obj")
+  pa.diffusion.bins("diff.obj")
 
 .. figure::  /pics/diffusion_bins.svg
   :align: center
@@ -84,7 +84,7 @@ Diffusion analysis in a pore
 
 .. code-block:: python
 
-  md.pore.diffusion.cui("diff.obj")
+  pa.diffusion.cui("diff.obj")
 
 ``Diffusion axial:  8.123 10^-9 m^2s^-1``
 
@@ -98,7 +98,7 @@ Diffusion analysis in a pore
 
 .. code-block:: python
 
-  md.pore.diffusion.mean("diff.obj", "dens.obj")
+  pa.diffusion.mean("diff.obj", "dens.obj")
 
 ``Mean Diffusion axial: 4.594 10^-9 m^2s^-1``
 

@@ -12,7 +12,6 @@ poreana\.diffusion
       bins
       cui
       mean
-      sample
    
    
 

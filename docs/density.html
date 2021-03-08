@@ -113,7 +113,7 @@
       <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="density-analysis-in-a-pore">
 <h1>Density analysis in a Pore<a class="headerlink" href="#density-analysis-in-a-pore" title="Permalink to this headline">¶</a></h1>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
-<span class="kn">import</span> <span class="nn">moldyn</span> <span class="k">as</span> <span class="nn">md</span>
+<span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">üa</span>
 </pre></div>
 </div>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="s2">&quot;spc216&quot;</span><span class="p">,</span> <span class="s2">&quot;SOL&quot;</span><span class="p">)</span>
@@ -162,15 +162,15 @@
       </tbody>
     </table>
   </div>
-</div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="s2">&quot;pore.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;traj.pdb&quot;</span><span class="p">,</span> <span class="s2">&quot;traj.trr&quot;</span><span class="p">,</span> <span class="s2">&quot;dens.obj&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">is_force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</div><div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">density</span><span class="p">(</span><span class="s2">&quot;pore.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;traj.xtc&quot;</span><span class="p">,</span> <span class="s2">&quot;dens.obj&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="n">is_force</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">dens</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="s2">&quot;dens.obj&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">dens</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="s2">&quot;dens.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Density</span> <span class="pre">inside</span>&#160; <span class="pre">Pore</span> <span class="pre">=</span> <span class="pre">32.877</span> <span class="pre">#/nm^3</span> <span class="pre">;</span> <span class="pre">983.542</span> <span class="pre">kg/m^3</span></code></p>
 <p><code class="docutils literal"><span class="pre">Density</span> <span class="pre">outside</span> <span class="pre">Pore</span> <span class="pre">=</span> <span class="pre">32.895</span> <span class="pre">#/nm^3</span> <span class="pre">;</span> <span class="pre">984.083</span> <span class="pre">kg/m^3</span></code></p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">md</span><span class="o">.</span><span class="n">pore</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dens</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">dens</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="fig1">

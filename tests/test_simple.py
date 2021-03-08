@@ -76,6 +76,24 @@ class UserModelCase(unittest.TestCase):
     ###########
     # Density #
     ###########
+    def test_adsorption(self):
+        # self.skipTest("Temporary")
+
+        # Load molecule
+        mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
+
+        # Sample trajectory
+        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, is_force=True)
+
+        # Calculate adsorption
+        ads = pa.adsorption.calculate("data/pore_system.obj", "output/dens.obj")
+        self.assertEqual(round(ads["c"][1], 2), 71.65)
+        self.assertEqual(round(ads["n"][1], 2), 7402.67)
+
+
+    ###########
+    # Density #
+    ###########
     def test_density(self):
         # self.skipTest("Temporary")
 
@@ -83,12 +101,12 @@ class UserModelCase(unittest.TestCase):
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
 
         # Sample trajectory
-        pa.density.sample("data/pore_system.obj", "data/traj.trr", "output/dens.obj", mol, is_force=True)
+        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, is_force=True)
 
         # Calculate density
         dens = pa.density.calculate("output/dens.obj")
-        self.assertEqual(round(dens["in"] [3], 2), 992.88)
-        self.assertEqual(round(dens["out"][3], 2), 975.43)
+        self.assertEqual(round(dens["in"] [3], 2), 992.77)
+        self.assertEqual(round(dens["out"][3], 2), 975.54)
 
         # Plot density
         plt.figure()
@@ -97,9 +115,9 @@ class UserModelCase(unittest.TestCase):
         # plt.show()
 
 
-    #############
-    # Diffusion #
-    #############
+    #################
+    # Bin Diffusion #
+    #################
     def test_diffusion(self):
         # self.skipTest("Temporary")
 
@@ -107,7 +125,7 @@ class UserModelCase(unittest.TestCase):
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
 
         # Sample trajectory
-        pa.diffusion.sample("data/pore_system.obj", "data/traj.trr", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
 
         # Bin diffusion
         plt.figure()

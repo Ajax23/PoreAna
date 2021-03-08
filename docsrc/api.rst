@@ -14,6 +14,8 @@ Analysis
 .. autosummary::
     :toctree: generated/
 
+    sample
+    adsorption
     density
     diffusion
 

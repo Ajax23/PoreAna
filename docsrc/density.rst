@@ -13,7 +13,7 @@ Density analysis in a Pore
 .. code-block:: python
 
   import porems as pms
-  import moldyn as md
+  import poreana as üa
 
 .. code-block:: python
 
@@ -69,12 +69,12 @@ Density analysis in a Pore
 
 .. code-block:: python
 
-  md.pore.density.sample("pore.obj", "traj.pdb", "traj.trr", "dens.obj", mol, is_force=True)
+  pa.sample.density("pore.obj", "traj.xtc", "dens.obj", mol, is_force=True)
 
 
 .. code-block:: python
 
-  dens = md.pore.density.calculate("dens.obj")
+  dens = pa.density.calculate("dens.obj")
 
 ``Density inside  Pore = 32.877 #/nm^3 ; 983.542 kg/m^3``
 
@@ -83,7 +83,7 @@ Density analysis in a Pore
 
 .. code-block:: python
 
-  md.pore.density.plot(dens)
+  pa.density.plot(dens)
 
 .. figure::  /pics/density.svg
   :align: center
