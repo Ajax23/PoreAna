@@ -120,8 +120,7 @@ def density(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_num=15
                 # Remove edge molecules
                 is_edge = False
                 for i in range(3):
-                    if abs(com[i]-pos[0][i])>res:
-                        is_edge = True
+                    is_edge = True if abs(com[i]-pos[0][i])>res else is_edge
 
                 # Check if com was calculated on edges
                 if not is_edge:
@@ -341,8 +340,7 @@ def diffusion_bin(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_
                 # Remove edge molecules
                 is_edge = False
                 for i in range(3):
-                    if abs(com[i]-pos[0][i])>res:
-                        is_edge = True
+                    is_edge = True if abs(com[i]-pos[0][i])>res else is_edge
 
                 # Check if reference is inside pore
                 if not is_edge and com[2] > res+entry and com[2] < box[2]-res-entry:
