@@ -73,18 +73,27 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
 
 
-    ###########
-    # Density #
-    ###########
-    def test_adsorption(self):
+    ##########
+    # Sample #
+    ##########
+    @classmethod
+    def setUpClass(self):
         # self.skipTest("Temporary")
 
         # Load molecule
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
 
-        # Sample trajectory
+        # Sample density
         pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, is_force=True)
 
+        # Sample diffusion
+        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
+
+
+    ###########
+    # Density #
+    ###########
+    def test_adsorption(self):
         # Calculate adsorption
         ads = pa.adsorption.calculate("data/pore_system.obj", "output/dens.obj")
         self.assertEqual(round(ads["c"][1], 2), 71.65)
@@ -95,14 +104,6 @@ class UserModelCase(unittest.TestCase):
     # Density #
     ###########
     def test_density(self):
-        # self.skipTest("Temporary")
-
-        # Load molecule
-        mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
-
-        # Sample trajectory
-        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, is_force=True)
-
         # Calculate density
         dens = pa.density.calculate("output/dens.obj", target_dens=1000)
         self.assertEqual(round(dens["in"] [3], 2), 992.77)
@@ -110,6 +111,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot density
         plt.figure()
+        pa.density.plot(dens, target_dens=33)
         pa.density.plot(dens, target_dens=33, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
         # plt.show()
@@ -128,16 +130,9 @@ class UserModelCase(unittest.TestCase):
     # Bin Diffusion #
     #################
     def test_diffusion(self):
-        # self.skipTest("Temporary")
-
-        # Load molecule
-        mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
-
-        # Sample trajectory
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12, is_force=True)
-
         # Bin diffusion
         plt.figure()
+        pa.diffusion.bins("output/diff.obj")
         pa.diffusion.bins("output/diff.obj", is_norm=True)
         plt.savefig("output/diffusion_bins.pdf", format="pdf", dpi=1000)
         # plt.show()
