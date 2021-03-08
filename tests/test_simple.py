@@ -104,15 +104,24 @@ class UserModelCase(unittest.TestCase):
         pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, is_force=True)
 
         # Calculate density
-        dens = pa.density.calculate("output/dens.obj")
+        dens = pa.density.calculate("output/dens.obj", target_dens=1000)
         self.assertEqual(round(dens["in"] [3], 2), 992.77)
         self.assertEqual(round(dens["out"][3], 2), 975.54)
 
         # Plot density
         plt.figure()
-        pa.density.plot(dens)
+        pa.density.plot(dens, target_dens=33, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
         # plt.show()
+
+        plt.figure()
+        pa.density.plot(dens, intent="in")
+        pa.density.plot(dens, intent="out")
+        plt.savefig("output/density_intent.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        print()
+        pa.density.plot(dens, intent="DOTA")
 
 
     #################
@@ -129,13 +138,13 @@ class UserModelCase(unittest.TestCase):
 
         # Bin diffusion
         plt.figure()
-        pa.diffusion.bins("output/diff.obj")
+        pa.diffusion.bins("output/diff.obj", is_norm=True)
         plt.savefig("output/diffusion_bins.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         # CUI diffusion
         plt.figure()
-        pa.diffusion.cui("output/diff.obj")
+        pa.diffusion.cui("output/diff.obj", is_fit=True)
         plt.savefig("output/diffusion_cui.pdf", format="pdf", dpi=1000)
         # plt.show()
 

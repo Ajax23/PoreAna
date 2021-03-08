@@ -9,6 +9,7 @@ import math
 import warnings
 import scipy as sp
 import numpy as np
+# import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -126,8 +127,8 @@ def cui(data_link, z_dist=None, ax_area=[0.2, 0.8], intent=None, is_fit=False, i
     if intent is None or intent == "radial":
         def diff_rad(x, a, b, c):
             # Process input
-            if not isinstance(x, list) and not isinstance(x, np.ndarray):
-                x = [x]
+            x = x if isinstance(x, list) or isinstance(x, np.ndarray) else [x]
+
             # Get bessel function zeros
             jz = sp.special.jnp_zeros(1, math.ceil(b))
             # Calculate sum
@@ -263,7 +264,7 @@ def bins(data_link, ax_area=[0.2, 0.8], intent="plot", is_norm=False):
     return {"bins": bins, "diff": diff}
 
 
-def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False, is_check=False):
+def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False):#, is_check=False):
     """This function uses the diffusion coefficient slope obtained from
     function :func:`bins` and the density slope of function
     :func:`poreana.density.calculate` to calculate a weighted diffusion
@@ -321,14 +322,14 @@ def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False, is_c
         dens_f = np.poly1d(param)(bins_f)
 
     # Check results
-    if is_check:
-        # Plot check
-        plt.plot(dens["in"][0][0][:-1], dens["in"][1], diff["bins"][:-1], dens_f)
-        plt.show()
-
-        # Output data as excel
-        df = pd.DataFrame({"bins": bins_f, "dens": dens_f, "diff": diff_f})
-        df.to_excel("C:/Users/Ajax/Desktop/"+data_link_diff.split("/")[-1].split(".")[0]+".xlsx")
+    # if is_check:
+    #     # Plot check
+    #     plt.plot(dens["in"][0][0][:-1], dens["in"][1], diff["bins"][:-1], dens_f)
+    #     plt.show()
+    #
+    #     # Output data as excel
+    #     df = pd.DataFrame({"bins": bins_f, "dens": dens_f, "diff": diff_f})
+    #     df.to_excel("C:/Users/Ajax/Desktop/"+data_link_diff.split("/")[-1].split(".")[0]+".xlsx")
 
     # Integrate density
     dens_int = sum([dens_f[i]*(bins_f[i+1]**2-bins_f[i]**2) for i in range(bin_num-1)])
