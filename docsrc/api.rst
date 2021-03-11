@@ -18,6 +18,7 @@ Analysis
     adsorption
     density
     diffusion
+    gyration
 
 
 .. _utilities_api:

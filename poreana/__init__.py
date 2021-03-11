@@ -2,6 +2,7 @@ import poreana.sample as sample
 import poreana.adsorption as adsorption
 import poreana.density as density
 import poreana.diffusion as diffusion
+import poreana.gyration as gyration
 
 import poreana.geometry as geom
 import poreana.utils as utils

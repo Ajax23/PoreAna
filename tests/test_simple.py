@@ -40,6 +40,9 @@ class UserModelCase(unittest.TestCase):
         # Sample diffusion
         pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12)
 
+        # Sample gyration radius
+        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj", mol)
+
 
     #########
     # Utils #
@@ -102,12 +105,16 @@ class UserModelCase(unittest.TestCase):
         pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, atoms=["O1"], masses=[1, 2])
         pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol2, is_force=True)
 
-
         # Sample diffusion
         pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, atoms=["O1"])
         pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, atoms=["O1"], masses=[1, 2])
         pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj",  mol2, is_force=True)
         pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj",  mol, len_obs=3e-12, is_force=True)
+
+        # Sample gyration
+        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj", mol, atoms=["O1"])
+        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj", mol, atoms=["O1"], masses=[1, 2])
+        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj",  mol2, is_force=True)
 
 
     ###########
@@ -127,7 +134,7 @@ class UserModelCase(unittest.TestCase):
         # Calculate density
         dens = pa.density.calculate("output/dens.obj", target_dens=1000)
         self.assertEqual(round(dens["in"] [3], 2), 992.77)
-        self.assertEqual(round(dens["out"][3], 2), 975.54)
+        self.assertEqual(round(dens["ex"][3], 2), 975.54)
 
         # Plot density
         plt.figure()
@@ -138,7 +145,7 @@ class UserModelCase(unittest.TestCase):
 
         plt.figure()
         pa.density.plot(dens, intent="in")
-        pa.density.plot(dens, intent="out")
+        pa.density.plot(dens, intent="ex")
         plt.savefig("output/density_intent.pdf", format="pdf", dpi=1000)
         # plt.show()
 
@@ -165,6 +172,29 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         pa.diffusion.mean("output/diff.obj", "output/dens.obj")
+
+
+    ###########
+    # Density #
+    ###########
+    def test_gyration(self):
+        # Plot gyration radius
+        plt.figure()
+        mean = pa.gyration.plot("output/gyr.obj", "output/dens.obj", is_mean=True)
+        plt.savefig("output/gyration.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        self.assertEqual(round(mean["in"], 2), 0.03)
+        self.assertEqual(round(mean["ex"], 2), 0.03)
+
+        plt.figure()
+        pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="in")
+        pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="ex")
+        plt.savefig("output/gyration_intent.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        print()
+        pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="DOTA")
 
 
 if __name__ == '__main__':

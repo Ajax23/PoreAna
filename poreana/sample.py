@@ -80,7 +80,7 @@ def density(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_num=15
         bin_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
 
     # Define bins extern
-    bin_out = [[res/bin_num*x for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
+    bin_ex = [[res/bin_num*x for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
 
     # Check if already calculated
     if not os.path.exists(link_out) or is_force:
@@ -138,11 +138,11 @@ def density(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_num=15
                     elif com[2] <= res or com[2] > box[2]-res:
                         # Calculate distance to crystobalit and apply perodicity
                         dist = com[2] if com[2] < focal[2] else abs(com[2]-box[2])
-                        index = math.floor(dist/bin_out[0][1])
+                        index = math.floor(dist/bin_ex[0][1])
 
                         # Out
                         if radial > diam/2 and index <= bin_num:
-                            bin_out[1][index] += 1
+                            bin_ex[1][index] += 1
 
             # Progress
             sys.stdout.write("Finished frame "+"%4i" % (frame_id+1)+"/"+"%4i" % num_frame+"...\r")
@@ -153,7 +153,7 @@ def density(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_num=15
         # Define output dictionary
         inp = {"frame": num_frame, "mass": mol.get_mass(),
                "entry": entry, "res": res, "diam": diam, "box": box}
-        output = {"in": bin_in, "out": bin_out, "inp": inp}
+        output = {"in": bin_in, "ex": bin_ex, "inp": inp}
 
         # Save data
         utils.save(output, link_out)
@@ -408,7 +408,7 @@ def diffusion_bin(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_
                                     bin_r[idx_ref][i] += msd_r[i]
                                     bin_n[idx_ref][i] += norm[i]
 
-            sys.stdout.write("Finished frame "+"%3i" % (frame_id+1)+"/"+"%3i" % num_frame+"...\r")
+            sys.stdout.write("Finished frame "+"%4i" % (frame_id+1)+"/"+"%4i" % num_frame+"...\r")
             sys.stdout.flush()
         print()
 
@@ -423,5 +423,166 @@ def diffusion_bin(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_
         utils.save(output, link_out)
 
     # File already existing
+    else:
+        print("Object file already exists. If you wish to overwrite the file set the input *is_force* to True.")
+
+
+def gyration(link_pore, link_traj, link_out, mol, atoms=[], masses=[], bin_num=150, entry=0.5, is_force=False):
+    """This function calculates the gyration radius of molecules inside the pore.
+    This function is to be run on the cluster due to a high time and resource
+    consumption. The output, a data object, is then used to plot the
+    gyration radius distribution.
+
+    All atoms are sampled each frame if they are inside the bounds of the pore
+    minus an entry length on both sides.
+
+    Inside the pore the atom instances will be added to radial cylindric slices
+    :math:`s_{r,j}-s_{r,j-1}` and outside to rectangular slices
+    :math:`s_{z,k}-s_{z,k-1}` with pore radius :math:`s_{r,j}` of radial slice
+    :math:`j` and length :math:`s_{z,k}` of slice :math:`k`.
+
+    The gyration radius is calculated using
+
+    .. math::
+
+        R_g=\\left(\\frac{\\sum_i\\|\\boldsymbol{r}_i\\|^2m_i}{\\sum_im_i})\\right)^{\\frac{1}{2}}
+
+    with mass :math:`m_i` and position :math:`\\boldsymbol{r}_i` of atom
+    :math:`i` with respect to the center of mass of the molecule.
+
+    Parameters
+    ----------
+    link_pore : string
+        Link to poresystem object file
+    link_traj : string
+        Link to trajectory file (trr or xtc)
+    link_out : string
+        Link to output object file
+    mol : Molecule
+        Molecule to calculate the density for
+    atoms : list, optional
+        List of atom names, leave empty for whole molecule
+    masses : list, optional
+        List of atom masses, leave empty to read molecule object masses
+    bin_num : integer, optional
+        Number of bins to be used
+    entry : float, optional
+        Remove pore entrance from calculation
+    is_force : bool, optional
+        True to force re-extraction of data
+    """
+    # Get molecule ids
+    atoms = [atom.get_name() for atom in mol.get_atom_list()] if not atoms else atoms
+    atoms = [atom_id for atom_id in range(mol.get_num()) if mol.get_atom_list()[atom_id].get_name() in atoms]
+    num_atoms = len(atoms)
+
+    # Check masses
+    if not masses:
+        if len(atoms)==mol.get_num():
+            masses = mol.get_masses()
+        elif num_atoms == 1:
+            masses = [1]
+
+    # Check consistency
+    if atoms and not len(masses) == len(atoms):
+        print("Length of variables *atoms* and *masses* do not match!")
+        return
+
+    # Get pore properties
+    pore = utils.load(link_pore)
+    if isinstance(pore, pms.PoreCylinder):
+        res = pore.reservoir()
+        diam = pore.diameter()
+        focal = pore.centroid()
+        box = pore.box()
+        box[2] += 2*res
+
+        # Define bins intern
+        bin_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
+
+    # Define bins extern
+    bin_ex = [[res/bin_num*x for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
+
+    # Check if already calculated
+    if not os.path.exists(link_out) or is_force:
+        # Load trajectory
+        traj = cf.Trajectory(link_traj)
+        num_frame = traj.nsteps
+        res_list = {}
+
+        # Run through frames
+        for frame_id in range(num_frame):
+            # Read frame
+            frame = traj.read()
+            positions = frame.positions
+
+            # Create list of relevant atom ids
+            if not res_list:
+                # Get number of residues in system
+                num_res = len(frame.topology.atoms)/mol.get_num()
+
+                # Check number of residues
+                if abs(int(num_res)-num_res) >= 1e-5:
+                    print("Number of atoms is inconsistent with number of residues.")
+                    return
+
+                # Check relevant atoms
+                for res_id in range(int(num_res)):
+                    res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in atoms]
+
+            # Run through residues
+            for res_id in res_list:
+                # Get position vectors
+                pos = [[positions[res_list[res_id][atom_id]][i]/10 for i in range(3)] for atom_id in range(num_atoms)]
+
+                # Calculate centre of mass
+                com = [sum([pos[atom_id][i]*masses[atom_id] for atom_id in range(num_atoms)])/sum(masses) for i in range(3)]
+
+                # Remove edge molecules
+                is_edge = False
+                for i in range(3):
+                    is_edge = True if abs(com[i]-pos[0][i])>res else is_edge
+
+                # Check if com was calculated on edges
+                if not is_edge:
+                    # Calculate radial distance towards center axis
+                    radial = geometry.length(geometry.vector([focal[0], focal[1], com[2]], com))
+
+                    # Calculate gyration radius
+                    Rg = (sum([geometry.length(geometry.vector(pos[atom_id], com))**2*masses[atom_id] for atom_id in range(num_atoms)])/sum(masses))**0.5
+                    # Rg = (sum([sum([(pos[atom_id][i]-com[i]+0.15/2)**2 for i in range(3)])*masses[atom_id] for atom_id in range(num_atoms)])/sum(masses))**0.5
+
+                    # Inside pore
+                    if com[2] > res+entry and com[2] < box[2]-res-entry:
+                        index = math.floor(radial/bin_in[0][1])
+
+                        if index <= bin_num:
+                            bin_in[1][index] += Rg
+
+                    # Outside Pore
+                    elif com[2] <= res or com[2] > box[2]-res:
+                        # Calculate distance to crystobalit and apply perodicity
+                        dist = com[2] if com[2] < focal[2] else abs(com[2]-box[2])
+                        index = math.floor(dist/bin_ex[0][1])
+
+                        # Out
+                        if radial > diam/2 and index <= bin_num:
+                            bin_ex[1][index] += Rg
+
+            # Progress
+            sys.stdout.write("Finished frame "+"%4i" % (frame_id+1)+"/"+"%4i" % num_frame+"...\r")
+            sys.stdout.flush()
+
+        print()
+
+        # Define output dictionary
+        inp = {"frame": num_frame, "mass": mol.get_mass(),
+               "entry": entry, "res": res, "diam": diam, "box": box}
+        output = {"in": bin_in, "ex": bin_ex, "inp": inp}
+
+        # Save data
+        utils.save(output, link_out)
+
+    # File already exists
     else:
         print("Object file already exists. If you wish to overwrite the file set the input *is_force* to True.")

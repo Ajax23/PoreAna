@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>calculate &#8212; PoreAna 0.1.1 documentation</title>
+    <title>gyration &#8212; PoreAna 0.1.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
@@ -77,7 +77,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">calculate</a></li>
+<li><a class="reference internal" href="#">gyration</a></li>
 </ul>
 </ul>
 </li>
@@ -108,66 +108,57 @@
     <div class="body col-md-12 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="calculate">
-<h1>calculate<a class="headerlink" href="#calculate" title="Permalink to this headline">¶</a></h1>
+<div class=col-md-9 content><div class="section" id="gyration">
+<h1>gyration<a class="headerlink" href="#gyration" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
-<dt id="poreana.density.calculate">
-<code class="descclassname">poreana.density.</code><code class="descname">calculate</code><span class="sig-paren">(</span><em>link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.calculate" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function calculates the density inside and outside of the pore.
-This is done by calculating the number density <span class="math">\(\rho_n\)</span> and using the
-molar mass <span class="math">\(M\)</span> of the molecule to determine the mass density
-<span class="math">\(\rho\)</span>.</p>
-<p>The basic idea is counting the number of molecules <span class="math">\(N_i\)</span> in volume
-slices <span class="math">\(V_i\)</span>, thus getting the number density <span class="math">\(\rho_{n,i}\)</span> in
-these sub volumes. Inside the pore this is done by creating a radial slicing
-like the radial distribution function. These sub volumes are calculated by</p>
+<dt id="poreana.sample.gyration">
+<code class="descclassname">poreana.sample.</code><code class="descname">gyration</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>link_out</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>bin_num=150</em>, <em>entry=0.5</em>, <em>is_force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.gyration" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculates the gyration radius of molecules inside the pore.
+This function is to be run on the cluster due to a high time and resource
+consumption. The output, a data object, is then used to plot the
+gyration radius distribution.</p>
+<p>All atoms are sampled each frame if they are inside the bounds of the pore
+minus an entry length on both sides.</p>
+<p>Inside the pore the atom instances will be added to radial cylindric slices
+<span class="math">\(s_{r,j}-s_{r,j-1}\)</span> and outside to rectangular slices
+<span class="math">\(s_{z,k}-s_{z,k-1}\)</span> with pore radius <span class="math">\(s_{r,j}\)</span> of radial slice
+<span class="math">\(j\)</span> and length <span class="math">\(s_{z,k}\)</span> of slice <span class="math">\(k\)</span>.</p>
+<p>The gyration radius is calculated using</p>
 <div class="math">
-\[V_i^\text{radial}=\pi z_\text{pore}(r_i^2-r_{i-1}^2).\]</div>
-<p>with pore length <span class="math">\(z_\text{pore}\)</span> and radius <span class="math">\(r_i\)</span> of sub volume
-<span class="math">\(i\)</span>. This yields</p>
-<div class="math">
-\[\rho_{n,i}^\text{radial}=\frac{N_i}{V_i^\text{radial}}=\frac{N_i}{\pi z_\text{pore}}\frac{1}{r_i^2-r_{i-1}^2}.\]</div>
-<p>Outside the pore, the sub volumes are given by</p>
-<div class="math">
-\[V_j^\text{ex}=(x_\text{pore}\cdot y_\text{pore}-\pi r^2)z_j\]</div>
-<p>with pore width <span class="math">\(x_\text{pore}\)</span>, height <span class="math">\(y_\text{pore}\)</span>, pore
-radius <span class="math">\(r\)</span> and slice width <span class="math">\(z_j\)</span>. Thus</p>
-<div class="math">
-\[\rho_{n,j}^\text{ex}=\frac{N_j}{V_j^\text{ex}}=\frac{N_j}{x_\text{pore}\cdot y_\text{pore}-\pi r^2}\frac{1}{z_j}.\]</div>
-<p>Note that the outside refers to the reservoirs of the pore simulation.
-Therefore the slices add up to the reservoir length <span class="math">\(z_{res}\)</span>.
-Since there is a reservoir on each side, they are brought together
-by translating the atom coordinates to one of the reservoirs. Since the
-outside density refers to the density of the outside surface, it does
-not contain the cylindrical extension of the pore inside the reservoirs.</p>
-<p>Finally, the mass density is calculated by</p>
-<div class="math">
-\[\rho=\frac M{N_A}\rho_n\]</div>
-<p>with Avogadro constant <span class="math">\(N_A\)</span>. The units are then transformed to
-<span class="math">\(\frac{\text{kg}}{\text m^3}\)</span> by</p>
-<div class="math">
-\[[\rho]=\frac{[M]\frac{\text{g}}{\text{mol}}}{[N_A]10^{23}\frac{\#}{\text{mol}}}[\rho_n]\frac{\#}{\text{nm}^3}
-       =\frac{[M]}{[N_A]}[\rho_n]\cdot10\frac{\text{kg}}{\text m^3}\]</div>
-<p>where the square brackets mean, that only the variables value is taken.
-Since finding full molecules in a sub volume is difficult, the atoms
-of the specified molecule are counted in the sub volumes and the result
-is then divided by the number of atoms the molecule consists of.</p>
+\[R_g=\left(\frac{\sum_i\|\boldsymbol{r}_i\|^2m_i}{\sum_im_i})\right)^{\frac{1}{2}}\]</div>
+<p>with mass <span class="math">\(m_i\)</span> and position <span class="math">\(\boldsymbol{r}_i\)</span> of atom
+<span class="math">\(i\)</span> with respect to the center of mass of the molecule.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>link_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to data object generated by the sample routine <code class="xref py py-func docutils literal"><span class="pre">sample()</span></code></p>
+<dt><strong>link_pore</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Link to poresystem object file</p>
 </dd>
-<dt><strong>area</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list,  optional</span></dt>
-<dd><p class="first last">Bin areas to calculate the mean number density from (pore, exout)</p>
+<dt><strong>link_traj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Link to trajectory file (trr or xtc)</p>
 </dd>
-<dt><strong>target_dens</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Target density in <span class="math">\(\frac{\text{kg}}{\text{m}^3}\)</span></p>
+<dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Link to output object file</p>
 </dd>
-<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to print output</p>
+<dt><strong>mol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Molecule</span></dt>
+<dd><p class="first last">Molecule to calculate the density for</p>
+</dd>
+<dt><strong>atoms</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd><p class="first last">List of atom names, leave empty for whole molecule</p>
+</dd>
+<dt><strong>masses</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd><p class="first last">List of atom masses, leave empty to read molecule object masses</p>
+</dd>
+<dt><strong>bin_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of bins to be used</p>
+</dd>
+<dt><strong>entry</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Remove pore entrance from calculation</p>
+</dd>
+<dt><strong>is_force</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to force re-extraction of data</p>
 </dd>
 </dl>
 </td>

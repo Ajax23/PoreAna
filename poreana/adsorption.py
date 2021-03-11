@@ -52,7 +52,7 @@ def calculate(link_pore, link_data, res_cutoff=1, is_normalize=True):
 
     # Load bins
     bin_in = sample["in"]
-    bin_out = sample["out"]
+    bin_ex = sample["ex"]
 
     # Load input data
     inp = sample["inp"]
@@ -61,11 +61,11 @@ def calculate(link_pore, link_data, res_cutoff=1, is_normalize=True):
 
     # Calculate number of molecules
     num_in = sum(bin_in[1])
-    num_out = sum([num_mol for i, num_mol in enumerate(bin_out[1]) if bin_out[0][i] <= res-res_cutoff and bin_out[0][i] >= res_cutoff])
+    num_ex = sum([num_mol for i, num_mol in enumerate(bin_ex[1]) if bin_ex[0][i] <= res-res_cutoff and bin_ex[0][i] >= res_cutoff])
 
     # Normalize number of instances by the number of frames
     num_in /= num_frames if is_normalize else 1
-    num_out /= num_frames if is_normalize else 1
+    num_ex /= num_frames if is_normalize else 1
 
     # Calculate surface and volume
     surface = 2*np.pi*(diam)/2*(box[2]-2*entry)
@@ -73,6 +73,6 @@ def calculate(link_pore, link_data, res_cutoff=1, is_normalize=True):
 
     # Convert to concentrations
     mumol_m2 = utils.mols_to_mumol_m2(num_in, surface)
-    mmol_l = utils.mols_to_mmol_l(num_out, volume)
+    mmol_l = utils.mols_to_mmol_l(num_ex, volume)
 
-    return {"c": [mmol_l, mumol_m2], "n": [num_out, num_in]}
+    return {"c": [mmol_l, mumol_m2], "n": [num_ex, num_in]}

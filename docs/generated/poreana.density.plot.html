@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>plot &#8212; PoreAna 0.1.0 documentation</title>
+    <title>plot &#8212; PoreAna 0.1.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.0',
+        VERSION:     '0.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -112,14 +112,14 @@
 <h1>plot<a class="headerlink" href="#plot" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="poreana.density.plot">
-<code class="descclassname">poreana.density.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>density</em>, <em>intent=None</em>, <em>target_dens=None</em>, <em>is_mean=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.plot" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">poreana.density.</code><code class="descname">plot</code><span class="sig-paren">(</span><em>density</em>, <em>intent=''</em>, <em>target_dens=0</em>, <em>is_mean=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.plot" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function plots the density of the given object. If an intent is
-given instead of None, only a plot-function will be called. Available
-options for <code class="docutils literal"><span class="pre">intent</span></code> are</p>
+given instead, only a plot-function will be called. Available options
+for <code class="docutils literal"><span class="pre">intent</span></code> are</p>
 <ul class="simple">
-<li><strong>None</strong> - Create subplots for the density inside and outside the pore</li>
+<li>empty string - Create subplots for the density inside and outside the pore</li>
 <li><strong>in</strong> - Create plot for the density inside pore</li>
-<li><strong>out</strong> - Create plot for the density outside pore</li>
+<li><strong>ex</strong> - Create plot for the density outside pore</li>
 </ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -129,11 +129,11 @@ options for <code class="docutils literal"><span class="pre">intent</span></code
 <dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
 <dd><p class="first last">Density object from the density calculation <a class="reference internal" href="poreana.density.calculate.html#poreana.density.calculate" title="poreana.density.calculate"><code class="xref py py-func docutils literal"><span class="pre">calculate()</span></code></a></p>
 </dd>
-<dt><strong>intent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, None, optional</span></dt>
+<dt><strong>intent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
 <dd><p class="first last">Intent for plotting</p>
 </dd>
-<dt><strong>target_dens</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, None, optional</span></dt>
-<dd><p class="first last">Target density for plot, None to disable</p>
+<dt><strong>target_dens</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Target density for plot</p>
 </dd>
 <dt><strong>is_mean</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
 <dd><p class="first last">True to plot mean values</p>
