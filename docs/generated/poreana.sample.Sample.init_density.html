@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>poreana.sample &#8212; PoreAna 0.1.1 documentation</title>
+    <title>Sample.init_density &#8212; PoreAna 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.1',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           PoreAna</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -77,7 +77,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">poreana.sample</a></li>
+<li><a class="reference internal" href="#">Sample.init_density</a></li>
 </ul>
 </ul>
 </li>
@@ -107,27 +107,31 @@
   <div class="row">
     <div class="body col-md-12 content" role="main">
       
-  <div class="section" id="module-poreana.sample">
-<span id="poreana-sample"></span><h1>poreana.sample<a class="headerlink" href="#module-poreana.sample" title="Permalink to this headline">¶</a></h1>
-<p>Sample functions to be run on clusters.</p>
-<p class="rubric">Functions</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
+  </div>
+<div class=col-md-9 content><div class="section" id="sample-init-density">
+<h1>Sample.init_density<a class="headerlink" href="#sample-init-density" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="poreana.sample.Sample.init_density">
+<code class="descclassname">Sample.</code><code class="descname">init_density</code><span class="sig-paren">(</span><em>link_out</em>, <em>bin_num=150</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enable density sampling routine.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.density.html#poreana.sample.density" title="poreana.sample.density"><code class="xref py py-obj docutils literal"><span class="pre">density</span></code></a>(link_pore,&nbsp;link_traj,&nbsp;link_out,&nbsp;mol)</td>
-<td>This function samples the density inside and outside of the pore.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.diffusion_bin.html#poreana.sample.diffusion_bin" title="poreana.sample.diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">diffusion_bin</span></code></a>(link_pore,&nbsp;link_traj,&nbsp;…[,&nbsp;…])</td>
-<td>This function samples the mean square displacement of a molecule group in a pore in both axial and radial direction separated in radial bins.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.gyration.html#poreana.sample.gyration" title="poreana.sample.gyration"><code class="xref py py-obj docutils literal"><span class="pre">gyration</span></code></a>(link_pore,&nbsp;link_traj,&nbsp;link_out,&nbsp;mol)</td>
-<td>This function calculates the gyration radius of molecules inside the pore.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Link to output object file</p>
+</dd>
+<dt><strong>bin_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of bins to be used</p>
+</dd>
+</dl>
+</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
 </div>
 
 

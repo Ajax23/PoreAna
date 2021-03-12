@@ -295,6 +295,11 @@ def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False):#, i
         True to normalize x-axis
     is_check : bool, optional
         True to show density function fit
+
+    Returns
+    -------
+    diff : float
+        Mean axial diffusion in 10^-9 m^2s^-1
     """
     # Load data
     dens = density.calculate(data_link_dens, is_print=False)
@@ -333,3 +338,5 @@ def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False):#, i
     diff_weight = diff_int/dens_int
 
     print("Mean Diffusion axial: "+"%.3f" % diff_weight+" 10^-9 m^2s^-1")
+
+    return diff_weight

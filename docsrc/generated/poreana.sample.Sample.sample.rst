@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-diffusion\_bin
+Sample\.sample
 ==============
 
 .. currentmodule:: poreana.sample
 
-.. autofunction:: diffusion_bin
+.. automethod:: Sample.sample

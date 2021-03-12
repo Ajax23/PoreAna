@@ -4,6 +4,19 @@ API reference
 =============
 
 
+.. _sample_api:
+
+Analysis
+--------
+
+.. currentmodule:: poreana
+
+.. autosummary::
+    :toctree: generated/
+
+    sample.Sample
+
+
 .. _analysis_api:
 
 Analysis
@@ -14,7 +27,6 @@ Analysis
 .. autosummary::
     :toctree: generated/
 
-    sample
     adsorption
     density
     diffusion

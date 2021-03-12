@@ -30,6 +30,7 @@ To see the code or report a bug, please visit the `Github  repository
            </div>
        <div class="panel-body">
 
+* Sampling :ref:`API <sample_api>`
 * Pore-Analysis :ref:`API <analysis_api>`
 * Utilities :ref:`API <utilities_api>`
 

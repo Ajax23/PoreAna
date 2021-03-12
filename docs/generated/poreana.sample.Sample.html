@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>diffusion_bin &#8212; PoreAna 0.1.1 documentation</title>
+    <title>Sample &#8212; PoreAna 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.1.1',
+        VERSION:     '0.2.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -46,7 +46,7 @@
         </button>
         <a class="navbar-brand" href="../index.html">
           PoreAna</a>
-        <span class="navbar-text navbar-version pull-left"><b>0.1</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -77,7 +77,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">diffusion_bin</a></li>
+<li><a class="reference internal" href="#">Sample</a></li>
 </ul>
 </ul>
 </li>
@@ -108,44 +108,17 @@
     <div class="body col-md-12 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="diffusion-bin">
-<h1>diffusion_bin<a class="headerlink" href="#diffusion-bin" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="poreana.sample.diffusion_bin">
-<code class="descclassname">poreana.sample.</code><code class="descname">diffusion_bin</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>link_out</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>bin_num=50</em>, <em>entry=0.5</em>, <em>len_obs=1.6e-11</em>, <em>len_frame=2e-12</em>, <em>len_step=2</em>, <em>bin_step_size=1</em>, <em>is_force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.diffusion_bin" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function samples the mean square displacement of a molecule group
-in a pore in both axial and radial direction separated in radial bins. This
-function is to be run on the cluster due to a high time and resource
-consumption. The output, a data object, is then used to calculate the
-self-diffusion using further calculation functions.</p>
-<p>First a centre of mass-list is filled with <span class="math">\(w\cdot s\)</span>
-frames with window length <span class="math">\(w\)</span> and stepsize <span class="math">\(s\)</span>. Each following
-frame removes the first com of the list and a new added to the end of it.
-This way only one loop over the frames is needed, since each frame is
-only needed for <span class="math">\(w\cdot s\)</span> frames in total.</p>
-<p>All molecule com’s are sampled each window if they are inside the bounds of
-the pore minus an entry length on both sides. Once the com leaves the
-boundary, it is no longer sampled for this specific window. Additionally,
-the radial bin index is checked for each frame. If the molecule com stays in
-the pore for the whole window length and in the same starting bin plus an
-allowed offset, the msd is added to it is added to a the corresponding
-window starting radial bin. The sub volumes, or rather bins, of the radial
-distance are calculated by</p>
-<div class="math">
-\[V_i^\text{radial}=\pi z_\text{pore}(r_i^2-r_{i-1}^2)\]</div>
-<p>with <span class="math">\(r\)</span> of bin <span class="math">\(i\)</span> and pore length <span class="math">\(z_\text{pore}\)</span>.</p>
-<p>Once the first com-list is filled, the mean square displacement (msd)
-is sampled each frame. The axial diffusion only considers the
-deviation in <span class="math">\(z\)</span> direction</p>
-<div class="math">
-\[\text{msd}_\text{axial}=\langle\left[z(0)-z(t_i)\right]^2\rangle
-=\frac{\left[z(0)-z(t_i)\right]^2}{M_i}\]</div>
-<p>with time <span class="math">\(t\)</span> and normalization <span class="math">\(M\)</span> at bin <span class="math">\(i\)</span>.
-The radial diffusion only considers the radial components <span class="math">\(x\)</span> and
-<span class="math">\(y\)</span></p>
-<div class="math">
-\[\text{msd}_\text{radial}=\langle\left[r(0)-r(t_i)\right]^2\rangle
-=\frac{\left[\sqrt{x^2(0)+y^2(0)}-\sqrt{x^2(t_i)+y^2(t_i)}\right]^2}{M_i}.\]</div>
+<div class=col-md-9 content><div class="section" id="sample">
+<h1>Sample<a class="headerlink" href="#sample" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="poreana.sample.Sample">
+<em class="property">class </em><code class="descclassname">poreana.sample.</code><code class="descname">Sample</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>entry=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class samples a trajectory to determine different properties.
+Different properties can be initialized to be run at the same time during
+the sampling run. The output is stored in form of pickle files for later
+calculation using methods provided in the package.</p>
+<p>Note that the sampling should be run on a cluster due to a high time and
+resource consumption.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -157,11 +130,8 @@ The radial diffusion only considers the radial components <span class="math">\(x
 <dt><strong>link_traj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Link to trajectory file (trr or xtc)</p>
 </dd>
-<dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to output object file</p>
-</dd>
 <dt><strong>mol</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Molecule</span></dt>
-<dd><p class="first last">Molecule object to calculate the density for</p>
+<dd><p class="first last">Molecule to calculate the density for</p>
 </dd>
 <dt><strong>atoms</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
 <dd><p class="first last">List of atom names, leave empty for whole molecule</p>
@@ -169,29 +139,44 @@ The radial diffusion only considers the radial components <span class="math">\(x
 <dt><strong>masses</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
 <dd><p class="first last">List of atom masses, leave empty to read molecule object masses</p>
 </dd>
-<dt><strong>bin_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of radial bins</p>
-</dd>
 <dt><strong>entry</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Remove pore entrance from calculation</p>
 </dd>
-<dt><strong>len_obs</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Observation length of a window in seconds</p>
-</dd>
-<dt><strong>len_frame</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Length of a frame in seconds</p>
-</dd>
-<dt><strong>len_step</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Length of the step size between frames</p>
-</dd>
-<dt><strong>bin_step_size</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of allowed bins for the molecule to leave</p>
-</dd>
-<dt><strong>is_force</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to force re-extraction of data</p>
-</dd>
 </dl>
 </td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._density.html#poreana.sample.Sample._density" title="poreana.sample.Sample._density"><code class="xref py py-obj docutils literal"><span class="pre">_density</span></code></a>(region,&nbsp;dist,&nbsp;com)</td>
+<td>This function samples the density inside and outside of the pore.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin.html#poreana.sample.Sample._diffusion_bin" title="poreana.sample.Sample._diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin</span></code></a>(region,&nbsp;dist,&nbsp;com_list,&nbsp;…)</td>
+<td>This function samples the mean square displacement of a molecule group in a pore in both axial and radial direction separated in radial bins.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin_step.html#poreana.sample.Sample._diffusion_bin_step" title="poreana.sample.Sample._diffusion_bin_step"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin_step</span></code></a>(idx)</td>
+<td>Helper function to define allowed bin step list.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._gyration.html#poreana.sample.Sample._gyration" title="poreana.sample.Sample._gyration"><code class="xref py py-obj docutils literal"><span class="pre">_gyration</span></code></a>(region,&nbsp;dist,&nbsp;com,&nbsp;pos)</td>
+<td>This function calculates the gyration radius of molecules inside the pore.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-obj docutils literal"><span class="pre">init_density</span></code></a>(link_out[,&nbsp;bin_num])</td>
+<td>Enable density sampling routine.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.init_diffusion_bin.html#poreana.sample.Sample.init_diffusion_bin" title="poreana.sample.Sample.init_diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">init_diffusion_bin</span></code></a>(link_out[,&nbsp;bin_num,&nbsp;…])</td>
+<td>Enable diffusion sampling routine.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_gyration.html#poreana.sample.Sample.init_gyration" title="poreana.sample.Sample.init_gyration"><code class="xref py py-obj docutils literal"><span class="pre">init_gyration</span></code></a>(link_out[,&nbsp;bin_num])</td>
+<td>Enable gyration radius sampling routine.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>([is_force])</td>
+<td>This function runs all enabled sampling routines.</td>
 </tr>
 </tbody>
 </table>

@@ -34,14 +34,12 @@ class UserModelCase(unittest.TestCase):
         # Load molecule
         mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
 
-        # Sample density
-        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol)
-
-        # Sample diffusion
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, len_obs=4e-12)
-
-        # Sample gyration radius
-        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj", mol)
+        # Sample
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol)
+        sample.init_density("output/dens.obj")
+        sample.init_gyration("output/gyr.obj")
+        sample.init_diffusion_bin("output/diff.obj", len_obs=4e-12)
+        sample.sample()
 
 
     #########
@@ -100,21 +98,13 @@ class UserModelCase(unittest.TestCase):
         mol2.add("H", [1, 1, 1], name="H3")
         mol2.add("H", [1, 1, 1], name="H4")
 
-        # Sample density
-        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, atoms=["O1"])
-        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol, atoms=["O1"], masses=[1, 2])
-        pa.sample.density("data/pore_system.obj", "data/traj.xtc", "output/dens.obj", mol2, is_force=True)
+        # Sample object file
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["O1"])
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["O1"])
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["O1"], masses=[1, 2])
 
-        # Sample diffusion
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, atoms=["O1"])
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj", mol, atoms=["O1"], masses=[1, 2])
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj",  mol2, is_force=True)
-        pa.sample.diffusion_bin("data/pore_system.obj", "data/traj.xtc", "output/diff.obj",  mol, len_obs=3e-12, is_force=True)
-
-        # Sample gyration
-        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj", mol, atoms=["O1"])
-        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj", mol, atoms=["O1"], masses=[1, 2])
-        pa.sample.gyration("data/pore_system.obj", "data/traj.xtc", "output/gyr.obj",  mol2, is_force=True)
+        # Diffusion
+        sample.init_diffusion_bin("output/diff.obj", len_obs=3e-12)
 
 
     ###########
@@ -171,7 +161,8 @@ class UserModelCase(unittest.TestCase):
         # plt.show()
 
         # Mean diffusion based on bins
-        pa.diffusion.mean("output/diff.obj", "output/dens.obj")
+        mean = pa.diffusion.mean("output/diff.obj", "output/dens.obj")
+        self.assertEqual(round(mean, 2), 4.63)
 
 
     ###########

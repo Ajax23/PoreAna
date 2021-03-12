@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-gyration
-========
+Sample\.init\_gyration
+======================
 
 .. currentmodule:: poreana.sample
 
-.. autofunction:: gyration
+.. automethod:: Sample.init_gyration

@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-density
-=======
+Sample\.\_density
+=================
 
 .. currentmodule:: poreana.sample
 
-.. autofunction:: density
+.. automethod:: Sample._density
