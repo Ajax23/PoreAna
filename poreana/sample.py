@@ -5,7 +5,6 @@
 ################################################################################
 
 
-import os
 import sys
 import math
 import chemfiles as cf
