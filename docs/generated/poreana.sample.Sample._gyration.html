@@ -112,7 +112,7 @@
 <h1>Sample._gyration<a class="headerlink" href="#sample-gyration" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample._gyration">
-<code class="descclassname">Sample.</code><code class="descname">_gyration</code><span class="sig-paren">(</span><em>region</em>, <em>dist</em>, <em>com</em>, <em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._gyration" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">_gyration</code><span class="sig-paren">(</span><em>data</em>, <em>region</em>, <em>dist</em>, <em>com</em>, <em>pos</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._gyration" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function calculates the gyration radius of molecules inside the
 pore.</p>
 <p>All atoms are sampled each frame if they are inside the bounds of the
@@ -131,6 +131,9 @@ slice <span class="math">\(j\)</span> and length <span class="math">\(s_{z,k}\)<
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd><p class="first last">Data dictionary containing bins for the pore interior and exterior</p>
+</dd>
 <dt><strong>region</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Indicator wether molecule is inside or outside pore</p>
 </dd>

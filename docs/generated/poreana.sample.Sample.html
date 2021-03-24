@@ -112,12 +112,12 @@
 <h1>Sample<a class="headerlink" href="#sample" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="poreana.sample.Sample">
-<em class="property">class </em><code class="descclassname">poreana.sample.</code><code class="descname">Sample</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>entry=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">poreana.sample.</code><code class="descname">Sample</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>entry=0.5</em>, <em>is_nojump=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class samples a trajectory to determine different properties.
 Different properties can be initialized to be run at the same time during
 the sampling run. The output is stored in form of pickle files for later
 calculation using methods provided in the package.</p>
-<p>Note that the sampling should be run on a cluster due to a high time and
+<p>It is advisable to run the sampling on a cluster due to a high time and
 resource consumption.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -142,28 +142,46 @@ resource consumption.</p>
 <dt><strong>entry</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Remove pore entrance from calculation</p>
 </dd>
+<dt><strong>is_nojump</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True if pbc nojump option was used</p>
+</dd>
 </dl>
 </td>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Methods</p>
+<p class="rubric">Sampling</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._density.html#poreana.sample.Sample._density" title="poreana.sample.Sample._density"><code class="xref py py-obj docutils literal"><span class="pre">_density</span></code></a>(region,&nbsp;dist,&nbsp;com)</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._sample_helper.html#poreana.sample.Sample._sample_helper" title="poreana.sample.Sample._sample_helper"><code class="xref py py-obj docutils literal"><span class="pre">_sample_helper</span></code></a>(frame_list)</td>
+<td>Helper function for sampling run.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>([is_parallel,&nbsp;is_force])</td>
+<td>This function runs all enabled sampling routines.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Properties</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._density.html#poreana.sample.Sample._density" title="poreana.sample.Sample._density"><code class="xref py py-obj docutils literal"><span class="pre">_density</span></code></a>(data,&nbsp;region,&nbsp;dist,&nbsp;com)</td>
 <td>This function samples the density inside and outside of the pore.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin.html#poreana.sample.Sample._diffusion_bin" title="poreana.sample.Sample._diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin</span></code></a>(region,&nbsp;dist,&nbsp;com_list,&nbsp;…)</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin.html#poreana.sample.Sample._diffusion_bin" title="poreana.sample.Sample._diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin</span></code></a>(data,&nbsp;region,&nbsp;dist,&nbsp;com_list,&nbsp;…)</td>
 <td>This function samples the mean square displacement of a molecule group in a pore in both axial and radial direction separated in radial bins.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin_step.html#poreana.sample.Sample._diffusion_bin_step" title="poreana.sample.Sample._diffusion_bin_step"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin_step</span></code></a>(idx)</td>
 <td>Helper function to define allowed bin step list.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._gyration.html#poreana.sample.Sample._gyration" title="poreana.sample.Sample._gyration"><code class="xref py py-obj docutils literal"><span class="pre">_gyration</span></code></a>(region,&nbsp;dist,&nbsp;com,&nbsp;pos)</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._gyration.html#poreana.sample.Sample._gyration" title="poreana.sample.Sample._gyration"><code class="xref py py-obj docutils literal"><span class="pre">_gyration</span></code></a>(data,&nbsp;region,&nbsp;dist,&nbsp;com,&nbsp;pos)</td>
 <td>This function calculates the gyration radius of molecules inside the pore.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-obj docutils literal"><span class="pre">init_density</span></code></a>(link_out[,&nbsp;bin_num])</td>
@@ -173,10 +191,25 @@ resource consumption.</p>
 <td>Enable diffusion sampling routine.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_gyration.html#poreana.sample.Sample.init_gyration" title="poreana.sample.Sample.init_gyration"><code class="xref py py-obj docutils literal"><span class="pre">init_gyration</span></code></a>(link_out[,&nbsp;bin_num])</td>
-<td>Enable gyration radius sampling routine.</td>
+<td>Enable gyration sampling routine.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>([is_force])</td>
-<td>This function runs all enabled sampling routines.</td>
+</tbody>
+</table>
+<p class="rubric">Bin Structure</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_ex.html#poreana.sample.Sample._bin_ex" title="poreana.sample.Sample._bin_ex"><code class="xref py py-obj docutils literal"><span class="pre">_bin_ex</span></code></a>(bin_num)</td>
+<td>This function creates a simple bin structure for the exterior of the pore based on the reservoir length.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._bin_in.html#poreana.sample.Sample._bin_in" title="poreana.sample.Sample._bin_in"><code class="xref py py-obj docutils literal"><span class="pre">_bin_in</span></code></a>(bin_num)</td>
+<td>This function creates a simple bin structure for the interior of the pore based on the pore diameter.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_window.html#poreana.sample.Sample._bin_window" title="poreana.sample.Sample._bin_window"><code class="xref py py-obj docutils literal"><span class="pre">_bin_window</span></code></a>(bin_num,&nbsp;len_window)</td>
+<td>This function creates window list for each bin for the interior of the pore based on the pore diameter.</td>
 </tr>
 </tbody>
 </table>

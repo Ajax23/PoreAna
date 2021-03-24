@@ -21,7 +21,7 @@ class Sample:
     the sampling run. The output is stored in form of pickle files for later
     calculation using methods provided in the package.
 
-    Note that the sampling should be run on a cluster due to a high time and
+    It is advisable to run the sampling on a cluster due to a high time and
     resource consumption.
 
     Parameters
@@ -38,6 +38,8 @@ class Sample:
         List of atom masses, leave empty to read molecule object masses
     entry : float, optional
         Remove pore entrance from calculation
+    is_nojump : bool, optional
+        True if pbc nojump option was used
     """
     def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5, is_nojump=True):
         # Initialize
@@ -205,8 +207,6 @@ class Sample:
             Data dictionary containing bins for the pore interior and exterior
         region : string
             Indicator wether molecule is inside or outside pore
-        region : string
-            Indicator wether molecule is inside or outside pore
         dist : float
             Distance of center of mass to pore surface area
         com : list
@@ -348,7 +348,7 @@ class Sample:
         Parameters
         ----------
         idx : integer
-            Current bin index
+            Bin index
         """
         out_list = [idx+x for x in range(self._diff_bin_inp["bin_step_size"], 0, -1)]
         out_list += [idx]
@@ -590,7 +590,7 @@ class Sample:
             List of frame ids to process
 
         Returns : dictionary
-            Dictionary conatining all sampled variables
+            Dictionary conatining all sampled data
         """
         # Initialize
         mol = self._mol

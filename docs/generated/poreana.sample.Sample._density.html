@@ -112,7 +112,7 @@
 <h1>Sample._density<a class="headerlink" href="#sample-density" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample._density">
-<code class="descclassname">Sample.</code><code class="descname">_density</code><span class="sig-paren">(</span><em>region</em>, <em>dist</em>, <em>com</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._density" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">_density</code><span class="sig-paren">(</span><em>data</em>, <em>region</em>, <em>dist</em>, <em>com</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._density" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function samples the density inside and outside of the pore.</p>
 <p>All atoms are sampled each frame if they are inside or outside the
 bounds of the pore minus an optional entry length on both sides.</p>
@@ -125,6 +125,9 @@ slices <span class="math">\(r_i-r_{i-1}\)</span> and outside to rectangular slic
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd><p class="first last">Data dictionary containing bins for the pore interior and exterior</p>
+</dd>
 <dt><strong>region</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Indicator wether molecule is inside or outside pore</p>
 </dd>

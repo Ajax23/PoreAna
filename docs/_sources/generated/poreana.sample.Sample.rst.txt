@@ -11,17 +11,32 @@ Sample
 .. autoclass:: Sample
 
 
+  .. rubric:: Sampling
+
+  .. autosummary::
+
+     ~Sample._sample_helper
+     ~Sample.sample
 
 
-   .. rubric:: Methods
+  .. rubric:: Properties
 
-   .. autosummary::
+  .. autosummary::
 
-      ~Sample._density
-      ~Sample._diffusion_bin
-      ~Sample._diffusion_bin_step
-      ~Sample._gyration
-      ~Sample.init_density
-      ~Sample.init_diffusion_bin
-      ~Sample.init_gyration
-      ~Sample.sample
+    ~Sample._density
+    ~Sample._diffusion_bin
+    ~Sample._diffusion_bin_step
+    ~Sample._gyration
+
+    ~Sample.init_density
+    ~Sample.init_diffusion_bin
+    ~Sample.init_gyration
+
+
+  .. rubric:: Bin Structure
+
+  .. autosummary::
+
+    ~Sample._bin_ex
+    ~Sample._bin_in
+    ~Sample._bin_window
