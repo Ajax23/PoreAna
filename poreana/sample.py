@@ -9,6 +9,7 @@ import os
 import sys
 import math
 import chemfiles as cf
+import multiprocessing as mp
 
 import porems as pms
 import poreana.utils as utils
@@ -84,6 +85,34 @@ class Sample:
         #     self._pore_props["diam"] = self._pore.height()
 
 
+    ########
+    # Bins #
+    ########
+    def _bin_in_ex(self, bin_num):
+        """This function creates a simple bin structure for the interior and
+        exterior of the pore based on the pore diameter and reservoir length.
+
+        Parameters
+        ----------
+        bin_num : integer
+            Number of bins to be used
+
+        Returns
+        -------
+        data : dictionary
+            Dictionary containing bin lists for the pore interior and exterior
+        """
+        # Initialize
+        res = self._pore_props["res"]
+        diam = self._pore_props["diam"]
+
+        # Define bins
+        bin_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
+        bin_ex = [[res/bin_num*x    for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
+
+        return {"in": bin_in, "ex": bin_ex}
+
+
     ###########
     # Density #
     ###########
@@ -98,16 +127,10 @@ class Sample:
             Number of bins to be used
         """
         # Initialize
-        res = self._pore_props["res"]
-        diam = self._pore_props["diam"]
         self._is_density = True
-        self._dens_out = link_out
+        self._dens_inp = {"output": link_out, "bin_num": bin_num}
 
-        # Define bins
-        self._dens_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
-        self._dens_ex = [[res/bin_num*x for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
-
-    def _density(self, region, dist, com):
+    def _density(self, data, region, dist, com):
         """This function samples the density inside and outside of the pore.
 
         All atoms are sampled each frame if they are inside or outside the
@@ -120,6 +143,10 @@ class Sample:
 
         Parameters
         ----------
+        data : dictionary
+            Data dictionary containing bins for the pore interior and exterior
+        region : string
+            Indicator wether molecule is inside or outside pore
         region : string
             Indicator wether molecule is inside or outside pore
         dist : float
@@ -127,29 +154,29 @@ class Sample:
         com : list
             Center of mass of current molecule
         """
-        bin_num = len(self._dens_in[1])-1
+        bin_num = self._dens_inp["bin_num"]
 
         # Add molecule to bin
         if region=="in":
-            index = math.floor(dist/self._dens_in[0][1])
+            index = math.floor(dist/data["in"][0][1])
             if index <= bin_num:
-                self._dens_in[1][index] += 1
+                data["in"][1][index] += 1
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
             lentgh = com[2] if com[2] < self._pore_props["focal"][2] else abs(com[2]-self._pore_props["box"][2])
-            index = math.floor(lentgh/self._dens_ex[0][1])
+            index = math.floor(lentgh/data["ex"][0][1])
 
             # Only consider reservoir space in vicinity of crystobalit - remove pore
             if dist > self._pore_props["diam"]/2 and index <= bin_num:
-                self._dens_ex[1][index] += 1
+                data["ex"][1][index] += 1
 
 
     ############
     # Gyration #
     ############
     def init_gyration(self, link_out, bin_num=150):
-        """Enable gyration radius sampling routine.
+        """Enable gyration sampling routine.
 
         Parameters
         ----------
@@ -159,16 +186,10 @@ class Sample:
             Number of bins to be used
         """
         # Initialize
-        res = self._pore_props["res"]
-        diam = self._pore_props["diam"]
         self._is_gyration = True
-        self._gyr_out = link_out
+        self._gyr_inp = {"output": link_out, "bin_num": bin_num}
 
-        # Define bins
-        self._gyr_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
-        self._gyr_ex = [[res/bin_num*x for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
-
-    def _gyration(self, region, dist, com, pos):
+    def _gyration(self, data, region, dist, com, pos):
         """This function calculates the gyration radius of molecules inside the
         pore.
 
@@ -191,6 +212,8 @@ class Sample:
 
         Parameters
         ----------
+        data : dictionary
+            Data dictionary containing bins for the pore interior and exterior
         region : string
             Indicator wether molecule is inside or outside pore
         dist : float
@@ -201,24 +224,25 @@ class Sample:
             List of atom positions of current molecule
         """
         # Initialize
-        bin_num = len(self._gyr_in[1])-1
+        bin_num = self._gyr_inp["bin_num"]
 
+        # Calculate gyration radius
         r_g = (sum([geometry.length(geometry.vector(pos[atom_id], com))**2*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses)**0.5
 
         # Add molecule to bin
         if region=="in":
-            index = math.floor(dist/self._gyr_in[0][1])
+            index = math.floor(dist/data["in"][0][1])
             if index <= bin_num:
-                self._gyr_in[1][index] += r_g
+                data["in"][1][index] += r_g
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
             lentgh = com[2] if com[2] < self._pore_props["focal"][2] else abs(com[2]-self._pore_props["box"][2])
-            index = math.floor(lentgh/self._gyr_ex[0][1])
+            index = math.floor(lentgh/data["ex"][0][1])
 
             # Only consider reservoir space in vicinity of crystobalit - remove pore
             if dist > self._pore_props["diam"]/2 and index <= bin_num:
-                self._gyr_ex[1][index] += r_g
+                data["ex"][1][index] += r_g
 
 
     #############
@@ -416,7 +440,7 @@ class Sample:
     ############
     # Sampling #
     ############
-    def sample(self, is_force=False):
+    def sample(self, is_parallel=True, is_force=False):
         """This function runs all enabled sampling routines. The output is
         stored in form of pickle files for later calculation using methods
         provided in the package.
@@ -426,36 +450,111 @@ class Sample:
 
         Parameters
         ----------
+        is_parallel : bool, optional
+            True to run parallelized sampling
         is_force : bool, optional
             True to overwrite existing object files
         """
         # Load trajectory
+        np = mp.cpu_count()
+        traj = cf.Trajectory(self._traj)
+        num_frame = traj.nsteps
+
+        # Export inputs
+        self._inp = {"frame": num_frame, "mass": self._mol.get_mass(),
+                     "entry": self._entry, "res": self._pore_props["res"],
+                     "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
+
+        # Run sampling helper
+        if is_parallel:
+            # Divide number of frames on processors
+            frame_num = math.floor(num_frame/np)
+            frame_np = [list(range(frame_num*i, num_frame)) if i == np-1 else list(range(frame_num*i, frame_num*(i+1))) for i in range(np)]
+
+            # Run parallel search
+            pool = mp.Pool(processes=np)
+            results = [pool.apply_async(self._sample_helper, args=(frame_list,)) for frame_list in frame_np]
+            pool.close()
+            pool.join()
+            output = [x.get() for x in results]
+
+            # Destroy object
+            del results
+        else:
+            # Run sampling
+            output = [self._sample_helper(list(range(num_frame)))]
+
+        # Concatenate output and create pickle object files
+        if self._is_density:
+            data_dens = self._bin_in_ex(self._dens_inp["bin_num"])
+            for out in output:
+                data_dens["in"][1] = [x+y for x, y in zip(data_dens["in"][1], out["density"]["in"][1])]
+                data_dens["ex"][1] = [x+y for x, y in zip(data_dens["ex"][1], out["density"]["ex"][1])]
+            # Pickle
+            utils.save({"inp": self._inp, "in": data_dens["in"], "ex": data_dens["ex"]}, self._dens_inp["output"])
+
+        if self._is_gyration:
+            data_gyr = self._bin_in_ex(self._gyr_inp["bin_num"])
+            for out in output:
+                data_gyr["in"][1] = [x+y for x, y in zip(data_gyr["in"][1], out["gyration"]["in"][1])]
+                data_gyr["ex"][1] = [x+y for x, y in zip(data_gyr["ex"][1], out["gyration"]["ex"][1])]
+            # Pickle
+            utils.save({"inp": self._inp, "in": data_gyr["in"], "ex": data_gyr["ex"]}, self._gyr_inp["output"])
+
+        if self._is_diffusion_bin:
+            inp = {key: val for key, val in self._inp.items()}
+            inp["bins"] = len(self._diff_in)-2
+            inp["step"] = self._diff_len_step
+            inp["window"] = self._diff_len_window
+            inp["frame"] = self._diff_len_frame
+            utils.save({"inp": inp, "bins": self._diff_in,
+                        "axial":  self._diff_bin_z, "axial_tot":  self._diff_bin_tot_z,
+                        "radial": self._diff_bin_r, "radial_tot": self._diff_bin_tot_r,
+                        "norm":   self._diff_bin_n, "norm_tot":   self._diff_bin_tot_n}, self._diff_out)
+
+    def _sample_helper(self, frame_list):
+        """Helper function for sampling run.
+
+        Parameters
+        ----------
+        frame_list :
+            List of frame ids to process
+
+        Returns : dictionary
+            Dictionary conatining all sampled variables
+        """
+        # Initialize
         mol = self._mol
         box = self._pore_props["box"]
         res = self._pore_props["res"]
-        traj = cf.Trajectory(self._traj)
-        num_frame = traj.nsteps
         res_list = {}
         com_list = []
         idx_list = []
 
-        # Export inputs
-        self._inp = {"frame": num_frame, "mass": mol.get_mass(),
-                     "entry": self._entry, "res": self._pore_props["res"],
-                     "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
+        # Load trajectory
+        traj = cf.Trajectory(self._traj)
+        num_frame = traj.nsteps
+
+        # Create local data structures
+        output = {}
+        if self._is_density:
+            output["density"] = self._bin_in_ex(self._dens_inp["bin_num"])
+        if self._is_gyration:
+            output["gyration"] = self._bin_in_ex(self._gyr_inp["bin_num"])
 
         # Run through frames
-        for frame_id in range(num_frame):
+        for frame_id in frame_list:
             # Read frame
-            frame = traj.read()
+            frame = traj.read_step(frame_id)
             positions = frame.positions
 
             # Add new dictionaries and remove unneeded references
-            if self._is_diffusion_bin and frame_id >= (self._diff_len_window*self._diff_len_step):
-                com_list.pop(0)
-                idx_list.pop(0)
-            com_list.append({})
-            idx_list.append({})
+            if self._is_diffusion_bin:
+                if len(com_list) >= (self._diff_len_window*self._diff_len_step):
+                    com_list.pop(0)
+                    idx_list.pop(0)
+                com_list.append({})
+                idx_list.append({})
 
             # Create list of relevant atom ids
             if not res_list:
@@ -499,31 +598,18 @@ class Sample:
                     elif com[2] <= res or com[2] > box[2]-res:
                         region = "ex"
 
-                    # Sample density
+                    # Sampling routines
                     if self._is_density:
-                        self._density(region, dist, com)
+                        self._density(output["density"], region, dist, com)
                     if self._is_gyration:
-                        self._gyration(region, dist, com, pos)
+                        self._gyration(output["gyration"], region, dist, com, pos)
                     if self._is_diffusion_bin:
                         self._diffusion_bin(region, dist, com_list, idx_list, res_id, com)
 
             # Progress
-            sys.stdout.write("Finished frame "+"%4i" % (frame_id+1)+"/"+"%4i" % num_frame+"...\r")
-            sys.stdout.flush()
+            if (frame_id+1)%10==0 or frame_id==0 or frame_id==num_frame-1:
+                sys.stdout.write("Finished frame "+"%6i" % (frame_id+1)+"/"+"%6i" % num_frame+"...\r")
+                sys.stdout.flush()
         print()
 
-        # Save pickle object files
-        if self._is_density:
-            utils.save({"inp": self._inp, "in": self._dens_in, "ex": self._dens_ex}, self._dens_out)
-        if self._is_gyration:
-            utils.save({"inp": self._inp, "in": self._gyr_in, "ex": self._gyr_ex}, self._gyr_out)
-        if self._is_diffusion_bin:
-            inp = {key: val for key, val in self._inp.items()}
-            inp["bins"] = len(self._diff_in)-2
-            inp["step"] = self._diff_len_step
-            inp["window"] = self._diff_len_window
-            inp["frame"] = self._diff_len_frame
-            utils.save({"inp": inp, "bins": self._diff_in,
-                        "axial":  self._diff_bin_z, "axial_tot":  self._diff_bin_tot_z,
-                        "radial": self._diff_bin_r, "radial_tot": self._diff_bin_tot_r,
-                        "norm":   self._diff_bin_n, "norm_tot":   self._diff_bin_tot_n}, self._diff_out)
+        return output

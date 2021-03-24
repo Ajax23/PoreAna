@@ -32,14 +32,19 @@ class UserModelCase(unittest.TestCase):
                 shutil.rmtree(file_path)
 
         # Load molecule
-        mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
+        self._mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
 
         # Sample
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol)
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol)
         sample.init_density("output/dens.obj")
         sample.init_gyration("output/gyr.obj")
-        sample.init_diffusion_bin("output/diff.obj", len_obs=4e-12)
-        sample.sample()
+        # sample.init_diffusion_bin("output/diff.obj")
+        sample.sample(is_parallel=True)
+
+        # Sample
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol)
+        sample.init_diffusion_bin("output/diff.obj")
+        sample.sample(is_parallel=False)
 
 
     #########
@@ -89,32 +94,39 @@ class UserModelCase(unittest.TestCase):
     ##########
     def test_sample(self):
         # self.skipTest("Temporary")
-
         print()
 
-        # Load molecule
-        mol = pms.Molecule("spc216", "SOL", inp="data/spc216.gro")
-        mol2 = copy.deepcopy(mol)
-        mol2.add("H", [1, 1, 1], name="H3")
-        mol2.add("H", [1, 1, 1], name="H4")
-
         # Sample object file
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["O1"])
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["O1"])
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["O1"], masses=[1, 2])
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["O1"])
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["O1"])
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["O1"], masses=[1, 2])
 
         # Diffusion
         sample.init_diffusion_bin("output/diff.obj", len_obs=3e-12)
 
+    def test_sample_parallel(self):
+        # self.skipTest("Temporary")
 
-    ###########
-    # Density #
-    ###########
+        # Initilialize
+        path = "/mnt/c/Users/Ajax/Desktop/ben/"
+        print()
+
+        # Sample
+        # sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol)
+        # sample.init_diffusion_bin("output/diff.obj")
+        # sample.sample(is_parallel=True)
+
+
+
+
+    ##############
+    # Adsorption #
+    ##############
     def test_adsorption(self):
         # Calculate adsorption
         ads = pa.adsorption.calculate("data/pore_system.obj", "output/dens.obj")
-        self.assertEqual(round(ads["c"][1], 2), 71.65)
-        self.assertEqual(round(ads["n"][1], 2), 7402.67)
+        self.assertEqual(round(ads["c"][1], 2), 0.15)
+        self.assertEqual(round(ads["n"][1], 2), 10.68)
 
 
     ###########
@@ -123,8 +135,8 @@ class UserModelCase(unittest.TestCase):
     def test_density(self):
         # Calculate density
         dens = pa.density.calculate("output/dens.obj", target_dens=1000)
-        self.assertEqual(round(dens["in"] [3], 2), 992.77)
-        self.assertEqual(round(dens["ex"][3], 2), 975.54)
+        self.assertEqual(round(dens["in"][3], 3), 12.941)
+        self.assertEqual(round(dens["ex"][3], 3), 15.977)
 
         # Plot density
         plt.figure()
@@ -162,12 +174,12 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         mean = pa.diffusion.mean("output/diff.obj", "output/dens.obj")
-        self.assertEqual(round(mean, 2), 4.63)
+        self.assertEqual(round(mean, 2), 1.13)
 
 
-    ###########
-    # Density #
-    ###########
+    ############
+    # Gyration #
+    ############
     def test_gyration(self):
         # Plot gyration radius
         plt.figure()
@@ -175,8 +187,8 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/gyration.pdf", format="pdf", dpi=1000)
         # plt.show()
 
-        self.assertEqual(round(mean["in"], 2), 0.03)
-        self.assertEqual(round(mean["ex"], 2), 0.03)
+        self.assertEqual(round(mean["in"], 2), 0.12)
+        self.assertEqual(round(mean["ex"], 2), 0.38)
 
         plt.figure()
         pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="in")

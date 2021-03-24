@@ -47,7 +47,7 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
     bins = {"in": gyr["in"][0][:-1], "ex": gyr["ex"][0]}
 
     # Divide gyration radius by density in bins
-    gyration = {area: [gyr[area][1][i]/dens[area][1][i] for i in range(len(gyr[area][1]))] for area in areas}
+    gyration = {area: [gyr[area][1][i]/dens[area][1][i] if dens[area][1][i] else 0 for i in range(len(gyr[area][1]))] for area in areas}
 
     # Calculate mean gyration radius
     mean = {area: sum(gyration[area])/len(gyration[area]) for area in areas}
