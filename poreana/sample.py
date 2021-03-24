@@ -40,14 +40,15 @@ class Sample:
     entry : float, optional
         Remove pore entrance from calculation
     """
-    def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5):
+    def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5, is_nojump=True):
         # Initialize
+        self._pore = utils.load(link_pore)
         self._traj = link_traj
         self._mol = mol
         self._atoms = atoms
         self._masses = masses
         self._entry = entry
-        self._pore = utils.load(link_pore)
+        self._is_nojump = is_nojump
 
         # Set analysis routines
         self._is_density = False
@@ -649,15 +650,23 @@ class Sample:
                 pos = [[positions[res_list[res_id][atom_id]][i]/10 for i in range(3)] for atom_id in range(len(self._atoms))]
 
                 # Calculate centre of mass
-                com = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
+                com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
 
-                # Remove edge molecules
-                is_edge = False
+                # Remove broken molecules
+                is_broken = False
                 for i in range(3):
-                    is_edge = True if abs(com[i]-pos[0][i])>self._pore_props["res"] else is_edge
+                    is_broken = abs(com_no_pbc[i]-pos[0][i])>res
+                    if is_broken:
+                        break
 
-                # Check if com was calculated on edges
-                if not is_edge:
+                # Apply periodic boundary conditions if nojump trajectory used
+                if self._is_nojump:
+                    com = [com_no_pbc[i]-math.floor(com_no_pbc[i]/box[i])*box[i] for i in range(3)]
+                else:
+                    com = com_no_pbc
+
+                # Sample if molecule not broken near boundary
+                if not is_broken:
                     # Calculate distance towards center axis
                     if isinstance(self._pore, pms.PoreCylinder):
                         dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
@@ -682,7 +691,7 @@ class Sample:
                         if self._is_density:
                             self._density(output["density"], region, dist, com)
                         if self._is_gyration:
-                            self._gyration(output["gyration"], region, dist, com, pos)
+                            self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
                     if self._is_diffusion_bin:
                         self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
 
