@@ -39,6 +39,12 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens.obj")
         sample.init_gyration("output/gyr.obj")
         sample.init_diffusion_bin("output/diff.obj")
+        sample.sample(is_parallel=False)
+
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, is_nojump=False)
+        sample.init_density("output/dens_p.obj")
+        sample.init_gyration("output/gyr_p.obj")
+        sample.init_diffusion_bin("output/diff_p.obj")
         sample.sample(is_parallel=True)
 
         sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", self._mol, is_nojump=True)
@@ -97,12 +103,12 @@ class UserModelCase(unittest.TestCase):
         # self.skipTest("Temporary")
         print()
 
-        # Sample object file
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["O1"])
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["O1"])
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["O1"], masses=[1, 2])
+        # Sanity checks
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["C1"])
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["C1"], masses=[1, 2])
 
         # Diffusion
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["C1"])
         sample.init_diffusion_bin("output/diff.obj", len_obs=3e-12)
 
 
@@ -112,10 +118,13 @@ class UserModelCase(unittest.TestCase):
     def test_adsorption(self):
         # Calculate adsorption
         ads = pa.adsorption.calculate("data/pore_system.obj", "output/dens.obj")
+        ads_p = pa.adsorption.calculate("data/pore_system.obj", "output/dens_p.obj")
         ads_nj = pa.adsorption.calculate("data/pore_system.obj", "output/dens_nj.obj")
 
         self.assertEqual(round(ads["c"][1], 2), 0.15)
         self.assertEqual(round(ads["n"][1], 2), 10.68)
+        self.assertEqual(round(ads_p["c"][1], 2), 0.15)
+        self.assertEqual(round(ads_p["n"][1], 2), 10.68)
         self.assertEqual(round(ads_nj["c"][1], 2), 0.15)
         self.assertEqual(round(ads_nj["n"][1], 2), 10.68)
 
@@ -126,10 +135,13 @@ class UserModelCase(unittest.TestCase):
     def test_density(self):
         # Calculate density
         dens = pa.density.calculate("output/dens.obj", target_dens=16)
+        dens_p = pa.density.calculate("output/dens_p.obj", target_dens=16)
         dens_nj = pa.density.calculate("output/dens_nj.obj", target_dens=16)
 
         self.assertEqual(round(dens["in"][3], 3), 12.941)
         self.assertEqual(round(dens["ex"][3], 3), 15.977)
+        self.assertEqual(round(dens_p["in"][3], 3), 12.941)
+        self.assertEqual(round(dens_p["ex"][3], 3), 15.977)
         self.assertEqual(round(dens_nj["in"][3], 3), 12.946)
         self.assertEqual(round(dens_nj["ex"][3], 3), 16.178)
 
@@ -169,9 +181,11 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         mean = pa.diffusion.mean("output/diff.obj", "output/dens.obj")
+        mean_p = pa.diffusion.mean("output/diff_p.obj", "output/dens_p.obj")
         mean_nj = pa.diffusion.mean("output/diff_nj.obj", "output/dens_nj.obj")
 
         self.assertEqual(round(mean, 2), 1.13)
+        self.assertEqual(round(mean_p, 2), 1.13)
         self.assertEqual(round(mean_nj, 2), 1.13)
 
 
@@ -182,12 +196,15 @@ class UserModelCase(unittest.TestCase):
         # Plot gyration radius
         plt.figure()
         mean = pa.gyration.plot("output/gyr.obj", "output/dens.obj", is_mean=True)
+        mean_p = pa.gyration.plot("output/gyr_p.obj", "output/dens_p.obj", is_mean=True)
         mean_nj = pa.gyration.plot("output/gyr_nj.obj", "output/dens_nj.obj", is_mean=True)
         plt.savefig("output/gyration.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         self.assertEqual(round(mean["in"], 2), 0.12)
         self.assertEqual(round(mean["ex"], 2), 0.38)
+        self.assertEqual(round(mean_p["in"], 2), 0.12)
+        self.assertEqual(round(mean_p["ex"], 2), 0.38)
         self.assertEqual(round(mean_nj["in"], 2), 0.12)
         self.assertEqual(round(mean_nj["ex"], 2), 0.39)
 
