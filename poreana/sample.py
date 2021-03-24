@@ -42,7 +42,6 @@ class Sample:
     """
     def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5):
         # Initialize
-        self._pore_props = {}
         self._traj = link_traj
         self._mol = mol
         self._atoms = atoms
@@ -52,8 +51,8 @@ class Sample:
 
         # Set analysis routines
         self._is_density = False
-        self._is_diffusion_bin = False
         self._is_gyration = False
+        self._is_diffusion_bin = False
 
         # Get molecule ids
         self._atoms = [atom.get_name() for atom in mol.get_atom_list()] if not self._atoms else self._atoms
@@ -67,12 +66,13 @@ class Sample:
                 self._masses = [1]
         self._sum_masses = sum(self._masses)
 
-        # Check consistency
+        # Check atom mass consistency
         if self._atoms and not len(self._masses) == len(self._atoms):
             print("Length of variables *atoms* and *masses* do not match!")
             return
 
         # Get pore properties
+        self._pore_props = {}
         self._pore_props["res"] = self._pore.reservoir()
         self._pore_props["focal"] = self._pore.centroid()
         self._pore_props["box"] = self._pore.box()
@@ -88,9 +88,30 @@ class Sample:
     ########
     # Bins #
     ########
-    def _bin_in_ex(self, bin_num):
-        """This function creates a simple bin structure for the interior and
-        exterior of the pore based on the pore diameter and reservoir length.
+    def _bin_in_ex_temp(self, bin_num):
+        """TEMPORARY FUNCTION BEFORE OUTPUT RESTRUCTURING.
+        """
+        bin_in = [self._bin_in(bin_num)["width"], self._bin_in(bin_num)["bins"]]
+        bin_ex = [self._bin_ex(bin_num)["width"], self._bin_ex(bin_num)["bins"]]
+        return {"in": bin_in, "ex": bin_ex}
+
+    def _bin_diff_temp(self, bin_num, len_window):
+        """TEMPORARY FUNCTION BEFORE OUTPUT RESTRUCTURING.
+        """
+        width = self._bin_window(bin_num, len_window)["width"]
+        bin_z = self._bin_window(bin_num, len_window)["bins"]
+        bin_r = self._bin_window(bin_num, len_window)["bins"]
+        bin_n = self._bin_window(bin_num, len_window)["bins"]
+        bin_z_tot = self._bin_window(bin_num, len_window)["bins"]
+        bin_r_tot = self._bin_window(bin_num, len_window)["bins"]
+        bin_n_tot = self._bin_window(bin_num, len_window)["bins"]
+
+        return {"width": width, "z": bin_z, "r": bin_r, "n": bin_n,
+                "z_tot": bin_z_tot, "r_tot": bin_r_tot, "n_tot": bin_n_tot}
+
+    def _bin_in(self, bin_num):
+        """This function creates a simple bin structure for the interior of the
+        pore based on the pore diameter.
 
         Parameters
         ----------
@@ -100,17 +121,54 @@ class Sample:
         Returns
         -------
         data : dictionary
-            Dictionary containing bin lists for the pore interior and exterior
+            Dictionary containing a list of the bin width and a data list
         """
-        # Initialize
-        res = self._pore_props["res"]
-        diam = self._pore_props["diam"]
-
         # Define bins
-        bin_in = [[diam/2/bin_num*x for x in range(bin_num+2)], [0 for x in range(bin_num+1)]]
-        bin_ex = [[res/bin_num*x    for x in range(bin_num+1)], [0 for x in range(bin_num+1)]]
+        width = [self._pore_props["diam"]/2/bin_num*x for x in range(bin_num+2)]
+        bins = [0 for x in range(bin_num+1)]
 
-        return {"in": bin_in, "ex": bin_ex}
+        return {"width": width, "bins": bins}
+
+    def _bin_ex(self, bin_num):
+        """This function creates a simple bin structure for the exterior of the
+        pore based on the reservoir length.
+
+        Parameters
+        ----------
+        bin_num : integer
+            Number of bins to be used
+
+        Returns
+        -------
+        data : dictionary
+            Dictionary containing a list of the bin width and a data list
+        """
+        # Define bins
+        width = [self._pore_props["res"]/bin_num*x for x in range(bin_num+1)]
+        bins = [0 for x in range(bin_num+1)]
+
+        return {"width": width, "bins": bins}
+
+    def _bin_window(self, bin_num, len_window):
+        """This function creates window list for each bin for the interior of
+        the pore based on the pore diameter.
+
+        Parameters
+        ----------
+        bin_num : integer
+            Number of bins to be used
+        len_window : integer
+            Window length
+
+        Returns
+        -------
+        data : dictionary
+            Dictionary containing a list of the bin width and a data list
+        """
+        width = [self._pore_props["diam"]/2/bin_num*x for x in range(bin_num+2)]
+        bins = [[0 for y in range(len_window)] for x in range(bin_num+1)]
+
+        return {"width": width, "bins": bins}
 
 
     ###########
@@ -268,10 +326,6 @@ class Sample:
         """
         # Initialize
         self._is_diffusion_bin = True
-        self._diff_out = link_out
-        self._diff_bin_step_size = bin_step_size
-        self._diff_len_step = len_step
-        self._diff_len_frame = len_frame
 
         # Define window length
         len_window = len_obs/len_step/len_frame+1
@@ -282,18 +336,11 @@ class Sample:
             return
         else:
             len_window = int(len_window)
-        self._diff_len_window = len_window
 
-        # Define bins
-        self._diff_in = [self._pore_props["diam"]/2/bin_num*x for x in range(bin_num+2)]
-
-        self._diff_bin_z = [[0 for y in range(len_window)] for x in range(bin_num+1)]
-        self._diff_bin_r = [[0 for y in range(len_window)] for x in range(bin_num+1)]
-        self._diff_bin_n = [[0 for y in range(len_window)] for x in range(bin_num+1)]
-
-        self._diff_bin_tot_z = [[0 for y in range(len_window)] for x in range(bin_num+1)]
-        self._diff_bin_tot_r = [[0 for y in range(len_window)] for x in range(bin_num+1)]
-        self._diff_bin_tot_n = [[0 for y in range(len_window)] for x in range(bin_num+1)]
+        # Create input dictionalry
+        self._diff_bin_inp = {"output": link_out, "bin_step_size": bin_step_size,
+                              "bin_num": bin_num, "len_step": len_step,
+                              "len_frame": len_frame, "len_window": len_window}
 
     def _diffusion_bin_step(self, idx):
         """Helper function to define allowed bin step list.
@@ -303,12 +350,12 @@ class Sample:
         idx : integer
             Current bin index
         """
-        out_list = [idx+x for x in range(self._diff_bin_step_size, 0, -1)]
+        out_list = [idx+x for x in range(self._diff_bin_inp["bin_step_size"], 0, -1)]
         out_list += [idx]
-        out_list += [idx-x for x in range(1, self._diff_bin_step_size+1)]
+        out_list += [idx-x for x in range(1, self._diff_bin_inp["bin_step_size"]+1)]
         return out_list
 
-    def _diffusion_bin(self, region, dist, com_list, idx_list, res_id, com):
+    def _diffusion_bin(self, data, region, dist, com_list, idx_list, res_id, com):
         """This function samples the mean square displacement of a molecule
         group in a pore in both axial and radial direction separated in radial
         bins.
@@ -354,8 +401,8 @@ class Sample:
 
         Parameters
         ----------
-        link_out : string
-            Link to output object file
+        data : dictionary
+            Data dictionary containing bins for axial and radial diffusion
         region : string
             Indicator wether molecule is inside or outside pore
         dist : float
@@ -370,14 +417,14 @@ class Sample:
             Center of mass of current molecule
         """
         # Initialize
-        bin_num = len(self._diff_in)-2
-        len_step = self._diff_len_step
-        len_window = self._diff_len_window
+        bin_num = self._diff_bin_inp["bin_num"]
+        len_step = self._diff_bin_inp["len_step"]
+        len_window = self._diff_bin_inp["len_window"]
 
         # Only sample diffusion inside the pore
         if region == "in":
             # Calculate bin index
-            index = math.floor(dist/self._diff_in[1])
+            index = math.floor(dist/data["width"][1])
 
             # Add com and bin index to global lists
             com_list[-1][res_id] = com
@@ -426,15 +473,15 @@ class Sample:
                 if idx_ref <= bin_num:
                     for i in range(len_window):
                         # Add to total list
-                        self._diff_bin_tot_z[idx_ref][i] += msd_z[i]
-                        self._diff_bin_tot_r[idx_ref][i] += msd_r[i]
-                        self._diff_bin_tot_n[idx_ref][i] += norm[i]
+                        data["z_tot"][idx_ref][i] += msd_z[i]
+                        data["r_tot"][idx_ref][i] += msd_r[i]
+                        data["n_tot"][idx_ref][i] += norm[i]
 
                         # Add to bin calculation list if msd is permissible
                         if len_msd == len_window:
-                            self._diff_bin_z[idx_ref][i] += msd_z[i]
-                            self._diff_bin_r[idx_ref][i] += msd_r[i]
-                            self._diff_bin_n[idx_ref][i] += norm[i]
+                            data["z"][idx_ref][i] += msd_z[i]
+                            data["r"][idx_ref][i] += msd_r[i]
+                            data["n"][idx_ref][i] += norm[i]
 
 
     ############
@@ -486,31 +533,33 @@ class Sample:
 
         # Concatenate output and create pickle object files
         if self._is_density:
-            data_dens = self._bin_in_ex(self._dens_inp["bin_num"])
-            for out in output:
+            data_dens = output[0]["density"]
+            for out in output[1:]:
                 data_dens["in"][1] = [x+y for x, y in zip(data_dens["in"][1], out["density"]["in"][1])]
                 data_dens["ex"][1] = [x+y for x, y in zip(data_dens["ex"][1], out["density"]["ex"][1])]
             # Pickle
             utils.save({"inp": self._inp, "in": data_dens["in"], "ex": data_dens["ex"]}, self._dens_inp["output"])
 
         if self._is_gyration:
-            data_gyr = self._bin_in_ex(self._gyr_inp["bin_num"])
-            for out in output:
+            data_gyr = output[0]["gyration"]
+            for out in output[1:]:
                 data_gyr["in"][1] = [x+y for x, y in zip(data_gyr["in"][1], out["gyration"]["in"][1])]
                 data_gyr["ex"][1] = [x+y for x, y in zip(data_gyr["ex"][1], out["gyration"]["ex"][1])]
             # Pickle
             utils.save({"inp": self._inp, "in": data_gyr["in"], "ex": data_gyr["ex"]}, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
+            data_diff = output[0]["diffusion_bin"]
+
             inp = {key: val for key, val in self._inp.items()}
-            inp["bins"] = len(self._diff_in)-2
-            inp["step"] = self._diff_len_step
-            inp["window"] = self._diff_len_window
-            inp["frame"] = self._diff_len_frame
-            utils.save({"inp": inp, "bins": self._diff_in,
-                        "axial":  self._diff_bin_z, "axial_tot":  self._diff_bin_tot_z,
-                        "radial": self._diff_bin_r, "radial_tot": self._diff_bin_tot_r,
-                        "norm":   self._diff_bin_n, "norm_tot":   self._diff_bin_tot_n}, self._diff_out)
+            inp["bins"] = self._diff_bin_inp["bin_num"]
+            inp["step"] = self._diff_bin_inp["len_step"]
+            inp["frame"] = self._diff_bin_inp["len_frame"]
+            inp["window"] = self._diff_bin_inp["len_window"]
+            utils.save({"inp": inp, "bins": data_diff["width"],
+                        "axial":  data_diff["z"], "axial_tot":  data_diff["z_tot"],
+                        "radial": data_diff["r"], "radial_tot": data_diff["r_tot"],
+                        "norm":   data_diff["n"], "norm_tot":   data_diff["n_tot"]}, self._diff_bin_inp["output"])
 
     def _sample_helper(self, frame_list):
         """Helper function for sampling run.
@@ -534,13 +583,16 @@ class Sample:
         # Load trajectory
         traj = cf.Trajectory(self._traj)
         num_frame = traj.nsteps
+        frame_form = "%"+str(len(str(num_frame)))+"i"
 
         # Create local data structures
         output = {}
         if self._is_density:
-            output["density"] = self._bin_in_ex(self._dens_inp["bin_num"])
+            output["density"] = self._bin_in_ex_temp(self._dens_inp["bin_num"])
         if self._is_gyration:
-            output["gyration"] = self._bin_in_ex(self._gyr_inp["bin_num"])
+            output["gyration"] = self._bin_in_ex_temp(self._gyr_inp["bin_num"])
+        if self._is_diffusion_bin:
+            output["diffusion_bin"] = self._bin_diff_temp(self._diff_bin_inp["bin_num"], self._diff_bin_inp["len_window"])
 
         # Run through frames
         for frame_id in frame_list:
@@ -550,7 +602,7 @@ class Sample:
 
             # Add new dictionaries and remove unneeded references
             if self._is_diffusion_bin:
-                if len(com_list) >= (self._diff_len_window*self._diff_len_step):
+                if len(com_list) >= (self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]):
                     com_list.pop(0)
                     idx_list.pop(0)
                 com_list.append({})
@@ -604,11 +656,11 @@ class Sample:
                     if self._is_gyration:
                         self._gyration(output["gyration"], region, dist, com, pos)
                     if self._is_diffusion_bin:
-                        self._diffusion_bin(region, dist, com_list, idx_list, res_id, com)
+                        self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
 
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==num_frame-1:
-                sys.stdout.write("Finished frame "+"%6i" % (frame_id+1)+"/"+"%6i" % num_frame+"...\r")
+                sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%num_frame+"...\r")
                 sys.stdout.flush()
         print()
 
