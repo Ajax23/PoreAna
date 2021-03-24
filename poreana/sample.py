@@ -508,15 +508,25 @@ class Sample:
         num_frame = traj.nsteps
 
         # Export inputs
-        self._inp = {"frame": num_frame, "mass": self._mol.get_mass(),
-                     "entry": self._entry, "res": self._pore_props["res"],
-                     "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
+        inp = {"frame": num_frame, "mass": self._mol.get_mass(),
+               "entry": self._entry, "res": self._pore_props["res"],
+               "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
 
         # Run sampling helper
         if is_parallel:
             # Divide number of frames on processors
             frame_num = math.floor(num_frame/np)
-            frame_np = [list(range(frame_num*i, num_frame)) if i == np-1 else list(range(frame_num*i, frame_num*(i+1))) for i in range(np)]
+
+            # Define bounds
+            frame_start = [frame_num*i for i in range(np)]
+            frame_end = [frame_num*(i+1) if i<np-1 else num_frame for i in range(np)]
+
+            # Substract window filling for bin diffusion
+            if self._is_diffusion_bin:
+                frame_start = [x-self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]+1 if i>0 else x for i, x in enumerate(frame_start)]
+
+            # Create working lists for processors
+            frame_np = [list(range(frame_start[i], frame_end[i])) for i in range(np)]
 
             # Run parallel search
             pool = mp.Pool(processes=np)
@@ -538,7 +548,7 @@ class Sample:
                 data_dens["in"][1] = [x+y for x, y in zip(data_dens["in"][1], out["density"]["in"][1])]
                 data_dens["ex"][1] = [x+y for x, y in zip(data_dens["ex"][1], out["density"]["ex"][1])]
             # Pickle
-            utils.save({"inp": self._inp, "in": data_dens["in"], "ex": data_dens["ex"]}, self._dens_inp["output"])
+            utils.save({"inp": inp, "in": data_dens["in"], "ex": data_dens["ex"]}, self._dens_inp["output"])
 
         if self._is_gyration:
             data_gyr = output[0]["gyration"]
@@ -546,17 +556,27 @@ class Sample:
                 data_gyr["in"][1] = [x+y for x, y in zip(data_gyr["in"][1], out["gyration"]["in"][1])]
                 data_gyr["ex"][1] = [x+y for x, y in zip(data_gyr["ex"][1], out["gyration"]["ex"][1])]
             # Pickle
-            utils.save({"inp": self._inp, "in": data_gyr["in"], "ex": data_gyr["ex"]}, self._gyr_inp["output"])
+            utils.save({"inp": inp, "in": data_gyr["in"], "ex": data_gyr["ex"]}, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
             data_diff = output[0]["diffusion_bin"]
+            for out in output[1:]:
+                for i in range(self._diff_bin_inp["bin_num"]):
+                    for j in range(self._diff_bin_inp["len_window"]):
+                        data_diff["z"][i][j] += out["diffusion_bin"]["z"][i][j]
+                        data_diff["r"][i][j] += out["diffusion_bin"]["r"][i][j]
+                        data_diff["n"][i][j] += out["diffusion_bin"]["n"][i][j]
+                        data_diff["z_tot"][i][j] += out["diffusion_bin"]["z_tot"][i][j]
+                        data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
+                        data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
 
-            inp = {key: val for key, val in self._inp.items()}
-            inp["bins"] = self._diff_bin_inp["bin_num"]
-            inp["step"] = self._diff_bin_inp["len_step"]
-            inp["frame"] = self._diff_bin_inp["len_frame"]
-            inp["window"] = self._diff_bin_inp["len_window"]
-            utils.save({"inp": inp, "bins": data_diff["width"],
+            # TEMPORARY FORMATING UNTIL OUTPUT RESTRUCTURING
+            diff_inp = {key: val for key, val in inp.items()}
+            diff_inp["bins"] = self._diff_bin_inp["bin_num"]
+            diff_inp["step"] = self._diff_bin_inp["len_step"]
+            diff_inp["frame"] = self._diff_bin_inp["len_frame"]
+            diff_inp["window"] = self._diff_bin_inp["len_window"]
+            utils.save({"inp": diff_inp, "bins": data_diff["width"],
                         "axial":  data_diff["z"], "axial_tot":  data_diff["z_tot"],
                         "radial": data_diff["r"], "radial_tot": data_diff["r_tot"],
                         "norm":   data_diff["n"], "norm_tot":   data_diff["n_tot"]}, self._diff_bin_inp["output"])
@@ -600,14 +620,6 @@ class Sample:
             frame = traj.read_step(frame_id)
             positions = frame.positions
 
-            # Add new dictionaries and remove unneeded references
-            if self._is_diffusion_bin:
-                if len(com_list) >= (self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]):
-                    com_list.pop(0)
-                    idx_list.pop(0)
-                com_list.append({})
-                idx_list.append({})
-
             # Create list of relevant atom ids
             if not res_list:
                 # Get number of residues in system
@@ -621,6 +633,15 @@ class Sample:
                 # Check relevant atoms
                 for res_id in range(int(num_res)):
                     res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in self._atoms]
+
+            # Add new dictionaries and remove unneeded references
+            if self._is_diffusion_bin:
+                len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
+                if len(com_list) >= len_fill:
+                    com_list.pop(0)
+                    idx_list.pop(0)
+                com_list.append({})
+                idx_list.append({})
 
             # Run through residues
             for res_id in res_list:
@@ -650,11 +671,18 @@ class Sample:
                     elif com[2] <= res or com[2] > box[2]-res:
                         region = "ex"
 
+                    # Remove window filling instances except from first processor
+                    if self._is_diffusion_bin:
+                        is_sample = len(com_list)==len_fill or frame_id<=len_fill
+                    else:
+                        is_sample = True
+
                     # Sampling routines
-                    if self._is_density:
-                        self._density(output["density"], region, dist, com)
-                    if self._is_gyration:
-                        self._gyration(output["gyration"], region, dist, com, pos)
+                    if is_sample:
+                        if self._is_density:
+                            self._density(output["density"], region, dist, com)
+                        if self._is_gyration:
+                            self._gyration(output["gyration"], region, dist, com, pos)
                     if self._is_diffusion_bin:
                         self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
 

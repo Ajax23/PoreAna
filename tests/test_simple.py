@@ -38,13 +38,8 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol)
         sample.init_density("output/dens.obj")
         sample.init_gyration("output/gyr.obj")
-        # sample.init_diffusion_bin("output/diff.obj")
-        sample.sample(is_parallel=True)
-
-        # Sample
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol)
         sample.init_diffusion_bin("output/diff.obj")
-        sample.sample(is_parallel=False)
+        sample.sample(is_parallel=True)
 
 
     #########
@@ -103,20 +98,6 @@ class UserModelCase(unittest.TestCase):
 
         # Diffusion
         sample.init_diffusion_bin("output/diff.obj", len_obs=3e-12)
-
-    def test_sample_parallel(self):
-        # self.skipTest("Temporary")
-
-        # Initilialize
-        path = "/mnt/c/Users/Ajax/Desktop/ben/"
-        print()
-
-        # Sample
-        # sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol)
-        # sample.init_diffusion_bin("output/diff.obj")
-        # sample.sample(is_parallel=True)
-
-
 
 
     ##############
