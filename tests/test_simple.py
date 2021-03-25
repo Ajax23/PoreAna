@@ -32,22 +32,26 @@ class UserModelCase(unittest.TestCase):
                 shutil.rmtree(file_path)
 
         # Load molecule
-        self._mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
 
         # Sample
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, is_nojump=False)
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
         sample.init_density("output/dens.obj")
         sample.init_gyration("output/gyr.obj")
         sample.init_diffusion_bin("output/diff.obj")
         sample.sample(is_parallel=False)
 
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, is_nojump=False)
+        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
+        sample.init_density("output/dens_snj.obj")
+        sample.sample(is_parallel=False)
+
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
         sample.init_density("output/dens_p.obj")
         sample.init_gyration("output/gyr_p.obj")
         sample.init_diffusion_bin("output/diff_p.obj")
         sample.sample(is_parallel=True)
 
-        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", self._mol, is_nojump=True)
+        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
         sample.init_density("output/dens_nj.obj")
         sample.init_gyration("output/gyr_nj.obj")
         sample.init_diffusion_bin("output/diff_nj.obj")
@@ -103,12 +107,17 @@ class UserModelCase(unittest.TestCase):
         # self.skipTest("Temporary")
         print()
 
+        # Define molecules
+        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+        mol2 = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+        mol2.add("H", [0, 0, 0])
+
         # Sanity checks
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["C1"])
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["C1"], masses=[1, 2])
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol2)
+        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["C1"], masses=[1, 1])
 
         # Diffusion
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", self._mol, atoms=["C1"])
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["C1"])
         sample.init_diffusion_bin("output/diff.obj", len_obs=3e-12)
 
 

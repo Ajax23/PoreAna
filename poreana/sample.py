@@ -73,6 +73,24 @@ class Sample:
             print("Length of variables *atoms* and *masses* do not match!")
             return
 
+        # Get number of frames
+        traj = cf.Trajectory(self._traj)
+        self._num_frame = traj.nsteps
+
+        # Get numer of residues
+        frame = traj.read()
+        num_res = len(frame.topology.atoms)/mol.get_num()
+
+        # Check number of residues
+        if abs(int(num_res)-num_res) >= 1e-5:
+            print("Number of atoms is inconsistent with number of residues.")
+            return
+
+        # Create residue list with all relevant atom ids
+        self._res_list = {}
+        for res_id in range(int(num_res)):
+            self._res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in self._atoms]
+
         # Get pore properties
         self._pore_props = {}
         self._pore_props["res"] = self._pore.reservoir()
@@ -504,22 +522,20 @@ class Sample:
         """
         # Load trajectory
         np = mp.cpu_count()
-        traj = cf.Trajectory(self._traj)
-        num_frame = traj.nsteps
 
         # Export inputs
-        inp = {"frame": num_frame, "mass": self._mol.get_mass(),
+        inp = {"frame": self._num_frame, "mass": self._mol.get_mass(),
                "entry": self._entry, "res": self._pore_props["res"],
                "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
 
         # Run sampling helper
         if is_parallel:
             # Divide number of frames on processors
-            frame_num = math.floor(num_frame/np)
+            frame_num = math.floor(self._num_frame/np)
 
             # Define bounds
             frame_start = [frame_num*i for i in range(np)]
-            frame_end = [frame_num*(i+1) if i<np-1 else num_frame for i in range(np)]
+            frame_end = [frame_num*(i+1) if i<np-1 else self._num_frame for i in range(np)]
 
             # Substract window filling for bin diffusion
             if self._is_diffusion_bin:
@@ -539,7 +555,7 @@ class Sample:
             del results
         else:
             # Run sampling
-            output = [self._sample_helper(list(range(num_frame)))]
+            output = [self._sample_helper(list(range(self._num_frame)))]
 
         # Concatenate output and create pickle object files
         if self._is_density:
@@ -596,14 +612,12 @@ class Sample:
         mol = self._mol
         box = self._pore_props["box"]
         res = self._pore_props["res"]
-        res_list = {}
         com_list = []
         idx_list = []
 
         # Load trajectory
         traj = cf.Trajectory(self._traj)
-        num_frame = traj.nsteps
-        frame_form = "%"+str(len(str(num_frame)))+"i"
+        frame_form = "%"+str(len(str(self._num_frame)))+"i"
 
         # Create local data structures
         output = {}
@@ -620,20 +634,6 @@ class Sample:
             frame = traj.read_step(frame_id)
             positions = frame.positions
 
-            # Create list of relevant atom ids
-            if not res_list:
-                # Get number of residues in system
-                num_res = len(frame.topology.atoms)/mol.get_num()
-
-                # Check number of residues
-                if abs(int(num_res)-num_res) >= 1e-5:
-                    print("Number of atoms is inconsistent with number of residues.")
-                    return
-
-                # Check relevant atoms
-                for res_id in range(int(num_res)):
-                    res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in self._atoms]
-
             # Add new dictionaries and remove unneeded references
             if self._is_diffusion_bin:
                 len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
@@ -644,9 +644,9 @@ class Sample:
                 idx_list.append({})
 
             # Run through residues
-            for res_id in res_list:
+            for res_id in self._res_list:
                 # Get position vectors
-                pos = [[positions[res_list[res_id][atom_id]][i]/10 for i in range(3)] for atom_id in range(len(self._atoms))]
+                pos = [[positions[self._res_list[res_id][atom_id]][i]/10 for i in range(3)] for atom_id in range(len(self._atoms))]
 
                 # Calculate centre of mass
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
@@ -695,8 +695,8 @@ class Sample:
                         self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
 
             # Progress
-            if (frame_id+1)%10==0 or frame_id==0 or frame_id==num_frame-1:
-                sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%num_frame+"...\r")
+            if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:
+                sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")
                 sys.stdout.flush()
         print()
 
