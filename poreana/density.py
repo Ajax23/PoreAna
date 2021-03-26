@@ -89,13 +89,19 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
     sample = utils.load(link_data)
 
     # Load bins
-    bin_in = sample["in"]
-    bin_ex = sample["ex"]
-    bin_num = len(bin_ex[0])-1
+    bins = {}
+    bins["in"] = sample["data"]["in"]
+    bins["ex"] = sample["data"]["ex"]
+
+    # Load width
+    width = {}
+    width["in"] = sample["data"]["in_width"]
+    width["ex"] = sample["data"]["ex_width"]
 
     # Load input data
     inp = sample["inp"]
-    num_frame = inp["frame"]
+    bin_num = inp["bin_num"]
+    num_frame = inp["num_frame"]
     entry = inp["entry"]
     res = inp["res"]
     diam = inp["diam"]
@@ -103,35 +109,39 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
     mass = inp["mass"]
 
     # Calculate bin volume
-    vol_in = [math.pi*(box[2]-2*res-2*entry)*(bin_in[0][i+1]**2-bin_in[0][i]**2) for i in range(0, bin_num+1)]
-    vol_ex = [2*bin_ex[0][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
+    volume = {}
+    volume["in"] = [math.pi*(box[2]-2*res-2*entry)*(width["in"][i+1]**2-width["in"][i]**2) for i in range(0, bin_num+1)]
+    volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
 
     # Calculate the number density
-    num_dens_in = [bin_in[1][i]/vol_in[i]/num_frame for i in range(bin_num+1)]
-    num_dens_ex = [bin_ex[1][i]/vol_ex[i]/num_frame for i in range(bin_num+1)]
+    num_dens = {}
+    num_dens["in"] = [bins["in"][i]/volume["in"][i]/num_frame for i in range(bin_num+1)]
+    num_dens["ex"] = [bins["ex"][i]/volume["ex"][i]/num_frame for i in range(bin_num+1)]
 
     # Calculate the mean in the selected area
-    mean_in = np.mean(num_dens_in[area[0][0]:area[0][1]])
-    mean_ex = np.mean(num_dens_ex[area[1][0]:area[1][1]])
+    mean = {}
+    mean["in"] = np.mean(num_dens["in"][area[0][0]:area[0][1]])
+    mean["ex"] = np.mean(num_dens["ex"][area[1][0]:area[1][1]])
 
     # Calculate Density
-    dens_in = mass*10/6.022*mean_in
-    dens_ex = mass*10/6.022*mean_ex
+    dens = {}
+    dens["in"] = mass*10/6.022*mean["in"]
+    dens["ex"] = mass*10/6.022*mean["ex"]
 
     # Calculate difference to target density
-    num_diff = (target_dens/mass/10*6.022-mean_ex)*box[0]*box[1]*res*2 if target_dens else 0
+    num_diff = (target_dens/mass/10*6.022-mean["ex"])*box[0]*box[1]*res*2 if target_dens else 0
 
     # Output
     if is_print:
-        print("Density inside  Pore = "+"%5.3f"%mean_in+" #/nm^3 ; "+"%7.3f"%dens_in+" kg/m^3")
-        print("Density outside Pore = "+"%5.3f"%mean_ex+" #/nm^3 ; "+"%7.3f"%dens_ex+" kg/m^3")
+        print("Density inside  Pore = "+"%5.3f"%mean["in"]+" #/nm^3 ; "+"%7.3f"%dens["in"]+" kg/m^3")
+        print("Density outside Pore = "+"%5.3f"%mean["ex"]+" #/nm^3 ; "+"%7.3f"%dens["ex"]+" kg/m^3")
         if target_dens:
-            print("Density difference   = "+"%5.3f" % (target_dens-dens_ex)+" kg/m^3 ; "
-                  +"%4.2f" % ((1-dens_ex/target_dens)*100)+" % ; "
+            print("Density difference   = "+"%5.3f" % (target_dens-dens["ex"])+" kg/m^3 ; "
+                  +"%4.2f" % ((1-dens["ex"]/target_dens)*100)+" % ; "
                   +"%3i" % num_diff+" #")
 
     # Return output
-    return  {"in": [bin_in, num_dens_in, mean_in, dens_in], "ex": [bin_ex, num_dens_ex, mean_ex, dens_ex], "inp": inp, "diff": num_diff}
+    return  {"sample": sample, "num_dens": num_dens, "mean": mean, "dens": dens, "diff": num_diff}
 
 
 def plot(density, intent="", target_dens=0, is_mean=False):
@@ -155,7 +165,9 @@ def plot(density, intent="", target_dens=0, is_mean=False):
         True to plot mean values
     """
     # Define bins
-    bins = {"in": density["in"][0][0][:-1], "ex": density["ex"][0][0]}
+    width = {}
+    width["in"] = density["sample"]["data"]["in_width"][:-1]
+    width["ex"] = density["sample"]["data"]["ex_width"]
 
     # Full plot
     if not intent:
@@ -163,25 +175,25 @@ def plot(density, intent="", target_dens=0, is_mean=False):
         plt.figure(figsize=(10, 7))
 
         plt.subplot(211)
-        sns.lineplot(x=bins["in"], y=density["in"][1])
+        sns.lineplot(x=width["in"], y=density["num_dens"]["in"])
         if is_mean:
-            sns.lineplot(x=bins["in"], y=[density["in"][2] for x in bins["in"]])
+            sns.lineplot(x=width["in"], y=[density["mean"]["in"] for x in width["in"]])
 
-        plt.xlim([0, bins["in"][-1]])
+        plt.xlim([0, width["in"][-1]])
         plt.xlabel("Distance from pore center (nm)")
         plt.ylabel(r"Density (atoms nm$^{-3}$)")
         plt.legend(["Density", "Mean"])
 
         plt.subplot(212)
         #
-        sns.lineplot(x=bins["ex"], y=density["ex"][1])
+        sns.lineplot(x=width["ex"], y=density["num_dens"]["ex"])
         if is_mean:
-            sns.lineplot(x=bins["ex"], y=[density["ex"][2] for x in bins["ex"]])
+            sns.lineplot(x=width["ex"], y=[density["mean"]["ex"] for x in width["ex"]])
 
         if target_dens:
-            sns.lineplot(x=bins["ex"], y=[target_dens]*len(bins["ex"]))
+            sns.lineplot(x=width["ex"], y=[target_dens]*len(width["ex"]))
 
-        plt.xlim([0, bins["ex"][-1]])
+        plt.xlim([0, width["ex"][-1]])
         plt.xlabel("Distance from reservoir end (nm)")
         plt.ylabel(r"Density in (atoms nm$^{-3}$)")
         if is_mean:
@@ -195,5 +207,5 @@ def plot(density, intent="", target_dens=0, is_mean=False):
             print("Invalid intent. Check documentation for available options.")
             return
 
-        sns.lineplot(x=bins[intent], y=density[intent][1])
-        plt.xlim([0, bins[intent][-1]])
+        sns.lineplot(x=width[intent], y=density["num_dens"][intent])
+        plt.xlim([0, width[intent][-1]])

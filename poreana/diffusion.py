@@ -9,7 +9,6 @@ import math
 import warnings
 import scipy as sp
 import numpy as np
-# import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -92,34 +91,34 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
 
     # Load data
     inp = sample["inp"]
-    bins = inp["bins"] if not z_dist else math.floor(z_dist/sample["bins"][1])
-    msd_z = [0 for x in range(inp["window"])]
-    msd_r = [0 for x in range(inp["window"])]
-    norm_z = [0 for x in range(inp["window"])]
-    norm_r = [0 for x in range(inp["window"])]
+    bins = inp["bin_num"] if not z_dist else math.floor(z_dist/sample["data"]["width"][1])
+    msd_z = [0 for x in range(inp["len_window"])]
+    msd_r = [0 for x in range(inp["len_window"])]
+    norm_z = [0 for x in range(inp["len_window"])]
+    norm_r = [0 for x in range(inp["len_window"])]
 
     # Sum up all bins
     for i in range(bins):
-        for j in range(inp["window"]):
-            msd_z[j] += sample["axial_tot"][i][j]
-            norm_z[j] += sample["norm_tot"][i][j]
+        for j in range(inp["len_window"]):
+            msd_z[j] += sample["data"]["z_tot"][i][j]
+            norm_z[j] += sample["data"]["n_tot"][i][j]
 
-    for i in range(inp["bins"]):
-        for j in range(inp["window"]):
-            msd_r[j] += sample["radial_tot"][i][j]
-            norm_r[j] += sample["norm_tot"][i][j]
+    for i in range(inp["bin_num"]):
+        for j in range(inp["len_window"]):
+            msd_r[j] += sample["data"]["r_tot"][i][j]
+            norm_r[j] += sample["data"]["n_tot"][i][j]
 
     # Normalize
-    msd_z_n = [msd_z[i]/norm_z[i] if norm_z[i] > 0 else 0 for i in range(inp["window"])]
-    msd_r_n = [msd_r[i]/norm_r[i] if norm_r[i] > 0 else 0 for i in range(inp["window"])]
+    msd_z_n = [msd_z[i]/norm_z[i] if norm_z[i] > 0 else 0 for i in range(inp["len_window"])]
+    msd_r_n = [msd_r[i]/norm_r[i] if norm_r[i] > 0 else 0 for i in range(inp["len_window"])]
 
     # Define time axis and range
-    time_ax = [x*inp["step"]*inp["frame"] for x in range(inp["window"])]
-    t_range = (inp["window"]-1)*inp["step"]*inp["frame"]
+    time_ax = [x*inp["len_step"]*inp["len_frame"] for x in range(inp["len_window"])]
+    t_range = (inp["len_window"]-1)*inp["len_step"]*inp["len_frame"]
 
     # Calculate axial coefficient
     if not intent or intent == "axial":
-        dz = (msd_z_n[int(ax_area[1]*inp["window"])]-msd_z_n[int(ax_area[0]*inp["window"])])*1e-9**2/((ax_area[1]-ax_area[0])*t_range)/2*1e2**2*1e5  # 10^-9 m^2s^-1
+        dz = (msd_z_n[int(ax_area[1]*inp["len_window"])]-msd_z_n[int(ax_area[0]*inp["len_window"])])*1e-9**2/((ax_area[1]-ax_area[0])*t_range)/2*1e2**2*1e5  # 10^-9 m^2s^-1
 
         print("Diffusion axial:  "+"%.3f" % dz+" 10^-9 m^2s^-1")
 
@@ -150,7 +149,7 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
         if is_plot:
             legend += ["Axial"]
         if is_fit:
-            sns.lineplot(x=[x*1e12 for x in time_ax], y=[dz*2*time_ax[x]/1e5/1e-7**2 for x in range(inp["window"])])
+            sns.lineplot(x=[x*1e12 for x in time_ax], y=[dz*2*time_ax[x]/1e5/1e-7**2 for x in range(inp["len_window"])])
             legend += ["Fitted Axial"]
 
     if not intent or intent == "radial":
@@ -216,18 +215,18 @@ def bins(data_link, ax_area=[0.2, 0.8], intent="plot", is_norm=False):
 
     # Load data
     inp = sample["inp"]
-    bins = sample["bins"]
-    msd_z = sample["axial"]
-    norm = sample["norm"]
+    width = sample["data"]["width"]
+    msd_z = sample["data"]["z"]
+    norm = sample["data"]["n"]
 
     # Normalize
-    msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(inp["window"])] for i in range(inp["bins"]+1)]
+    msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(inp["len_window"])] for i in range(inp["bin_num"]+1)]
 
     # Calculate slope
-    f_start = int(ax_area[0]*inp["window"])
-    f_end = int(ax_area[1]*inp["window"])
-    time_ax = [x*inp["step"]*inp["frame"] for x in range(inp["window"])]
-    slope = [(msd_norm[i][f_end]-msd_norm[i][f_start])/(time_ax[f_end]-time_ax[f_start]) for i in range(inp["bins"]+1)]
+    f_start = int(ax_area[0]*inp["len_window"])
+    f_end = int(ax_area[1]*inp["len_window"])
+    time_ax = [x*inp["len_step"]*inp["len_frame"] for x in range(inp["len_window"])]
+    slope = [(msd_norm[i][f_end]-msd_norm[i][f_start])/(time_ax[f_end]-time_ax[f_start]) for i in range(inp["bin_num"]+1)]
 
     # Calculate diffusion coefficient
     diff = [msd*1e-9**2/2*1e2**2*1e5 for msd in slope]  # 10^-9 m^2s^-1
@@ -236,14 +235,14 @@ def bins(data_link, ax_area=[0.2, 0.8], intent="plot", is_norm=False):
     if is_norm:
         for i in range(len(diff)-1, 0, -1):
             if diff[i] > 0:
-                x_max = bins[i+1]
+                x_max = width[i+1]
                 break
 
-        bins_norm = [x/x_max for x in bins]
+        bins_norm = [x/x_max for x in width]
 
     # Plot
     if intent == "plot" or intent == "line":
-        x_axis = bins_norm if is_norm else bins
+        x_axis = bins_norm if is_norm else width
         sns.lineplot(x=x_axis[:-1], y=diff)
 
     if intent == "plot":
@@ -253,10 +252,10 @@ def bins(data_link, ax_area=[0.2, 0.8], intent="plot", is_norm=False):
             plt.xlabel("Distance from pore center (nm)")
         plt.ylabel(r"Diffusion coefficient ($10^{-9}$ m${^2}$ s$^{-1}$)")
 
-    return {"bins": bins, "diff": diff}
+    return {"width": width, "diff": diff}
 
 
-def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False):#, is_check=False):
+def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False, is_check=False):
     """This function uses the diffusion coefficient slope obtained from
     function :func:`bins` and the density slope of function
     :func:`poreana.density.calculate` to calculate a weighted diffusion
@@ -294,45 +293,45 @@ def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False):#, i
     is_norm : bool, optional
         True to normalize x-axis
     is_check : bool, optional
-        True to show density function fit
+        True to plot density function fit
 
     Returns
     -------
-    diff : float
-        Mean axial diffusion in 10^-9 m^2s^-1
+    diff_weight : float
+        Density weighted mean axial diffusion in 10^-9 m^2s^-1
     """
     # Load data
     dens = density.calculate(data_link_dens, is_print=False)
-    diff = bins(data_link_diff, ax_area=ax_area, intent="", is_norm=is_norm)
+    diff_bin = bins(data_link_diff, ax_area=ax_area, intent="", is_norm=is_norm)
 
     # Get number of bins
-    bin_num = len(diff["bins"][:-1])
+    bin_num = len(diff_bin["width"][:-1])
 
     # Set diffusion functions
-    bins_f = diff["bins"][:-1]
-    diff_f = diff["diff"]
+    width = diff_bin["width"][:-1]
+    diff = diff_bin["diff"]
 
     # Fit density function
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', r'Polyfit may be poorly conditioned')
-        param = np.polyfit(dens["in"][0][0][:-1], dens["in"][1], 100)
-        dens_f = np.poly1d(param)(bins_f)
+        param = np.polyfit(dens["sample"]["data"]["in_width"][:-1], dens["num_dens"]["in"], 100)
+        dens_f = np.poly1d(param)(width)
 
-    # Check results
-    # if is_check:
-    #     # Plot check
-    #     plt.plot(dens["in"][0][0][:-1], dens["in"][1], diff["bins"][:-1], dens_f)
-    #     plt.show()
-    #
-    #     # Output data as excel
-    #     df = pd.DataFrame({"bins": bins_f, "dens": dens_f, "diff": diff_f})
-    #     df.to_excel("C:/Users/Ajax/Desktop/"+data_link_diff.split("/")[-1].split(".")[0]+".xlsx")
+    print(dens_f)
+
+    # Plot fit
+    if is_check:
+        sns.lineplot(x=dens["sample"]["data"]["in_width"][:-1], y=dens["num_dens"]["in"])
+        sns.lineplot(x=width, y=dens_f)
 
     # Integrate density
-    dens_int = sum([dens_f[i]*(bins_f[i+1]**2-bins_f[i]**2) for i in range(bin_num-1)])
+    dens_int = sum([dens_f[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
 
     # Calculate weighted diffusion
-    diff_int = sum([dens_f[i]*diff_f[i]*(bins_f[i+1]**2-bins_f[i]**2) for i in range(bin_num-1)])
+    diff_int = sum([dens_f[i]*diff[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+
+    print(dens_int)
+    print(diff_int)
 
     # Normalize
     diff_weight = diff_int/dens_int

@@ -111,9 +111,11 @@ class Sample:
     def _bin_in_ex_temp(self, bin_num):
         """TEMPORARY FUNCTION BEFORE OUTPUT RESTRUCTURING.
         """
-        bin_in = [self._bin_in(bin_num)["width"], self._bin_in(bin_num)["bins"]]
-        bin_ex = [self._bin_ex(bin_num)["width"], self._bin_ex(bin_num)["bins"]]
-        return {"in": bin_in, "ex": bin_ex}
+        bin_in_width = self._bin_in(bin_num)["width"]
+        bin_ex_width = self._bin_ex(bin_num)["width"]
+        bin_in = self._bin_in(bin_num)["bins"]
+        bin_ex = self._bin_ex(bin_num)["bins"]
+        return {"in_width": bin_in_width, "ex_width": bin_ex_width, "in": bin_in, "ex": bin_ex}
 
     def _bin_diff_temp(self, bin_num, len_window):
         """TEMPORARY FUNCTION BEFORE OUTPUT RESTRUCTURING.
@@ -234,18 +236,18 @@ class Sample:
 
         # Add molecule to bin
         if region=="in":
-            index = math.floor(dist/data["in"][0][1])
+            index = math.floor(dist/data["in_width"][1])
             if index <= bin_num:
-                data["in"][1][index] += 1
+                data["in"][index] += 1
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
             lentgh = com[2] if com[2] < self._pore_props["focal"][2] else abs(com[2]-self._pore_props["box"][2])
-            index = math.floor(lentgh/data["ex"][0][1])
+            index = math.floor(lentgh/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit - remove pore
             if dist > self._pore_props["diam"]/2 and index <= bin_num:
-                data["ex"][1][index] += 1
+                data["ex"][index] += 1
 
 
     ############
@@ -307,18 +309,18 @@ class Sample:
 
         # Add molecule to bin
         if region=="in":
-            index = math.floor(dist/data["in"][0][1])
+            index = math.floor(dist/data["in_width"][1])
             if index <= bin_num:
-                data["in"][1][index] += r_g
+                data["in"][index] += r_g
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
             lentgh = com[2] if com[2] < self._pore_props["focal"][2] else abs(com[2]-self._pore_props["box"][2])
-            index = math.floor(lentgh/data["ex"][0][1])
+            index = math.floor(lentgh/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit - remove pore
             if dist > self._pore_props["diam"]/2 and index <= bin_num:
-                data["ex"][1][index] += r_g
+                data["ex"][index] += r_g
 
 
     #############
@@ -505,7 +507,7 @@ class Sample:
     ############
     # Sampling #
     ############
-    def sample(self, is_parallel=True, is_force=False):
+    def sample(self, is_parallel=True):
         """This function runs all enabled sampling routines. The output is
         stored in form of pickle files for later calculation using methods
         provided in the package.
@@ -517,16 +519,9 @@ class Sample:
         ----------
         is_parallel : bool, optional
             True to run parallelized sampling
-        is_force : bool, optional
-            True to overwrite existing object files
         """
         # Load trajectory
         np = mp.cpu_count()
-
-        # Export inputs
-        inp = {"frame": self._num_frame, "mass": self._mol.get_mass(),
-               "entry": self._entry, "res": self._pore_props["res"],
-               "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
 
         # Run sampling helper
         if is_parallel:
@@ -558,23 +553,36 @@ class Sample:
             output = [self._sample_helper(list(range(self._num_frame)))]
 
         # Concatenate output and create pickle object files
+        inp = {"num_frame": self._num_frame, "mass": self._sum_masses,
+               "entry": self._entry, "res": self._pore_props["res"],
+               "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
+
         if self._is_density:
+            inp_dens = inp.copy()
+            inp_dens.update(self._dens_inp)
+            inp_dens.pop("output")
             data_dens = output[0]["density"]
             for out in output[1:]:
-                data_dens["in"][1] = [x+y for x, y in zip(data_dens["in"][1], out["density"]["in"][1])]
-                data_dens["ex"][1] = [x+y for x, y in zip(data_dens["ex"][1], out["density"]["ex"][1])]
+                data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
+                data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
             # Pickle
-            utils.save({"inp": inp, "in": data_dens["in"], "ex": data_dens["ex"]}, self._dens_inp["output"])
+            utils.save({"inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
 
         if self._is_gyration:
+            inp_gyr = inp.copy()
+            inp_gyr.update(self._gyr_inp)
+            inp_gyr.pop("output")
             data_gyr = output[0]["gyration"]
             for out in output[1:]:
-                data_gyr["in"][1] = [x+y for x, y in zip(data_gyr["in"][1], out["gyration"]["in"][1])]
-                data_gyr["ex"][1] = [x+y for x, y in zip(data_gyr["ex"][1], out["gyration"]["ex"][1])]
+                data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
+                data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
             # Pickle
-            utils.save({"inp": inp, "in": data_gyr["in"], "ex": data_gyr["ex"]}, self._gyr_inp["output"])
+            utils.save({"inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
+            inp_diff = inp.copy()
+            inp_diff.update(self._diff_bin_inp)
+            inp_diff.pop("output")
             data_diff = output[0]["diffusion_bin"]
             for out in output[1:]:
                 for i in range(self._diff_bin_inp["bin_num"]):
@@ -585,17 +593,8 @@ class Sample:
                         data_diff["z_tot"][i][j] += out["diffusion_bin"]["z_tot"][i][j]
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
-
-            # TEMPORARY FORMATING UNTIL OUTPUT RESTRUCTURING
-            diff_inp = {key: val for key, val in inp.items()}
-            diff_inp["bins"] = self._diff_bin_inp["bin_num"]
-            diff_inp["step"] = self._diff_bin_inp["len_step"]
-            diff_inp["frame"] = self._diff_bin_inp["len_frame"]
-            diff_inp["window"] = self._diff_bin_inp["len_window"]
-            utils.save({"inp": diff_inp, "bins": data_diff["width"],
-                        "axial":  data_diff["z"], "axial_tot":  data_diff["z_tot"],
-                        "radial": data_diff["r"], "radial_tot": data_diff["r_tot"],
-                        "norm":   data_diff["n"], "norm_tot":   data_diff["n_tot"]}, self._diff_bin_inp["output"])
+            # Pickle
+            utils.save({"inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
 
     def _sample_helper(self, frame_list):
         """Helper function for sampling run.

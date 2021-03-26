@@ -42,33 +42,34 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
     areas = ["in", "ex"]
     gyr = utils.load(data_link_gyr)
     dens = utils.load(data_link_dens)
-    bins = {"in": gyr["in"][0][:-1], "ex": gyr["ex"][0]}
+    width = {}
+    width["in"] = gyr["data"]["in_width"][:-1]
+    width["ex"] = gyr["data"]["ex_width"]
 
     # Divide gyration radius by density in bins
-    gyration = {area: [gyr[area][1][i]/dens[area][1][i] if dens[area][1][i] else 0 for i in range(len(gyr[area][1]))] for area in areas}
+    gyration = {area: [gyr["data"][area][i]/dens["data"][area][i] if dens["data"][area][i] else 0 for i in range(len(gyr["data"][area]))] for area in areas}
 
     # Calculate mean gyration radius
     mean = {area: sum(gyration[area])/len(gyration[area]) for area in areas}
 
     # Full plot
     if not intent:
-        # Plot
         plt.subplot(211)
-        sns.lineplot(x=bins["in"], y=gyration["in"])
+        sns.lineplot(x=width["in"], y=gyration["in"])
         if is_mean:
-            sns.lineplot(x=bins["in"], y=[mean["in"] for x in bins["in"]])
+            sns.lineplot(x=width["in"], y=[mean["in"] for x in width["in"]])
 
-        plt.xlim([0, bins["in"][-1]])
+        plt.xlim([0, width["in"][-1]])
         plt.xlabel("Distance from pore center (nm)")
         plt.ylabel(r"Radius (nm)")
         plt.legend(["Gyration radius", "Mean"])
 
         plt.subplot(212)
-        sns.lineplot(x=bins["ex"], y=gyration["ex"])
+        sns.lineplot(x=width["ex"], y=gyration["ex"])
         if is_mean:
-            sns.lineplot(x=bins["ex"], y=[mean["ex"] for x in bins["ex"]])
+            sns.lineplot(x=width["ex"], y=[mean["ex"] for x in width["ex"]])
 
-        plt.xlim([0, bins["ex"][-1]])
+        plt.xlim([0, width["ex"][-1]])
         plt.xlabel("Distance from reservoir end (nm)")
         plt.ylabel(r"Radius (nm)")
         plt.legend(["Gyration radius", "Mean"])
@@ -79,7 +80,7 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
             print("Invalid intent. Check documentation for available options.")
             return
 
-        sns.lineplot(x=bins[intent], y=gyration[intent])
-        plt.xlim([0, bins[intent][-1]])
+        sns.lineplot(x=width[intent], y=gyration[intent])
+        plt.xlim([0, width[intent][-1]])
 
     return mean

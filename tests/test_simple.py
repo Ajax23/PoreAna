@@ -17,45 +17,45 @@ class UserModelCase(unittest.TestCase):
     #################
     # Remove Output #
     #################
-    @classmethod
-    def setUpClass(self):
-        folder = 'output'
-        pa.utils.mkdirp(folder)
-        pa.utils.mkdirp(folder+"/temp")
-        open(folder+"/temp.txt", 'a').close()
-
-        for filename in os.listdir(folder):
-            file_path = os.path.join(folder, filename)
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-
-        # Load molecule
-        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
-
-        # Sample
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
-        sample.init_density("output/dens.obj")
-        sample.init_gyration("output/gyr.obj")
-        sample.init_diffusion_bin("output/diff.obj")
-        sample.sample(is_parallel=False)
-
-        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
-        sample.init_density("output/dens_snj.obj")
-        sample.sample(is_parallel=False)
-
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
-        sample.init_density("output/dens_p.obj")
-        sample.init_gyration("output/gyr_p.obj")
-        sample.init_diffusion_bin("output/diff_p.obj")
-        sample.sample(is_parallel=True)
-
-        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
-        sample.init_density("output/dens_nj.obj")
-        sample.init_gyration("output/gyr_nj.obj")
-        sample.init_diffusion_bin("output/diff_nj.obj")
-        sample.sample(is_parallel=True)
+    # @classmethod
+    # def setUpClass(self):
+    #     folder = 'output'
+    #     pa.utils.mkdirp(folder)
+    #     pa.utils.mkdirp(folder+"/temp")
+    #     open(folder+"/temp.txt", 'a').close()
+    #
+    #     for filename in os.listdir(folder):
+    #         file_path = os.path.join(folder, filename)
+    #         if os.path.isfile(file_path) or os.path.islink(file_path):
+    #             os.unlink(file_path)
+    #         elif os.path.isdir(file_path):
+    #             shutil.rmtree(file_path)
+    #
+    #     # Load molecule
+    #     mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+    #
+    #     # Sample
+    #     sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
+    #     sample.init_density("output/dens.obj")
+    #     sample.init_gyration("output/gyr.obj")
+    #     sample.init_diffusion_bin("output/diff.obj")
+    #     sample.sample(is_parallel=False)
+    #
+    #     sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
+    #     sample.init_density("output/dens_snj.obj")
+    #     sample.sample(is_parallel=False)
+    #
+    #     sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
+    #     sample.init_density("output/dens_p.obj")
+    #     sample.init_gyration("output/gyr_p.obj")
+    #     sample.init_diffusion_bin("output/diff_p.obj")
+    #     sample.sample(is_parallel=True)
+    #
+    #     sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
+    #     sample.init_density("output/dens_nj.obj")
+    #     sample.init_gyration("output/gyr_nj.obj")
+    #     sample.init_diffusion_bin("output/diff_nj.obj")
+    #     sample.sample(is_parallel=True)
 
 
     #########
@@ -130,12 +130,12 @@ class UserModelCase(unittest.TestCase):
         ads_p = pa.adsorption.calculate("data/pore_system.obj", "output/dens_p.obj")
         ads_nj = pa.adsorption.calculate("data/pore_system.obj", "output/dens_nj.obj")
 
-        self.assertEqual(round(ads["c"][1], 2), 0.15)
-        self.assertEqual(round(ads["n"][1], 2), 10.68)
-        self.assertEqual(round(ads_p["c"][1], 2), 0.15)
-        self.assertEqual(round(ads_p["n"][1], 2), 10.68)
-        self.assertEqual(round(ads_nj["c"][1], 2), 0.15)
-        self.assertEqual(round(ads_nj["n"][1], 2), 10.68)
+        self.assertEqual(round(ads["conc"]["mumol_m2"], 2), 0.15)
+        self.assertEqual(round(ads["num"]["in"], 2), 10.68)
+        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.15)
+        self.assertEqual(round(ads_p["num"]["in"], 2), 10.68)
+        self.assertEqual(round(ads_nj["conc"]["mumol_m2"], 2), 0.15)
+        self.assertEqual(round(ads_nj["num"]["in"], 2), 10.68)
 
 
     ###########
@@ -147,17 +147,17 @@ class UserModelCase(unittest.TestCase):
         dens_p = pa.density.calculate("output/dens_p.obj", target_dens=16)
         dens_nj = pa.density.calculate("output/dens_nj.obj", target_dens=16)
 
-        self.assertEqual(round(dens["in"][3], 3), 12.941)
-        self.assertEqual(round(dens["ex"][3], 3), 15.977)
-        self.assertEqual(round(dens_p["in"][3], 3), 12.941)
-        self.assertEqual(round(dens_p["ex"][3], 3), 15.977)
-        self.assertEqual(round(dens_nj["in"][3], 3), 12.946)
-        self.assertEqual(round(dens_nj["ex"][3], 3), 16.178)
+        self.assertEqual(round(dens["dens"]["in"], 3), 12.941)
+        self.assertEqual(round(dens["dens"]["ex"], 3), 15.977)
+        self.assertEqual(round(dens_p["dens"]["in"], 3), 12.941)
+        self.assertEqual(round(dens_p["dens"]["ex"], 3), 15.977)
+        self.assertEqual(round(dens_nj["dens"]["in"], 3), 12.946)
+        self.assertEqual(round(dens_nj["dens"]["ex"], 3), 16.178)
 
         # Plot density
         plt.figure()
-        pa.density.plot(dens, target_dens=33)
-        pa.density.plot(dens, target_dens=33, is_mean=True)
+        pa.density.plot(dens, target_dens=0.146)
+        pa.density.plot(dens, target_dens=0.146, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
         # plt.show()
 
@@ -177,7 +177,7 @@ class UserModelCase(unittest.TestCase):
     def test_diffusion(self):
         # Bin diffusion
         plt.figure()
-        pa.diffusion.bins("output/diff.obj")
+        diff = pa.diffusion.bins("output/diff.obj")
         pa.diffusion.bins("output/diff.obj", is_norm=True)
         plt.savefig("output/diffusion_bins.pdf", format="pdf", dpi=1000)
         # plt.show()
@@ -189,7 +189,9 @@ class UserModelCase(unittest.TestCase):
         # plt.show()
 
         # Mean diffusion based on bins
-        mean = pa.diffusion.mean("output/diff.obj", "output/dens.obj")
+        plt.figure()
+        mean = pa.diffusion.mean("output/diff.obj", "output/dens.obj", is_check=True)
+        plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean("output/diff_p.obj", "output/dens_p.obj")
         mean_nj = pa.diffusion.mean("output/diff_nj.obj", "output/dens_nj.obj")
 
@@ -205,10 +207,13 @@ class UserModelCase(unittest.TestCase):
         # Plot gyration radius
         plt.figure()
         mean = pa.gyration.plot("output/gyr.obj", "output/dens.obj", is_mean=True)
-        mean_p = pa.gyration.plot("output/gyr_p.obj", "output/dens_p.obj", is_mean=True)
-        mean_nj = pa.gyration.plot("output/gyr_nj.obj", "output/dens_nj.obj", is_mean=True)
         plt.savefig("output/gyration.pdf", format="pdf", dpi=1000)
-        # plt.show()
+        plt.figure()
+        mean_p = pa.gyration.plot("output/gyr_p.obj", "output/dens_p.obj")
+        plt.savefig("output/gyration_p.pdf", format="pdf", dpi=1000)
+        plt.figure()
+        mean_nj = pa.gyration.plot("output/gyr_nj.obj", "output/dens_nj.obj")
+        plt.savefig("output/gyration_nj.pdf", format="pdf", dpi=1000)
 
         self.assertEqual(round(mean["in"], 2), 0.12)
         self.assertEqual(round(mean["ex"], 2), 0.38)
@@ -221,7 +226,6 @@ class UserModelCase(unittest.TestCase):
         pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="in")
         pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="ex")
         plt.savefig("output/gyration_intent.pdf", format="pdf", dpi=1000)
-        # plt.show()
 
         print()
         pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="DOTA")
