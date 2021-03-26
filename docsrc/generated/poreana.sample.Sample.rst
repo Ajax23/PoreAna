@@ -19,18 +19,33 @@ Sample
      ~Sample.sample
 
 
-  .. rubric:: Properties
+  .. rubric:: Density
 
   .. autosummary::
 
-    ~Sample._density
-    ~Sample._diffusion_bin
-    ~Sample._diffusion_bin_step
-    ~Sample._gyration
-
     ~Sample.init_density
-    ~Sample.init_diffusion_bin
+    ~Sample._density
+    ~Sample._density_data
+
+
+  .. rubric:: Gyration Radius
+
+  .. autosummary::
+
     ~Sample.init_gyration
+    ~Sample._gyration
+    ~Sample._gyration_data
+
+
+
+  .. rubric:: Bin Diffusion
+
+  .. autosummary::
+
+    ~Sample.init_diffusion_bin
+    ~Sample._diffusion_bin
+    ~Sample._diffusion_bin_data
+    ~Sample._diffusion_bin_step
 
 
   .. rubric:: Bin Structure

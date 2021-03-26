@@ -17,45 +17,45 @@ class UserModelCase(unittest.TestCase):
     #################
     # Remove Output #
     #################
-    # @classmethod
-    # def setUpClass(self):
-    #     folder = 'output'
-    #     pa.utils.mkdirp(folder)
-    #     pa.utils.mkdirp(folder+"/temp")
-    #     open(folder+"/temp.txt", 'a').close()
-    #
-    #     for filename in os.listdir(folder):
-    #         file_path = os.path.join(folder, filename)
-    #         if os.path.isfile(file_path) or os.path.islink(file_path):
-    #             os.unlink(file_path)
-    #         elif os.path.isdir(file_path):
-    #             shutil.rmtree(file_path)
-    #
-    #     # Load molecule
-    #     mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
-    #
-    #     # Sample
-    #     sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
-    #     sample.init_density("output/dens.obj")
-    #     sample.init_gyration("output/gyr.obj")
-    #     sample.init_diffusion_bin("output/diff.obj")
-    #     sample.sample(is_parallel=False)
-    #
-    #     sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
-    #     sample.init_density("output/dens_snj.obj")
-    #     sample.sample(is_parallel=False)
-    #
-    #     sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
-    #     sample.init_density("output/dens_p.obj")
-    #     sample.init_gyration("output/gyr_p.obj")
-    #     sample.init_diffusion_bin("output/diff_p.obj")
-    #     sample.sample(is_parallel=True)
-    #
-    #     sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
-    #     sample.init_density("output/dens_nj.obj")
-    #     sample.init_gyration("output/gyr_nj.obj")
-    #     sample.init_diffusion_bin("output/diff_nj.obj")
-    #     sample.sample(is_parallel=True)
+    @classmethod
+    def setUpClass(self):
+        folder = 'output'
+        pa.utils.mkdirp(folder)
+        pa.utils.mkdirp(folder+"/temp")
+        open(folder+"/temp.txt", 'a').close()
+
+        for filename in os.listdir(folder):
+            file_path = os.path.join(folder, filename)
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+
+        # Load molecule
+        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+
+        # Sample
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
+        sample.init_density("output/dens.obj")
+        sample.init_gyration("output/gyr.obj")
+        sample.init_diffusion_bin("output/diff.obj")
+        sample.sample(is_parallel=False)
+
+        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
+        sample.init_density("output/dens_snj.obj")
+        sample.sample(is_parallel=False)
+
+        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
+        sample.init_density("output/dens_p.obj")
+        sample.init_gyration("output/gyr_p.obj")
+        sample.init_diffusion_bin("output/diff_p.obj")
+        sample.sample(is_parallel=True)
+
+        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
+        sample.init_density("output/dens_nj.obj")
+        sample.init_gyration("output/gyr_nj.obj")
+        sample.init_diffusion_bin("output/diff_nj.obj")
+        sample.sample(is_parallel=True)
 
 
     #########

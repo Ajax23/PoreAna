@@ -317,8 +317,6 @@ def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False, is_c
         param = np.polyfit(dens["sample"]["data"]["in_width"][:-1], dens["num_dens"]["in"], 100)
         dens_f = np.poly1d(param)(width)
 
-    print(dens_f)
-
     # Plot fit
     if is_check:
         sns.lineplot(x=dens["sample"]["data"]["in_width"][:-1], y=dens["num_dens"]["in"])

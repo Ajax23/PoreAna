@@ -112,7 +112,7 @@
 <h1>mean<a class="headerlink" href="#mean" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="poreana.diffusion.mean">
-<code class="descclassname">poreana.diffusion.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.diffusion.mean" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">poreana.diffusion.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False, is_check=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.diffusion.mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function uses the diffusion coefficient slope obtained from
 function <a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-func docutils literal"><span class="pre">bins()</span></code></a> and the density slope of function
 <a class="reference internal" href="poreana.density.calculate.html#poreana.density.calculate" title="poreana.density.calculate"><code class="xref py py-func docutils literal"><span class="pre">poreana.density.calculate()</span></code></a> to calculate a weighted diffusion
@@ -147,14 +147,14 @@ coefficient inside the pore</p>
 <dd><p class="first last">True to normalize x-axis</p>
 </dd>
 <dt><strong>is_check</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to show density function fit</p>
+<dd><p class="first last">True to plot density function fit</p>
 </dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>diff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
-<dd><p class="first last">Mean axial diffusion in 10^-9 m^2s^-1</p>
+<dt><strong>diff_weight</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd><p class="first last">Density weighted mean axial diffusion in 10^-9 m^2s^-1</p>
 </dd>
 </dl>
 </td>

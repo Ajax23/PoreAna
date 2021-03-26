@@ -108,29 +108,6 @@ class Sample:
     ########
     # Bins #
     ########
-    def _bin_in_ex_temp(self, bin_num):
-        """TEMPORARY FUNCTION BEFORE OUTPUT RESTRUCTURING.
-        """
-        bin_in_width = self._bin_in(bin_num)["width"]
-        bin_ex_width = self._bin_ex(bin_num)["width"]
-        bin_in = self._bin_in(bin_num)["bins"]
-        bin_ex = self._bin_ex(bin_num)["bins"]
-        return {"in_width": bin_in_width, "ex_width": bin_ex_width, "in": bin_in, "ex": bin_ex}
-
-    def _bin_diff_temp(self, bin_num, len_window):
-        """TEMPORARY FUNCTION BEFORE OUTPUT RESTRUCTURING.
-        """
-        width = self._bin_window(bin_num, len_window)["width"]
-        bin_z = self._bin_window(bin_num, len_window)["bins"]
-        bin_r = self._bin_window(bin_num, len_window)["bins"]
-        bin_n = self._bin_window(bin_num, len_window)["bins"]
-        bin_z_tot = self._bin_window(bin_num, len_window)["bins"]
-        bin_r_tot = self._bin_window(bin_num, len_window)["bins"]
-        bin_n_tot = self._bin_window(bin_num, len_window)["bins"]
-
-        return {"width": width, "z": bin_z, "r": bin_r, "n": bin_n,
-                "z_tot": bin_z_tot, "r_tot": bin_r_tot, "n_tot": bin_n_tot}
-
     def _bin_in(self, bin_num):
         """This function creates a simple bin structure for the interior of the
         pore based on the pore diameter.
@@ -210,6 +187,26 @@ class Sample:
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num}
 
+    def _density_data(self):
+        """Create density data structure.
+
+        Returns
+        -------
+        data : dictionary
+            Density data structure
+        """
+        # Initialize
+        bin_num = self._dens_inp["bin_num"]
+
+        # Create dictionary
+        data = {}
+        data["in_width"] = self._bin_in(bin_num)["width"]
+        data["ex_width"] = self._bin_ex(bin_num)["width"]
+        data["in"] = self._bin_in(bin_num)["bins"]
+        data["ex"] = self._bin_ex(bin_num)["bins"]
+
+        return data
+
     def _density(self, data, region, dist, com):
         """This function samples the density inside and outside of the pore.
 
@@ -266,6 +263,26 @@ class Sample:
         # Initialize
         self._is_gyration = True
         self._gyr_inp = {"output": link_out, "bin_num": bin_num}
+
+    def _gyration_data(self):
+        """Create gyration data structure.
+
+        Returns
+        -------
+        data : dictionary
+            Gyration data structure
+        """
+        # Initialize
+        bin_num = self._gyr_inp["bin_num"]
+
+        # Create dictionary
+        data = {}
+        data["in_width"] = self._bin_in(bin_num)["width"]
+        data["ex_width"] = self._bin_ex(bin_num)["width"]
+        data["in"] = self._bin_in(bin_num)["bins"]
+        data["ex"] = self._bin_ex(bin_num)["bins"]
+
+        return data
 
     def _gyration(self, data, region, dist, com, pos):
         """This function calculates the gyration radius of molecules inside the
@@ -361,6 +378,27 @@ class Sample:
         self._diff_bin_inp = {"output": link_out, "bin_step_size": bin_step_size,
                               "bin_num": bin_num, "len_step": len_step,
                               "len_frame": len_frame, "len_window": len_window}
+
+    def _diffusion_bin_data(self):
+        """Create bin diffusion data structure.
+
+        Returns
+        -------
+        data : dictionary
+            Bin diffusion data structure
+        """
+        # Initialize
+        bin_num = self._diff_bin_inp["bin_num"]
+        len_window = self._diff_bin_inp["len_window"]
+
+        # Create dictionary
+        data = {}
+        data["width"] = self._bin_window(bin_num, len_window)["width"]
+        bins = ["z", "r", "n", "z_tot", "r_tot", "n_tot"]
+        for bin in bins:
+            data[bin] = self._bin_window(bin_num, len_window)["bins"]
+
+        return data
 
     def _diffusion_bin_step(self, idx):
         """Helper function to define allowed bin step list.
@@ -621,11 +659,11 @@ class Sample:
         # Create local data structures
         output = {}
         if self._is_density:
-            output["density"] = self._bin_in_ex_temp(self._dens_inp["bin_num"])
+            output["density"] = self._density_data()
         if self._is_gyration:
-            output["gyration"] = self._bin_in_ex_temp(self._gyr_inp["bin_num"])
+            output["gyration"] = self._gyration_data()
         if self._is_diffusion_bin:
-            output["diffusion_bin"] = self._bin_diff_temp(self._diff_bin_inp["bin_num"], self._diff_bin_inp["len_window"])
+            output["diffusion_bin"] = self._diffusion_bin_data()
 
         # Run through frames
         for frame_id in frame_list:
