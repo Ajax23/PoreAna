@@ -591,7 +591,7 @@ class Sample:
             output = [self._sample_helper(list(range(self._num_frame)))]
 
         # Concatenate output and create pickle object files
-        inp = {"num_frame": self._num_frame, "mass": self._sum_masses,
+        inp = {"num_frame": self._num_frame, "mass": self._mol.get_mass(),
                "entry": self._entry, "res": self._pore_props["res"],
                "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
 
