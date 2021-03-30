@@ -328,9 +328,6 @@ def mean(data_link_diff, data_link_dens, ax_area=[0.2, 0.8], is_norm=False, is_c
     # Calculate weighted diffusion
     diff_int = sum([dens_f[i]*diff[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
 
-    print(dens_int)
-    print(diff_int)
-
     # Normalize
     diff_weight = diff_int/dens_int
 
