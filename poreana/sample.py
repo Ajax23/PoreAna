@@ -101,8 +101,8 @@ class Sample:
         # Get pore diameter
         if isinstance(self._pore, pms.PoreCylinder):
             self._pore_props["diam"] = self._pore.diameter()
-        # elif isinstance(self._pore, pms.PoreSlit):
-        #     self._pore_props["diam"] = self._pore.height()
+        elif isinstance(self._pore, pms.PoreSlit):
+            self._pore_props["diam"] = self._pore.height()
 
 
     ########
@@ -706,8 +706,8 @@ class Sample:
                     # Calculate distance towards center axis
                     if isinstance(self._pore, pms.PoreCylinder):
                         dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                    # elif isinstance(self._pore, pms.PoreSlit):
-                    #     dist = abs(self._pore_props["focal"][1]-com[1])
+                    elif isinstance(self._pore, pms.PoreSlit):
+                        dist = abs(self._pore_props["focal"][1]-com[1])
 
                     # Set region - in-inside, ex-outside
                     region = ""
