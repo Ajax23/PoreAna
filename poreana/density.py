@@ -118,7 +118,7 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
         volume["in"] = [math.pi*(box[2]-2*res-2*entry)*(width["in"][i+1]**2-width["in"][i]**2) for i in range(0, bin_num+1)]
         volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
     elif pore_type=="SLIT":
-        volume["in"] = [box[0]*(box[2]-2*res-2*entry)*(width["in"][i+1]-width["in"][i]) for i in range(0, bin_num+1)]
+        volume["in"] = [box[0]*(box[2]-2*res-2*entry)*(width["in"][i+1]-width["in"][i])*2 for i in range(0, bin_num+1)]
         volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-diam) for i in range(bin_num+1)]
 
     # Calculate the number density
