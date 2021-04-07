@@ -103,15 +103,23 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
     bin_num = inp["bin_num"]
     num_frame = inp["num_frame"]
     entry = inp["entry"]
-    res = inp["res"]
-    diam = inp["diam"]
-    box = inp["box"]
     mass = inp["mass"]
+
+    # Load pore data
+    pore = sample["pore"]
+    pore_type = pore["type"]
+    res = pore["res"]
+    diam = pore["diam"]
+    box = pore["box"]
 
     # Calculate bin volume
     volume = {}
-    volume["in"] = [math.pi*(box[2]-2*res-2*entry)*(width["in"][i+1]**2-width["in"][i]**2) for i in range(0, bin_num+1)]
-    volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
+    if pore_type=="CYLINDER":
+        volume["in"] = [math.pi*(box[2]-2*res-2*entry)*(width["in"][i+1]**2-width["in"][i]**2) for i in range(0, bin_num+1)]
+        volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
+    elif pore_type=="SLIT":
+        volume["in"] = [box[0]*(box[2]-2*res-2*entry)*(width["in"][i+1]-width["in"][i]) for i in range(0, bin_num+1)]
+        volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-diam) for i in range(bin_num+1)]
 
     # Calculate the number density
     num_dens = {}

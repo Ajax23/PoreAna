@@ -90,6 +90,7 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
     sample = utils.load(data_link)
 
     # Load data
+    pore = sample["pore"]
     inp = sample["inp"]
     bins = inp["bin_num"] if not z_dist else math.floor(z_dist/sample["data"]["width"][1])
     msd_z = [0 for x in range(inp["len_window"])]
@@ -136,7 +137,7 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
             return [c**2*(1-sum(s)) for s in sm]
 
         # Fit function
-        popt, pcov = sp.optimize.curve_fit(diff_rad, [x*1e12 for x in time_ax], msd_r_n, p0=[1, 20, inp["diam"]/2-0.2], bounds=(0, np.inf))
+        popt, pcov = sp.optimize.curve_fit(diff_rad, [x*1e12 for x in time_ax], msd_r_n, p0=[1, 20, pore["diam"]/2-0.2], bounds=(0, np.inf))
 
         print("Diffusion radial: "+"%.3f" % (popt[0]*1e3)+" 10^-9 m^2 s^-1; Number of zeros: "+"%2i" % (math.ceil(popt[1]))+"; Radius: "+"%5.2f" % popt[2])
 

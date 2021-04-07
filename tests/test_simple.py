@@ -33,28 +33,25 @@ class UserModelCase(unittest.TestCase):
 
         # Load molecule
         mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+        mol_W = pms.Molecule("water", "SOL", inp="data/spc216.gro")
 
         # Sample
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
-        sample.init_density("output/dens.obj")
-        sample.init_gyration("output/gyr.obj")
-        sample.init_diffusion_bin("output/diff.obj")
-        sample.sample(is_parallel=False)
+        ## Single core
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_density("output/dens_cyl_s.obj")
+        sample.init_gyration("output/gyr_cyl_s.obj")
+        sample.init_diffusion_bin("output/diff_cyl_s.obj")
+        sample.sample(is_parallel=False, is_pbc=False)
 
-        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
-        sample.init_density("output/dens_snj.obj")
-        sample.sample(is_parallel=False)
+        sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
+        sample.init_density("output/dens_slit.obj")
+        sample.sample(is_parallel=False, is_pbc=False)
 
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, is_nojump=False)
-        sample.init_density("output/dens_p.obj")
-        sample.init_gyration("output/gyr_p.obj")
-        sample.init_diffusion_bin("output/diff_p.obj")
-        sample.sample(is_parallel=True)
-
-        sample = pa.Sample("data/pore_system.obj", "data/traj_nojump.xtc", mol, is_nojump=True)
-        sample.init_density("output/dens_nj.obj")
-        sample.init_gyration("output/gyr_nj.obj")
-        sample.init_diffusion_bin("output/diff_nj.obj")
+        ## Parallel
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_density("output/dens_cyl_p.obj")
+        sample.init_gyration("output/gyr_cyl_p.obj")
+        sample.init_diffusion_bin("output/diff_cyl_p.obj")
         sample.sample(is_parallel=True)
 
 
@@ -113,12 +110,12 @@ class UserModelCase(unittest.TestCase):
         mol2.add("H", [0, 0, 0])
 
         # Sanity checks
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol2)
-        pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["C1"], masses=[1, 1])
+        pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol2)
+        pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, atoms=["C1"], masses=[1, 1])
 
         # Diffusion
-        sample = pa.Sample("data/pore_system.obj", "data/traj.xtc", mol, atoms=["C1"])
-        sample.init_diffusion_bin("output/diff.obj", len_obs=3e-12)
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, atoms=["C1"])
+        sample.init_diffusion_bin("output/diff_np_s.obj", len_obs=3e-12)
 
 
     ##############
@@ -126,16 +123,13 @@ class UserModelCase(unittest.TestCase):
     ##############
     def test_adsorption(self):
         # Calculate adsorption
-        ads = pa.adsorption.calculate("data/pore_system.obj", "output/dens.obj")
-        ads_p = pa.adsorption.calculate("data/pore_system.obj", "output/dens_p.obj")
-        ads_nj = pa.adsorption.calculate("data/pore_system.obj", "output/dens_nj.obj")
+        ads_s = pa.adsorption.calculate("output/dens_cyl_s.obj")
+        ads_p = pa.adsorption.calculate("output/dens_cyl_p.obj")
 
-        self.assertEqual(round(ads["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads["num"]["in"], 2), 10.68)
+        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.15)
+        self.assertEqual(round(ads_s["num"]["in"], 2), 10.68)
         self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.15)
         self.assertEqual(round(ads_p["num"]["in"], 2), 10.68)
-        self.assertEqual(round(ads_nj["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads_nj["num"]["in"], 2), 10.68)
 
 
     ###########
@@ -143,32 +137,44 @@ class UserModelCase(unittest.TestCase):
     ###########
     def test_density(self):
         # Calculate density
-        dens = pa.density.calculate("output/dens.obj", target_dens=16)
-        dens_p = pa.density.calculate("output/dens_p.obj", target_dens=16)
-        dens_nj = pa.density.calculate("output/dens_nj.obj", target_dens=16)
+        dens_s = pa.density.calculate("output/dens_cyl_s.obj", target_dens=16)
+        dens_p = pa.density.calculate("output/dens_cyl_p.obj", target_dens=16)
 
-        self.assertEqual(round(dens["dens"]["in"], 3), 12.941)
-        self.assertEqual(round(dens["dens"]["ex"], 3), 15.977)
+        self.assertEqual(round(dens_s["dens"]["in"], 3), 12.941)
+        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.446)
         self.assertEqual(round(dens_p["dens"]["in"], 3), 12.941)
-        self.assertEqual(round(dens_p["dens"]["ex"], 3), 15.977)
-        self.assertEqual(round(dens_nj["dens"]["in"], 3), 12.946)
-        self.assertEqual(round(dens_nj["dens"]["ex"], 3), 16.178)
+        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.446)
+
+        dens_slit = pa.density.calculate("output/dens_slit.obj", target_dens=997)
 
         # Plot density
         plt.figure()
-        pa.density.plot(dens, target_dens=0.146)
-        pa.density.plot(dens, target_dens=0.146, is_mean=True)
+        pa.density.plot(dens_s, target_dens=0.146)
+        pa.density.plot(dens_s, target_dens=0.146, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         plt.figure()
-        pa.density.plot(dens, intent="in")
-        pa.density.plot(dens, intent="ex")
-        plt.savefig("output/density_intent.pdf", format="pdf", dpi=1000)
+        pa.density.plot(dens_slit, is_mean=True)
+        plt.savefig("output/density_slit.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        plt.figure()
+        pa.density.plot(dens_s, intent="in")
+        pa.density.plot(dens_p, intent="in")
+        plt.legend(["Single core", "Parallel"])
+        plt.savefig("output/density_in.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        plt.figure()
+        pa.density.plot(dens_s, intent="ex")
+        pa.density.plot(dens_p, intent="ex")
+        plt.legend(["Single core", "Parallel"])
+        plt.savefig("output/density_ex.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         print()
-        pa.density.plot(dens, intent="DOTA")
+        pa.density.plot(dens_s, intent="DOTA")
 
 
     #################
@@ -177,27 +183,25 @@ class UserModelCase(unittest.TestCase):
     def test_diffusion(self):
         # Bin diffusion
         plt.figure()
-        diff = pa.diffusion.bins("output/diff.obj")
-        pa.diffusion.bins("output/diff.obj", is_norm=True)
+        pa.diffusion.bins("output/diff_cyl_s.obj")
+        pa.diffusion.bins("output/diff_cyl_s.obj", is_norm=True)
         plt.savefig("output/diffusion_bins.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         # CUI diffusion
         plt.figure()
-        pa.diffusion.cui("output/diff.obj", is_fit=True)
+        pa.diffusion.cui("output/diff_cyl_s.obj", is_fit=True)
         plt.savefig("output/diffusion_cui.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         # Mean diffusion based on bins
         plt.figure()
-        mean = pa.diffusion.mean("output/diff.obj", "output/dens.obj", is_check=True)
+        mean_s = pa.diffusion.mean("output/diff_cyl_s.obj", "output/dens_cyl_s.obj", is_check=True)
         plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
-        mean_p = pa.diffusion.mean("output/diff_p.obj", "output/dens_p.obj")
-        mean_nj = pa.diffusion.mean("output/diff_nj.obj", "output/dens_nj.obj")
+        mean_p = pa.diffusion.mean("output/diff_cyl_p.obj", "output/dens_cyl_p.obj")
 
-        self.assertEqual(round(mean, 2), 1.13)
+        self.assertEqual(round(mean_s, 2), 1.13)
         self.assertEqual(round(mean_p, 2), 1.13)
-        self.assertEqual(round(mean_nj, 2), 1.13)
 
 
     ############
@@ -206,29 +210,31 @@ class UserModelCase(unittest.TestCase):
     def test_gyration(self):
         # Plot gyration radius
         plt.figure()
-        mean = pa.gyration.plot("output/gyr.obj", "output/dens.obj", is_mean=True)
-        plt.savefig("output/gyration.pdf", format="pdf", dpi=1000)
+        mean_s = pa.gyration.plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", is_mean=True)
+        plt.savefig("output/gyration_s.pdf", format="pdf", dpi=1000)
         plt.figure()
-        mean_p = pa.gyration.plot("output/gyr_p.obj", "output/dens_p.obj")
+        mean_p = pa.gyration.plot("output/gyr_cyl_p.obj", "output/dens_cyl_p.obj")
         plt.savefig("output/gyration_p.pdf", format="pdf", dpi=1000)
-        plt.figure()
-        mean_nj = pa.gyration.plot("output/gyr_nj.obj", "output/dens_nj.obj")
-        plt.savefig("output/gyration_nj.pdf", format="pdf", dpi=1000)
 
-        self.assertEqual(round(mean["in"], 2), 0.12)
-        self.assertEqual(round(mean["ex"], 2), 0.38)
+        self.assertEqual(round(mean_s["in"], 2), 0.12)
+        self.assertEqual(round(mean_s["ex"], 2), 0.15)
         self.assertEqual(round(mean_p["in"], 2), 0.12)
-        self.assertEqual(round(mean_p["ex"], 2), 0.38)
-        self.assertEqual(round(mean_nj["in"], 2), 0.12)
-        self.assertEqual(round(mean_nj["ex"], 2), 0.39)
+        self.assertEqual(round(mean_p["ex"], 2), 0.15)
 
         plt.figure()
-        pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="in")
-        pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="ex")
-        plt.savefig("output/gyration_intent.pdf", format="pdf", dpi=1000)
+        pa.gyration.plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="in")
+        pa.gyration.plot("output/gyr_cyl_p.obj", "output/dens_cyl_p.obj", intent="in")
+        plt.legend(["Single core", "Parallel"])
+        plt.savefig("output/gyration_in.pdf", format="pdf", dpi=1000)
+
+        plt.figure()
+        pa.gyration.plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="ex")
+        pa.gyration.plot("output/gyr_cyl_p.obj", "output/dens_cyl_p.obj", intent="ex")
+        plt.legend(["Single core", "Parallel"])
+        plt.savefig("output/gyration_ex.pdf", format="pdf", dpi=1000)
 
         print()
-        pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="DOTA")
+        pa.gyration.plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="DOTA")
 
 
 if __name__ == '__main__':
