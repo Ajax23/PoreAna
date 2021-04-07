@@ -650,7 +650,6 @@ class Sample:
             Dictionary conatining all sampled data
         """
         # Initialize
-        mol = self._mol
         box = self._pore_props["box"]
         res = self._pore_props["res"]
         com_list = []
@@ -695,7 +694,7 @@ class Sample:
                 # Remove broken molecules
                 is_broken = False
                 for i in range(3):
-                    is_broken = abs(com_no_pbc[i]-pos[0][i])>res
+                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/2
                     if is_broken:
                         break
 

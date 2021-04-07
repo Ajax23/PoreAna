@@ -41,7 +41,7 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens_cyl_s.obj")
         sample.init_gyration("output/gyr_cyl_s.obj")
         sample.init_diffusion_bin("output/diff_cyl_s.obj")
-        sample.sample(is_parallel=False, is_pbc=False)
+        sample.sample(is_parallel=False)
 
         sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
         sample.init_density("output/dens_slit.obj")
@@ -52,7 +52,7 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens_cyl_p.obj")
         sample.init_gyration("output/gyr_cyl_p.obj")
         sample.init_diffusion_bin("output/diff_cyl_p.obj")
-        sample.sample(is_parallel=True)
+        sample.sample(is_parallel=True, is_pbc=False)
 
 
     #########
