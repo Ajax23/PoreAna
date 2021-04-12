@@ -694,7 +694,7 @@ class Sample:
                 # Remove broken molecules
                 is_broken = False
                 for i in range(3):
-                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/2
+                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
                     if is_broken:
                         break
 
