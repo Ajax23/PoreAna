@@ -39,10 +39,8 @@ class Sample:
         List of atom masses, leave empty to read molecule object masses
     entry : float, optional
         Remove pore entrance from calculation
-    is_nojump : bool, optional
-        True if pbc nojump option was used
     """
-    def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5, is_nojump=True):
+    def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5):
         # Initialize
         self._pore = utils.load(link_pore)
         self._traj = link_traj
@@ -50,7 +48,6 @@ class Sample:
         self._atoms = atoms
         self._masses = masses
         self._entry = entry
-        self._is_nojump = is_nojump
 
         # Set analysis routines
         self._is_density = False
@@ -95,6 +92,10 @@ class Sample:
 
         # Get pore properties
         self._pore_props = {}
+        if isinstance(self._pore, pms.PoreCylinder):
+            self._pore_props["type"] = "CYLINDER"
+        elif isinstance(self._pore, pms.PoreSlit):
+            self._pore_props["type"] = "SLIT"
         self._pore_props["res"] = self._pore.reservoir()
         self._pore_props["focal"] = self._pore.centroid()
         self._pore_props["box"] = self._pore.box()
@@ -103,8 +104,8 @@ class Sample:
         # Get pore diameter
         if isinstance(self._pore, pms.PoreCylinder):
             self._pore_props["diam"] = self._pore.diameter()
-        # elif isinstance(self._pore, pms.PoreSlit):
-        #     self._pore_props["diam"] = self._pore.height()
+        elif isinstance(self._pore, pms.PoreSlit):
+            self._pore_props["diam"] = self._pore.height()
 
 
     ########
@@ -647,7 +648,7 @@ class Sample:
     ############
     # Sampling #
     ############
-    def sample(self, is_parallel=True):
+    def sample(self, is_pbc=True, is_parallel=True):
         """This function runs all enabled sampling routines. The output is
         stored in form of pickle files for later calculation using methods
         provided in the package.
@@ -657,6 +658,8 @@ class Sample:
 
         Parameters
         ----------
+        is_pbc : bool, optional
+            True to apply periodic boundary conditions
         is_parallel : bool, optional
             True to run parallelized sampling
         """
@@ -685,7 +688,7 @@ class Sample:
 
             # Run parallel search
             pool = mp.Pool(processes=np)
-            results = [pool.apply_async(self._sample_helper, args=(frame_list,)) for frame_list in frame_np]
+            results = [pool.apply_async(self._sample_helper, args=(frame_list, is_pbc,)) for frame_list in frame_np]
             pool.close()
             pool.join()
             output = [x.get() for x in results]
@@ -694,12 +697,11 @@ class Sample:
             del results
         else:
             # Run sampling
-            output = [self._sample_helper(list(range(self._num_frame)))]
+            output = [self._sample_helper(list(range(self._num_frame)), is_pbc)]
 
         # Concatenate output and create pickle object files
-        inp = {"num_frame": self._num_frame, "mass": self._mol.get_mass(),
-               "entry": self._entry, "res": self._pore_props["res"],
-               "diam": self._pore_props["diam"], "box": self._pore_props["box"]}
+        pore = self._pore_props
+        inp = {"num_frame": self._num_frame, "mass": self._mol.get_mass(), "entry": self._entry}
 
         if self._is_density:
             inp_dens = inp.copy()
@@ -710,7 +712,7 @@ class Sample:
                 data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
             # Pickle
-            utils.save({"inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
+            utils.save({"pore": pore, "inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
 
         if self._is_gyration:
             inp_gyr = inp.copy()
@@ -721,7 +723,7 @@ class Sample:
                 data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
             # Pickle
-            utils.save({"inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
+            utils.save({"pore": pore, "inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
             inp_diff = inp.copy()
@@ -738,7 +740,8 @@ class Sample:
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
             # Pickle
-            utils.save({"inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
+            utils.save({"pore": pore, "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
+
 
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
@@ -763,12 +766,13 @@ class Sample:
         ----------
         frame_list :
             List of frame ids to process
+        is_pbc : bool, optional
+            True to apply periodic boundary conditions
 
         Returns : dictionary
             Dictionary conatining all sampled data
         """
         # Initialize
-        mol = self._mol
         box = self._pore_props["box"]
         res = self._pore_props["res"]
 
@@ -823,12 +827,12 @@ class Sample:
                 # Remove broken molecules
                 is_broken = False
                 for i in range(3):
-                    is_broken = abs(com_no_pbc[i]-pos[0][i])>res
+                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
                     if is_broken:
                         break
 
-                # Apply periodic boundary conditions if nojump trajectory used
-                if self._is_nojump:
+                # Apply periodic boundary conditions
+                if is_pbc:
                     com = [com_no_pbc[i]-math.floor(com_no_pbc[i]/box[i])*box[i] for i in range(3)]
                 else:
                     com = com_no_pbc
@@ -838,8 +842,8 @@ class Sample:
                     # Calculate distance towards center axis
                     if isinstance(self._pore, pms.PoreCylinder):
                         dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                    # elif isinstance(self._pore, pms.PoreSlit):
-                    #     dist = abs(self._pore_props["focal"][1]-com[1])
+                    elif isinstance(self._pore, pms.PoreSlit):
+                        dist = abs(self._pore_props["focal"][1]-com[1])
 
                     # Set region - in-inside, ex-outside
                     region = ""
