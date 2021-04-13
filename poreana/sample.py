@@ -568,8 +568,8 @@ class Sample:
     ################
     # MC Diffusion #
     ################
-    def init_diffusion_mc(self, link_out, bin_num=50, len_frame=2e-12, len_step=[], com=True):
-        """Enable diffusion sampling routine.
+    def init_diffusion_mc(self, link_out, bin_num=50, len_frame=2e-12, len_step=[], com=True, pbc = True):
+        """Enable diffusion sampling routine with the MC Alogrithm.
 
         Parameters
         ----------
@@ -586,12 +586,14 @@ class Sample:
         self._is_diffusion_mc = True
 
         # Create input dictionalry
-        self._diff_mc_inp = {"output": link_out,
+        bins = self._bin_mc(bin_num)["bins"]
+
+        self._diff_mc_inp = {"output": link_out, "bins": bins,
                               "bin_num": bin_num, "len_step": len_step,
-                              "len_frame": len_frame}
+                              "len_frame": len_frame, "pbc": pbc}
 
     def _diffusion_mc_data(self):
-        """Create bin diffusion data structure.
+        """Create mc diffusion data structure.
 
         Returns
         -------
@@ -612,7 +614,7 @@ class Sample:
         return data
 
     def _diffusion_mc(self, data, idx_list,res_id, com):
-        """Create bin diffusion data structure.
+        """Create mc diffusion data structure.
 
         Returns
         -------
@@ -629,6 +631,7 @@ class Sample:
         idx_list[-1][res_id] = np.digitize(com[2],bins)
 
         # Sample the transition matrix for the len_step
+        #if  len(idx_list) == max(self._diff_mc_inp["len_step"]):
         for step in len_step:
             if len(idx_list) >= (step+1):
 
@@ -672,9 +675,10 @@ class Sample:
             # Substract window filling for bin diffusion
             if self._is_diffusion_bin:
                 frame_start = [x-self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]+1 if i>0 else x for i, x in enumerate(frame_start)]
-                print(frame_start)
+
             if self._is_diffusion_mc:
-                frame_start = [x-self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]+1 if i>0 else x for i, x in enumerate(frame_start)]
+                frame_start = [x-max(self._diff_mc_inp["len_step"]) if i>0 else x for i, x in enumerate(frame_start)]
+                print(frame_start)
 
             # Create working lists for processors
             frame_np = [list(range(frame_start[i], frame_end[i])) for i in range(np)]
@@ -742,6 +746,11 @@ class Sample:
             inp_diff.pop("output")
             data_diff = output[0]["diffusion_mc"]
             for step in self._diff_mc_inp["len_step"]:
+                data_diff[step] = data_diff[step]
+                for out in output[1:]:
+                    data_diff[step] += out["diffusion_mc"][step]
+
+            for step in self._diff_mc_inp["len_step"]:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
             # Pickle
@@ -799,7 +808,7 @@ class Sample:
 
             # Add new dictionaries and remove unneeded references
             if self._is_diffusion_mc:
-                if frame_id >= (max(self._diff_mc_inp["len_step"])+1):
+                if len(idx_list_mc) >= (max(self._diff_mc_inp["len_step"])+1):
                     idx_list_mc.pop(0)
                 idx_list_mc.append({})
 
@@ -842,6 +851,8 @@ class Sample:
                     # Remove window filling instances except from first processor
                     if self._is_diffusion_bin:
                         is_sample = len(com_list)==len_fill or frame_id<=len_fill
+                    if self._is_diffusion_mc:
+                        is_sample = len(com_list)==len_fill or frame_id<=len_fill
                     else:
                         is_sample = True
 
@@ -860,5 +871,4 @@ class Sample:
                 sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")
                 sys.stdout.flush()
         print()
-
         return output
