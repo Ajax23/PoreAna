@@ -614,14 +614,39 @@ class Sample:
 
         return data
 
-    def _diffusion_mc(self, data, idx_list,res_id, com):
-        """Create mc diffusion data structure.
+    def _diffusion_mc(self, data, idx_list,res_id, com, frame_list, frame_id):
+        """This function sample the transition matrix for the diffusion calculation with the Monte Carlo diffusion methode for a cubic simulation box. The sample of the transition matrix is to be run on the cluster due to a high time and resource
+        consumption. The output, a data object, is then used to calculate the
+        self-diffusion using further calculation functions for the MC Diffusion methode.
 
-        Returns
-        -------
+        It is necessary to caculate the transition matrix for different step length and so for different lag times. A lagtime :math:`t_{i}` is defined by
+
+        .. math::
+
+            t_i = s \\cdot t
+
+        with :math:`s` as the step length and :math:`t` as the length of a frame in secound.
+        After the sampling a model class has to set and then the MC calculation can run.
+        Subsequently the final mean diffusion coefficient can be determined with a extrapolation to :math:`t_i \\rightarrow \infty`. For the etxrapolation we need the mean diffusion over the bins for different chosen lag times. That's why we have to calculate the results and the transition matrix for several lag times. More information about post processing and the extrapolation that you can find in :func:`diffusion`
+
+        Parameters
+        ----------
         data : dictionary
-            Bin diffusion data structure
+            Data dictionary containing bins for axial and radial diffusion
+        region : string
+            Indicator wether molecule is inside or outside pore
+        dist : float
+            Distance of center of mass to pore surface area
+        com_list : list
+            List of dictionaries containing coms of all molecules for each frame
+        index_list : list
+            List of dictionaries containing bin id of all molecules for each frame
+        res_id : integer
+            Current residue id
+        com : list
+            Center of mass of current molecule
         """
+
         # Initialize
         bin_num = self._diff_mc_inp["bin_num"]
         len_step = self._diff_mc_inp["len_step"]
@@ -632,17 +657,30 @@ class Sample:
         idx_list[-1][res_id] = np.digitize(com[2],bins)
 
         # Sample the transition matrix for the len_step
-        #if  len(idx_list) == max(self._diff_mc_inp["len_step"]):
-        for step in len_step:
-            if len(idx_list) >= (step+1):
+        if frame_id>(frame_list[-1]-max(self._diff_mc_inp["len_step"])):
+            len_step = len_step[1:]
 
-                idx_list[-(step+1)][res_id]
-                idx_list[-1][res_id]
+            for step in len_step:
+                if len(idx_list) >= (step+1):
 
-                # Calculate transition matrix in z direction
-                start = idx_list[-(step+1)][res_id]
-                end = idx_list[-1][res_id]
-                data[step][end,start] += 1
+                        idx_list[-(step+1)][res_id]
+                        idx_list[-1][res_id]
+
+                        # Calculate transition matrix in z direction
+                        start = idx_list[-(step+1)][res_id]
+                        end = idx_list[-1][res_id]
+                        data[step][end,start] += 1
+        else:
+            for step in len_step:
+                if len(idx_list) >= (step+1):
+
+                        idx_list[-(step+1)][res_id]
+                        idx_list[-1][res_id]
+
+                        # Calculate transition matrix in z direction
+                        start = idx_list[-(step+1)][res_id]
+                        end = idx_list[-1][res_id]
+                        data[step][end,start] += 1
 
 
     ############
@@ -680,7 +718,7 @@ class Sample:
                 frame_start = [x-self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]+1 if i>0 else x for i, x in enumerate(frame_start)]
 
             if self._is_diffusion_mc:
-                frame_start = [x-max(self._diff_mc_inp["len_step"]) if i>0 else x for i, x in enumerate(frame_start)]
+                frame_start = [x-max(self._diff_mc_inp["len_step"])+1 if i>0 else x for i, x in enumerate(frame_start)]
                 print(frame_start)
 
             # Create working lists for processors
@@ -759,7 +797,7 @@ class Sample:
             # Pickle
             utils.save({"inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
 
-    def _sample_helper(self, frame_list):
+    def _sample_helper(self, frame_list,is_pbc):
         """Helper function for sampling run.
 
         Parameters
@@ -794,7 +832,8 @@ class Sample:
             output["diffusion_bin"] = self._diffusion_bin_data()
         if self._is_diffusion_mc:
             output["diffusion_mc"] = self._diffusion_mc_data()
-
+        print(frame_list[0])
+        print(frame_list[0]+max(self._diff_mc_inp["len_step"]))
         # Run through frames
         for frame_id in frame_list:
             # Read frame
@@ -855,8 +894,6 @@ class Sample:
                     # Remove window filling instances except from first processor
                     if self._is_diffusion_bin:
                         is_sample = len(com_list)==len_fill or frame_id<=len_fill
-                    if self._is_diffusion_mc:
-                        is_sample = len(com_list)==len_fill or frame_id<=len_fill
                     else:
                         is_sample = True
 
@@ -869,7 +906,9 @@ class Sample:
                     if self._is_diffusion_bin:
                         self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
                     if self._is_diffusion_mc:
-                        self._diffusion_mc(output["diffusion_mc"], idx_list_mc,res_id,com)
+                        self._diffusion_mc(output["diffusion_mc"], idx_list_mc,res_id,com, frame_list, frame_id)
+                        # else:
+                        #     self._diffusion_mc(output["diffusion_mc"], idx_list_mc,res_id,com)
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:
                 sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")

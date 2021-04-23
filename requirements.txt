@@ -1,4 +1,6 @@
 pandas
+numpy
+scipy
 seaborn
 porems==0.2.1
 chemfiles==0.10.0

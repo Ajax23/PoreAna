@@ -13,55 +13,68 @@ from collections import deque
 
 class MC:
     """
-    This class contains the Monte Carlo part of the diffusion calculation. The class initializes the MC (Monte Carlo) parameters and contains all functions to do the MC cycle part of the diffusion calculation. With the input :math:`mc_runs` the code do several independent MC runs and takes the average over all runs as the results. Here you have to set the step width of a MC step. More information about a MC step can be found at :func:`mcmove_diffusion`, :func:`mcmove_diffusion_radial` or :func:`mcmove_df`. The mc calculation is started with :func:`do_mc_cycles`.
+    This class contains the Monte Carlo part of the diffusion calculation. The class initializes the MC (Monte Carlo) parameters and contains all functions to execute the MC cycle part of the diffusion calculation.
+    The MC Algorithm is divided in two parts. Frist a equilibrium MC run starts to adjust the profile. The number of the equilibrium runs can be set with :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion profile can begin. In this part the MC alogrithm calculates in every step an diffusion profile. The average over all profiles which are yields in MC production will be determined. The received profile gives the final results.
+    Here you have to set also step the move width of a MC step. More information about a MC step can be found at :func:`mcmove_diffusion`, :func:`mcmove_diffusion_radial` or :func:`mcmove_df`. The MC calculation can be started with :func:`do_mc_cycles`.
 
     Parameters
     ----------
     model : Model
-        Model object which set before with the model class
-    mc_runs : integer
-        number of indepedent MC Runs
-    nmc : integer
-        number of MC steps
-    num_mc_update : integer
-        number of moves between MC step width adjustments ( 0 if no adjustment)
-    delta_df : float
+        Model object which sets with the model class
+    nmc_eq : integer (default=50000)
+        number of equilibrium MC steps
+    nmc : integer (default=100000)
+        number of prdocution MC steps
+    nmc_eq_radial : integer (default=50000)
+        number of equilibrium MC steps
+    nmc_radial : integer (default=100000)
+        number of prdocution MC steps
+    delta_df : float (default=0.05)
         potential MC move width
-    delta_diff : float
-        log(diffusion) MC move width
-    delta_diff_radial : float
-        log(radial diffusion) MC move width
-    temp : float
+    delta_diff : float (default=0.05)
+        ln(diffusion) MC move width
+    delta_diff_radial : float (default=0.05)
+        ln(radial diffusion) MC move width
+    num_mc_update : integer (default=10)
+        number of moves between MC step width adjustments ( 0 if no adjustment)
+    temp : float (default=1)
         temperature in Monte Carlo acceptance criterium
+    lmax : integer (default=50)
+        number of Bessel functions
     print_output : bool (default = True)
         if it is true the output will be printed
-    lmax : integer
-        number of Bessel functions
     print_freq : integer (default = 100)
         every print_freq MC step is printed
-
-
     """
 
-    def __init__(self, model, nmc_eq=1000, nmc = 50000,nmc_eq_radial=1000, nmc_radial=100, num_mc_update=0, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, temp=1, lmax=50,print_output=True,print_freq=100):
+    def __init__(self, model, nmc_eq=50000, nmc = 100000,nmc_eq_radial=50000, nmc_radial=100000, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, num_mc_update=10, temp=1, lmax=50,print_output=True,print_freq=100):
 
-        #Initialize MC parameters
-        self._delta_df = delta_df                        # MC Move width free energy
-        self._delta_diff = delta_diff                    # MC Move width Diffusion
-        self._delta_diff_radial = delta_diff_radial
-        self._delta_df_start = delta_df                  # MC Move width free energy
-        self._delta_diff_start = delta_diff              # MC Move width Diffusion
-        self._delta_diff_radial = delta_diff             # MC Move width Diffusion
+        ########### Initialize MC ###########
+
+
+        # Set MC step width
+        self._delta_df = delta_df                            # MC Move width free energy
+        self._delta_diff = delta_diff                        # MC Move width Diffusion
+        self._delta_diff_radial = delta_diff_radial          # MC Move width radial Diffusion
+
+        # Save beginning step width (to initialize it every mc run)
+        self._delta_df_start = delta_df                      # MC Move width free energy
+        self._delta_diff_start = delta_diff                  # MC Move width Diffusion
         self._delta_diff_radial_start = delta_diff_radial
-        self._nmc = nmc                                  # Number of MC steps
-        self._nmc_eq = nmc_eq                            # Number of MC steps
-        self._nmc_eq_radial = nmc_eq_radial              # Number of MC steps
-        self._nmc_radial = nmc_radial                    # Number of MC steps
-        self._num_mc_update = num_mc_update              # MC steps before update delta
-        self._temp = temp                                # Temperature for acceptance criterion
-        self._lmax = lmax
-        self._print_output = print_output
-        self._print_freq = print_freq
+
+        # Set MC options
+        self._nmc = nmc                                      # Number of MC steps
+        self._nmc_eq = nmc_eq                                # Number of MC steps
+        self._nmc_eq_radial = nmc_eq_radial                  # Number of MC steps
+        self._nmc_radial = nmc_radial                        # Number of MC steps
+        self._num_mc_update = num_mc_update                  # MC steps before update delta
+        self._temp = temp                                    # Temperature for acceptance criterion
+        self._lmax = lmax                                    # Number of bessel functions
+
+        # Set output/print options
+        self._print_output = print_output                    # Bool (If False nothing will be printed in the konsole)
+        self._print_freq = print_freq                        # print frequency for MC steps (default every 100 steps)
+
 
 
     def do_mc_cycles(self, model, link_out, do_radial=False):
@@ -88,32 +101,41 @@ class MC:
             if it's True the code calculate the radial diffusion too
         """
 
-        # Print to see that the MC starts
+        # Print to see that the MC options
         print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
         print("----------------------------------------------------------------------Start MC-----------------------------------------------------------------------------------")
         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-        # Table for MC Inputs
         print("MC Inputs")
+
+        # Table for MC Inputs (set data structure)
         data = [self._nmc_eq,self._nmc,self._nmc_eq_radial,self._nmc_radial,self._num_mc_update,self._print_freq]
         df_input = pd.DataFrame(data,index=list(['MC step (Equilibrium)','MC step (Production)','MC step radial (Equilibrium)','MC step radial (Production)','movewidth update','print frequency']),columns=list(['Input']))
+
+        # Table for MC Inputs
         print(df_input)
 
-        # Set the list for the results
+
+        # Initialize result lists (profiles, coefficients, fluctuation and accepted MC steps)
+        # Diffusion
         list_diff_profile = {}
-        list_diff_radial_profile = {}
         list_diff_coeff = {}
+        list_diff_fluc = {}
+        nacc_diff_mean = {}
+
+        # Radial diffusion
+        list_diff_radial_profile = {}
         list_diff_radial_coeff = {}
+        list_diff_radial_fluc = {}
+        nacc_diff_radial_mean = {}
+
+        # Free energy
         list_df_profile = {}
         list_df_coeff = {}
         list_df_fluc = {}
-        list_diff_fluc = {}
-        list_diff_radial_fluc = {}
         nacc_df_mean = {}
-        nacc_diff_mean = {}
-        nacc_diff_radial_mean = {}
 
 
-        # Loop over the different step_length (lag times)
+        # Loop over the different step_length (lag times) (-> for every lag time a MC Claculation have to run)
         for self._len_step in model._len_step:
 
             # Print that a new calculation with a new lag time starts
@@ -133,9 +155,11 @@ class MC:
             model.init_model()
             model.init_profiles()
 
-            # Initialize the first likelihodd for the initial profile
+
+            # Start calucalation for the normal diffusion and free energy Profile
             print("\n---------------------------------------------------------Calculate normal diffusion------------------------------------------------------------------------------")
 
+            # Calculated the initalize likelihood
             self._log_like = self.log_likelihood_box(model)
 
             # Print first likelihood
@@ -145,11 +169,12 @@ class MC:
             # Initialize a new statistic
             self.init_stats(model)
 
-            # Set step width for every MC run on the inpur values
+            # Set step width for every MC run on the input values
             self._delta_df = copy.deepcopy(self._delta_df_start)
             self._delta_diff = copy.deepcopy(self._delta_diff_start)
             self._delta_diff_radial = copy.deepcopy(self._delta_diff_radial_start)
 
+            # Initialize the fluction every MC run
             diff_profile_flk = np.float64(np.zeros(model._bin_num))
             diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
             df_profile_flk = np.float64(np.zeros(model._bin_num))
@@ -169,9 +194,11 @@ class MC:
 
                 # Decide with choice which MC move will be execute
                 if self._choice < 0.5:
+                    # Do a MC move in the free energy profile
                     self.mcmove_df(model)
 
                 else:
+                    # Do a MC move in the diffusion profile
                     self.mcmove_diffusion(model)
 
                 # Update the MC movewidth
@@ -196,7 +223,7 @@ class MC:
                     self._fluctuation_diff = np.sqrt((self._fluctuation_diff + np.mean(delta_diff))/(imc+1))
                     self._fluctuation_df = np.sqrt((self._fluctuation_df + np.mean(delta_df))/(imc+1))
 
-
+                    # Start to print the output after the Equilibrium phase and if _print_output is true
                     if imc == self._nmc_eq and self._print_output==True:
                         print("\nStart production\n")
                         print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
@@ -230,17 +257,21 @@ class MC:
 
             # Radial diffusion
             if do_radial == True:
-
+                # Start MC calucalation for the radial diffusion
                 print("\n-------------------------------------------------------------Calculate radial diffusion--------------------------------------------------------------------------")
 
+                # Calculated the initalize likelihood and bessel function
                 self.setup_bessel_box(model)
                 self._log_like_radial = self.log_likelihood_box_radial(model,model._diff_radial_bin)
+
+                # Print first likelihood
                 print("likelihood init", self._log_like_radial, "\n")
                 print("Start equilibration")
 
                 # Start MC Alogrithm for the radial diffusion
                 for imc in range (self._nmc_radial+self._nmc_eq_radial):
 
+                    # Do a MC move in the radial diffusion profile
                     self.mcmove_diffusion_radial(model)
 
                     # Update the MC movewidth
@@ -266,12 +297,12 @@ class MC:
                             print("\nStart production\n")
                             print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
                             print("imc","\t", "likelihood","\t", "\t","accepted_diff_rad (%)", "\t","diff_rad_step_width","\t","fluktuation_diff_rad")
-
                         if  (imc%self._print_freq == 0) and imc > self._nmc_eq_radial and self._print_output==True:
                             print(imc,"\t","%.6f" %self._log_like_radial,"\t", "%.2f" % (float(self._nacc_diff_radial)*100/(imc+1)),"\t\t\t", "%.5f" %  self._delta_diff_radial,"\t","\t", "%.4e" %  self._fluctuation_diff_radial)
                             print(self._nacc_diff_radial)
                             print(np.mean(np.exp(model._diff_radial_bin + model._diff_radial_unit)) * 10**-6 )
                 print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+
                 #Save results for the current lag time
                 list_diff_radial_profile[self._len_step] = mean_diff_radial_profile_flk #copy.deepcopy(model._diff_radial_bin)
                 list_diff_radial_coeff[self._len_step] = copy.deepcopy(model._diff_radial_coeff)
@@ -282,45 +313,53 @@ class MC:
 
 
         # Print MC statistics
-        # if self._print_output==True:
-        #     print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        #     print("----------------------------------------------------------------------MC Statistics------------------------------------------------------------------------------")
-        #     print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-        #     data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step],[str("%.4e" % list_diff_fluc[i]) for i in model._len_step],[str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step],[str("%.0f" % nacc_df_mean[i]) for i in model._len_step],[str("%.0f" % nacc_diff_mean[i]) for i in model._len_step],[str("%.0f" % nacc_diff_radial_mean[i]) for i in model._len_step],[str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step],[str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step],[str("%.2f" % float(nacc_diff_radial_mean[i]*100/(self._nmc_eq_radial+self._nmc_radial))) for i in model._len_step]]
-        #
-        #     df = pd.DataFrame(data,index=list(['fluctuation df','fluctuation diff','fluctuation rad. diff','acc df steps','acc diff steps','acc rad. diff steps','acc df steps (%)','acc diff steps (%)','acc rad. diff steps (%)']),columns=list(model._len_step))
-        #     df = pd.DataFrame(df.rename_axis('Step Length', axis=1))
-        #     print(df)
-        #     print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-        #
-        #     #Print coefficients
-        #     print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        #     print("----------------------------------------------------------------------Coefficients-------------------------------------------------------------------------------")
-        #     print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-        #     print("Diffusion Model Coefficients")
-        #     data = {}
-        #     for i in model._len_step:
-        #         data[i] = [str("%.4e" % list_diff_coeff[i][j]) for j in range(model._n_diff)]
-        #
-        #
-        #     diff_coeff = pd.DataFrame(data,index=list(np.arange(1,model._n_diff+1)),columns=list(model._len_step))
-        #
-        #     diff_coeff = pd.DataFrame(diff_coeff.rename_axis('Step Length', axis=1))
-        #     print(diff_coeff)
-        #
-        #     # Table for MC Statistics
-        #     print("\nFree Energy Model Coefficients")
-        #     data = {}
-        #     for i in model._len_step:
-        #         data[i] = [str("%.4e" % list_df_coeff[i][j]) for j in range(model._n_df)]
-        #
-        #
-        #     df_coeff = pd.DataFrame(data,index=list(np.arange(1,model._n_df+1)),columns=list(model._len_step))
-        #     df_coeff = pd.DataFrame(df_coeff.rename_axis('Step Length', axis=1))
-        #     print(df_coeff)
-        #     print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+        if self._print_output==True:
+            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
+            print("----------------------------------------------------------------------MC Statistics------------------------------------------------------------------------------")
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
 
+            # Set data structure fpr pandas table
+            data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step],[str("%.4e" % list_diff_fluc[i]) for i in model._len_step],[str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step],[str("%.0f" % nacc_df_mean[i]) for i in model._len_step],[str("%.0f" % nacc_diff_mean[i]) for i in model._len_step],[str("%.0f" % nacc_diff_radial_mean[i]) for i in model._len_step],[str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step],[str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step],[str("%.2f" % float(nacc_diff_radial_mean[i]*100/(self._nmc_eq_radial+self._nmc_radial))) for i in model._len_step]]
 
+            # Set options for pandas table
+            df = pd.DataFrame(data,index=list(['fluctuation df','fluctuation diff','fluctuation rad. diff','acc df steps','acc diff steps','acc rad. diff steps','acc df steps (%)','acc diff steps (%)','acc rad. diff steps (%)']),columns=list(model._len_step))
+            df = pd.DataFrame(df.rename_axis('Step Length', axis=1))
+
+            # Print pandas table for the MC statistics
+            print(df)
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+
+            #Print coefficients
+            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
+            print("----------------------------------------------------------------------Coefficients-------------------------------------------------------------------------------")
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+
+            # Set data dictionary for the diffusion profile coefficients
+            print("Diffusion Model Coefficients")
+            data = {}
+            for i in model._len_step:
+                data[i] = [str("%.4e" % list_diff_coeff[i][j]) for j in range(model._n_diff)]
+            diff_coeff = pd.DataFrame(data,index=list(np.arange(1,model._n_diff+1)),columns=list(model._len_step))
+
+            # Set options for pandas table
+            diff_coeff = pd.DataFrame(diff_coeff.rename_axis('Step Length', axis=1))
+
+            # Print pandas table with diffusion profile coefficients
+            print(diff_coeff)
+
+            # Set data dictionary for the free energy profile coefficients
+            print("\nFree Energy Model Coefficients")
+            data = {}
+            for i in model._len_step:
+                data[i] = [str("%.4e" % list_df_coeff[i][j]) for j in range(model._n_df)]
+            df_coeff = pd.DataFrame(data,index=list(np.arange(1,model._n_df+1)),columns=list(model._len_step))
+
+            # Set options for pandas table
+            df_coeff = pd.DataFrame(df_coeff.rename_axis('Step Length', axis=1))
+
+            # Print pandas table with free energy profile coefficients
+            print(df_coeff)
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
 
         # Set inp data MC algorithm
         inp = {"MC steps eq": self._nmc_eq,"MC steps radial eq": self._nmc_eq_radial,"MC steps": self._nmc,"MC steps radial": self._nmc_radial, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq":self._print_freq}
@@ -371,7 +410,7 @@ class MC:
         Parameters
         ----------
         model : Model
-            Model object which set before with the model class
+            Model object which set with the model class
         """
         # Caclulate a random number to choose a random coefficient
         # Attion the first coefficent of the diffusion profile is fixed 0 all the time
@@ -429,7 +468,7 @@ class MC:
         Parameters
         ----------
         model : Model
-            Model object which set before with the model class
+            Model object which set with the model class
         """
 
         # Caclulate a random number to choose a random coefficient
@@ -486,6 +525,8 @@ class MC:
         ----------
         imc : integer
             current number of MC steps
+        do_radial : bool (default = False)
+            if it's True the code calculate the radial diffusion too
         """
 
         if self._num_mc_update > 0:

@@ -612,8 +612,6 @@ def plot_trans_mat(link_in,step,kwargs={},rad=False):
         step length for the trans matrix to be visualized
     kwargs: dict
         dictionary with heatmap parameters to adjust the transition heatmap
-
-
     """
     results = utils.load(link_in)
 
@@ -623,7 +621,7 @@ def plot_trans_mat(link_in,step,kwargs={},rad=False):
     frame_num = model["num_frame"]
     frame_length = model["len_frame"]
     #bin_radial = inp["bins_radial"]
-    
+
 
 
     plt.title("Lagtime: "+str(step * frame_length) + " ps", fontsize=10)
@@ -631,11 +629,3 @@ def plot_trans_mat(link_in,step,kwargs={},rad=False):
         sns.heatmap(trans_mat[step]/frame_num)
     else:
         sns.heatmap(trans_mat[step]/frame_num, **kwargs)
-    #plt.show()
-
-    # if rad == True:
-    #     for i in len_step:
-    #         for j in range(bin_radial):
-    #             plt.title("radial_bin: "+str(j))
-    #             sns.heatmap(trans_mat_radial[i][j])
-    #             plt.show()
