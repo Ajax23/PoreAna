@@ -7,7 +7,7 @@ import poreana.geometry as geom
 import poreana.utils as utils
 
 from poreana.model_mc import Model
-from poreana.model_mc import CosinusModel
+from poreana.model_mc import CosineModel
 from poreana.model_mc import StepModel
 from poreana.model_mc import StepModel
 

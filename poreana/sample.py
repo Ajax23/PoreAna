@@ -657,9 +657,22 @@ class Sample:
         idx_list[-1][res_id] = np.digitize(com[2],bins)
 
         # Sample the transition matrix for the len_step
-        if frame_id>(frame_list[-1]-max(self._diff_mc_inp["len_step"])):
-            len_step = len_step[1:]
+        if frame_list[0]==0:
+            #print(frame_list[-1]-max(self._diff_mc_inp["len_step"]))
 
+            if frame_id<(frame_list[-1]):
+                for step in len_step:
+                    if len(idx_list) >= (step+1):
+
+                            idx_list[-(step+1)][res_id]
+                            idx_list[-1][res_id]
+
+                            # Calculate transition matrix in z direction
+                            start = idx_list[-(step+1)][res_id]
+                            end = idx_list[-1][res_id]
+                            data[step][end,start] += 1
+
+        if frame_list[0]!=0:
             for step in len_step:
                 if len(idx_list) >= (step+1):
 
@@ -670,17 +683,7 @@ class Sample:
                         start = idx_list[-(step+1)][res_id]
                         end = idx_list[-1][res_id]
                         data[step][end,start] += 1
-        else:
-            for step in len_step:
-                if len(idx_list) >= (step+1):
 
-                        idx_list[-(step+1)][res_id]
-                        idx_list[-1][res_id]
-
-                        # Calculate transition matrix in z direction
-                        start = idx_list[-(step+1)][res_id]
-                        end = idx_list[-1][res_id]
-                        data[step][end,start] += 1
 
 
     ############
@@ -718,7 +721,7 @@ class Sample:
                 frame_start = [x-self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]+1 if i>0 else x for i, x in enumerate(frame_start)]
 
             if self._is_diffusion_mc:
-                frame_start = [x-max(self._diff_mc_inp["len_step"])+1 if i>0 else x for i, x in enumerate(frame_start)]
+                frame_end = [x+max(self._diff_mc_inp["len_step"])+1 if i>0 else x for i, x in enumerate(frame_start)]
                 print(frame_start)
 
             # Create working lists for processors
@@ -832,8 +835,7 @@ class Sample:
             output["diffusion_bin"] = self._diffusion_bin_data()
         if self._is_diffusion_mc:
             output["diffusion_mc"] = self._diffusion_mc_data()
-        print(frame_list[0])
-        print(frame_list[0]+max(self._diff_mc_inp["len_step"]))
+
         # Run through frames
         for frame_id in frame_list:
             # Read frame
