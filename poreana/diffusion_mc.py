@@ -375,7 +375,7 @@ class MC:
         inp = {"MC steps eq": self._nmc_eq,"MC steps radial eq": self._nmc_eq_radial,"MC steps": self._nmc,"MC steps radial": self._nmc_radial, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq":self._print_freq}
 
         # Set inp data for model
-        model = {"bin number": model._bin_num, "bins": model._bins , "diffusion unit": model._diff_unit, "len_frame": model._dt,"len_step": model._len_step, "model": model._model, "nD": model._n_diff,"nF":model._n_df,"nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "trans_mat": model._trans_mat,"num_frame": model._frame_num}
+        model = {"bin number": model._bin_num, "bins": model._bins , "diffusion unit": model._diff_unit, "len_frame": model._dt,"len_step": model._len_step, "model": model._model, "nD": model._n_diff,"nF":model._n_df,"nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "trans_mat": model._trans_mat,"num_frame": model._frame_num,"data": model._trans_mat}
 
         # Set output data
         output = {"inp": inp, "model":  model, "diff_profile": list_diff_profile, "df_profile": list_df_profile,"diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc,"fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}

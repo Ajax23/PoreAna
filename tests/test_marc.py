@@ -41,20 +41,21 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_density("output/dens_cyl_s.obj")
         sample.init_gyration("output/gyr_cyl_s.obj")
-        sample.init_diffusion_bin("output/diff_cyl_s.obj")
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[10,40])
-        sample.sample(is_parallel=False)
+        # sample.init_diffusion_bin("output/diff_cyl_s.obj")
+        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
+        sample.sample(is_parallel=False, is_pbc=True)
 
-        sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
-        sample.init_density("output/dens_slit.obj")
-        sample.sample(is_parallel=False, is_pbc=False)
+        # sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
+        # sample.init_density("output/dens_slit.obj")
+        # sample.sample(is_parallel=False, is_pbc=False)
 
         ## Parallel
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_density("output/dens_cyl_p.obj")
         sample.init_gyration("output/gyr_cyl_p.obj")
-        sample.init_diffusion_bin("output/diff_cyl_p.obj")
-        sample.sample(is_parallel=True, is_pbc=False)
+        # sample.init_diffusion_bin("output/diff_cyl_p.obj")
+        sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
+        sample.sample(is_parallel=True, is_pbc=True)
 
 
     #########
@@ -68,7 +69,7 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Set the MC class and options
-        MC = pa.MC(model,10000,10000)
+        MC = pa.MC(model,5000,5000)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
@@ -94,37 +95,49 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/transition_heatmap.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.4 * 10**-9) ) < 0.2 * 10**-9, True)
+        self.assertEqual(abs(diff - (1.4 * 10**-9) ) < 0.3 * 10**-9, True)
 
-    # Test transition matrix
+    # Test parallelisation of transition matrix
+    def test_sample_p_s(self):
+        #self.skipTest("Temporary")
+
+        # Load Transition matrix for single
+        trans = pa.utils.load("output/diff_mc_cyl_s.obj")
+        trans_s = trans["data"]
+
+        # Load Transition matrix for parallel
+        trans_2 = pa.utils.load("output/diff_mc_cyl_p.obj")
+        trans_p = trans_2["data"]
+
+        list = []
+        for i in [1,2,5,10,20,30,40,50]:
+            list.append(np.array_equal(trans_s[i],trans_p[i]))
+
+        # Check is parallelisation correct
+        self.assertEqual(list, [True]*8)
+
+    # Test sampling of the transition matrix
     def test_sample(self):
-        self.skipTest("Temporary")
-        #print()
+        #self.skipTest("Temporary")
 
-        # Define molecules
-        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+        # Load Transition matrix for single
+        trans = pa.utils.load("data/trans_check.obj")
+        trans_s = trans["data"]
 
-        # Sanity checks
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        # Load Transition matrix for parallel
+        trans_2 = pa.utils.load("output/diff_mc_cyl_s.obj")
+        trans_p = trans_2["data"]
 
-        # Diffusion
-        #sample.init_diffusion_bin("output/diff_2.obj")
-        sample.init_diffusion_mc("output/diff.obj",bin_num=10, len_step=[10,20])
-        sample.sample(is_parallel=False)
-        a = pa.utils.load("output/diff.obj")
-        c = a["data"]
-        print(c)
-        sample.init_diffusion_mc("output/diff_2.obj", bin_num=10,len_step=[10,20])
-        sample.sample(is_parallel=True)
-        b = pa.utils.load("output/diff_2.obj")
-        d = b["data"]
-        print(d)
-        print(np.array_equal(c[10],d[10]))
-        print(np.array_equal(c[20],d[20]))
+        list = []
+        for i in [1,2,5,10,20,30,40,50]:
+            list.append(np.array_equal(trans_s[i],trans_p[i]))
+
+        # Check is parallelisation correct
+        self.assertEqual(list, [True]*8)
 
     # Test initalize likelihood
     def test_init_likelihood(self):
-        self.skipTest("Temporary")
+        #self.skipTest("Temporary")
 
         # Set the cosinus model
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
@@ -132,62 +145,29 @@ class UserModelCase(unittest.TestCase):
         # Set the MC class
         MC = pa.MC(model)
 
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        MC._len_step = 1
+        self.assertEqual(MC.log_likelihood_box(model),  -128852.33005868513)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        MC._len_step = 2
+        self.assertEqual(MC.log_likelihood_box(model),  -165354.76731180004)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 10
-
-        # Check if the initalize likelihood is correct
-        self.assertEqual(MC.log_likelihood_box(model), -172648.67206184397)
-    #
-    # def test_init_profiles(self):
-    #     #self.skipTest("Temporary")
-    #
-    #     # Set the cosinus model
-    #     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
-    #     print((model._df_bin))
-    #     print(len(np.array([0] * model._bin_num)))
-    #     print([0  for i in range(model._bin_num)])
-    #     print(np.array_equal(model._diff_bin, np.array([-2.78007469] * model._bin_num)))
-    #     print(np.array_equal(model._df_bin, np.array([0] * model._bin_num)))
-    #
-    #     self.assertEqual(np.array_equal(model._diff_bin, np.array([-2.78007469] * model._bin_num)), True)
-    #     self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
-
-    # def test_sample_trans(self):
-    #     self.skipTest("Temporary")
-    #
-    #     # Set the desired step length and the box length
-    #     len_step = [1,2,3,5,10,15,20,30,40]
-    #     box_length = 5.0849
-    #
-    #     # Load molecule
-    #     mol = pms.Molecule("oxygen", "O", inp="data/mcdiff/oxygen.gro")
-    #
-    #     # Calculate transition matrix for different step length
-    #     md.pore.diffusion_mcdiff.sample_box_sim("data/mcdiff/traj_test.pdb", "data/mcdiff/traj_test.trr", "output/pores/diff_test_trans.obj", mol,len_step,box_length,2e-12,pbc=True)
-    #
-    #     # Load the output obj files and load the transition matrices
-    #     obj = md.utils.load( "output/pores/diff_test_trans.obj")
-    #     trans_list = obj["trans_mat"]
-    #
-    #     # Check if the calculated matrices are the same as in the files
-    #     vec = []
-    #     for i in len_step:
-    #         vec.append(np.array_equal(trans_list[i],md.pore.diffusion_mcdiff.read_trans_mat_ref("data/mcdiff/trans_mat/transitions.nbins100.{}.pbc.dat".format(i))))
-    #
-    #     # Check if the code is correct
-    #     self.assertEqual(vec, [True]*9)
-    #
-
-    #
-    #
-    #
+        self.assertEqual(MC.log_likelihood_box(model),  -258946.70553844847)
 
 
+    # Check initial profiles
+    def test_init_profiles(self):
+        #self.skipTest("Temporary")
 
+        # Set the cosinus model
+        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
-
-
-
+        # Check if the initialized profiles are corret
+        self.assertEqual(np.array_equal(model._diff_bin, np.array([-1.3937803336775594] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

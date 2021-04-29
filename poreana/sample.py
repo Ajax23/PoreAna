@@ -569,19 +569,23 @@ class Sample:
     ################
     # MC Diffusion #
     ################
-    def init_diffusion_mc(self, link_out, bin_num=50, len_frame=2e-12, len_step=[], com=True, pbc = True):
+    def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12,  com = True, pbc = True):
         """Enable diffusion sampling routine with the MC Alogrithm.
 
         Parameters
         ----------
         link_out : string
             Link to output object file
+        len_step : integer, optional
+            Length of the step size between frames
         bin_num : integer, optional
             Number of bins to be used
         len_frame : float, optional
             Length of a frame in seconds
-        len_step : integer, optional
-            Length of the step size between frames
+        com : bool (default = True)
+            if it is True the center of mass of the molecules was used
+        pbc : bool (default = True)
+            trajectory contains periodic boundary conditions
         """
         # Initialize
         self._is_diffusion_mc = True
@@ -658,21 +662,18 @@ class Sample:
 
         # Sample the transition matrix for the len_step
         if frame_list[0]==0:
-            #print(frame_list[-1]-max(self._diff_mc_inp["len_step"]))
+            for step in len_step:
+                if len(idx_list) >= (step+1):
 
-            if frame_id<(frame_list[-1]):
-                for step in len_step:
-                    if len(idx_list) >= (step+1):
+                        idx_list[-(step+1)][res_id]
+                        idx_list[-1][res_id]
 
-                            idx_list[-(step+1)][res_id]
-                            idx_list[-1][res_id]
+                        # Calculate transition matrix in z direction
+                        start = idx_list[-(step+1)][res_id]
+                        end = idx_list[-1][res_id]
+                        data[step][end,start] += 1
 
-                            # Calculate transition matrix in z direction
-                            start = idx_list[-(step+1)][res_id]
-                            end = idx_list[-1][res_id]
-                            data[step][end,start] += 1
-
-        if frame_list[0]!=0:
+        if frame_list[0]!=0 and frame_id>=(frame_list[0]+max(self._diff_mc_inp["len_step"])):
             for step in len_step:
                 if len(idx_list) >= (step+1):
 
@@ -721,8 +722,8 @@ class Sample:
                 frame_start = [x-self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]+1 if i>0 else x for i, x in enumerate(frame_start)]
 
             if self._is_diffusion_mc:
-                frame_end = [x+max(self._diff_mc_inp["len_step"])+1 if i>0 else x for i, x in enumerate(frame_start)]
-                print(frame_start)
+                frame_end = [x+max(self._diff_mc_inp["len_step"]) for i, x in enumerate(frame_end)]
+                frame_end[-1] = frame_end[-1]-max(self._diff_mc_inp["len_step"])
 
             # Create working lists for processors
             frame_np = [list(range(frame_start[i], frame_end[i])) for i in range(np)]
