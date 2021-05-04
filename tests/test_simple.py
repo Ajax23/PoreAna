@@ -48,17 +48,17 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens_slit.obj")
         sample.sample(is_parallel=False, is_pbc=False)
 
+        sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
+        sample.init_density("output/dens_box.obj")
+        sample.init_gyration("output/gyr_box.obj")
+        sample.sample(shift=[0, 0, 3.3], is_parallel=False)
+
         ## Parallel
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_p.obj")
         sample.init_gyration("output/gyr_cyl_p.obj")
         sample.init_diffusion_bin("output/diff_cyl_p.obj")
         sample.sample(is_parallel=True, is_pbc=False)
-
-        sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
-        sample.init_density("output/dens_box.obj")
-        sample.init_gyration("output/gyr_box.obj")
-        sample.sample(np=3, shift=[0, 0, 3.3])
 
 
     #########
@@ -118,10 +118,14 @@ class UserModelCase(unittest.TestCase):
         # Sanity checks
         pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol2)
         pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, atoms=["C1"], masses=[1, 1])
+        pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol).sample(shift=[1])
 
         # Diffusion
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, atoms=["C1"])
         sample.init_diffusion_bin("output/diff_np_s.obj", len_obs=3e-12)
+
+        sample = pa.Sample([0, 0, 1], "data/traj_cylinder.xtc", mol, atoms=["C1"])
+        sample.init_diffusion_bin("output/diff_box_test.obj", len_obs=3e-12)
 
 
     ##############
