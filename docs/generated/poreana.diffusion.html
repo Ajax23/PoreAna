@@ -55,6 +55,7 @@
                 <li><a href="../api.html">API</a></li>
                 <li><a href="../density.html">Density</a></li>
                 <li><a href="../diffusion.html">Diffusion</a></li>
+                <li><a href="../diffusion_mc.html">Diffusion (MC)</a></li>
             
             
               <li class="dropdown globaltoc-container">
@@ -110,7 +111,7 @@
   <div class="section" id="module-poreana.diffusion">
 <span id="poreana-diffusion"></span><h1>poreana.diffusion<a class="headerlink" href="#module-poreana.diffusion" title="Permalink to this headline">¶</a></h1>
 <p>Analyse diffusion in a pore.</p>
-<p class="rubric">Functions</p>
+<p class="rubric">Bin Methode</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
@@ -125,6 +126,69 @@
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.mean.html#poreana.diffusion.mean" title="poreana.diffusion.mean"><code class="xref py py-obj docutils literal"><span class="pre">mean</span></code></a>(data_link_diff,&nbsp;data_link_dens[,&nbsp;…])</td>
 <td>This function uses the diffusion coefficient slope obtained from</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">MC Diffusion (Fitting)</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.diffusion_fit.html#poreana.diffusion.diffusion_fit" title="poreana.diffusion.diffusion_fit"><code class="xref py py-obj docutils literal"><span class="pre">diffusion_fit</span></code></a>(link[,&nbsp;len_step,&nbsp;is_std])</td>
+<td>This function uses the diffusion profiles over box length which are calculated in the function <code class="xref py py-func docutils literal"><span class="pre">do_mc_cycles()</span></code> to estimate the final diffusion coefficient.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.diffusion_pore_fit.html#poreana.diffusion.diffusion_pore_fit" title="poreana.diffusion.diffusion_pore_fit"><code class="xref py py-obj docutils literal"><span class="pre">diffusion_pore_fit</span></code></a>(link_pore,&nbsp;link[,&nbsp;…])</td>
+<td>This function uses the diffusion profiles over box length which are calculated in the function <code class="xref py py-func docutils literal"><span class="pre">do_mc_cycles()</span></code> to estimate the final diffusion coefficient into a pore.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.diffusion_radial_fit.html#poreana.diffusion.diffusion_radial_fit" title="poreana.diffusion.diffusion_radial_fit"><code class="xref py py-obj docutils literal"><span class="pre">diffusion_radial_fit</span></code></a>(link[,&nbsp;len_step])</td>
+<td>This function use the diffusion profiles over the bins from the function <code class="xref py py-func docutils literal"><span class="pre">do_mc_cycles()</span></code> to caluclate the final diffusion coefficient.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">MC Diffusion (Profiles)</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.diff_profile.html#poreana.diffusion.diff_profile" title="poreana.diffusion.diff_profile"><code class="xref py py-obj docutils literal"><span class="pre">diff_profile</span></code></a>(link[,&nbsp;len_step,&nbsp;infty_profile])</td>
+<td>This function plots the diffusion profile over the box for the calculated lagtimes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.diff_radial_profile.html#poreana.diffusion.diff_radial_profile" title="poreana.diffusion.diff_radial_profile"><code class="xref py py-obj docutils literal"><span class="pre">diff_radial_profile</span></code></a>(link[,&nbsp;len_step,&nbsp;avg])</td>
+<td>This function plots the radial diffusion profile over the box for serveral lagtimes.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.diff_pore_profile.html#poreana.diffusion.diff_pore_profile" title="poreana.diffusion.diff_pore_profile"><code class="xref py py-obj docutils literal"><span class="pre">diff_pore_profile</span></code></a>(link_pore,&nbsp;link[,&nbsp;…])</td>
+<td>This function plots the diffusion profile in the pore over pore length for the calculated lagtimes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.df_profile.html#poreana.diffusion.df_profile" title="poreana.diffusion.df_profile"><code class="xref py py-obj docutils literal"><span class="pre">df_profile</span></code></a>(link[,&nbsp;len_step])</td>
+<td>This function plots the free energy profile over the box for the calculated lag times.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">MC Diffusion (Input &amp; Output Tables)</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.plot_trans_mat.html#poreana.diffusion.plot_trans_mat" title="poreana.diffusion.plot_trans_mat"><code class="xref py py-obj docutils literal"><span class="pre">plot_trans_mat</span></code></a>(link_in,&nbsp;step[,&nbsp;kwargs])</td>
+<td>This function plots the occupation of a normalized transition matrix as an heatmap.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.print_mc_inputs.html#poreana.diffusion.print_mc_inputs" title="poreana.diffusion.print_mc_inputs"><code class="xref py py-obj docutils literal"><span class="pre">print_mc_inputs</span></code></a>(link_out[,&nbsp;print_con])</td>
+<td>This function prints the MC Algorithm inputs of the calculation.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.print_model_inputs.html#poreana.diffusion.print_model_inputs" title="poreana.diffusion.print_model_inputs"><code class="xref py py-obj docutils literal"><span class="pre">print_model_inputs</span></code></a>(link_out[,&nbsp;print_con])</td>
+<td>This function prints the model inputs of the calculation.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.print_statistics_mc.html#poreana.diffusion.print_statistics_mc" title="poreana.diffusion.print_statistics_mc"><code class="xref py py-obj docutils literal"><span class="pre">print_statistics_mc</span></code></a>(link_out[,&nbsp;print_con])</td>
+<td>This function prints the statistic of the MC Run for every lag time.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.print_coeff.html#poreana.diffusion.print_coeff" title="poreana.diffusion.print_coeff"><code class="xref py py-obj docutils literal"><span class="pre">print_coeff</span></code></a>(link_out[,&nbsp;print_con])</td>
+<td>This function prints the final coefficients of the profile for every lag time profile.</td>
 </tr>
 </tbody>
 </table>

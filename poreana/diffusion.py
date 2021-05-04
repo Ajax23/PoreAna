@@ -356,16 +356,16 @@ def diffusion_fit(link, len_step=[], is_std = True):
     This function uses the diffusion profiles over box length which are
     calculated in the function :func:`do_mc_cycles` to estimate the final
     diffusion coefficient. For that a line is fitted of the averaged diffusion
-    profiles :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` for the different lag
-    times as a function of :math:`1/\\Delta_{ij}t_{alpha}`. The function plots
-    all mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` over the
+    profiles :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` for the different lag
+    times as a function of :math:`1/\\Delta_{ij}t_{\\alpha}`. The function plots
+    all mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` over the
     inverse lag times and the linear fit. Additional the final mean diffusion
     coefficient :math:`D` for a lagtime
-    :math:`\\Delta_{ij}t_{alpha} \\rightarrow \infty` is printed. Also a table
+    :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty` is printed. Also a table
     of the selected step length and the belonging
-    :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` can be displayed.
+    :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` can be displayed.
 
-    In order to be able to estimate how the choice of lag times affects the result, an additional error estimation is possible. For this all possible fourth tuples of the entire calculated lag times are used to estimate a mean diffusion coefficient :math:`\\langle D \\rangle` which is the mean value of all fourth tuples fitting results. Also the standard deviation of all fitting results is printed. If there is no big difference between the diffusion coefficient :math:`D` and the mean diffusion ceofficient :math:`\\langle D \\rangle`, all :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` are on a straight line. The standard deviation can also be used to check if the result fluctuates strongly at the choice of other lag times. This error estimate is calculated if :math:`is_std=True`.
+    In order to be able to estimate how the choice of lag times affects the result, an additional error estimation is possible. For this all possible fourth tuples of the entire calculated lag times are used to estimate a mean diffusion coefficient :math:`\\langle D \\rangle` which is the mean value of all fourth tuples fitting results. Also the standard deviation of all fitting results is printed. If there is no big difference between the diffusion coefficient :math:`D` and the mean diffusion ceofficient :math:`\\langle D \\rangle`, all :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` are on a straight line. The standard deviation can also be used to check if the result fluctuates strongly at the choice of other lag times. This error estimate is calculated if :math:`is_std=True`.
 
     Parameters
     ----------
@@ -557,9 +557,9 @@ def diff_profile(link,len_step=[], infty_profile = True):
 ##################
 def diffusion_pore_fit(link_pore, link, len_step=[], is_std=True):
     """
-    This function uses the diffusion profiles over box length which are calculated in the function :func:`do_mc_cycles` to estimate the final diffusion coefficient into a pore. For that a line is fitted of the averaged diffusion profiles :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` in the pore area for the different lag times as a function of :math:`1/\\Delta_{ij}t_{alpha}`. The function plots all mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` over the inverse lag times and the linear fit. Additional the final mean diffusion coefficient :math:`D` for a lagtime :math:`\\Delta_{ij}t_{alpha} \\rightarrow \infty` is printed. Also a table of the selected step length and the belonging :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` can be displayed.
+    This function uses the diffusion profiles over box length which are calculated in the function :func:`do_mc_cycles` to estimate the final diffusion coefficient into a pore. For that a line is fitted of the averaged diffusion profiles :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` in the pore area for the different lag times as a function of :math:`1/\\Delta_{ij}t_{\\alpha}`. The function plots all mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` over the inverse lag times and the linear fit. Additional the final mean diffusion coefficient :math:`D` for a lagtime :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty` is printed. Also a table of the selected step length and the belonging :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` can be displayed.
 
-    In order to be able to estimate how the choice of lag times affects the result, an additional error estimation is possible. For this all possible fourth tuples of the entire calculated lag times are used to estimate a mean diffusion coefficient :math:`\\langle D \\rangle` which is the mean value of all fourth tuples fitting results. Also the standard deviation of all fitting results is printed. If there is no big difference between the diffusion coefficient :math:`D` and the mean diffusion ceofficient :math:`\\langle D \\rangle`, all :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` are on a straight line. The standard deviation can also be used to check if the result fluctuates strongly at the choice of other lag times. This error estimate is calculated if :math:`is_std=True`.
+    In order to be able to estimate how the choice of lag times affects the result, an additional error estimation is possible. For this all possible fourth tuples of the entire calculated lag times are used to estimate a mean diffusion coefficient :math:`\\langle D \\rangle` which is the mean value of all fourth tuples fitting results. Also the standard deviation of all fitting results is printed. If there is no big difference between the diffusion coefficient :math:`D` and the mean diffusion ceofficient :math:`\\langle D \\rangle`, all :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` are on a straight line. The standard deviation can also be used to check if the result fluctuates strongly at the choice of other lag times. This error estimate is calculated if :math:`is_std=True`.
 
     Parameters
     ----------
@@ -1064,7 +1064,7 @@ def print_mc_inputs(link_out, print_con=False):
 
 
 ##########################
-# Plor transition matrix #
+# Plot transition matrix #
 ##########################
 def plot_trans_mat(link_in,step,kwargs={}):
     """
@@ -1072,8 +1072,8 @@ def plot_trans_mat(link_in,step,kwargs={}):
 
     Parameters
     ----------
-    link_in: string
-        link to the diffusion sample obj file generated by the sample routine :func:`moldyn.pores.sample`
+    link_out: string
+        link to the diffusion  data object generated by the sample routine :func:`poreana.post_process.do_mc_cycles`
     step: int
         step length for the trans matrix to be visualized
     kwargs: dict
@@ -1105,7 +1105,7 @@ def plot_trans_mat(link_in,step,kwargs={}):
 ####################
 def diffusion_radial_fit(link, len_step=None):
     """
-    This function use the diffusion profiles over the bins from the function :func:`do_mc_cycles` to caluclate the final diffusion coefficient. For that a line is fit of the mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` for the different lagtimes as a function of :math:`1/\\Delta_{ij}t_{alpha}` . The function plot all mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` over all inverse input lagtimes and the linear fit. Additional the final mean diffusion coefficient :math:`D` for a lagtime :math:`\\Delta_{ij}t_{alpha} \\rightarrow \infty` is printed. Also a table of the selected step length and the belonging :math:`D_{mean}({\\Delta_{ij}t_{alpha}})` and the :math:`D_{avg}({\\Delta_{ij}t_{alpha}})` can be displayed
+    This function use the diffusion profiles over the bins from the function :func:`do_mc_cycles` to caluclate the final diffusion coefficient. For that a line is fit of the mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` for the different lagtimes as a function of :math:`1/\\Delta_{ij}t_{\\alpha}` . The function plot all mean diffusion :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` over all inverse input lagtimes and the linear fit. Additional the final mean diffusion coefficient :math:`D` for a lagtime :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty` is printed. Also a table of the selected step length and the belonging :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` and the :math:`D_{avg}({\\Delta_{ij}t_{\\alpha}})` can be displayed
 
     Formel für avg falls das drin bleibt
 

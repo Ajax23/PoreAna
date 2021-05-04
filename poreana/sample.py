@@ -620,36 +620,57 @@ class Sample:
         return data
 
     def _diffusion_mc(self, data, idx_list,res_id, com, frame_list, frame_id):
-        """This function sample the transition matrix for the diffusion calculation with the Monte Carlo diffusion methode for a cubic simulation box. The sample of the transition matrix is to be run on the cluster due to a high time and resource
-        consumption. The output, a data object, is then used to calculate the
-        self-diffusion using further calculation functions for the MC Diffusion methode.
+        """This function sample the transition matrix for the diffusion
+        calculation with the Monte Carlo diffusion methode for a cubic
+        simulation box. The sample of the transition matrix is to be run on
+        the cluster due to a high time and resource consumption. The output,
+        a data object, is then used to calculate the self-diffusion using
+        further calculation functions for the MC Diffusion methode.
 
-        It is necessary to caculate the transition matrix for different step length and so for different lag times. A lagtime :math:`t_{i}` is defined by
+        It is necessary to caculate the transition matrix for different step
+        length and so for different lag times. A lagtime
+        :math:`\\Delta_{ij}t_{\\alpha}` is defined by
 
         .. math::
 
-            t_i = s \\cdot t
+            \\Delta_{ij}t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
 
-        with :math:`s` as the step length and :math:`t` as the length of a frame in secound.
-        After the sampling a model class has to set and then the MC calculation can run.
-        Subsequently the final mean diffusion coefficient can be determined with a extrapolation to :math:`t_i \\rightarrow \infty`. For the etxrapolation we need the mean diffusion over the bins for different chosen lag times. That's why we have to calculate the results and the transition matrix for several lag times. More information about post processing and the extrapolation that you can find in :func:`diffusion`
+        with :math:`i` and :math:`j` as the current state of the system at two
+        different times and :math:`\\alpha` as past time between the two states.
+        To sample the transition matrix the frame length :math:`t` has to
+        be specifiy and this frame length is for all lag times the same.
+        The variation of the lag time is happend by adapting the step length
+        :math:`s` which indicates the interval between the frames. The lag time
+        is than calculated by
+
+        .. math::
+
+            \\Delta_{ij}t_{\\alpha} = t \cdot s
+
+        After the sampling a model class has to set and then the MC calculation
+        can run. Subsequently the final mean diffusion coefficient can be
+        determined with a extrapolation to
+        :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty`.
+        For the etxrapolation we need the mean diffusion over the bins for
+        different chosen lag times. That's why we have to calculate the results
+        and the transition matrix for several lag times. More information about
+        post processing and the extrapolation that you can find in
+        :func:`diffusion.diffusion_fit`
 
         Parameters
         ----------
         data : dictionary
             Data dictionary containing bins for axial and radial diffusion
-        region : string
-            Indicator wether molecule is inside or outside pore
-        dist : float
-            Distance of center of mass to pore surface area
-        com_list : list
-            List of dictionaries containing coms of all molecules for each frame
         index_list : list
             List of dictionaries containing bin id of all molecules for each frame
         res_id : integer
             Current residue id
         com : list
             Center of mass of current molecule
+        frame_list : list
+            List of frame ids to process
+        frame_id : integer
+            Current frame_id
         """
 
         # Initialize

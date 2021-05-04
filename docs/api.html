@@ -55,6 +55,7 @@
                 <li><a href="#">API</a></li>
                 <li><a href="density.html">Density</a></li>
                 <li><a href="diffusion.html">Diffusion</a></li>
+                <li><a href="diffusion_mc.html">Diffusion (MC)</a></li>
             
             
               <li class="dropdown globaltoc-container">
@@ -79,6 +80,7 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">API reference</a><ul>
 <li><a class="reference internal" href="#analysis">Analysis</a></li>
+<li><a class="reference internal" href="#monte-carlo-sampling">Monte Carlo Sampling</a></li>
 <li><a class="reference internal" href="#analysis-api">Analysis</a></li>
 <li><a class="reference internal" href="#utilities">Utilities</a></li>
 </ul>
@@ -124,6 +126,29 @@
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="generated/poreana.sample.Sample.html#poreana.sample.Sample" title="poreana.sample.Sample"><code class="xref py py-obj docutils literal"><span class="pre">sample.Sample</span></code></a>(link_pore,&nbsp;link_traj,&nbsp;mol[,&nbsp;…])</td>
 <td>This class samples a trajectory to determine different properties.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="monte-carlo-sampling">
+<h2>Monte Carlo Sampling<a class="headerlink" href="#monte-carlo-sampling" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="generated/poreana.model.Model.html#poreana.model.Model" title="poreana.model.Model"><code class="xref py py-obj docutils literal"><span class="pre">model.Model</span></code></a>(data_link[,&nbsp;d0])</td>
+<td>This class sets the general parameters which are used to initialize a model.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/poreana.model.CosineModel.html#poreana.model.CosineModel" title="poreana.model.CosineModel"><code class="xref py py-obj docutils literal"><span class="pre">model.CosineModel</span></code></a>(data_link[,&nbsp;n_diff,&nbsp;n_df,&nbsp;…])</td>
+<td>This class sets the Cosine Model to calculate the free energy profile and the diffusion profile.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="generated/poreana.model.StepModel.html#poreana.model.StepModel" title="poreana.model.StepModel"><code class="xref py py-obj docutils literal"><span class="pre">model.StepModel</span></code></a>(data_link[,&nbsp;n_diff,&nbsp;n_df,&nbsp;…])</td>
+<td>This class sets the Step Model to calculate the free energy profile and the diffusion profile.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="generated/poreana.mc.MC.html#poreana.mc.MC" title="poreana.mc.MC"><code class="xref py py-obj docutils literal"><span class="pre">mc.MC</span></code></a>(model[,&nbsp;nmc_eq,&nbsp;nmc,&nbsp;nmc_eq_radial,&nbsp;…])</td>
+<td>This class contains the Monte Carlo part of the diffusion calculation.</td>
 </tr>
 </tbody>
 </table>
