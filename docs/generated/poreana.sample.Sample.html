@@ -53,8 +53,9 @@
           <ul class="nav navbar-nav">
             
                 <li><a href="../api.html">API</a></li>
+                <li><a href="../sample.html">Sample</a></li>
                 <li><a href="../density.html">Density</a></li>
-                <li><a href="../diffusion.html">Diffusion</a></li>
+                <li><a href="../diffusion_bin.html">Diffusion (Bin)</a></li>
             
             
               <li class="dropdown globaltoc-container">
@@ -112,20 +113,24 @@
 <h1>Sample<a class="headerlink" href="#sample" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="poreana.sample.Sample">
-<em class="property">class </em><code class="descclassname">poreana.sample.</code><code class="descname">Sample</code><span class="sig-paren">(</span><em>link_pore</em>, <em>link_traj</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>entry=0.5</em>, <em>is_nojump=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">poreana.sample.</code><code class="descname">Sample</code><span class="sig-paren">(</span><em>system</em>, <em>link_traj</em>, <em>mol</em>, <em>atoms=[]</em>, <em>masses=[]</em>, <em>entry=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class samples a trajectory to determine different properties.
 Different properties can be initialized to be run at the same time during
 the sampling run. The output is stored in form of pickle files for later
 calculation using methods provided in the package.</p>
 <p>It is advisable to run the sampling on a cluster due to a high time and
 resource consumption.</p>
+<p>The system can either be a pore system - variable <strong>system</strong> is a file link
+to the <em>pore_system</em> object file - or a simple simulation box - variable
+<strong>system</strong> is a list containing the dimensions in nano meter.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>link_pore</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to poresystem object file</p>
+<dt><strong>system</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, list</span></dt>
+<dd><p class="first last">Link to poresystem object file or a list of dimensions for a simple box
+analysis</p>
 </dd>
 <dt><strong>link_traj</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Link to trajectory file (trr or xtc)</p>
@@ -142,9 +147,6 @@ resource consumption.</p>
 <dt><strong>entry</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Remove pore entrance from calculation</p>
 </dd>
-<dt><strong>is_nojump</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True if pbc nojump option was used</p>
-</dd>
 </dl>
 </td>
 </tr>
@@ -157,10 +159,10 @@ resource consumption.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._sample_helper.html#poreana.sample.Sample._sample_helper" title="poreana.sample.Sample._sample_helper"><code class="xref py py-obj docutils literal"><span class="pre">_sample_helper</span></code></a>(frame_list)</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._sample_helper.html#poreana.sample.Sample._sample_helper" title="poreana.sample.Sample._sample_helper"><code class="xref py py-obj docutils literal"><span class="pre">_sample_helper</span></code></a>(frame_list,&nbsp;shift,&nbsp;is_pbc)</td>
 <td>Helper function for sampling run.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>([is_parallel])</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>([shift,&nbsp;np,&nbsp;is_pbc,&nbsp;is_parallel])</td>
 <td>This function runs all enabled sampling routines.</td>
 </tr>
 </tbody>

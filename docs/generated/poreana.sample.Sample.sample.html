@@ -53,8 +53,9 @@
           <ul class="nav navbar-nav">
             
                 <li><a href="../api.html">API</a></li>
+                <li><a href="../sample.html">Sample</a></li>
                 <li><a href="../density.html">Density</a></li>
-                <li><a href="../diffusion.html">Diffusion</a></li>
+                <li><a href="../diffusion_bin.html">Diffusion (Bin)</a></li>
             
             
               <li class="dropdown globaltoc-container">
@@ -112,7 +113,7 @@
 <h1>Sample.sample<a class="headerlink" href="#sample-sample" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample.sample">
-<code class="descclassname">Sample.</code><code class="descname">sample</code><span class="sig-paren">(</span><em>is_parallel=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.sample" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">sample</code><span class="sig-paren">(</span><em>shift=[]</em>, <em>np=0</em>, <em>is_pbc=True</em>, <em>is_parallel=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.sample" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function runs all enabled sampling routines. The output is
 stored in form of pickle files for later calculation using methods
 provided in the package.</p>
@@ -123,6 +124,15 @@ resource consumption.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>shift</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
+<dd><p class="first last">Distances for translating all positions in nano meter</p>
+</dd>
+<dt><strong>np</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of cores to use</p>
+</dd>
+<dt><strong>is_pbc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to apply periodic boundary conditions</p>
+</dd>
 <dt><strong>is_parallel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
 <dd><p class="first last">True to run parallelized sampling</p>
 </dd>
