@@ -7,7 +7,7 @@
       <div class="col-md-10">
         <div style="text-align: justify; text-justify: inter-word;">
 
-Diffusion analysis in a pore
+Diffusion Analysis in a pore
 ============================
 
 The bin diffusion analysis needs the sampled object file using the bin

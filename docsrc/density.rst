@@ -7,7 +7,7 @@
       <div class="col-md-10">
         <div style="text-align: justify; text-justify: inter-word;">
 
-Density analysis in a Pore
+Density Analysis in a Pore
 ==========================
 
 The density analysis needs the sampled object file using the density
