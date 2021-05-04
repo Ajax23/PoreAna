@@ -6,13 +6,13 @@ import poreana.gyration as gyration
 import poreana.geometry as geom
 import poreana.utils as utils
 
-from poreana.model_mc import Model
-from poreana.model_mc import CosineModel
-from poreana.model_mc import StepModel
-from poreana.model_mc import StepModel
+from poreana.model import Model
+from poreana.model import CosineModel
+from poreana.model import StepModel
+from poreana.model import StepModel
 
-from poreana.diffusion_mc import MC
-from poreana.post_process import *
+from poreana.mc import MC
+from poreana.diffusion import *
 
 from poreana.sample import Sample
 

@@ -41,6 +41,7 @@ class Sample:
         Remove pore entrance from calculation
     """
     def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5):
+
         # Initialize
         self._pore = utils.load(link_pore)
         self._traj = link_traj
@@ -909,9 +910,8 @@ class Sample:
                     if self._is_diffusion_bin:
                         self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
                     if self._is_diffusion_mc:
-                        self._diffusion_mc(output["diffusion_mc"], idx_list_mc,res_id,com, frame_list, frame_id)
-                        # else:
-                        #     self._diffusion_mc(output["diffusion_mc"], idx_list_mc,res_id,com)
+                        self._diffusion_mc(output["diffusion_mc"], idx_list_mc, res_id, com, frame_list, frame_id)
+
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:
                 sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")

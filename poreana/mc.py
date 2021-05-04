@@ -8,42 +8,56 @@ import poreana.utils as utils
 import pandas as pd
 from numpy import array
 from statistics import mean
-from .model_mc import Model
+from .model import Model
 from collections import deque
 
 class MC:
     """
-    This class contains the Monte Carlo part of the diffusion calculation. The class initializes the MC (Monte Carlo) parameters and contains all functions to execute the MC cycle part of the diffusion calculation.
-    The MC Algorithm is divided in two parts. Frist a equilibrium MC run starts to adjust the profile. The number of the equilibrium runs can be set with :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion profile can begin. In this part the MC alogrithm calculates in every step an diffusion profile. The average over all profiles which are yields in MC production will be determined. The received profile gives the final results.
-    Here you have to set also step the move width of a MC step. More information about a MC step can be found at :func:`mcmove_diffusion`, :func:`mcmove_diffusion_radial` or :func:`mcmove_df`. The MC calculation can be started with :func:`do_mc_cycles`.
+    This class contains the Monte Carlo part of the diffusion calculation. The
+    class initializes the MC (Monte Carlo) parameters and contains all functions
+    to execute the MC cycle part of the diffusion calculation.
+    The MC Algorithm is divided in two parts. Frist a equilibrium MC run starts
+    to adjust the profile. The number of the equilibrium runs can be set with
+    :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion
+    profile can begin. In this part the MC alogrithm calculates in every step
+    an diffusion profile. The average over all profiles which are yields in MC
+    production will be determined. The received profile gives the final results.
+    Here you have to set also step the move width of a MC step.
+
+    *More information about a MC step can be found in*
+     * :func:`mcmove_diffusion`
+     * :func:`mcmove_diffusion_radial`
+     * :func:`mcmove_df`
+
+    The MC calculation can be started with :func:`do_mc_cycles`.
 
     Parameters
     ----------
     model : Model
         Model object which sets with the model class
-    nmc_eq : integer (default=50000)
+    nmc_eq : integer, optional
         number of equilibrium MC steps
-    nmc : integer (default=100000)
+    nmc : integer, optional
         number of prdocution MC steps
-    nmc_eq_radial : integer (default=50000)
+    nmc_eq_radial : integer, optional
         number of equilibrium MC steps
-    nmc_radial : integer (default=100000)
+    nmc_radial : integer, optional
         number of prdocution MC steps
-    delta_df : float (default=0.05)
+    delta_df : float, optional
         potential MC move width
-    delta_diff : float (default=0.05)
+    delta_diff : float, optional
         ln(diffusion) MC move width
-    delta_diff_radial : float (default=0.05)
+    delta_diff_radial : float, optional
         ln(radial diffusion) MC move width
-    num_mc_update : integer (default=10)
+    num_mc_update : integer, optional
         number of moves between MC step width adjustments ( 0 if no adjustment)
-    temp : float (default=1)
+    temp : float, optional
         temperature in Monte Carlo acceptance criterium
-    lmax : integer (default=50)
+    lmax : integer, optional
         number of Bessel functions
-    print_output : bool (default = True)
+    print_output : bool, optional
         if it is true the output will be printed
-    print_freq : integer (default = 100)
+    print_freq : integer, optional
         every print_freq MC step is printed
     """
 
@@ -79,17 +93,27 @@ class MC:
 
     def do_mc_cycles(self, model, link_out, do_radial=False):
         """
-        This function do the MC Cycle to calculate the diffusion and free energy profil over the bins and save the results in a output object file. This happen with the adjustment of the coefficient from the model which is set with the appropriate model class. The code determine the results for all lagtimes for which a transition matrix was caclulated. The results can be displayed with the post process functions.
+        This function do the MC Cycle to calculate the diffusion and free energy
+        profil over the bins and save the results in a output object file.
+        This happen with the adjustment of the coefficient from the model which
+        is set with the appropriate model class. The code determine the
+        results for all lagtimes for which a transition matrix was caclulated.
+        The results can be displayed with the post process functions.
 
         The MC accepted criterium for a MC step is define as
 
         .. math::
 
-            r < exp \\left ( \\frac{L_\\text{new} - L_\\text{old}}{T}  \\right)
+            r < \\exp \\left ( \\frac{L_\\text{new} - L_\\text{old}}{T}  \\right)
 
-        with :math:`T` as the temperature, :math:`r` as a random number between :math:`0` and :math:`1` and :math:`L_\\text{new}` and :math:`L_\\text{old}` as the likelihood for the current and the last step. The likelihood is calculated with :func:`log_likelihood_box` function.
+        with :math:`T` as the temperature, :math:`r` as a random number between
+        :math:`0` and :math:`1` and :math:`L_\\text{new}` and
+        :math:`L_\\text{old}` as the likelihood for the current and the last
+        step. The likelihood is calculated with :func:`log_likelihood_box`
+        function.
 
-        Information about a single MC step can be find in :func:`mcmove_diffusion` or :func:`mcmove_df`
+        Information about a single MC step can be find in
+        :func:`mcmove_diffusion` or :func:`mcmove_df`
 
         Parameters
         ----------
@@ -97,7 +121,7 @@ class MC:
             Model object which set before with the model class
         link_out : string
             Link to output object file
-        do_radial : bool (default = False)
+        do_radial : bool, optional
             if it's True the code calculate the radial diffusion too
         """
 
@@ -384,7 +408,8 @@ class MC:
         utils.save(output, link_out)
 
     def init_stats(self,model):
-        """ This function sets the MC statistic counters to zero after every MC run.
+        """ This function sets the MC statistic counters to zero after
+        every MC run.
 
         Parameters
         ----------
@@ -413,15 +438,17 @@ class MC:
 
     def mcmove_diffusion(self,model):
         """
-        This function does the MC move for the diffusion profile and adjust one coefficent of the model. A MC move in the parameter space is defined by
+        This function does the MC move for the diffusion profile and adjust
+        one coefficent of the model. A MC move in the parameter space is defined
+        by
 
         .. math::
 
-            a_{k,new}= a_{k} + \\Delta_\\text{MC} \\cdot (R - 0.5)
+            a_{k,\\mathrm{new}}= a_{k} + \\Delta_\\text{MC} \\cdot (R - 0.5)
 
-        with :math:`\\Delta_\\test{MC}` as the MC step movewidth and :math:`R` as a random number between :math:`0` and :math:`1`. The choice of the coefficient is also made by determining a random number.
-
-
+        with :math:`\\Delta_\\text{MC}` as the MC step movewidth and :math:`R`
+        as a random number between :math:`0` and :math:`1`. The choice of the
+        coefficient is also made by determining a random number.
 
         Parameters
         ----------
@@ -472,13 +499,17 @@ class MC:
 
 
     def mcmove_df(self,model):
-        """This function does the MC move for the free energy profile and adjust the coefficents of the model. A MC move in the parameter space is defined by
+        """This function does the MC move for the free energy profile and adjust
+        the coefficents of the model. A MC move in the parameter space is defined
+        by
 
         .. math::
 
-            a_{k,new}= a_{k} + \\Delta_{MC} \\cdot (R - 0.5)
+            a_{k,\\mathrm{new}}= a_{k} + \\Delta_\\mathrm{MC} \\cdot (R - 0.5)
 
-        with :math:`\\Delta_{MC}` as the MC step movewidth and :math:`R` as a random number between :math:`0` and :math:`1`. The choice of the coefficient is also made by determining a random number.
+        with :math:`\\Delta_\\mathrm{MC}` as the MC step movewidth and :math:`R`
+        as a random number between :math:`0` and :math:`1`. The choice of the
+        coefficient is also made by determining a random number.
 
         Parameters
         ----------
@@ -529,13 +560,16 @@ class MC:
 
     def mcmove_diffusion_radial(self,model):
         """
-        This function do the MC move for the radial diffusion profile and adjust the coefficents of the model. A MC move in the parameter space is defined by
+        This function do the MC move for the radial diffusion profile and adjust
+        the coefficents of the model. A MC move in the parameter space is defined by
 
         .. math::
 
-            a_{k,new}= a_{k} + \\Delta_\\text{MC} \\cdot (R - 0.5)
+            a_{k,\\mathrm{new}}= a_{k} + \\Delta_\\text{MC} \\cdot (R - 0.5)
 
-        with :math:`\\Delta_\\text{MC}` as the MC step movewidth and :math:`R` as a random number between :math:`0` and :math:`1`. The choice of the coefficient is also made by determining a random number.
+        with :math:`\\Delta_\\text{MC}` as the MC step movewidth and :math:`R`
+        as a random number between :math:`0` and :math:`1`. The choice of the
+        coefficient is also made by determining a random number.
 
         Parameters
         ----------
@@ -586,7 +620,8 @@ class MC:
 
     def update_movewidth_mc(self,imc,radial=False):
         """
-        This function sets a new MC movewidth after a define number of MC steps :math:`n_\\text{MC,update}`. The new step width is estimate with
+        This function sets a new MC movewidth after a define number of MC steps
+        :math:`n_\\text{MC,update}`. The new step width is estimate with
 
         .. math::
 
@@ -596,7 +631,7 @@ class MC:
         ----------
         imc : integer
             current number of MC steps
-        do_radial : bool (default = False)
+        do_radial : bool
             if it's True the code calculate the radial diffusion too
         """
 
@@ -616,20 +651,27 @@ class MC:
 
 
 
-    def init_rate_matrix_box(self, n, diff_bin, df_bin):
+    def init_rate_matrix_pbc(self, n, diff_bin, df_bin):
         """
-        This function estimates the rate Matrix R for the current free energy and log diffusion profiles over the bins for periodic boundary conditions. The dimension of the matrix is :math:`n \\times n` with n as number of the bins.
-        The calculation of the secondary diagonal elements in the rate matrix :math:`R` happen with the following equations
+        This function estimates the rate Matrix R for the current free energy
+        and log diffusion profiles over the bins for periodic boundary
+        conditions. The dimension of the matrix is :math:`n \\times n`
+        with :math:`n` as number of the bins.
+        The calculation of the secondary diagonal elements in the rate
+        matrix :math:`R` happen with the following equations
 
         .. math::
 
-            R_{i+1,i} = exp  \\underbrace{\\left( ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta Q^2}\\right) \\right)}_{diff_bin}  - 0.5(\\beta(F(\\Delta Q_{i+1})-F(\\Delta Q_{i})
+            R_{i+1,i} = \\exp  \\underbrace{\\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right)}_{\\mathrm{diff}_\\mathrm{bin}} - 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
 
         .. math::
 
-            R_{i,i+1} = exp \\left( ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta Q^2}\\right) \\right) + 0.5(\\beta(F(\\Delta Q_{i+1})-F(\\Delta Q_{i})
+            R_{i,i+1} = \\exp \\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta z^2}\\right) \\right) + 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
 
-        The diagonal elements can be calculated with the secondary elements determine with the equations above.
+        with :math:`\\Delta z` as the bin width, :math:`D_{i+\\frac{1}{2}}`
+        as the diffusion between to bins and :math:`F_i` as free energy in
+        the bin center. The diagonal elements can be calculated with the
+        secondary elements determine with the equations above.
 
         .. math::
 
@@ -649,11 +691,11 @@ class MC:
 
         .. math::
 
-            R_{1,N} = exp \\left( ln \\left( \\frac{D_{N+\\frac{1}{2}}}{\\Delta Q^2}\\right) \\right) - 0.5(\\beta(F(\\Delta Q_{1})-F(\\Delta Q_{N}))
+            R_{1,N} = \\exp \\left( \\ln \\left( \\frac{D_{N+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right) - 0.5(\\beta(F(\\Delta z_{1})-F(\\Delta z_{N}))
 
         .. math::
 
-            R_{N,1} = exp \\left( ln \\left( \\frac{D_{N+\\frac{1}{2}}}{\\Delta Q^2}\\right) \\right) + 0.5(\\beta(F(\\Delta Q_{1})-F(\\Delta Q_{N}))
+            R_{N,1} = \\exp \\left( \\ln \\left( \\frac{D_{N+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right) + 0.5(\\beta(F(\\Delta z_{1})-F(\\Delta z_{N}))
 
         Parameters
         ----------
@@ -692,20 +734,27 @@ class MC:
 
         return rate
 
-    def init_rate_matrix_pore(self, n, diff_bin, df_bin):
+    def init_rate_matrix_nopbc(self, n, diff_bin, df_bin):
         """
-        This function estimate the rate Matrix R for the current free energy and log diffusion profiles over the bins for a reflected wall. The dimension of the matrix is :math:`n \\times n` with n as number of the bins.
-        The calculation of the secondary diagonal elements in the rate matrix :math:`R` happen with the following equations
+        This function estimate the rate Matrix R for the current free energy
+        and log diffusion profiles over the bins for a reflected wall. The
+        dimension of the matrix is :math:`n \\times n` with n as number of
+        the bins. The calculation of the secondary diagonal elements in the
+        rate matrix :math:`R` happen with the following equations
 
         .. math::
 
-            R_{i+1,i} = exp  \\underbrace{\\left( ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta Q^2}\\right) \\right)}_{diff_bin}  - 0.5(\\beta(F(\\Delta Q_{i+1})-F(\\Delta Q_{i})
+            R_{i+1,i} = \\exp  \\underbrace{\\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right)}_{\\mathrm{diff}_\\mathrm{bin}}  - 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
 
         .. math::
 
-            R_{i,i+1} = exp \\left( ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta Q^2}\\right) \\right) + 0.5(\\beta(F(\\Delta Q_{i+1})-F(\\Delta Q_{i})
+            R_{i,i+1} = \\exp \\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta z^2}\\right) \\right) + 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
 
-        The diagonal elements can be calculated with the secondary elements determine with the equations above.
+        with :math:`\\Delta z` as the bin width, :math:`D_{i+\\frac{1}{2}}`
+        as the diffusion between to bins and :math:`F_i` as free energy in
+        the bin center.
+        The diagonal elements can be calculated with the secondary elements
+        determine with the equations above.
 
         .. math::
 
@@ -757,15 +806,15 @@ class MC:
 
         return rate
 
-    def log_likelihood_box(self, model,  temp = None):
+    def log_likelihood_z(self, model,  temp = None):
         """
-        This function estimate the likelihood of the current free energy or diffusion profile over the bins in a simulation box. This likelihood is necessary to decide whether the MC step will be accepted.
+        This function estimate the likelihood of the current free energy or diffusion profile over the bins in a simulation box. It is used to calculated the diffusion in z-direction over z-coordinate. This likelihood is necessary to decide whether the MC step will be accepted.
 
         .. math::
 
-            ln \ L = \\sum_{i \\rightarrow j} ln \\left( [(e^{Rt_{i}})_{ij}]^{N_{ij}(t_i)} \\right)
+            \\ln \ L = \\sum_{j \\rightarrow i} \\ln \\left ( \\left[ \\left( e^{\\mathbf{R}\\Delta_{ij}t_{\\alpha}} \\right)_{ij}\\right]^{N_{ij}(\\Delta_{ij}t_{\\alpha})} \\right)
 
-        with :math:`R` as the rate matrix from :func:`init_rate_matrix_box` , :math:`t_{i}` as the current lag time and :math:`N_{ij}(t_i)` as the transition matrix. The transition matrix contains the numbers of all observed transition :math:`i \\rightarrow j` at a given lag time in a simulated trajectory. This matrix is sampled with the function :func:`sample_box_sim` from a simulated trajectory at the beginning and depends on the lag time.
+        with :math:`R` as the rate matrix from :func:`init_rate_matrix_pbc` , :math:`\\Delta_{ij}t_{\\alpha}` as the current lag time and :math:`N_{ij}(\\Delta_{ij}t_{\\alpha})` as the transition matrix. The transition matrix contains the numbers of all observed transition :math:`j \\rightarrow i` at a given lag time in a simulated trajectory. This matrix is sampled with the function :func:`init_diffusion_mc` from a simulated trajectory at the beginning and depends on the lag time.
 
         Parameters
         ----------
@@ -786,22 +835,22 @@ class MC:
         # Calculate the current rate matrix for a trajectory with periodic boundary condition
         if model._pbc==True:
             if temp is None:
-                rate = self.init_rate_matrix_box(model._bin_num, model._diff_bin, model._df_bin)
+                rate = self.init_rate_matrix_pbc(model._bin_num, model._diff_bin, model._df_bin)
             else :
                 if self._choice > 0.5:
-                    rate = self.init_rate_matrix_box(model._bin_num,  temp , model._df_bin)
+                    rate = self.init_rate_matrix_pbc(model._bin_num,  temp , model._df_bin)
                 else:
-                    rate = self.init_rate_matrix_box(model._bin_num, model._diff_bin, temp)
+                    rate = self.init_rate_matrix_pbc(model._bin_num, model._diff_bin, temp)
 
         # Calculate the current rate matrix for a trajectory with a reflected wall in z direction
         elif model._pbc==False:
             if temp is None:
-                rate = self.init_rate_matrix_pore(model._bin_num, model._diff_bin, model._df_bin)
+                rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, model._df_bin)
             else :
                 if self._choice > 0.5:
-                    rate = self.init_rate_matrix_pore(model._bin_num,  temp , model._df_bin)
+                    rate = self.init_rate_matrix_nopbc(model._bin_num,  temp , model._df_bin)
                 else:
-                    rate = self.init_rate_matrix_pore(model._bin_num, model._diff_bin, temp)
+                    rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, temp)
 
         # Calculate the propagtor
         propagator = scipy.linalg.expm(self._len_step * model._dt * rate)
@@ -814,30 +863,31 @@ class MC:
 
 
 
-    def log_likelihood_box_radial(self, model, wrad):
+    def log_likelihood_radial(self, model, wrad):
         """
         This function estimate the likelihood of the current radial diffusion profile over the bins in a simulation box. This likelihood is necessary to decide whether the MC step will be accepted.
 
         .. math::
-             ln \\ L(M) = \\sum_{m,i \\leftarrow j} ln \\left( \\left[ \\Delta r \\sum_{\\alpha_k} 2r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)} [e^{Rt-\\alpha_k^2Dt}]_{ij} \\right] ^{N_{m,ij}(t_i)} \\right)
+             \\ln \\ L(M) = \\sum_{m,i \\leftarrow j} \\ln \\left( \\left[ \\Delta r \\sum_{\\alpha_k} 2 r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)} [e^{(R-\\alpha_k^2D)\\Delta_{ij}t_{\\alpha}}]_{ij} \\right] ^{N_{m,ij}(\\Delta_{ij}t_{\\alpha})} \\right)
 
 
         with :math:`t_{i}` as the current lag time and :math:`N_{m,ij}(t_i)` as the radial transition matrix, :math:`J_0` as the roots of the Bessel function and :math:`J_1` as the 1st order Bessel first type in those zeros. The variable :math:`s` is the length where the bessel function going to zero and :math:`r_m` is the middle of the radial bin. The lag time is :math:`t_{i}` and :math:`D` is the current radial diffusion profile.
-        The rate matrix :math:`R` from :func:`init_rate_matrix_box` which constant over the radial diffuison determination and is calculated with the normal diffusion and the free energy profile is need. This the reason why the normal diffusion calculation is necessary for the radial diffusion calculation.
+        The rate matrix :math:`R` from :func:`init_rate_matrix_pbc` which constant over the radial diffuison determination and is calculated with the normal diffusion and the free energy profile is need. This the reason why the normal diffusion calculation is necessary for the radial diffusion calculation.
 
         The transition matrix :math:`N_{m,ij}(t_i)` contains all observed number of transition of a particle being in z-bin i and radial bin m after a lag time t, given that it was in z-bin j and r = 0 at the start.
-        This matrix is sampled with the function :func:`sample_box_sim` from a simulated trajectory at the beginning and depends on the lag time.
+        This matrix is sampled with the function :func:`init_diffusion_mc` from a simulated trajectory at the beginning and depends on the lag time.
 
         The bessel part
 
         .. math::
-            bessel = \\sum_{\\alpha_k} 2r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)}
+            \\mathrm{bessel} = \\sum_{\\alpha_k} 2r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)}
+
         of the likelihood does not depend on the radial diffusion profile and is determined with the function :func:`setup_bessel_box`
 
         The function :func:`log_likelihood_box_radial` determine the rate matrix part of the Likelihood
 
         .. math::
-            rate_{\\mathrm{radial}} = \\left[e^{Rt-\\alpha_k^2Dt} \\right]_{ij}
+            \\mathrm{rate}_{\\mathrm{radial}} = \\left [e^{(R-\\alpha_k^2D)\\Delta_{ij}t_{\\alpha}}]_{ij}
 
         multiple it with the results from the :func:`setup_bessel_box` and logarithmize the result. Afterwards the results are multipe with the transition matrix :math:`N_{m,ij}(t_i)`. The likelihood thus obtained provides the acceptance criteria for the MC alogirthm and is returned by the function .
 
@@ -860,10 +910,10 @@ class MC:
 
         # Calculate the current rate matrix
         if model._pbc==True:
-            rate = self.init_rate_matrix_box(model._bin_num, model._diff_bin, model._df_bin)
+            rate = self.init_rate_matrix_pbc(model._bin_num, model._diff_bin, model._df_bin)
 
         elif model._pbc==False:
-            rate = self.init_rate_matrix_pore(model._bin_num, model._diff_bin, model._df_bin)
+            rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, model._df_bin)
 
         # Calculate propagtor
         rmax = 5 #max(model._bins_radial) # in units [dr]

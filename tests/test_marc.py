@@ -69,30 +69,31 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Set the MC class and options
-        MC = pa.MC(model,5000,5000)
+        model._len_step = [10,20,30,40,50]
+        MC = pa.MC(model,20000,20000)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_table = pa.post_process.diffusion("output/diff_test_mc.obj")
-        plt.savefig("output/diffusion_fit.pdf", format="pdf", dpi=1000)
+        diff, diff_table = pa.diffusion.diffusion_fit("output/diff_test_mc.obj")
+        plt.savefig("output/diffusion_fit.svg", format="svg", dpi=1000)
 
         # Plot diffusion profile over box length
         plt.figure()
-        pa.post_process.diff_profile("output/diff_test_mc.obj")
-        plt.savefig("output/diffusion_profile.pdf", format="pdf", dpi=1000)
+        pa.diffusion.diff_profile("output/diff_test_mc.obj", infty_profile = True)
+        plt.savefig("output/diffusion_profile.svg", format="svg", dpi=1000)
 
         # Plot free energy profile over box length
         plt.figure()
-        pa.post_process.df_profile("output/diff_test_mc.obj")
-        plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
+        pa.diffusion.df_profile("output/diff_test_mc.obj",[10])
+        plt.savefig("output/energy_profile.svg", format="svg", dpi=1000)
 
         # Plot transition matrix as a heat map
         plt.figure()
-        pa.post_process.plot_trans_mat("output/diff_test_mc.obj",10)
-        plt.savefig("output/transition_heatmap.pdf", format="pdf", dpi=1000)
+        pa.diffusion.plot_trans_mat("output/diff_test_mc.obj",10)
+        plt.savefig("output/transition_heatmap.svg", format="svg", dpi=1000)
 
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff - (1.4 * 10**-9) ) < 0.3 * 10**-9, True)

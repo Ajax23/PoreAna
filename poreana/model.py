@@ -4,13 +4,14 @@ import pandas as pd
 import poreana.utils as utils
 
 class Model:
-    """This class sets the general parameters which are used to initialize a model.
+    """This class sets the general parameters which are used to initialize
+    a model.
 
     Parameters
     ----------
     data_link : string
         data link to the pickle data from sample_mc
-    d0 : double, default = 10^-8 m^2/s
+    d0 : double, optional
         initial guess of diffusion coefficent
     """
 
@@ -40,7 +41,8 @@ class Model:
 
     def init_profiles(self):
         """
-        This function initializes the normal diffusion, radial diffusion and free energy profile over the bins.
+        This function initializes the normal diffusion, radial diffusion and
+        free energy profile over the bins.
         """
 
         # Initialize the diffusion and free energy profile
@@ -54,28 +56,45 @@ class Model:
 
     def calc_profile(self, coeff, basis):
         """
-        This function calculates the diffusion and free energy profile over the bins. It is used to initialize the system at the beginning of the calculation/MC run. Additional it is needed to update the profiles in the Monte Carlo part after the adjustment of a profile coefficient.
+        This function calculates the diffusion and free energy profile over the
+        bins. It is used to initialize the system at the beginning of the
+        calculation/MC run. Additional it is needed to update the profiles
+        in the Monte Carlo part after the adjustment of a profile coefficient.
 
-        The profile is determining with the basis and the coefficients for the free energy with
+        The profile is determining with the basis and the coefficients for the
+        free energy with
 
         .. math::
 
-            basis = a_{k} \\cdot basis_{\\text{F}},
+            \\mathrm{basis} = a_{k} \\cdot \\mathrm{basis}_{\\text{F}},
 
         and for the diffusion with
 
         .. math::
 
-            basis = a_{k} \\cdot basis_{\\text{D}}.
+            \\mathrm{basis} = a_{k} \\cdot \\mathrm{basis}_{\\text{D}}.
 
-        The basis is received by the functions :func:`create_basis_center` and :func:`create_basis_border`.
+        The diffusion is calculated between to bins and the free energy
+        in the center of a bin.
+        The basis is received by the create basis function for the chosen model:
+
+        *CosineModel:*
+         * :func:`CosineModel.create_basis_center`
+
+         * :func:`CosineModel.create_basis_border`
+
+
+        *StepModel:*
+         * :func:`StepModel.create_basis_center`
+
+         * :func:`StepModel.create_basis_border`
 
         Parameters
         ----------
         coeff : list
             list of coefficients
         basis : list
-            list of the basis part of model (calculated with the :func:`create_basis_border` or :func:`create_basis_center`)
+            list of the basis part of model
         """
 
         # Calculate a matrix with the bin_num x ncos
@@ -88,33 +107,38 @@ class Model:
 
 
 class CosineModel(Model):
-    """This class sets the Cosine Model to calculate the free energy profile and the diffusion profile. The profiles have the typical cosine oscillation
-       These profiles over the bins are expressed by the following Fourier series. The diffusion profile is calculated between bin i and i+1  over the bin border with
+    """This class sets the Cosine Model to calculate the free energy profile
+    and the diffusion profile. The profiles have the typical cosine oscillation.
+    These profiles over the bins are expressed by the following Fourier
+    series. The diffusion profile is calculated between bin i and i+1  over
+    the bin border with
 
     .. math::
 
-        ln \\left(D_{i+ \\frac{1}{2}}\\right)=a_{0}+\\sum_{k=1}^{n_b} a_{k} cos \\left(\\frac{2\\pi ki}{n}\\right).
+        \\ln \\left(D_{i+ \\frac{1}{2}}\\right)=a_{0}+\\sum_{k=1}^{n_b} a_{k} \\cdot \\cos \\left(\\frac{2\\pi ki}{n}\\right).
 
 
     Similar the free energy Fourier series can be written:
 
     .. math::
 
-        F_{i} = a_{0}+\\sum_{k=1}^{n_b} a_{k} cos \\left(\\frac{2\\pi ki}{n} \\right).
+        F_{i} = a_{0}+\\sum_{k=1}^{n_b} a_{k} \\cdot \\cos \\left(\\frac{2\\pi ki}{n} \\right).
 
-    with the number of bins :math:`n`, the index of a bin :math:`i`, the coefficients :math:`a_{k}` of the Fourier series and :math:`k` as the number of coefficents`. The free energy is calculated in the bin center.
+    with the number of bins :math:`n`, the index of a bin :math:`i`,
+    the coefficients :math:`a_{k}` of the Fourier series and :math:`k` as the
+    number of coefficents`. The free energy is calculated in the bin center.
 
     For the free energy the coefficient it is assumed that :math:`a_{0} = 0`.
 
     Parameters
     ----------
     data_link : string
-        Data link to the pickle data from :func:`sample_box_sim` or :func:`init_diffusion_mc`
-    n_diff : integer (default = 6)
+        Data link to the pickle data from :func:`Sample.init_diffusion_mc`
+    n_diff : integer, optional
         number of the Fourier coefficients for the diffusion profile
-    n_df : integer  (default = 10)
+    n_df : integer, optional
         number of the Fourier coefficients for the free energy profile
-    n_diff_radial : integer (default = 6)
+    n_diff_radial : integer, optional
         number of the Fourier coefficients for the radial diffusion profile
     """
 
@@ -143,7 +167,9 @@ class CosineModel(Model):
 
     def init_model(self):
         """
-        This function initializes the coefficient list for the Fourier series and the profile list for the free energy and diffusion profile. It is used to reinitialize these lists for every lag time.
+        This function initializes the coefficient list for the Fourier series
+        and the profile list for the free energy and diffusion profile.
+        It is used to reinitialize these lists at the beginning of a MC run.
         """
 
         # # Initialize the diffusion and free energy coefficient
@@ -157,7 +183,8 @@ class CosineModel(Model):
 
 
     def cosine_model(self):
-        """This function sets a Fourier Cosine Series Model for the MC Diffusion Calculation and determines the initialize profiles.
+        """This function sets a Fourier Cosine Series Model for the MC Diffusion
+        Calculation and determines the initialize profiles.
         """
 
         # create basis (for the free energy)
@@ -192,14 +219,16 @@ class CosineModel(Model):
 
     def create_basis_center(self):
         """
-        This function creates the basis part of the Fourier series for the free energy and the radial diffusion profile.
+        This function creates the basis part of the Fourier series for the
+        free energy and the radial diffusion profile.
         For a bin the basis is calculated with
 
         .. math::
 
-            basis = cos \\left(\\frac{2\\pi k(i+0.5)}{n}\\right)
+            \\mathrm{basis} = \\cos \\left(\\frac{2\\pi k(i+0.5)}{n}\\right)
 
-        hereby :math:`k` is the number of coefficients, :math:`i` is the bin index and :math:`n` is the number of the bins.
+        hereby :math:`k` is the number of coefficients, :math:`i` is the
+        bin index and :math:`n` is the number of the bins.
 
         """
 
@@ -217,14 +246,16 @@ class CosineModel(Model):
 
     def create_basis_border(self):
         """
-        This function creates the basis part in every bin of the Fourier series for the Diffusion :math:`ln \\ (D)`.
+        This function creates the basis part in every bin of the Fourier series
+        for the Diffusion :math:`\\ln \\ (D)`.
         At the bin border the basis is calculated with
 
         .. math::
 
-            basis = cos \\left(\\frac{2\\pi ki}{n}\\right)
+            \\mathrm{basis} = \\cos \\left(\\frac{2\\pi ki}{n}\\right)
 
-        hereby :math:`k` is the number of coefficients, :math:`i` is the bin index and :math:`n` is the number of the bins.
+        hereby :math:`k` is the number of coefficients, :math:`i` is the bin
+        index and :math:`n` is the number of the bins.
         """
         # Allocate a vector with bin_num entries
         x = np.arange(self._bin_num)
@@ -236,29 +267,28 @@ class CosineModel(Model):
         self._diff_basis = np.array(basis).transpose()
 
 class StepModel(Model):
-    """This class sets the Step Model to calculate the free energy profile and the diffusion profile. This model based on a spline calculation. In contrast to the Cosine Model the determined profile have not the typical oscillation and recives a profile which is better interpretable.
+    """This class sets the Step Model to calculate the free energy profile and
+    the diffusion profile. This model based on a spline calculation.
+    In contrast to the Cosine Model the determined profile have not the typical
+    oscillation and recieves a profile which is better interpretable.
 
     .. math::
 
-        ln D_{i+\frac{1}{2}} = coeff \\cdot basis_{diff}
+        \\ln \\left(D_{i+\\frac{1}{2}}\\right) = \\mathrm{coeff} \\cdot \\mathrm{basis}_{\\mathrm{diff}}
 
     .. math::
 
-        ln D_i = coeff \\cdot basis_{diff_radial}
-
-    .. math::
-
-        F_i = coeff \\cdot basis_{df}
+        F_i = \\mathrm{coeff} \\cdot \\mathrm{basis}_{\\mathrm{df}}
 
     Parameters
     ----------
     data_link : string
-        Data link to the pickle data from :func:`init_diffusion_mc` or :func:`sample_box_sim`
-    n_diff : integer (default = 6)
+        Data link to the pickle data from :func:`init_diffusion_mc`
+    n_diff : integer, optional
         number of the Fourier coefficients for the diffusion profile
-    n_df : integer  (default = 10)
+    n_df : integer, optional
         number of the Fourier coefficients for the free energy profile
-    n_diff_radial : integer (default = 6)
+    n_diff_radial : integer, optional
         number of the Fourier coefficients for the radial diffusion profile
 
     """
@@ -287,7 +317,9 @@ class StepModel(Model):
 
     def init_model(self):
         """
-        This function initializes the coefficient list for the Step Model and the profile list for the free energy and diffusion profile. It is used to reinitializes these lists for every lag time calculation.
+        This function initializes the coefficient list for the Step Model and
+        the profile list for the free energy and diffusion profile. It is used
+        to reinitializes these lists for every lag time calculation.
         """
 
         # # Initialize the diffusion and free energy coefficient
@@ -309,7 +341,8 @@ class StepModel(Model):
         self._diff_radial_coeff[0] += (np.log(self._d0) - self._diff_radial_unit)    # initialize diffusion profile with the guess value [A^2/ps]
 
     def step_model(self):
-        """This function set a Step Model for the MC Diffusion Calculation and determine the initialize profiles.
+        """This function set a Step Model for the MC Diffusion Calculation
+        and determine the initialize profiles.
         """
 
         # create basis (for the free energy)
@@ -329,21 +362,29 @@ class StepModel(Model):
 
     def create_basis_center(self):
         """
-        This function creates the basis part in every bin of the Step model for the free energy and the radial diffusion profile. The following explanation is for the free energy profile. For the radial diffusion profile the number of free energy coefficients :math:`n_{df}` has to exchange with :math:`n_{diff_radial}`. The Dimension of the basis matrix is :math:`n_{bin} \\times n_{df}`. For a bin the basis is calculated with
+        This function creates the basis part in every bin of the Step model for
+        the free energy and the radial diffusion profile. The following
+        explanation is for the free energy profile. For the radial diffusion
+        profile the number of free energy coefficients :math:`n_{df}` has to
+        exchange with :math:`n_{diff_radial}`. The Dimension of the basis matrix
+        is :math:`n_{\\mathrm{bin}} \\times n_{\\mathrm{df}}`. For a bin the basis is calculated with
 
         .. math::
 
-            basis = \\begin{cases}
-                            1 & (bin+0.5)\\geq \\Delta x\ \\& \ (bin+0.5)\\leq n_{bin}-\\Delta x \\\\
-                            0 &  else                                 \\
+            \\mathrm{basis} = \\begin{cases}
+                            1 & (\\mathrm{bin}+0.5)\\geq \\Delta x\ \\& \ (\\mathrm{bin}+0.5)\\leq n_{\\mathrm{bin}}-\\Delta x \\\\
+                            0 & \\mathrm{else}                                 \\
                     \\end{cases}
-        hereby is :math:`bin = [0,...,n_{bin}]` with :math:`n_{bin}` as the number of the bins. The variable :math:`\\Delta x` is define by
+
+        hereby is :math:`\\mathrm{bin} = [0,...,n_{bin}]` with
+        :math:`n_{\\mathrm{bin}}` as the number of the bins. The variable
+        :math:`\\Delta x` is define by
 
         .. math::
 
-            \\Delta x = \\left [ 0,i \\cdot \\frac{n_{bin}}{n_{df} \\cdot 2},\\frac{n_{bin}}{2} \\right ]
+            \\Delta x = \\left [ 0,i \\cdot \\frac{n_{\\mathrm{bin}}}{n_{\\mathrm{df}} \\cdot 2},\\frac{n_{\\mathrm{bin}}}{2} \\right ]
 
-        with :math:`i = [1,...,n_{df}-1]`.
+        with :math:`i = [1,...,n_{\\mathrm{df}}-1]`.
 
         """
 
@@ -359,22 +400,26 @@ class StepModel(Model):
 
     def create_basis_border(self):
         """
-        This function creates the basis part in every bin of the Step model for the diffusion profile.
-        The dimension of the basis matrix is :math:`n_{bin} \\times n_{diff}`. At the bin border the basis is calculated with
+        This function creates the basis part in every bin of the Step model for
+        the diffusion profile.
+        The dimension of the basis matrix is :math:`n_{bin} \\times n_{diff}`.
+        At the bin border the basis is calculated with
 
         .. math::
 
-            basis = \\begin{cases}
-                            1 & (bin+1)\\geq \\Delta x\ \\& \ (bin+1)\\leq n_{bin}-\\Delta x \\\\
-                            0 &  else                                 \\
+            \\mathrm{basis} = \\begin{cases}
+                            1 & (\\mathrm{bin}+1)\\geq \\Delta x\ \\& \ (\\mathrm{bin}+1)\\leq n_{\\mathrm{bin}}-\\Delta x \\\\
+                            0 &  \\mathrm{else}                                 \\
                     \\end{cases}
-        hereby is :math:`bin = [0,...,n_{bin}]` with :math:`n_{bin}` as the number of the bins. The variable :math:`\\Delta x` is define by
+        hereby is :math:`bin = [0,...,n_{\\mathrm{bin}}]` with
+        :math:`n_{\\mathrm{bin}}` as the number of the bins. The variable
+        :math:`\\Delta x` is define by
 
         .. math::
 
-            \\Delta x = \\left [ 0,i \\cdot \\frac{n_{bin}}{n_{diff} \\cdot 2},\\frac{n_{bin}}{2} \\right ]
+            \\Delta x = \\left [ 0,i \\cdot \\frac{n_{\\mathrm{bin}}}{n_{\\mathrm{diff}} \\cdot 2},\\frac{n_{\\mathrm{bin}}}{2} \\right ]
 
-        with :math:`i = [1,...,n_{diff}-1]`.
+        with :math:`i = [1,...,n_{\\mathrm{diff}}-1]`.
         """
 
         # Calculated the basis in the border of a bin
