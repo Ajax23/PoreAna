@@ -575,7 +575,7 @@ class Sample:
     ############
     # Sampling #
     ############
-    def sample(self, is_pbc=True, is_parallel=True):
+    def sample(self, shift=[], np=0, is_pbc=True, is_parallel=True):
         """This function runs all enabled sampling routines. The output is
         stored in form of pickle files for later calculation using methods
         provided in the package.
@@ -585,13 +585,23 @@ class Sample:
 
         Parameters
         ----------
+        shift : list, optional
+            Distances for translating all positions in nano meter
+        np : integer, optional
+            Number of cores to use
         is_pbc : bool, optional
             True to apply periodic boundary conditions
         is_parallel : bool, optional
             True to run parallelized sampling
         """
-        # Load trajectory
-        np = mp.cpu_count()
+        # Process shift
+        shift = shift if shift else [0, 0, 0]
+        if not len(shift)==3:
+            print("Wrong shift dimension.")
+            return
+
+        # Get number of cores
+        np = np if np and np<=mp.cpu_count() else mp.cpu_count()
 
         # Run sampling helper
         if is_parallel:
@@ -611,7 +621,7 @@ class Sample:
 
             # Run parallel search
             pool = mp.Pool(processes=np)
-            results = [pool.apply_async(self._sample_helper, args=(frame_list, is_pbc,)) for frame_list in frame_np]
+            results = [pool.apply_async(self._sample_helper, args=(frame_list, shift, is_pbc,)) for frame_list in frame_np]
             pool.close()
             pool.join()
             output = [x.get() for x in results]
@@ -620,7 +630,7 @@ class Sample:
             del results
         else:
             # Run sampling
-            output = [self._sample_helper(list(range(self._num_frame)), is_pbc)]
+            output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc)]
 
         # Concatenate output and create pickle object files
         system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": self._box}
@@ -667,13 +677,15 @@ class Sample:
             # Pickle
             utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
 
-    def _sample_helper(self, frame_list, is_pbc):
+    def _sample_helper(self, frame_list, shift, is_pbc):
         """Helper function for sampling run.
 
         Parameters
         ----------
         frame_list :
             List of frame ids to process
+        shift : list
+            Distances for translating all positions in nano meter
         is_pbc : bool, optional
             True to apply periodic boundary conditions
 
@@ -717,7 +729,7 @@ class Sample:
             # Run through residues
             for res_id in self._res_list:
                 # Get position vectors
-                pos = [[positions[self._res_list[res_id][atom_id]][i]/10 for i in range(3)] for atom_id in range(len(self._atoms))]
+                pos = [[positions[self._res_list[res_id][atom_id]][i]/10+shift[i] for i in range(3)] for atom_id in range(len(self._atoms))]
 
                 # Calculate centre of mass
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]

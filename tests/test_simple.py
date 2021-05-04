@@ -58,7 +58,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
         sample.init_density("output/dens_box.obj")
         sample.init_gyration("output/gyr_box.obj")
-        sample.sample()
+        sample.sample(np=3, shift=[0, 0, 3.3])
 
 
     #########
