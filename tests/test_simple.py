@@ -32,12 +32,13 @@ class UserModelCase(unittest.TestCase):
                 shutil.rmtree(file_path)
 
         # Load molecule
-        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
-        mol_W = pms.Molecule("water", "SOL", inp="data/spc216.gro")
+        mol_B = pms.Molecule(inp="data/benzene.gro")
+        mol_W = pms.Molecule(inp="data/spc216.gro")
+        mol_H = pms.Molecule(inp="data/heptane.gro")
 
         # Sample
         ## Single core
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.obj")
         sample.init_gyration("output/gyr_cyl_s.obj")
         sample.init_diffusion_bin("output/diff_cyl_s.obj")
@@ -48,11 +49,16 @@ class UserModelCase(unittest.TestCase):
         sample.sample(is_parallel=False, is_pbc=False)
 
         ## Parallel
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_p.obj")
         sample.init_gyration("output/gyr_cyl_p.obj")
         sample.init_diffusion_bin("output/diff_cyl_p.obj")
         sample.sample(is_parallel=True, is_pbc=False)
+
+        sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
+        sample.init_density("output/dens_box.obj")
+        sample.init_gyration("output/gyr_box.obj")
+        sample.sample()
 
 
     #########
@@ -146,6 +152,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.446)
 
         dens_slit = pa.density.calculate("output/dens_slit.obj", target_dens=997)
+        dens_box = pa.density.calculate("output/dens_box.obj")
 
         # Plot density
         plt.figure()
@@ -171,6 +178,11 @@ class UserModelCase(unittest.TestCase):
         pa.density.plot(dens_p, intent="ex")
         plt.legend(["Single core", "Parallel"])
         plt.savefig("output/density_ex.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        plt.figure()
+        pa.density.plot(dens_box, intent="ex")
+        plt.savefig("output/density_box.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         print()
@@ -232,6 +244,10 @@ class UserModelCase(unittest.TestCase):
         pa.gyration.plot("output/gyr_cyl_p.obj", "output/dens_cyl_p.obj", intent="ex")
         plt.legend(["Single core", "Parallel"])
         plt.savefig("output/gyration_ex.pdf", format="pdf", dpi=1000)
+
+        plt.figure()
+        pa.gyration.plot("output/gyr_box.obj", "output/dens_box.obj", intent="ex")
+        plt.savefig("output/gyration_box.pdf", format="pdf", dpi=1000)
 
         print()
         pa.gyration.plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="DOTA")

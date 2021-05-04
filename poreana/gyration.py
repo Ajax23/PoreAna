@@ -39,12 +39,14 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
         Mean value of the radius of gyration inside and outside the pore in nm
     """
     # Load data
-    areas = ["in", "ex"]
     gyr = utils.load(data_link_gyr)
     dens = utils.load(data_link_dens)
+    is_pore = "pore" in gyr
     width = {}
-    width["in"] = gyr["data"]["in_width"][:-1]
+    width["in"] = gyr["data"]["in_width"][:-1] if is_pore else []
     width["ex"] = gyr["data"]["ex_width"]
+
+    areas = ["in", "ex"] if is_pore else ["ex"]
 
     # Divide gyration radius by density in bins
     gyration = {area: [gyr["data"][area][i]/dens["data"][area][i] if dens["data"][area][i] else 0 for i in range(len(gyr["data"][area]))] for area in areas}
