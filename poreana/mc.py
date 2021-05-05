@@ -109,7 +109,7 @@ class MC:
         with :math:`T` as the temperature, :math:`r` as a random number between
         :math:`0` and :math:`1` and :math:`L_\\text{new}` and
         :math:`L_\\text{old}` as the likelihood for the current and the last
-        step. The likelihood is calculated with :func:`log_likelihood_box`
+        step. The likelihood is calculated with :func:`log_likelihood_z`
         function.
 
         Information about a single MC step can be find in
@@ -184,7 +184,7 @@ class MC:
             print("\n---------------------------------------------------------Calculate normal diffusion------------------------------------------------------------------------------")
 
             # Calculated the initalize likelihood
-            self._log_like = self.log_likelihood_box(model)
+            self._log_like = self.log_likelihood_z(model)
 
             # Print first likelihood
             print("likelihood init", self._log_like, "\n")
@@ -286,7 +286,7 @@ class MC:
 
                 # Calculated the initalize likelihood and bessel function
                 self.setup_bessel_box(model)
-                self._log_like_radial = self.log_likelihood_box_radial(model,model._diff_radial_bin)
+                self._log_like_radial = self.log_likelihood_radial(model,model._diff_radial_bin)
 
                 # Print first likelihood
                 print("likelihood init", self._log_like_radial, "\n")
@@ -468,7 +468,7 @@ class MC:
         diff_bin_temp = model.calc_profile(diff_coeff_temp, model._diff_basis)
 
         #Calculate a new likelihood to check acceptance of the step
-        log_like_try = self.log_likelihood_box(model, diff_bin_temp)
+        log_like_try = self.log_likelihood_z(model, diff_bin_temp)
 
         # # propagtor behavior
         if log_like_try is not None and not np.isnan(log_like_try):   # propagator is well behaved  TODO implement
@@ -529,7 +529,7 @@ class MC:
         df_bin_temp = model.calc_profile(df_coeff_temp, model._df_basis)
 
         #Calculate a new likelihood to check acceptance of the step
-        log_like_try = self.log_likelihood_box(model, df_bin_temp)
+        log_like_try = self.log_likelihood_z(model, df_bin_temp)
 
         # # propagtor behavior
         if log_like_try is not None and not np.isnan(log_like_try):   # propagator is well behaved  TODO implement
@@ -588,7 +588,7 @@ class MC:
         diff_radial_bin_temp = model.calc_profile(diff_radial_coeff_temp, model._diff_radial_basis)
 
         #Calculate a new likelihood to check acceptance of the step
-        log_like_try = self.log_likelihood_box_radial(model,diff_radial_bin_temp)
+        log_like_try = self.log_likelihood_radial(model,diff_radial_bin_temp)
 
         # # propagtor behavior
         if log_like_try is not None and not np.isnan(log_like_try):   # propagator is well behaved  TODO implement
@@ -884,7 +884,7 @@ class MC:
 
         of the likelihood does not depend on the radial diffusion profile and is determined with the function :func:`setup_bessel_box`
 
-        The function :func:`log_likelihood_box_radial` determine the rate matrix part of the Likelihood
+        The function :func:`log_likelihood_radial` determine the rate matrix part of the Likelihood
 
         .. math::
             \\mathrm{rate}_{\\mathrm{radial}} = \\left [e^{(R-\\alpha_k^2D)\\Delta_{ij}t_{\\alpha}}]_{ij}

@@ -45,9 +45,9 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=False, is_pbc=True)
 
-        # sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
-        # sample.init_density("output/dens_slit.obj")
-        # sample.sample(is_parallel=False, is_pbc=False)
+        sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
+        sample.init_density("output/dens_slit.obj")
+        sample.sample(is_parallel=False, is_pbc=False)
 
         ## Parallel
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
@@ -148,15 +148,15 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 1
-        self.assertEqual(MC.log_likelihood_box(model),  -128852.33005868513)
+        self.assertEqual(MC.log_likelihood_z(model),  -128852.33005868513)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 2
-        self.assertEqual(MC.log_likelihood_box(model),  -165354.76731180004)
+        self.assertEqual(MC.log_likelihood_z(model),  -165354.76731180004)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 10
-        self.assertEqual(MC.log_likelihood_box(model),  -258946.70553844847)
+        self.assertEqual(MC.log_likelihood_z(model),  -258946.70553844847)
 
 
     # Check initial profiles

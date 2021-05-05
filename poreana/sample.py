@@ -863,7 +863,7 @@ class Sample:
             # Pickle
             utils.save({"inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
 
-    def _sample_helper(self, frame_list,is_pbc):
+    def _sample_helper(self, frame_list, shift, is_pbc):
         """Helper function for sampling run.
 
         Parameters
