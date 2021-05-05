@@ -196,12 +196,14 @@ class Sample:
         data : dictionary
             Dictionary containing a list of the bin width and a data list
         """
-        box_length = self._pore_props["box"][2]
-        width = (float(box_length)/int(bin_num))
-        bins = np.arange(0,box_length,width)
+        if self._pore:
+            z_length = self._pore_props["box"][2]
+        else:
+            z_length = self._box[2]
+        bins = [z_length/bin_num*x for x in range(bin_num+1)]
 
 
-        return {"width": width, "bins": bins}
+        return {"bins": bins}
 
 
     ###########
@@ -647,7 +649,7 @@ class Sample:
 
         return data
 
-    def _diffusion_mc(self, data, idx_list,res_id, com, frame_list, frame_id):
+    def _diffusion_mc(self, data, idx_list_mc,res_id, com, frame_list, frame_id):
         """This function sample the transition matrix for the diffusion
         calculation with the Monte Carlo diffusion methode for a cubic
         simulation box. The sample of the transition matrix is to be run on
@@ -706,33 +708,31 @@ class Sample:
         len_step = self._diff_mc_inp["len_step"]
         bins = self._bin_mc(bin_num)["bins"]
 
-
         # Calculate bin index
-        idx_list[-1][res_id] = np.digitize(com[2],bins)
+        idx_list_mc[-1][res_id] = np.digitize(com[2],bins)
 
         # Sample the transition matrix for the len_step
         if frame_list[0]==0:
             for step in len_step:
-                if len(idx_list) >= (step+1):
-
-                        idx_list[-(step+1)][res_id]
-                        idx_list[-1][res_id]
+                if len(idx_list_mc) >= (step+1):
+                        idx_list_mc[-(step+1)][res_id]
+                        idx_list_mc[-1][res_id]
 
                         # Calculate transition matrix in z direction
-                        start = idx_list[-(step+1)][res_id]
-                        end = idx_list[-1][res_id]
+                        start = idx_list_mc[-(step+1)][res_id]
+                        end = idx_list_mc[-1][res_id]
                         data[step][end,start] += 1
 
         if frame_list[0]!=0 and frame_id>=(frame_list[0]+max(self._diff_mc_inp["len_step"])):
             for step in len_step:
-                if len(idx_list) >= (step+1):
+                if len(idx_list_mc) >= (step+1):
 
-                        idx_list[-(step+1)][res_id]
-                        idx_list[-1][res_id]
+                        idx_list_mc[-(step+1)][res_id]
+                        idx_list_mc[-1][res_id]
 
                         # Calculate transition matrix in z direction
-                        start = idx_list[-(step+1)][res_id]
-                        end = idx_list[-1][res_id]
+                        start = idx_list_mc[-(step+1)][res_id]
+                        end = idx_list_mc[-1][res_id]
                         data[step][end,start] += 1
 
 
@@ -930,11 +930,12 @@ class Sample:
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
 
                 # Remove broken molecules
-                is_broken = False
-                for i in range(3):
-                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
-                    if is_broken:
-                        break
+                if self._is_diffusion_bin:
+                    is_broken = False
+                    for i in range(3):
+                        is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
+                        if is_broken:
+                            break
 
                 # Apply periodic boundary conditions
                 if is_pbc:
@@ -943,14 +944,15 @@ class Sample:
                     com = com_no_pbc
 
                 # Sample if molecule not broken near boundary
-                if not is_broken:
-                    # Calculate distance towards center axis
-                    if isinstance(self._pore, pms.PoreCylinder):
-                        dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                    elif isinstance(self._pore, pms.PoreSlit):
-                        dist = abs(self._pore_props["focal"][1]-com[1])
-                    else:
-                        dist = 0
+                if self._is_diffusion_bin:
+                    if not is_broken:
+                        # Calculate distance towards center axis
+                        if isinstance(self._pore, pms.PoreCylinder):
+                            dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
+                        elif isinstance(self._pore, pms.PoreSlit):
+                            dist = abs(self._pore_props["focal"][1]-com[1])
+                        else:
+                            dist = 0
 
                     # Set region - in-inside, ex-outside
                     region = ""
@@ -959,22 +961,22 @@ class Sample:
                     elif not self._pore or com[2] <= res or com[2] > box[2]-res:
                         region = "ex"
 
-                    # Remove window filling instances except from first processor
-                    if self._is_diffusion_bin:
-                        is_sample = len(com_list)==len_fill or frame_id<=len_fill
-                    else:
-                        is_sample = True
+                # Remove window filling instances except from first processor
+                if self._is_diffusion_bin:
+                    is_sample = len(com_list)==len_fill or frame_id<=len_fill
+                else:
+                    is_sample = True
 
-                    # Sampling routines
-                    if is_sample:
-                        if self._is_density:
-                            self._density(output["density"], region, dist, com)
-                        if self._is_gyration:
-                            self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
-                    if self._is_diffusion_bin:
-                        self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
-                    if self._is_diffusion_mc:
-                        self._diffusion_mc(output["diffusion_mc"], idx_list_mc, res_id, com, frame_list, frame_id)
+                # Sampling routines
+                if is_sample:
+                    if self._is_density:
+                        self._density(output["density"], region, dist, com)
+                    if self._is_gyration:
+                        self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
+                if self._is_diffusion_bin:
+                    self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
+                if self._is_diffusion_mc:
+                    self._diffusion_mc(output["diffusion_mc"], idx_list_mc, res_id, com, frame_list, frame_id)
 
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:

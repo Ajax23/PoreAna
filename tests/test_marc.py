@@ -19,43 +19,43 @@ class UserModelCase(unittest.TestCase):
     # Remove Output #
     #################
     @classmethod
-    def setUpClass(self):
-        folder = 'output'
-        pa.utils.mkdirp(folder)
-        pa.utils.mkdirp(folder+"/temp")
-        open(folder+"/temp.txt", 'a').close()
-
-        for filename in os.listdir(folder):
-            file_path = os.path.join(folder, filename)
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-
-        # Load molecule
-        mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
-        mol_W = pms.Molecule("water", "SOL", inp="data/spc216.gro")
-
-        # Sample
-        ## Single core
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
-        sample.init_density("output/dens_cyl_s.obj")
-        sample.init_gyration("output/gyr_cyl_s.obj")
-        # sample.init_diffusion_bin("output/diff_cyl_s.obj")
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(is_parallel=False, is_pbc=True)
-
-        sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
-        sample.init_density("output/dens_slit.obj")
-        sample.sample(is_parallel=False, is_pbc=False)
-
-        ## Parallel
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
-        sample.init_density("output/dens_cyl_p.obj")
-        sample.init_gyration("output/gyr_cyl_p.obj")
-        # sample.init_diffusion_bin("output/diff_cyl_p.obj")
-        sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(is_parallel=True, is_pbc=True)
+    # def setUpClass(self):
+    #     folder = 'output'
+    #     pa.utils.mkdirp(folder)
+    #     pa.utils.mkdirp(folder+"/temp")
+    #     open(folder+"/temp.txt", 'a').close()
+    #
+    #     for filename in os.listdir(folder):
+    #         file_path = os.path.join(folder, filename)
+    #         if os.path.isfile(file_path) or os.path.islink(file_path):
+    #             os.unlink(file_path)
+    #         elif os.path.isdir(file_path):
+    #             shutil.rmtree(file_path)
+    #
+    #     # Load molecule
+    #     mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+    #     mol_W = pms.Molecule("water", "SOL", inp="data/spc216.gro")
+    #
+    #     # Sample
+    #     ## Single core
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+    #     sample.init_density("output/dens_cyl_s.obj")
+    #     sample.init_gyration("output/gyr_cyl_s.obj")
+    #     # sample.init_diffusion_bin("output/diff_cyl_s.obj")
+    #     sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
+    #     sample.sample(is_parallel=False, is_pbc=True)
+    #
+    #     sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
+    #     sample.init_density("output/dens_slit.obj")
+    #     sample.sample(is_parallel=False, is_pbc=False)
+    #
+    #     ## Parallel
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+    #     sample.init_density("output/dens_cyl_p.obj")
+    #     sample.init_gyration("output/gyr_cyl_p.obj")
+    #     # sample.init_diffusion_bin("output/diff_cyl_p.obj")
+    #     sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
+    #     sample.sample(is_parallel=True, is_pbc=True)
 
 
     #########
@@ -63,7 +63,7 @@ class UserModelCase(unittest.TestCase):
     #########
     # Test the entire mc diffusion method
     def test_mc(self):
-        #self.skipTest("Temporary")
+        self.skipTest("Temporary")
 
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
@@ -98,9 +98,57 @@ class UserModelCase(unittest.TestCase):
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff - (1.4 * 10**-9) ) < 0.3 * 10**-9, True)
 
+
+    def test_il(self):
+        #self.skipTest("Temporary")
+
+        mol = pms.Molecule("benzene", "BEN", inp="data/substrate4.gro")
+        #mol = pms.Molecule("benzene", "BEN", inp="data/oxygen.gro")
+        #mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
+
+        ## Parallel
+        sample = pa.Sample([6.03, 6.03, 18.9], "data/sub.xtc", mol)
+        #sample = pa.Sample([5.05,5.05,5.05], "data/traj_test.trr", mol)
+        #sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/diff.obj", len_step=[40,50])
+        sample.sample(is_parallel=True, is_pbc=True)
+
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.CosineModel("output/diff.obj", 6, 10)
+
+        # Set the MC class and options
+        model._len_step = [40,50]
+        MC = pa.MC(model,1000,1000)
+
+        # Do the MC alogirthm
+        MC.do_mc_cycles(model,"output/diff.obj")
+
+        # Plot diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff, diff_table = pa.diffusion.diffusion_fit("output/diff.obj")
+        plt.savefig("output/diffusion_fit.svg", format="svg", dpi=1000)
+
+        # Plot diffusion profile over box length
+        plt.figure()
+        pa.diffusion.diff_profile("output/diff.obj", infty_profile = True)
+        plt.savefig("output/diffusion_profile.svg", format="svg", dpi=1000)
+
+        # Plot free energy profile over box length
+        plt.figure()
+        pa.diffusion.df_profile("output/diff.obj",[10])
+        plt.savefig("output/energy_profile.svg", format="svg", dpi=1000)
+
+        # Plot transition matrix as a heat map
+        plt.figure()
+        pa.diffusion.plot_trans_mat("output/diff.obj",10)
+        plt.savefig("output/transition_heatmap.svg", format="svg", dpi=1000)
+
+        # Check if diffusion coefficient is in the range
+        self.assertEqual(abs(diff - (1.4 * 10**-9) ) < 0.3 * 10**-9, True)
+
     # Test parallelisation of transition matrix
     def test_sample_p_s(self):
-        #self.skipTest("Temporary")
+        self.skipTest("Temporary")
 
         # Load Transition matrix for single
         trans = pa.utils.load("output/diff_mc_cyl_s.obj")
@@ -119,7 +167,7 @@ class UserModelCase(unittest.TestCase):
 
     # Test sampling of the transition matrix
     def test_sample(self):
-        #self.skipTest("Temporary")
+        self.skipTest("Temporary")
 
         # Load Transition matrix for single
         trans = pa.utils.load("data/trans_check.obj")
@@ -138,7 +186,7 @@ class UserModelCase(unittest.TestCase):
 
     # Test initalize likelihood
     def test_init_likelihood(self):
-        #self.skipTest("Temporary")
+        self.skipTest("Temporary")
 
         # Set the cosinus model
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
@@ -161,7 +209,7 @@ class UserModelCase(unittest.TestCase):
 
     # Check initial profiles
     def test_init_profiles(self):
-        #self.skipTest("Temporary")
+        self.skipTest("Temporary")
 
         # Set the cosinus model
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
