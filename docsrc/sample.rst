@@ -29,7 +29,7 @@ package
     import porems as pms
 
     mol = pms.Molecule(inp="data/benzene.gro")
-    print(mol)
+    mol
 
 
 .. parsed-literal::
