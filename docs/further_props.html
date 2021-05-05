@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Further Properties &#8212; PoreAna 0.2.1 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          PoreAna</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="api.html">API</a></li>
+                <li><a href="sample.html">Sample</a></li>
+                <li><a href="density.html">Density</a></li>
+                <li><a href="diffusion_bin.html">Diffusion (Bin)</a></li>
+                <li><a href="diffusion_mc.html">Diffusion (MC)</a></li>
+                <li><a href="#">Further Properties</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Further Properties</a><ul>
+<li><a class="reference internal" href="#adsorption">Adsorption</a></li>
+<li><a class="reference internal" href="#radius-of-gyration">Radius of Gyration</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="container-fluid">
+  <div class="row">
+    <div class="col-md-10">
+      <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="further-properties">
+<h1>Further Properties<a class="headerlink" href="#further-properties" title="Permalink to this headline">¶</a></h1>
+<p>Other properties can be implemented using available analysis
+routines as a basis. Following analyses have also been implemented.</p>
+<div class="section" id="adsorption">
+<h2>Adsorption<a class="headerlink" href="#adsorption" title="Permalink to this headline">¶</a></h2>
+<p>Based on the Density analysis</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
+<span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
+
+<span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
+
+<span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="p">[])</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+<p>Adsorption values within the pore can be calculated by counting the
+instance of atoms inside and outside the pore system resulting into a
+surface concentration within the pore and a volumetric concentration in
+the bulk reservoirs</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">ads</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">adsorption</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ads</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="nboutput nblast">
+  <div class="output_area rendered_html">
+    <table border="1" class="dataframe">
+      <thead>
+        <tr>
+          <th></th>
+          <th style="text-align: center;">Conc</th>
+          <th style="text-align: center;">Num</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th style="text-align: left;">mumol_m2</th>
+          <td>0.153606</td>
+          <td></td>
+        </tr>
+        <tr>
+          <th style="text-align: left;">mmol_l</th>
+          <td>139.490759</td>
+          <td></td>
+        </tr>
+        <tr>
+          <th style="text-align: left;">in</th>
+          <td></td>
+          <td>10.678661</td>
+        </tr>
+        <tr>
+          <th style="text-align: left;">ex</th>
+          <td></td>
+          <td>18.785607</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div></div>
+<div class="section" id="radius-of-gyration">
+<h2>Radius of Gyration<a class="headerlink" href="#radius-of-gyration" title="Permalink to this headline">¶</a></h2>
+<p>The radius of gyration can be calculated by sampling the molecule radius
+inside and outside the pore using the gyration routine. The density
+routine is also needed for weighting the radius based on the bin
+density</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
+<span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
+
+<span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
+
+<span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="p">[])</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_gyration</span><span class="p">(</span><span class="s2">&quot;output/gyr.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+<p>The gyration radius can then be calculated and visualized as a function
+of radius and distance inside and outside the pore respectively</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">ylim</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">gyration</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;output/gyr.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;output/dens.obj&quot;</span><span class="p">,</span> <span class="n">intent</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distance from pore center (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Radius of gyration (nm)&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">gyration</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s2">&quot;output/gyr.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;output/dens.obj&quot;</span><span class="p">,</span> <span class="n">intent</span><span class="o">=</span><span class="s2">&quot;ex&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distance from reservoir end (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Radius of gyration (nm)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="fig1">
+<a class="reference internal image-reference" href="_images/gyration_01.svg"><img alt="_images/gyration_01.svg" src="_images/gyration_01.svg" width="100%" /></a>
+</div>
+      </div>
+    </div>
+  </div>
+</div></div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Hamzeh Kraus.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

@@ -25,10 +25,15 @@ class Sample:
     It is advisable to run the sampling on a cluster due to a high time and
     resource consumption.
 
+    The system can either be a pore system - variable **system** is a file link
+    to the *pore_system* object file - or a simple simulation box - variable
+    **system** is a list containing the dimensions in nano meter.
+
     Parameters
     ----------
-    link_pore : string
-        Link to poresystem object file
+    system : string, list
+        Link to poresystem object file or a list of dimensions for a simple box
+        analysis
     link_traj : string
         Link to trajectory file (trr or xtc)
     mol : Molecule
@@ -40,10 +45,10 @@ class Sample:
     entry : float, optional
         Remove pore entrance from calculation
     """
-    def __init__(self, link_pore, link_traj, mol, atoms=[], masses=[], entry=0.5):
-
+    def __init__(self, system, link_traj, mol, atoms=[], masses=[], entry=0.5):
         # Initialize
-        self._pore = utils.load(link_pore)
+        self._pore = utils.load(system) if isinstance(system, str) else None
+        self._box = system if isinstance(system, list) else []
         self._traj = link_traj
         self._mol = mol
         self._atoms = atoms
@@ -93,20 +98,21 @@ class Sample:
 
         # Get pore properties
         self._pore_props = {}
-        if isinstance(self._pore, pms.PoreCylinder):
-            self._pore_props["type"] = "CYLINDER"
-        elif isinstance(self._pore, pms.PoreSlit):
-            self._pore_props["type"] = "SLIT"
-        self._pore_props["res"] = self._pore.reservoir()
-        self._pore_props["focal"] = self._pore.centroid()
-        self._pore_props["box"] = self._pore.box()
-        self._pore_props["box"][2] += 2*self._pore_props["res"]
+        if self._pore:
+            if isinstance(self._pore, pms.PoreCylinder):
+                self._pore_props["type"] = "CYLINDER"
+            elif isinstance(self._pore, pms.PoreSlit):
+                self._pore_props["type"] = "SLIT"
+            self._pore_props["res"] = self._pore.reservoir()
+            self._pore_props["focal"] = self._pore.centroid()
+            self._pore_props["box"] = self._pore.box()
+            self._pore_props["box"][2] += 2*self._pore_props["res"]
 
-        # Get pore diameter
-        if isinstance(self._pore, pms.PoreCylinder):
-            self._pore_props["diam"] = self._pore.diameter()
-        elif isinstance(self._pore, pms.PoreSlit):
-            self._pore_props["diam"] = self._pore.height()
+            # Get pore diameter
+            if isinstance(self._pore, pms.PoreCylinder):
+                self._pore_props["diam"] = self._pore.diameter()
+            elif isinstance(self._pore, pms.PoreSlit):
+                self._pore_props["diam"] = self._pore.height()
 
 
     ########
@@ -146,8 +152,11 @@ class Sample:
         data : dictionary
             Dictionary containing a list of the bin width and a data list
         """
+        # Process system
+        z_length = self._pore_props["res"] if self._pore_props else self._box[2]
+
         # Define bins
-        width = [self._pore_props["res"]/bin_num*x for x in range(bin_num+1)]
+        width = [z_length/bin_num*x for x in range(bin_num+1)]
         bins = [0 for x in range(bin_num+1)]
 
         return {"width": width, "bins": bins}
@@ -168,6 +177,7 @@ class Sample:
         data : dictionary
             Dictionary containing a list of the bin width and a data list
         """
+        # Define bins
         width = [self._pore_props["diam"]/2/bin_num*x for x in range(bin_num+2)]
         bins = [[0 for y in range(len_window)] for x in range(bin_num+1)]
 
@@ -221,13 +231,15 @@ class Sample:
         """
         # Initialize
         bin_num = self._dens_inp["bin_num"]
-
-        # Create dictionary
         data = {}
-        data["in_width"] = self._bin_in(bin_num)["width"]
+
+        # Fill dictionary
         data["ex_width"] = self._bin_ex(bin_num)["width"]
-        data["in"] = self._bin_in(bin_num)["bins"]
         data["ex"] = self._bin_ex(bin_num)["bins"]
+
+        if self._pore:
+            data["in_width"] = self._bin_in(bin_num)["width"]
+            data["in"] = self._bin_in(bin_num)["bins"]
 
         return data
 
@@ -263,11 +275,16 @@ class Sample:
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = com[2] if com[2] < self._pore_props["focal"][2] else abs(com[2]-self._pore_props["box"][2])
+            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] >= self._pore_props["focal"][2] else com[2]
             index = math.floor(lentgh/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit - remove pore
-            if dist > self._pore_props["diam"]/2 and index <= bin_num:
+            if self._pore:
+                is_add = dist > self._pore_props["diam"]/2 and index <= bin_num
+            else:
+                is_add = index <= bin_num
+
+            if is_add:
                 data["ex"][index] += 1
 
 
@@ -298,13 +315,15 @@ class Sample:
         """
         # Initialize
         bin_num = self._gyr_inp["bin_num"]
-
-        # Create dictionary
         data = {}
-        data["in_width"] = self._bin_in(bin_num)["width"]
+
+        # Fill dictionary
         data["ex_width"] = self._bin_ex(bin_num)["width"]
-        data["in"] = self._bin_in(bin_num)["bins"]
         data["ex"] = self._bin_ex(bin_num)["bins"]
+
+        if self._pore:
+            data["in_width"] = self._bin_in(bin_num)["width"]
+            data["in"] = self._bin_in(bin_num)["bins"]
 
         return data
 
@@ -356,11 +375,16 @@ class Sample:
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = com[2] if com[2] < self._pore_props["focal"][2] else abs(com[2]-self._pore_props["box"][2])
+            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] >= self._pore_props["focal"][2] else com[2]
             index = math.floor(lentgh/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit - remove pore
-            if dist > self._pore_props["diam"]/2 and index <= bin_num:
+            if self._pore:
+                is_add = dist > self._pore_props["diam"]/2 and index <= bin_num
+            else:
+                is_add = index <= bin_num
+
+            if is_add:
                 data["ex"][index] += r_g
 
 
@@ -386,7 +410,11 @@ class Sample:
             Number of allowed bins for the molecule to leave
         """
         # Initialize
-        self._is_diffusion_bin = True
+        if self._pore:
+            self._is_diffusion_bin = True
+        else:
+            print("Bin diffusion only usable for pore system.")
+            return
 
         # Define window length
         len_window = len_obs/len_step/len_frame+1
@@ -712,7 +740,7 @@ class Sample:
     ############
     # Sampling #
     ############
-    def sample(self, is_pbc=True, is_parallel=True):
+    def sample(self, shift=[], np=0, is_pbc=True, is_parallel=True):
         """This function runs all enabled sampling routines. The output is
         stored in form of pickle files for later calculation using methods
         provided in the package.
@@ -722,13 +750,23 @@ class Sample:
 
         Parameters
         ----------
+        shift : list, optional
+            Distances for translating all positions in nano meter
+        np : integer, optional
+            Number of cores to use
         is_pbc : bool, optional
             True to apply periodic boundary conditions
         is_parallel : bool, optional
             True to run parallelized sampling
         """
-        # Load trajectory
-        np = mp.cpu_count()
+        # Process shift
+        shift = shift if shift else [0, 0, 0]
+        if not len(shift)==3:
+            print("Wrong shift dimension.")
+            return
+
+        # Get number of cores
+        np = np if np and np<=mp.cpu_count() else mp.cpu_count()
 
         # Run sampling helper
         if is_parallel:
@@ -752,7 +790,7 @@ class Sample:
 
             # Run parallel search
             pool = mp.Pool(processes=np)
-            results = [pool.apply_async(self._sample_helper, args=(frame_list, is_pbc,)) for frame_list in frame_np]
+            results = [pool.apply_async(self._sample_helper, args=(frame_list, shift, is_pbc,)) for frame_list in frame_np]
             pool.close()
             pool.join()
             output = [x.get() for x in results]
@@ -761,10 +799,10 @@ class Sample:
             del results
         else:
             # Run sampling
-            output = [self._sample_helper(list(range(self._num_frame)), is_pbc)]
+            output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc)]
 
         # Concatenate output and create pickle object files
-        pore = self._pore_props
+        system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": self._box}
         inp = {"num_frame": self._num_frame, "mass": self._mol.get_mass(), "entry": self._entry}
 
         if self._is_density:
@@ -773,10 +811,11 @@ class Sample:
             inp_dens.pop("output")
             data_dens = output[0]["density"]
             for out in output[1:]:
-                data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
+                if self._pore:
+                    data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
             # Pickle
-            utils.save({"pore": pore, "inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
+            utils.save({system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
 
         if self._is_gyration:
             inp_gyr = inp.copy()
@@ -784,10 +823,11 @@ class Sample:
             inp_gyr.pop("output")
             data_gyr = output[0]["gyration"]
             for out in output[1:]:
-                data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
+                if self._pore:
+                    data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
             # Pickle
-            utils.save({"pore": pore, "inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
+            utils.save({system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
             inp_diff = inp.copy()
@@ -804,7 +844,7 @@ class Sample:
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
             # Pickle
-            utils.save({"pore": pore, "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
+            utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
 
 
         if self._is_diffusion_mc:
@@ -830,6 +870,8 @@ class Sample:
         ----------
         frame_list :
             List of frame ids to process
+        shift : list
+            Distances for translating all positions in nano meter
         is_pbc : bool, optional
             True to apply periodic boundary conditions
 
@@ -837,9 +879,8 @@ class Sample:
             Dictionary conatining all sampled data
         """
         # Initialize
-        box = self._pore_props["box"]
-        res = self._pore_props["res"]
-
+        box = self._pore_props["box"] if self._pore else self._box
+        res = self._pore_props["res"] if self._pore else 0
         com_list = []
         idx_list = []
         idx_list_mc = []
@@ -883,7 +924,7 @@ class Sample:
             # Run through residues
             for res_id in self._res_list:
                 # Get position vectors
-                pos = [[positions[self._res_list[res_id][atom_id]][i]/10 for i in range(3)] for atom_id in range(len(self._atoms))]
+                pos = [[positions[self._res_list[res_id][atom_id]][i]/10+shift[i] for i in range(3)] for atom_id in range(len(self._atoms))]
 
                 # Calculate centre of mass
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
@@ -908,12 +949,14 @@ class Sample:
                         dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
                     elif isinstance(self._pore, pms.PoreSlit):
                         dist = abs(self._pore_props["focal"][1]-com[1])
+                    else:
+                        dist = 0
 
                     # Set region - in-inside, ex-outside
                     region = ""
-                    if com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
+                    if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                         region = "in"
-                    elif com[2] <= res or com[2] > box[2]-res:
+                    elif not self._pore or com[2] <= res or com[2] > box[2]-res:
                         region = "ex"
 
                     # Remove window filling instances except from first processor

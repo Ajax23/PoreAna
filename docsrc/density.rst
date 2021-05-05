@@ -7,85 +7,47 @@
       <div class="col-md-10">
         <div style="text-align: justify; text-justify: inter-word;">
 
-Density analysis in a Pore
+Density Analysis in a Pore
 ==========================
 
-.. code-block:: python
-
-  import porems as pms
-  import poreana as üa
+The density analysis needs the sampled object file using the density
+routine
 
 .. code-block:: python
 
-  mol = pms.Molecule("spc216", "SOL")
-  mol.add("O", [5.1100, 7.8950, 2.4240])
-  mol.add("H", [5.1599, 7.9070, 2.3432])
-  mol.add("H", [5.1080, 7.7996, 2.4310])
-  mol.zero()
+    import porems as pms
+    import poreana as pa
 
-  print(mol)
+    mol = pms.Molecule(inp="data/benzene.gro")
 
-.. raw:: html
+    sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, [])
+    sample.init_density("output/dens.obj")
+    sample.sample()
 
-  <div class="nboutput nblast">
-    <div class="output_area rendered_html">
-      <table border="1" class="dataframe">
-        <thead>
-          <tr style="text-align: right;">
-            <th></th>
-            <th>Axis 1</th>
-            <th>Axis 2</th>
-            <th>Axis 3</th>
-            <th>Type</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th>0</th>
-            <td>0.0020</td>
-            <td>0.0954</td>
-            <td>0.0808</td>
-            <td>O</td>
-          </tr>
-          <tr>
-            <th>1</th>
-            <td>0.0519</td>
-            <td>0.1074</td>
-            <td>0.0000</td>
-            <td>H</td>
-          </tr>
-          <tr>
-            <th>2</th>
-            <td>0.0000</td>
-            <td>0.0000</td>
-            <td>0.0878</td>
-            <td>H</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 
+``Finished frame 2001/2001...``
+
+
+The calculation of the density profile is done using the calculation
+function
 
 .. code-block:: python
 
-  pa.sample.density("pore.obj", "traj.xtc", "dens.obj", mol, is_force=True)
+    dens = pa.density.calculate("output/dens.obj")
+
+``Density inside  Pore = 0.100 #/nm^3 ;  12.941 kg/m^3``
+
+``Density outside Pore = 0.127 #/nm^3 ;  16.446 kg/m^3``
 
 
-.. code-block:: python
-
-  dens = pa.density.calculate("dens.obj")
-
-``Density inside  Pore = 32.877 #/nm^3 ; 983.542 kg/m^3``
-
-``Density outside Pore = 32.895 #/nm^3 ; 984.083 kg/m^3``
-
+and viewed using the plot function
 
 .. code-block:: python
 
-  pa.density.plot(dens)
+    pa.density.plot(dens)
 
-.. figure::  /pics/density.svg
+
+.. figure::  /pics/density_01.svg
   :align: center
   :width: 70%
   :name: fig1

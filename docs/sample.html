@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Sampling Trajectory Files &#8212; PoreAna 0.2.1 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html">
+          PoreAna</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="api.html">API</a></li>
+                <li><a href="#">Sample</a></li>
+                <li><a href="density.html">Density</a></li>
+                <li><a href="diffusion_bin.html">Diffusion (Bin)</a></li>
+                <li><a href="diffusion_mc.html">Diffusion (MC)</a></li>
+                <li><a href="further_props.html">Further Properties</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Sampling Trajectory Files</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  <div class="container-fluid">
+  <div class="row">
+    <div class="col-md-10">
+      <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="sampling-trajectory-files">
+<h1>Sampling Trajectory Files<a class="headerlink" href="#sampling-trajectory-files" title="Permalink to this headline">¶</a></h1>
+<p>The used GROMACS trajectory is sampled using the ChemFiles package. In
+order to avoid artefacts due to periodic boundary conditions, molecules
+are joined using the <em>-pbc mol</em> command in GROMACS which places the center
+of mass of the molecules into the box. Furthermore, PoreAna only analyses
+one molecule type per routine, that’s why the desired molecule type has
+to be extracted first</p>
+<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">gmx_mpi</span> <span class="n">trjconv</span> <span class="o">-</span><span class="n">f</span> <span class="n">traj</span><span class="o">.</span><span class="n">xtc</span> <span class="o">-</span><span class="n">s</span> <span class="n">topol</span><span class="o">.</span><span class="n">tpr</span> <span class="o">-</span><span class="n">o</span> <span class="n">traj_mol</span><span class="o">.</span><span class="n">xtc</span> <span class="o">-</span><span class="n">pbc</span> <span class="n">mol</span>
+</pre></div>
+</div>
+<p>The sampling routine uses the molecule structure defined by the PoreMS
+package</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
+
+<span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
+<span class="n">mol</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">Residue</span> <span class="n">Name</span> <span class="n">Type</span>      <span class="n">x</span>      <span class="n">y</span>      <span class="n">z</span>
+<span class="mi">0</span>         <span class="mi">0</span>   <span class="n">C1</span>    <span class="n">C</span>  <span class="mf">0.196</span>  <span class="mf">0.108</span>  <span class="mf">0.109</span>
+<span class="mi">1</span>         <span class="mi">0</span>   <span class="n">C2</span>    <span class="n">C</span>  <span class="mf">0.300</span>  <span class="mf">0.048</span>  <span class="mf">0.181</span>
+<span class="mi">2</span>         <span class="mi">0</span>   <span class="n">C3</span>    <span class="n">C</span>  <span class="mf">0.295</span>  <span class="mf">0.046</span>  <span class="mf">0.320</span>
+<span class="mi">3</span>         <span class="mi">0</span>   <span class="n">C4</span>    <span class="n">C</span>  <span class="mf">0.188</span>  <span class="mf">0.104</span>  <span class="mf">0.387</span>
+<span class="mi">4</span>         <span class="mi">0</span>   <span class="n">C5</span>    <span class="n">C</span>  <span class="mf">0.084</span>  <span class="mf">0.163</span>  <span class="mf">0.315</span>
+<span class="mi">5</span>         <span class="mi">0</span>   <span class="n">C6</span>    <span class="n">C</span>  <span class="mf">0.088</span>  <span class="mf">0.165</span>  <span class="mf">0.176</span>
+<span class="mi">6</span>         <span class="mi">0</span>   <span class="n">H1</span>    <span class="n">H</span>  <span class="mf">0.199</span>  <span class="mf">0.110</span>  <span class="mf">0.000</span>
+<span class="mi">7</span>         <span class="mi">0</span>   <span class="n">H2</span>    <span class="n">H</span>  <span class="mf">0.384</span>  <span class="mf">0.004</span>  <span class="mf">0.128</span>
+<span class="mi">8</span>         <span class="mi">0</span>   <span class="n">H3</span>    <span class="n">H</span>  <span class="mf">0.376</span>  <span class="mf">0.000</span>  <span class="mf">0.376</span>
+<span class="mi">9</span>         <span class="mi">0</span>   <span class="n">H4</span>    <span class="n">H</span>  <span class="mf">0.184</span>  <span class="mf">0.102</span>  <span class="mf">0.496</span>
+<span class="mi">10</span>        <span class="mi">0</span>   <span class="n">H5</span>    <span class="n">H</span>  <span class="mf">0.000</span>  <span class="mf">0.208</span>  <span class="mf">0.368</span>
+<span class="mi">11</span>        <span class="mi">0</span>   <span class="n">H6</span>    <span class="n">H</span>  <span class="mf">0.008</span>  <span class="mf">0.211</span>  <span class="mf">0.120</span>
+</pre></div>
+</div>
+<p>Before running the sampling routine, first a Sample object has to be
+created with the pore system (<em>pore_syste.obj</em> file provided by PoreMS),
+trajectory file, the corresponding molecule object and a list of atoms
+names to be considered (empty list for all)</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
+
+<span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="p">[])</span>
+</pre></div>
+</div>
+<p>The next step is activating the analysis routines to be used during the
+sampling process using the initialize functions with their corresponding
+inputs</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_gyration</span><span class="p">(</span><span class="s2">&quot;output/gyr.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_bin</span><span class="p">(</span><span class="s2">&quot;output/diff.obj&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, the sample function is initiated with the
+option to run in parallel and deactivating the periodic boundary
+conditions</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">is_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_pbc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Hamzeh Kraus.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

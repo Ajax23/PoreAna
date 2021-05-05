@@ -2,9 +2,9 @@
 
 --------------------------------------
 
-[![PyPI Version](https://img.shields.io/badge/PyPI-0.1.0-orange)](https://pypi.org/project/PoreAna/)
+[![PyPI Version](https://img.shields.io/badge/PyPI-0.2.0-orange)](https://pypi.org/project/PoreAna/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/Ajax23/PoreAna/blob/master/LICENSE)
-[![DOI](https://zenodo.org/badge/343372494.svg)](https://zenodo.org/badge/latestdoi/343372494)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4738182.svg)](https://doi.org/10.5281/zenodo.4738182)
 [![Build Status](https://travis-ci.com/Ajax23/PoreAna.svg?branch=master)](https://travis-ci.com/Ajax23/PoreAna)
 [![codecov](https://codecov.io/gh/Ajax23/PoreAna/branch/master/graph/badge.svg)](https://codecov.io/gh/Ajax23/PoreAna)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/Ajax23/PoreAna.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Ajax23/PoreAna/context:python)

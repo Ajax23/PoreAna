@@ -87,15 +87,16 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
     """
     # Load data object
     sample = utils.load(link_data)
+    is_pore = "pore" in sample
 
     # Load bins
     bins = {}
-    bins["in"] = sample["data"]["in"]
+    bins["in"] = sample["data"]["in"] if is_pore else []
     bins["ex"] = sample["data"]["ex"]
 
     # Load width
     width = {}
-    width["in"] = sample["data"]["in_width"]
+    width["in"] = sample["data"]["in_width"] if is_pore else []
     width["ex"] = sample["data"]["ex_width"]
 
     # Load input data
@@ -106,34 +107,39 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
     mass = inp["mass"]
 
     # Load pore data
-    pore = sample["pore"]
-    pore_type = pore["type"]
-    res = pore["res"]
-    diam = pore["diam"]
-    box = pore["box"]
+    if is_pore:
+        pore = sample["pore"]
+        pore_type = pore["type"]
+        res = pore["res"]
+        diam = pore["diam"]
+        box = pore["box"]
+    else:
+        box = sample["box"]
 
     # Calculate bin volume
     volume = {}
-    if pore_type=="CYLINDER":
+    if is_pore and pore_type=="CYLINDER":
         volume["in"] = [math.pi*(box[2]-2*res-2*entry)*(width["in"][i+1]**2-width["in"][i]**2) for i in range(0, bin_num+1)]
         volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
-    elif pore_type=="SLIT":
+    elif is_pore and pore_type=="SLIT":
         volume["in"] = [box[0]*(box[2]-2*res-2*entry)*(width["in"][i+1]-width["in"][i])*2 for i in range(0, bin_num+1)]
         volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-diam) for i in range(bin_num+1)]
+    else:
+        volume["ex"] = [width["ex"][1]*box[0] for i in range(bin_num+1)]
 
     # Calculate the number density
     num_dens = {}
-    num_dens["in"] = [bins["in"][i]/volume["in"][i]/num_frame for i in range(bin_num+1)]
+    num_dens["in"] = [bins["in"][i]/volume["in"][i]/num_frame for i in range(bin_num+1)] if is_pore else []
     num_dens["ex"] = [bins["ex"][i]/volume["ex"][i]/num_frame for i in range(bin_num+1)]
 
     # Calculate the mean in the selected area
     mean = {}
-    mean["in"] = np.mean(num_dens["in"][area[0][0]:area[0][1]])
+    mean["in"] = np.mean(num_dens["in"][area[0][0]:area[0][1]]) if is_pore else []
     mean["ex"] = np.mean(num_dens["ex"][area[1][0]:area[1][1]])
 
     # Calculate Density
     dens = {}
-    dens["in"] = mass*10/6.022*mean["in"]
+    dens["in"] = mass*10/6.022*mean["in"] if is_pore else []
     dens["ex"] = mass*10/6.022*mean["ex"]
 
     # Calculate difference to target density
@@ -141,8 +147,11 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
 
     # Output
     if is_print:
-        print("Density inside  Pore = "+"%5.3f"%mean["in"]+" #/nm^3 ; "+"%7.3f"%dens["in"]+" kg/m^3")
-        print("Density outside Pore = "+"%5.3f"%mean["ex"]+" #/nm^3 ; "+"%7.3f"%dens["ex"]+" kg/m^3")
+        if is_pore:
+            print("Density inside  Pore = "+"%5.3f"%mean["in"]+" #/nm^3 ; "+"%7.3f"%dens["in"]+" kg/m^3")
+            print("Density outside Pore = "+"%5.3f"%mean["ex"]+" #/nm^3 ; "+"%7.3f"%dens["ex"]+" kg/m^3")
+        else:
+            print("Density = "+"%5.3f"%mean["ex"]+" #/nm^3 ; "+"%7.3f"%dens["ex"]+" kg/m^3")
         if target_dens:
             print("Density difference   = "+"%5.3f" % (target_dens-dens["ex"])+" kg/m^3 ; "
                   +"%4.2f" % ((1-dens["ex"]/target_dens)*100)+" % ; "
@@ -174,7 +183,7 @@ def plot(density, intent="", target_dens=0, is_mean=False):
     """
     # Define bins
     width = {}
-    width["in"] = density["sample"]["data"]["in_width"][:-1]
+    width["in"] = density["sample"]["data"]["in_width"][:-1] if "pore" in density["sample"] else []
     width["ex"] = density["sample"]["data"]["ex_width"]
 
     # Full plot

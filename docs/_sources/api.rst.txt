@@ -6,8 +6,8 @@ API reference
 
 .. _sample_api:
 
-Analysis
---------
+Sample
+------
 
 .. currentmodule:: poreana
 
