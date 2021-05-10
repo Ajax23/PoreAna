@@ -196,12 +196,15 @@ class Sample:
         data : dictionary
             Dictionary containing a list of the bin width and a data list
         """
+
+        # Ask for system type (box or pore system)
         if self._pore:
             z_length = self._pore_props["box"][2]
         else:
             z_length = self._box[2]
-        bins = [z_length/bin_num*x for x in range(bin_num+1)]
 
+        # Define bins
+        bins = [z_length/bin_num*x for x in range(bin_num+1)]
 
         return {"bins": bins}
 
@@ -415,7 +418,7 @@ class Sample:
         if self._pore:
             self._is_diffusion_bin = True
         else:
-            print("Bin diffusion only usable for pore system.")
+            print("Bin diffusion currently only usable for pore system.")
             return
 
         # Define window length
@@ -618,12 +621,14 @@ class Sample:
         pbc : bool (default = True)
             trajectory contains periodic boundary conditions
         """
+
         # Initialize
         self._is_diffusion_mc = True
 
-        # Create input dictionalry
+        # Calculate bins
         bins = self._bin_mc(bin_num)["bins"]
 
+        # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
                               "bin_num": bin_num, "len_step": len_step,
                               "len_frame": len_frame, "pbc": pbc}
@@ -643,6 +648,7 @@ class Sample:
         # Create dictionary
         data = {}
 
+        # Initialize transition matrix
         for step in len_step:
             data[step] = np.zeros((bin_num+2,bin_num+2),int)
 
@@ -715,21 +721,15 @@ class Sample:
         if frame_list[0]==0:
             for step in len_step:
                 if len(idx_list_mc) >= (step+1):
-                        idx_list_mc[-(step+1)][res_id]
-                        idx_list_mc[-1][res_id]
-
                         # Calculate transition matrix in z direction
                         start = idx_list_mc[-(step+1)][res_id]
                         end = idx_list_mc[-1][res_id]
                         data[step][end,start] += 1
 
+        # For parallel calculation
         if frame_list[0]!=0 and frame_id>=(frame_list[0]+max(self._diff_mc_inp["len_step"])):
             for step in len_step:
                 if len(idx_list_mc) >= (step+1):
-
-                        idx_list_mc[-(step+1)][res_id]
-                        idx_list_mc[-1][res_id]
-
                         # Calculate transition matrix in z direction
                         start = idx_list_mc[-(step+1)][res_id]
                         end = idx_list_mc[-1][res_id]
@@ -930,7 +930,7 @@ class Sample:
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
 
                 # Remove broken molecules
-                if self._is_diffusion_bin:
+                if self._is_diffusion_bin or self._is_density:
                     is_broken = False
                     for i in range(3):
                         is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
@@ -944,7 +944,7 @@ class Sample:
                     com = com_no_pbc
 
                 # Sample if molecule not broken near boundary
-                if self._is_diffusion_bin:
+                if self._is_diffusion_bin or self._is_density:
                     if not is_broken:
                         # Calculate distance towards center axis
                         if isinstance(self._pore, pms.PoreCylinder):
@@ -954,12 +954,12 @@ class Sample:
                         else:
                             dist = 0
 
-                    # Set region - in-inside, ex-outside
-                    region = ""
-                    if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
-                        region = "in"
-                    elif not self._pore or com[2] <= res or com[2] > box[2]-res:
-                        region = "ex"
+                # Set region - in-inside, ex-outside
+                region = ""
+                if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
+                    region = "in"
+                elif not self._pore or com[2] <= res or com[2] > box[2]-res:
+                    region = "ex"
 
                 # Remove window filling instances except from first processor
                 if self._is_diffusion_bin:

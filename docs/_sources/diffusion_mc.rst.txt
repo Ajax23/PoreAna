@@ -9,25 +9,16 @@
 
 Diffusion analysis in a pore (MC Method)
 ========================================
+The MC diffusion analysis needs the sampled object file using the mc diffusion routine
 
 .. code-block:: python
 
   import porems as pms
   import poreana as pa
 
-.. code-block:: python
 
   # Load molecule
   mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
-
-  print(mol)
-
-.. raw:: html
-
-
-
-
-.. code-block:: python
 
   # Set inputs
   len_steps = [1,2,5,10,20,30,40]
@@ -35,6 +26,12 @@ Diffusion analysis in a pore (MC Method)
   # Sample transition matrix
   sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
   sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step)
+
+``Finished frame 2001/2001...``
+
+After sampling, a model has to set and the MC Alogirthm started
+
+.. code-block:: python
 
   # Set Cosine Model for diffusion and energy profile
   model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
@@ -44,6 +41,8 @@ Diffusion analysis in a pore (MC Method)
 
   # Do the MC alogirthm
   MC.do_mc_cycles(model,"output/diff_test_mc.obj")
+
+The results of the MC Alogrithm the diffusion can be calculated
 
 .. code-block:: python
 
@@ -61,6 +60,7 @@ Diffusion analysis in a pore (MC Method)
   :width: 50%
   :name: fig1
 
+or the diffusion and free energy profile over the entire system can be displayed
 
 .. code-block:: python
 
@@ -80,6 +80,8 @@ Diffusion analysis in a pore (MC Method)
   :width: 49%
   :name: fig3
 
+
+Additionally, the pore area can be considered more closely
 
 .. code-block:: python
 

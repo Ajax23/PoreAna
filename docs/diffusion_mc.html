@@ -115,24 +115,25 @@
     <div class="col-md-10">
       <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="diffusion-analysis-in-a-pore-mc-method">
 <h1>Diffusion analysis in a pore (MC Method)<a class="headerlink" href="#diffusion-analysis-in-a-pore-mc-method" title="Permalink to this headline">¶</a></h1>
+<p>The MC diffusion analysis needs the sampled object file using the mc diffusion routine</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
 <span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Load molecule</span>
+
+
+<span class="c1"># Load molecule</span>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="s2">&quot;benzene&quot;</span><span class="p">,</span> <span class="s2">&quot;BEN&quot;</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Set inputs</span>
+<span class="c1"># Set inputs</span>
 <span class="n">len_steps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">40</span><span class="p">]</span>
 
 <span class="c1"># Sample transition matrix</span>
 <span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="n">len_step</span><span class="p">)</span>
-
-<span class="c1"># Set Cosine Model for diffusion and energy profile</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+<p>After sampling, a model has to set and the MC Alogirthm started</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Set Cosine Model for diffusion and energy profile</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">CosineModel</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># Set the MC class and options</span>
@@ -142,6 +143,7 @@
 <span class="n">MC</span><span class="o">.</span><span class="n">do_mc_cycles</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_test_mc.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>The results of the MC Alogrithm the diffusion can be calculated</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Print the results for the normal diffusion</span>
 <span class="n">diff</span><span class="p">,</span> <span class="n">diff_table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diffusion_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_test_mc.obj&quot;</span><span class="p">)</span>
 </pre></div>
@@ -152,6 +154,7 @@
 <div class="figure align-center" id="fig1">
 <a class="reference internal image-reference" href="_images/fit.svg"><img alt="_images/fit.svg" src="_images/fit.svg" width="50%" /></a>
 </div>
+<p>or the diffusion and free energy profile over the entire system can be displayed</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot diffusion profile over the simulation box</span>
 <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diff_profile</span><span class="p">(</span><span class="s2">&quot;diff_mc.obj&quot;</span><span class="p">,</span><span class="n">print_df</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -165,6 +168,7 @@
 <div class="figure align-center" id="fig3">
 <a class="reference internal image-reference" href="_images/df_profile.svg"><img alt="_images/df_profile.svg" src="_images/df_profile.svg" width="49%" /></a>
 </div>
+<p>Additionally, the pore area can be considered more closely</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot the lag time extrapolation for the pore ares</span>
 <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diff_pore_profile</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span><span class="s2">&quot;diff_mc.obj&quot;</span><span class="p">,</span><span class="n">print_df</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 

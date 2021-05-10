@@ -3,9 +3,10 @@ poreana\.diffusion
 
 .. automodule:: poreana.diffusion
 
+   Bin Diffusion
+   -------------
 
-
-   .. rubric:: Bin Methode
+   .. rubric:: Analysis
 
    .. autosummary::
 
@@ -13,7 +14,11 @@ poreana\.diffusion
       cui
       mean
 
-   .. rubric:: MC Diffusion (Fitting)
+   MC Diffusion
+   ============
+
+
+   .. rubric:: MC Diffusion - Fitting
 
    .. autosummary::
 
@@ -21,7 +26,7 @@ poreana\.diffusion
      diffusion_pore_fit
      diffusion_radial_fit
 
-   .. rubric:: MC Diffusion (Profiles)
+   .. rubric:: Profiles
 
    .. autosummary::
 
@@ -31,7 +36,7 @@ poreana\.diffusion
      diff_pore_profile
      df_profile
 
-   .. rubric:: MC Diffusion (Input & Output Tables)
+   .. rubric:: Input & Output Tables
 
    .. autosummary::
 

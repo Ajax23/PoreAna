@@ -351,7 +351,7 @@ class MC:
             print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
             print("----------------------------------------------------------------------MC Statistics------------------------------------------------------------------------------")
             print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-            print(model._len_step)
+
             # Set data structure fpr pandas table
             data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step],[str("%.4e" % list_diff_fluc[i]) for i in model._len_step],[str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step],[str("%.0f" % nacc_df_mean[i]) for i in model._len_step],[str("%.0f" % nacc_diff_mean[i]) for i in model._len_step],[str("%.0f" % nacc_diff_radial_mean[i]) for i in model._len_step],[str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step],[str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step],[str("%.2f" % float(nacc_diff_radial_mean[i]*100/(self._nmc_eq_radial+self._nmc_radial))) for i in model._len_step]]
 
@@ -625,7 +625,7 @@ class MC:
 
         .. math::
 
-            \\Delta_\\text{MC} = exp \\left ( 0.1 \\cdot \\frac{n_\\text{accept}}{n_\\text{MC,update}} \\right)
+            \\Delta_\\text{MC} = \\exp \\left ( 0.1 \\cdot \\frac{n_\\text{accept}}{n_\\text{MC,update}} \\right)
 
         Parameters
         ----------
@@ -868,7 +868,7 @@ class MC:
         This function estimate the likelihood of the current radial diffusion profile over the bins in a simulation box. This likelihood is necessary to decide whether the MC step will be accepted.
 
         .. math::
-             \\ln \\ L(M) = \\sum_{m,i \\leftarrow j} \\ln \\left( \\left[ \\Delta r \\sum_{\\alpha_k} 2 r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)} [e^{(R-\\alpha_k^2D)\\Delta_{ij}t_{\\alpha}}]_{ij} \\right] ^{N_{m,ij}(\\Delta_{ij}t_{\\alpha})} \\right)
+             \\ln \\ L(M) = \\sum_{m,i \\leftarrow j} \\ln \\left( \\left[ \\Delta r \\sum_{\\alpha_k} 2 r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)} [e^{(\\mathbf{R}-\\alpha_k^2D)\\Delta_{ij}t_{\\alpha}}]_{ij} \\right] ^{N_{m,ij}(\\Delta_{ij}t_{\\alpha})} \\right)
 
 
         with :math:`t_{i}` as the current lag time and :math:`N_{m,ij}(t_i)` as the radial transition matrix, :math:`J_0` as the roots of the Bessel function and :math:`J_1` as the 1st order Bessel first type in those zeros. The variable :math:`s` is the length where the bessel function going to zero and :math:`r_m` is the middle of the radial bin. The lag time is :math:`t_{i}` and :math:`D` is the current radial diffusion profile.
@@ -887,9 +887,9 @@ class MC:
         The function :func:`log_likelihood_radial` determine the rate matrix part of the Likelihood
 
         .. math::
-            \\mathrm{rate}_{\\mathrm{radial}} = \\left [e^{(R-\\alpha_k^2D)\\Delta_{ij}t_{\\alpha}}]_{ij}
+            \\mathrm{rate}_{\\mathrm{radial}} = \\left [e^{\\left(\\mathbf{R}-\\alpha_k^2D\\right)\\Delta_{ij}t_{\\alpha}}\\right]_{ij}
 
-        multiple it with the results from the :func:`setup_bessel_box` and logarithmize the result. Afterwards the results are multipe with the transition matrix :math:`N_{m,ij}(t_i)`. The likelihood thus obtained provides the acceptance criteria for the MC alogirthm and is returned by the function .
+        multiple it with the results from the :func:`setup_bessel_box` and logarithmize the result. Afterwards the results are multipe with the transition matrix :math:`N_{m,ij}(\\Delta_{ij}t_{\\alpha})`. The likelihood thus obtained provides the acceptance criteria for the MC alogirthm and is returned by the function .
 
         Parameters
         ----------
@@ -961,7 +961,7 @@ class MC:
         This function set the zeros of the 0th order Bessel first type and the bessel function for the radial likelihood.
 
         .. math::
-            bessel = \\sum_{\\alpha_k} 2r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)}
+            \\mathrm{bessel} = \\sum_{\\alpha_k} 2r_m \\frac{J_0(\\alpha_kr_m)}{s^2J_1^2(x_k)}
 
         The bessel matrix has the dimension of lxr and contains the constant part of the radial likelihood
 
