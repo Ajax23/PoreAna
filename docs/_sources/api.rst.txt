@@ -16,6 +16,19 @@ Sample
 
     sample.Sample
 
+Monte Carlo Sampling
+--------------------
+
+.. currentmodule:: poreana
+
+.. autosummary::
+    :toctree: generated/
+
+    model.Model
+    model.CosineModel
+    model.StepModel
+    mc.MC
+
 
 .. _analysis_api:
 

@@ -47,6 +47,14 @@ Sample
     ~Sample._diffusion_bin_data
     ~Sample._diffusion_bin_step
 
+  .. rubric:: MC Diffusion
+
+  .. autosummary::
+
+    ~Sample.init_diffusion_mc
+    ~Sample._diffusion_mc_data
+    ~Sample._diffusion_mc
+
 
   .. rubric:: Bin Structure
 

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Sample._diffusion_mc &#8212; PoreAna 0.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          PoreAna</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../sample.html">Sample</a></li>
+                <li><a href="../density.html">Density</a></li>
+                <li><a href="../diffusion_bin.html">Diffusion (Bin)</a></li>
+                <li><a href="../diffusion_mc.html">Diffusion (MC)</a></li>
+                <li><a href="../further_props.html">Further Properties</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Sample._diffusion_mc</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  </div>
+<div class=col-md-9 content><div class="section" id="sample-diffusion-mc">
+<h1>Sample._diffusion_mc<a class="headerlink" href="#sample-diffusion-mc" title="Permalink to this headline">¶</a></h1>
+<dl class="method">
+<dt id="poreana.sample.Sample._diffusion_mc">
+<code class="descclassname">Sample.</code><code class="descname">_diffusion_mc</code><span class="sig-paren">(</span><em>data</em>, <em>idx_list_mc</em>, <em>res_id</em>, <em>com</em>, <em>frame_list</em>, <em>frame_id</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._diffusion_mc" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function sample the transition matrix for the diffusion
+calculation with the Monte Carlo diffusion methode for a cubic
+simulation box. The sample of the transition matrix is to be run on
+the cluster due to a high time and resource consumption. The output,
+a data object, is then used to calculate the self-diffusion using
+further calculation functions for the MC Diffusion methode.</p>
+<p>It is necessary to caculate the transition matrix for different step
+length and so for different lag times. A lagtime
+<span class="math">\(\Delta_{ij}t_{\alpha}\)</span> is defined by</p>
+<div class="math">
+\[\Delta_{ij}t_{\alpha} = t_{i,\alpha} - t_{j,\alpha}\]</div>
+<p>with <span class="math">\(i\)</span> and <span class="math">\(j\)</span> as the current state of the system at two
+different times and <span class="math">\(\alpha\)</span> as past time between the two states.
+To sample the transition matrix the frame length <span class="math">\(t\)</span> has to
+be specifiy and this frame length is for all lag times the same.
+The variation of the lag time is happend by adapting the step length
+<span class="math">\(s\)</span> which indicates the interval between the frames. The lag time
+is than calculated by</p>
+<div class="math">
+\[\Delta_{ij}t_{\alpha} = t \cdot s\]</div>
+<p>After the sampling a model class has to set and then the MC calculation
+can run. Subsequently the final mean diffusion coefficient can be
+determined with a extrapolation to
+<span class="math">\(\Delta_{ij}t_{\alpha} \rightarrow \infty\)</span>.
+For the etxrapolation we need the mean diffusion over the bins for
+different chosen lag times. That’s why we have to calculate the results
+and the transition matrix for several lag times. More information about
+post processing and the extrapolation that you can find in
+<code class="xref py py-func docutils literal"><span class="pre">diffusion.diffusion_fit()</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd><p class="first last">Data dictionary containing bins for axial and radial diffusion</p>
+</dd>
+<dt><strong>index_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">List of dictionaries containing bin id of all molecules for each frame</p>
+</dd>
+<dt><strong>res_id</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">Current residue id</p>
+</dd>
+<dt><strong>com</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">Center of mass of current molecule</p>
+</dd>
+<dt><strong>frame_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">List of frame ids to process</p>
+</dd>
+<dt><strong>frame_id</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">Current frame_id</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Hamzeh Kraus.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
