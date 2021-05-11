@@ -451,7 +451,6 @@ def diffusion_fit(link, len_step=[], is_std = True):
         std = res.std()
 
 
-
     # Calculate the mean diffusion over all bins
     D_mean = [np.mean(np.exp(diff_bin[i] + diff_unit)) * 10**-6 for i in len_step]   # Diffusion in m^2/s
 
