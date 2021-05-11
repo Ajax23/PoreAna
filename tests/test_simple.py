@@ -261,6 +261,11 @@ class UserModelCase(unittest.TestCase):
         diff, diff_mean, diff_table = pa.diffusion.diffusion_fit("output/diff_test_mc.obj")
         plt.savefig("output/diffusion_fit.svg", format="svg", dpi=1000)
 
+        # Plot pore diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.diffusion_pore_fit("data/pore_system_cylinder.obj","output/diff_test_mc.obj")
+        plt.savefig("output/diffusion_pore_fit.svg", format="svg", dpi=1000)
+
         # Plot diffusion profile over box length
         plt.figure()
         pa.diffusion.diff_profile("output/diff_test_mc.obj", infty_profile = True)
@@ -278,6 +283,7 @@ class UserModelCase(unittest.TestCase):
 
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
+        self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
 
     def test_mc_box(self):
         # self.skipTest("Temporary")
@@ -287,7 +293,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(model,10000,2500,print_output=False)
+        MC = pa.MC(model,50000,2500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc_box.obj")
@@ -296,6 +302,7 @@ class UserModelCase(unittest.TestCase):
         plt.figure()
         diff, diff_mean, diff_table = pa.diffusion.diffusion_fit("output/diff_test_mc_box.obj")
         plt.savefig("output/diffusion_fit_box.svg", format="svg", dpi=1000)
+
 
         # Plot diffusion profile over box length
         plt.figure()
@@ -313,7 +320,8 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/transition_heatmap_box.svg", format="svg", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.0 * 10**-8) ) < 0.3 * 10**-9, True)
+        self.assertEqual(abs(diff - (1.0 * 10**-8) ) < 0.3 * 10**-8, True)
+
 
     # Test parallelisation of transition matrix
     def test_sample_p_s(self):
@@ -338,12 +346,20 @@ class UserModelCase(unittest.TestCase):
     def test_sample(self):
         # self.skipTest("Temporary")
 
+        # Load molecule
+        mol_B = pms.Molecule(inp="data/benzene.gro")
+
+        # Test sampling
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_mc("output/sampling_test.obj", len_step=[1,2,5,10,20,30,40,50])
+        sample.sample(is_parallel=True)
+
         # Load Transition matrix for single
         trans = pa.utils.load("data/trans_check.obj")
         trans_s = trans["data"]
 
         # Load Transition matrix for parallel
-        trans_2 = pa.utils.load("output/diff_mc_cyl_s.obj")
+        trans_2 = pa.utils.load("output/sampling_test.obj")
         trans_p = trans_2["data"]
 
         list = []
@@ -386,6 +402,15 @@ class UserModelCase(unittest.TestCase):
         # Check if the initialized profiles are corret
         self.assertEqual(np.array_equal(model._diff_bin, np.array([-1.3937803336775594] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
+
+    def check_outputs(self):
+        # self.skipTest("Temporary")
+
+        # Check tables
+        pa.diffusion.print_model_inputs("output/diff_test_mc.obj",print_con=False)
+        pa.diffusion.print_mc_inputs("output/diff_test_mc.obj",print_con=False)
+        pa.diffusion.print_statistics_mc("output/diff_test_mc.obj",print_con=False)
+        pa.diffusion.print_coeff("output/diff_test_mc.obj",print_con=False)
 
 
     ############

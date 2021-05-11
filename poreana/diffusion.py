@@ -711,7 +711,7 @@ def diffusion_pore_fit(link_pore, link, len_step=[], is_std=True):
 
     # Calculate the inverse lag time for the linear fit
     lagtime_inverse_all = [ 1 / (len_step[i] * dt ) for i in range(len(len_step))]   # Inverse lagtime in s
-    print(lagtime_inverse_all)
+
     # Plot the diffusion profiles for the different lag times
     legend = ["lagtime " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
@@ -900,7 +900,7 @@ def df_profile(link,len_step=[]):
 
     # Plot options
     plt.xlabel(r"Box length (nm)")
-    plt.ylabel(r"Free energy ($\mathrm{J^{-1}}$)")
+    plt.ylabel(r"Free energy (-)")
     plt.legend(legend)
 
 
