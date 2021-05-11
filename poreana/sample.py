@@ -415,11 +415,15 @@ class Sample:
             Number of allowed bins for the molecule to leave
         """
         # Initialize
+        if self._is_diffusion_mc:
+            print("Currently only bin or MC can be calculated.")
+            return
         if self._pore:
             self._is_diffusion_bin = True
         else:
             print("Bin diffusion currently only usable for pore system.")
             return
+
 
         # Define window length
         len_window = len_obs/len_step/len_frame+1
@@ -623,6 +627,9 @@ class Sample:
         """
 
         # Initialize
+        if self._is_diffusion_bin:
+            print("Currently only bin or MC can be calculated.")
+            return
         self._is_diffusion_mc = True
 
         # Calculate bins

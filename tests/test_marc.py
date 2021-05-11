@@ -42,8 +42,8 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_density("output/dens_cyl_s.obj")
         sample.init_gyration("output/gyr_cyl_s.obj")
-        #sample.init_diffusion_bin("output/diff_cyl_s.obj")
         sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
+        #sample.init_diffusion_bin("output/diff_cyl_s.obj")
         sample.sample(is_parallel=False, is_pbc=True)
 
         sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
@@ -106,7 +106,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(abs(diff - (1.4 * 10**-9) ) < 0.3 * 10**-9, True)
 
     def test_mc_box(self):
-        #self.skipTest("Temporary")
+        self.skipTest("Temporary")
 
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_box.obj", 6, 10)
@@ -143,7 +143,7 @@ class UserModelCase(unittest.TestCase):
 
     # Test parallelisation of transition matrix
     def test_sample_p_s(self):
-        self.skipTest("Temporary")
+        #self.skipTest("Temporary")
 
         # Load Transition matrix for single
         trans = pa.utils.load("output/diff_mc_cyl_s.obj")

@@ -18,7 +18,7 @@ poreana\.diffusion
    ============
 
 
-   .. rubric:: MC Diffusion - Fitting
+   .. rubric:: Analysis
 
    .. autosummary::
 
