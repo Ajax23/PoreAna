@@ -416,7 +416,7 @@ class Sample:
         """
         # Initialize
         if self._is_diffusion_mc:
-            print("Currently only bin or MC can be calculated.")
+            print("Currently only bin or MC can initialize for samling.")
             return
         if self._pore:
             self._is_diffusion_bin = True
@@ -628,7 +628,7 @@ class Sample:
 
         # Initialize
         if self._is_diffusion_bin:
-            print("Currently only bin or MC can be calculated.")
+            print("Currently only bin or MC can initialize for samling.")
             return
         self._is_diffusion_mc = True
 
