@@ -754,7 +754,7 @@ def diffusion_pore_fit(link_pore, link, len_step=[], is_std=True):
     plt.xlabel(r"Inverse lagtime ($10^{12} \ \mathrm{s^{-1}})$")
     plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
 
-    diffusion_pore = fit(0)
+    diffusion_pore = fit(0) * 10 **-9
 
     return diffusion_pore, diffusion_pore_mean, diff_table
 
@@ -940,17 +940,15 @@ def print_statistics_mc(link_out, print_con=False):
     #Read MC statistic
     nacc_df_mean = results["nacc_df"]
     nacc_diff_mean = results["nacc_diff"]
-    nacc_diff_radial_mean = results["nacc_diff_radial"]
     list_diff_fluc = results["fluc_diff"]
     list_df_fluc = results["fluc_df"]
-    list_diff_radial_fluc = results["fluc_diff_radial"]
 
 
     # Table for MC Statistics
-    data = [[str("%.4e" % list_df_fluc[i]) for i in len_step],[str("%.4e" % list_diff_fluc[i]) for i in len_step],[str("%.4e" % list_diff_radial_fluc[i]) for i in len_step],[str("%.0f" % nacc_df_mean[i]) for i in len_step],[str("%.0f" % nacc_diff_mean[i]) for i in len_step],[str("%.0f" % nacc_diff_radial_mean[i]) for i in len_step],[str("%.2f" % (nacc_df_mean[i]*100/(nmc+nmc_eq))) for i in len_step],[str("%.2f" % (nacc_diff_mean[i]*100/(nmc+nmc_eq))) for i in len_step],[str("%.2f" % float(nacc_diff_radial_mean[i]*100/(nmc_radial+nmc_radial_eq))) for i in len_step]]
+    data = [[str("%.4e" % list_df_fluc[i]) for i in len_step],[str("%.4e" % list_diff_fluc[i]) for i in len_step],[str("%.0f" % nacc_df_mean[i]) for i in len_step],[str("%.0f" % nacc_diff_mean[i]) for i in len_step],[str("%.2f" % (nacc_df_mean[i]*100/(nmc+nmc_eq))) for i in len_step],[str("%.2f" % (nacc_diff_mean[i]*100/(nmc+nmc_eq))) for i in len_step]]
 
     # Set index of panda table
-    df_results = pd.DataFrame(data,index=list(['fluctuation df','fluctuation diff','fluctuation rad. diff','acc df steps','acc diff steps','acc rad. diff steps','acc df steps (%)','acc diff steps (%)','acc rad. diff steps (%)']),columns=list(len_step))
+    df_results = pd.DataFrame(data,index=list(['fluctuation df','fluctuation diff','acc df steps','acc diff steps','acc df steps (%)','acc diff steps (%)']),columns=list(len_step))
 
     # If the table has to print in console
     if print_con==True:
@@ -1061,25 +1059,21 @@ def print_model_inputs(link_out, print_con=False):
     results = utils.load(link_out)
     model = results["model"]
     bin_number = model["bin number"]
-    rad_bin_number = model["radial bin number"]
     len_step = model["len_step"]
     len_frame = model["len_frame"]
-    frame_num = model["frame_num"]
+    frame_num = model["num_frame"]
     nD = model["nD"]
     nF = model["nF"]
     nDrad = model["nDrad"]
-    system = model["system"]
     d = model["guess"]
-    mol_num = model["mol num"]
-    mol_name = model["mol name"]
     model = model["model"]
 
     # String which contains all lag times
     len_step_string = ', '.join(str(step) for step in len_step)
 
     # dictionary for model inputs
-    data = [str("%.f" % bin_number),str("%.f" % rad_bin_number),len_step_string,str("%.2e" % (len_frame * 10**(-12))), mol_name, str("%.f" % (mol_num)),str("%.f" % frame_num),str("%.f" % nD),str("%.f" % nF),str("%.f" %nDrad),system,model,str("%.2e" % (d * 10**(-6)))]
-    df_model = pd.DataFrame(data,index=list(['Bin number','Radial bin number','step length','frame length (s)','mol name', 'mol num', 'frame number','nD','nF','nDrad','system','model','guess diffusion (m2/s-1)']),columns=list(['Input']))
+    data = [str("%.f" % bin_number),len_step_string,str("%.2e" % (len_frame * 10**(-12))),str("%.f" % frame_num),str("%.f" % nD),str("%.f" % nF),str("%.f" %nDrad),model,str("%.2e" % (d * 10**(-6)))]
+    df_model = pd.DataFrame(data,index=list(['Bin number','step length','frame length (s)', 'frame number','nD','nF','nDrad','model','guess diffusion (m2/s-1)']),columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con==True:

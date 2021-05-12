@@ -251,7 +251,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(model,5000,2500,print_output=False)
+        MC = pa.MC(model,10000,2500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
@@ -293,7 +293,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(model,50000,2500,print_output=False)
+        MC = pa.MC(model,5000,2500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc_box.obj")
@@ -381,15 +381,15 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 1
-        self.assertEqual(MC.log_likelihood_z(model),  -128852.33005868513)
+        self.assertEqual(abs(MC.log_likelihood_z(model)-(-128852.33005868513) < 10**-5),True)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 2
-        self.assertEqual(MC.log_likelihood_z(model),  -165354.76731180004)
+        self.assertEqual(abs(MC.log_likelihood_z(model)-(-165354.76731180004) < 10**-5),True)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 10
-        self.assertEqual(MC.log_likelihood_z(model),  -258946.70553844847)
+        self.assertEqual(abs(MC.log_likelihood_z(model)-(-258946.70553844847) < 10**-5),True)
 
 
     # Check initial profiles
@@ -403,14 +403,30 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(np.array_equal(model._diff_bin, np.array([-1.3937803336775594] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
-    def check_outputs(self):
+    def test_outputs(self):
         # self.skipTest("Temporary")
 
         # Check tables
-        pa.diffusion.print_model_inputs("output/diff_test_mc.obj",print_con=False)
-        pa.diffusion.print_mc_inputs("output/diff_test_mc.obj",print_con=False)
-        pa.diffusion.print_statistics_mc("output/diff_test_mc.obj",print_con=False)
-        pa.diffusion.print_coeff("output/diff_test_mc.obj",print_con=False)
+        pa.diffusion.print_model_inputs("data/check_tables.obj",print_con=False)
+        pa.diffusion.print_mc_inputs("data/check_tables.obj",print_con=False)
+        pa.diffusion.print_statistics_mc("data/check_tables.obj",print_con=False)
+        pa.diffusion.print_coeff("data/check_tables.obj",print_con=False)
+
+    def test_init_bin_mc(self):
+        # self.skipTest("Temporary")
+
+        # Load molecule
+        mol_B = pms.Molecule(inp="data/benzene.gro")
+
+        # Test bin -> MC
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_bin("output/test.obj")
+        sample.init_diffusion_mc("output/test.obj")
+
+        # Test MC -> Bin
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_mc("output/test.obj")
+        sample.init_diffusion_bin("output/test.obj")
 
 
     ############
