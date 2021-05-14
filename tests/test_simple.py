@@ -285,6 +285,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
         self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
 
+    # Test entire code for a box system
     def test_mc_box(self):
         # self.skipTest("Temporary")
 
@@ -403,6 +404,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(np.array_equal(model._diff_bin, np.array([-1.3937803336775594] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
+    # Test input/output tables
     def test_outputs(self):
         # self.skipTest("Temporary")
 
@@ -412,6 +414,7 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.print_statistics_mc("data/check_tables.obj",print_con=False)
         pa.diffusion.print_coeff("data/check_tables.obj",print_con=False)
 
+    # Test currently only one can be initialize
     def test_init_bin_mc(self):
         # self.skipTest("Temporary")
 
