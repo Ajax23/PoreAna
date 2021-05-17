@@ -1,4 +1,4 @@
-name: Python package
+name: Build Status
 
 on:
   push:
@@ -27,16 +27,13 @@ jobs:
         python -m pip install -r requirements.txt
         python -m pip install flake8 coverage
         python -m pip install .
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    # - name: Lint with flake8
+    #   run: |
+    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run tests
       run: |
         cd tests
-        coverage erase
         coverage run -a test_simple.py
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v1
-      with:
-        directory: tests
