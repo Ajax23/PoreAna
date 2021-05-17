@@ -19,6 +19,9 @@ class UserModelCase(unittest.TestCase):
     #################
     @classmethod
     def setUpClass(self):
+        if os.path.isdir("tests"):
+            os.chdir("tests")
+            
         folder = 'output'
         pa.utils.mkdirp(folder)
         pa.utils.mkdirp(folder+"/temp")
