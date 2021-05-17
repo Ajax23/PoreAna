@@ -353,7 +353,7 @@ class UserModelCase(unittest.TestCase):
         # Test sampling
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/sampling_test.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(is_parallel=True)
+        sample.sample(is_parallel=False)
 
         # Load Transition matrix for single
         trans = pa.utils.load("data/trans_check.obj")

@@ -124,19 +124,24 @@ class MC:
         do_radial : bool, optional
             if it's True the code calculate the radial diffusion too
         """
+        # Print that MC Calculation starts
+        if self._print_output==False:
+            print("MC Calculation Start")
+            print("...")
 
         # Print to see that the MC options
-        print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        print("----------------------------------------------------------------------Start MC-----------------------------------------------------------------------------------")
-        print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-        print("MC Inputs")
+        if self._print_output==True:
+            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
+            print("----------------------------------------------------------------------Start MC-----------------------------------------------------------------------------------")
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+            print("MC Inputs")
 
-        # Table for MC Inputs (set data structure)
-        data = [self._nmc_eq,self._nmc,self._nmc_eq_radial,self._nmc_radial,self._num_mc_update,self._print_freq]
-        df_input = pd.DataFrame(data,index=list(['MC step (Equilibrium)','MC step (Production)','MC step radial (Equilibrium)','MC step radial (Production)','movewidth update','print frequency']),columns=list(['Input']))
+            # Table for MC Inputs (set data structure)
+            data = [self._nmc_eq,self._nmc,self._nmc_eq_radial,self._nmc_radial,self._num_mc_update,self._print_freq]
+            df_input = pd.DataFrame(data,index=list(['MC step (Equilibrium)','MC step (Production)','MC step radial (Equilibrium)','MC step radial (Production)','movewidth update','print frequency']),columns=list(['Input']))
 
-        # Table for MC Inputs
-        print(df_input)
+            # Table for MC Inputs
+            print(df_input)
 
 
         # Initialize result lists (profiles, coefficients, fluctuation and accepted MC steps)
@@ -164,7 +169,8 @@ class MC:
 
             # Print that a new calculation with a new lag time starts
             lagtime_string = "Lagtime: " + str(self._len_step * model._dt) + " ps"
-            print('\n=============================================================='+lagtime_string+'====================================================================================')
+            if self._print_output==True:
+                print('\n=============================================================='+lagtime_string+'====================================================================================')
 
 
             # Initialize lists for the profiles
@@ -181,14 +187,16 @@ class MC:
 
 
             # Start calucalation for the normal diffusion and free energy Profile
-            print("\n---------------------------------------------------------Calculate normal diffusion------------------------------------------------------------------------------")
+            if self._print_output==True:
+                print("\n---------------------------------------------------------Calculate normal diffusion------------------------------------------------------------------------------")
 
             # Calculated the initalize likelihood
             self._log_like = self.log_likelihood_z(model)
 
             # Print first likelihood
-            print("likelihood init", self._log_like, "\n")
-            print("Start equilibration")
+            if self._print_output==True:
+                print("likelihood init", self._log_like, "\n")
+                print("Start equilibration")
 
             # Initialize a new statistic
             self.init_stats(model)
@@ -254,7 +262,7 @@ class MC:
                         print("imc","\t", "likelihood","\t", "accepted_df (%)", "\t","accepted_diff (%)", "\t","df_step_width", "\t","diff_step_width","\t","fluktuation_df","\t","fluktuation_diff")
                     if  (imc%self._print_freq == 0) and imc > self._nmc_eq and self._print_output==True:
                         print(imc,"\t","%.3f" %self._log_like,"\t", "%.2f" % (float(self._nacc_df)*100/(imc+1)),"\t\t\t", "%.2f" % (float(self._nacc_diff)*100/(imc+1)), "\t\t\t", "%.5f" % self._delta_df,"\t", "%.5f" %  self._delta_diff,"\t","\t", "%.4e" %  self._fluctuation_df, "\t","\t","%.4e" %  self._fluctuation_diff)
-            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+                        print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
 
             # Save the profiles over the bins for the current lag time in a list
             list_diff_profile[self._len_step] = mean_diff_profile_flk #copy.deepcopy(model._diff_bin) #mean_diff_profile_flk
@@ -403,6 +411,10 @@ class MC:
 
         # Set output data
         output = {"inp": inp, "model":  model, "diff_profile": list_diff_profile, "df_profile": list_df_profile,"diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc,"fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
+
+        # Print MC Calculation is done
+        print("MC Calculation Done.")
+
 
         # Save inp and output data
         utils.save(output, link_out)

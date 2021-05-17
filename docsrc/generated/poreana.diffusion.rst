@@ -25,6 +25,7 @@ poreana\.diffusion
      diffusion_fit
      diffusion_pore_fit
      diffusion_radial_fit
+     plot_trans_mat
 
    .. rubric:: Profiles
 
@@ -41,7 +42,6 @@ poreana\.diffusion
    .. autosummary::
 
 
-     plot_trans_mat
      print_mc_inputs
      print_model_inputs
      print_statistics_mc

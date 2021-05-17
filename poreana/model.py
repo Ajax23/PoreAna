@@ -142,7 +142,7 @@ class CosineModel(Model):
         number of the Fourier coefficients for the radial diffusion profile
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
 
         # Inherit the variables from Model class
         super(CosineModel,self).__init__(data_link)
@@ -154,6 +154,7 @@ class CosineModel(Model):
         self._n_diff = n_diff                                                   # number of diffusion profile coefficients
         self._n_df = n_df                                                       # number of free energy profile coefficients
         self._n_diff_radial = n_diff_radial                                     # number of radial diffusion profile coefficients
+        self._print_output = print_output
 
         # Initial model
         self.init_model()
@@ -201,20 +202,21 @@ class CosineModel(Model):
         self._df_bin = self.calc_profile(self._df_coeff,self._df_basis)
 
         # Print for console
-        print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
-        print("----------------------------------------------------------------Initialize CosineModel-------------------------------------------------------------------------")
-        print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-        print("Model Inputs")
+        if self._print_output == True:
+            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
+            print("----------------------------------------------------------------Initialize Cosine Model-------------------------------------------------------------------------")
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+            print("Model Inputs")
 
-        # Set data list for panda table
-        len_step_string = ', '.join(str(step) for step in self._len_step)
-        data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff), str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
+            # Set data list for panda table
+            len_step_string = ', '.join(str(step) for step in self._len_step)
+            data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff), str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
 
-        # Set pandas table
-        df_model = pd.DataFrame(data,index=list(['Bin number','step length','frame length','nD','nF','model','pbc','guess diffusion (m2/s-1)']),columns=list(['Input']))
+            # Set pandas table
+            df_model = pd.DataFrame(data,index=list(['Bin number','step length','frame length','nD','nF','model','pbc','guess diffusion (m2/s-1)']),columns=list(['Input']))
 
-        # Print panda table with model inputs
-        print(df_model)
+            # Print panda table with model inputs
+            print(df_model)
 
 
     def create_basis_center(self):
@@ -293,7 +295,7 @@ class StepModel(Model):
 
     """
 
-    def __init__(self,data_link,n_diff=6, n_df=10, n_diff_radial=6):
+    def __init__(self,data_link,n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
 
         # Inherit the variables from Model class
         super(StepModel,self).__init__(data_link)
@@ -305,6 +307,7 @@ class StepModel(Model):
         self._n_diff = n_diff                                                   # number of diffusion profile coefficients
         self._n_df = n_df                                                       # number of free energy profile coefficien
         self._n_diff_radial = n_diff_radial                                     # number of radial diffusion profile coeff
+        self._print_output = print_output
 
         # Initial model
         self.init_model()
@@ -359,6 +362,23 @@ class StepModel(Model):
 
         # Update radial diffusion profile
         self._diff_radial_bin = self.calc_profile(self._diff_radial_coeff,self._diff_radial_basis)
+
+        # Print for console
+        if self._print_output == True:
+            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
+            print("----------------------------------------------------------------Initialize Step Model-------------------------------------------------------------------------")
+            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+            print("Model Inputs")
+
+            # Set data list for panda table
+            len_step_string = ', '.join(str(step) for step in self._len_step)
+            data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff), str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
+
+            # Set pandas table
+            df_model = pd.DataFrame(data,index=list(['Bin number','step length','frame length','nD','nF','model','pbc','guess diffusion (m2/s-1)']),columns=list(['Input']))
+
+            # Print panda table with model inputs
+            print(df_model)
 
     def create_basis_center(self):
         """
