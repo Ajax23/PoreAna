@@ -35,8 +35,8 @@ jobs:
       run: |
         cd tests
         coverage erase
-        coverage run -a test_simple.py
+        coverage run -a -m test_simple.py
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
-        fail_ci_if_error: true
+        directory: tests
