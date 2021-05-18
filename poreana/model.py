@@ -3,6 +3,7 @@ import pandas as pd
 
 import poreana.utils as utils
 
+
 class Model:
     """This class sets the general parameters which are used to initialize
     a model.
@@ -23,19 +24,19 @@ class Model:
         self._model_inp = sample
 
         # Read the inputs
-        self._bin_num = inp["bin_num"]                                       # number of bins z-direction
-        self._frame_num= inp["num_frame"]                                    # number of bins z-direction
-        self._len_step = inp["len_step"]                                     # step length
-        self._dt = inp["len_frame"] * 10**12                                 # frame length [ps]
-        self._bins = inp["bins"]                                             # bins [nm]
-        self._bin_width = self._bins[1] - self._bins[0]                      # bin width [nm]
-        self._trans_mat = sample["data"]                                     # transition matrix
-        self._pbc = inp["pbc"]                                               # pbc or nopbc
-        self._d0 = d0 * (10**18)/(10**12)                                    # guess init profile [A^2/ps]
+        self._bin_num = inp["bin_num"]                      # number of bins z-direction
+        self._frame_num = inp["num_frame"]                  # number of frames
+        self._len_step = inp["len_step"]                    # step length
+        self._dt = inp["len_frame"] * 10**12                # frame length [ps]
+        self._bins = inp["bins"]                            # bins [nm]
+        self._bin_width = self._bins[1] - self._bins[0]     # bin width [nm]
+        self._trans_mat = sample["data"]                    # transition matrix
+        self._pbc = inp["pbc"]                              # pbc or nopbc
+        self._d0 = d0 * (10**18)/(10**12)                   # guess init profile [A^2/ps]
 
         # Initialize units of w and v
-        self._df_unit = 1.                                                   # in kBT
-        self._diff_unit = np.log(self._bin_width**2 / 1.)                    # in m^2/s
+        self._df_unit = 1.                                           # in kBT
+        self._diff_unit = np.log(self._bin_width**2 / 1.)            # in m^2/s
 
         return
 
@@ -46,13 +47,11 @@ class Model:
         """
 
         # Initialize the diffusion and free energy profile
-        self._df_bin = np.float64(np.zeros(self._bin_num))                   # in kBT
-        self._diff_bin = np.float64(np.zeros(self._bin_num))                 # in dz**2/dt
+        self._df_bin = np.float64(np.zeros(self._bin_num))         # in kBT
+        self._diff_bin = np.float64(np.zeros(self._bin_num))       # in dz**2/dt
 
-
-        #Initalize the diffusion profile
+        # Initalize the diffusion profile
         self._diff_bin += (np.log(self._d0) - self._diff_unit)
-
 
     def calc_profile(self, coeff, basis):
         """
@@ -98,12 +97,11 @@ class Model:
         """
 
         # Calculate a matrix with the bin_num x ncos
-            # Columns contains the n-summand in every bin
-            # Line contains the summand of the series
+        # Columns contains the n-summand in every bin
+        # Line contains the summand of the series
         a = coeff * basis
 
-        return np.sum(a,axis=1)
-
+        return np.sum(a, axis=1)
 
 
 class CosineModel(Model):
@@ -145,15 +143,20 @@ class CosineModel(Model):
     def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
 
         # Inherit the variables from Model class
-        super(CosineModel,self).__init__(data_link)
+        super(CosineModel, self).__init__(data_link)
 
         # Set the model type
         self._model = "CosineModel"
 
-        #Initialise the Cosinemodel
-        self._n_diff = n_diff                                                   # number of diffusion profile coefficients
-        self._n_df = n_df                                                       # number of free energy profile coefficients
-        self._n_diff_radial = n_diff_radial                                     # number of radial diffusion profile coefficients
+        # Initialise the Cosinemodel
+        # number of diffusion profile coefficients
+        self._n_diff = n_diff
+
+        # number of free energy profile coefficients
+        self._n_df = n_df
+
+        # number of radial diffusion profile coefficients
+        self._n_diff_radial = n_diff_radial
         self._print_output = print_output
 
         # Initial model
@@ -164,7 +167,6 @@ class CosineModel(Model):
 
         # Set basis of Fourier series
         self.cosine_model()
-
 
     def init_model(self):
         """
@@ -177,11 +179,10 @@ class CosineModel(Model):
         self._df_coeff = np.float64(np.zeros(self._n_df))                       # in dz**2/dt
         self._diff_coeff = np.float64(np.zeros(self._n_diff))                   # in dz**2/dt
 
-
         # # Set start diffusion profile
-        self._diff_coeff = np.zeros((self._n_diff),float)
-        self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)             # initialize diffusion profile with the guess value [A^2/ps]
-
+        self._diff_coeff = np.zeros((self._n_diff), float)
+        # initialize diffusion profile with the guess value [A^2/ps]
+        self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)
 
     def cosine_model(self):
         """This function sets a Fourier Cosine Series Model for the MC Diffusion
@@ -194,30 +195,30 @@ class CosineModel(Model):
     # create basis (for the free energy)
         self.create_basis_border()
 
-
         # Update diffusion profile
-        self._diff_bin = self.calc_profile(self._diff_coeff,self._diff_basis)
+        self._diff_bin = self.calc_profile(self._diff_coeff, self._diff_basis)
 
         # Update free energy profile
-        self._df_bin = self.calc_profile(self._df_coeff,self._df_basis)
+        self._df_bin = self.calc_profile(self._df_coeff, self._df_basis)
 
         # Print for console
         if self._print_output == True:
-            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
-            print("----------------------------------------------------------------Initialize Cosine Model-------------------------------------------------------------------------")
-            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+            print("--------------------------------------------------------------------------------")
+            print("-------------------------Initalize Cosine Model---------------------------------")
+            print("--------------------------------------------------------------------------------\n")
             print("Model Inputs")
 
             # Set data list for panda table
             len_step_string = ', '.join(str(step) for step in self._len_step)
-            data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff), str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
+            data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff),
+                    str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
 
             # Set pandas table
-            df_model = pd.DataFrame(data,index=list(['Bin number','step length','frame length','nD','nF','model','pbc','guess diffusion (m2/s-1)']),columns=list(['Input']))
+            df_model = pd.DataFrame(data, index=list(
+                ['Bin number', 'step length', 'frame length', 'nD', 'nF', 'model', 'pbc', 'guess diffusion (m2/s-1)']), columns=list(['Input']))
 
             # Print panda table with model inputs
             print(df_model)
-
 
     def create_basis_center(self):
         """
@@ -238,13 +239,12 @@ class CosineModel(Model):
         x = np.arange(self._bin_num)
 
         # Calculate basis for Fourier cosine series
-        basis_df = [np.cos(2 * k * np.pi *(x + 0.5) / self._bin_num) / (k + 1) for k in range(self._n_df)]                      # basis for the free energy profile
-        basis_diff_radial = [np.cos(2 * k * np.pi *(x + 0.5) / self._bin_num) / (k + 1) for k in range(self._n_diff_radial)]    # basis for the radial energy profile
+        basis_df = [np.cos(2 * k * np.pi * (x + 0.5) / self._bin_num) / (k + 1) for k in range(self._n_df)]                      # basis for the free energy profile
+        basis_diff_radial = [np.cos(2 * k * np.pi * (x + 0.5) / self._bin_num) / (k + 1) for k in range(self._n_diff_radial)]    # basis for the radial energy profile
 
         # Transpose basis (is now a bin_num x ncos Matrix)
         self._df_basis = np.array(basis_df).transpose()
         self._diff_radial_basis = np.array(basis_diff_radial).transpose()
-
 
     def create_basis_border(self):
         """
@@ -267,6 +267,7 @@ class CosineModel(Model):
 
         # Transpose basis (is now a bin_num x ncos Matrix)
         self._diff_basis = np.array(basis).transpose()
+
 
 class StepModel(Model):
     """This class sets the Step Model to calculate the free energy profile and
@@ -295,18 +296,21 @@ class StepModel(Model):
 
     """
 
-    def __init__(self,data_link,n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
 
         # Inherit the variables from Model class
-        super(StepModel,self).__init__(data_link)
+        super(StepModel, self).__init__(data_link)
 
         # Set the model type
         self._model = "Step Model"
 
         # Set the number of coefficients for the step model
-        self._n_diff = n_diff                                                   # number of diffusion profile coefficients
-        self._n_df = n_df                                                       # number of free energy profile coefficien
-        self._n_diff_radial = n_diff_radial                                     # number of radial diffusion profile coeff
+        # number of diffusion profile coefficients
+        self._n_diff = n_diff
+        # number of free energy profile coefficien
+        self._n_df = n_df
+        # number of radial diffusion profile coeff
+        self._n_diff_radial = n_diff_radial
         self._print_output = print_output
 
         # Initial model
@@ -328,20 +332,17 @@ class StepModel(Model):
         # # Initialize the diffusion and free energy coefficient
         self._df_coeff = np.float64(np.zeros(self._n_df))
         self._diff_coeff = np.float64(np.zeros(self._n_diff))
-        self._diff_radial_coeff = np.float64(np.zeros(self._n_diff))
 
         # Calculate dz
-        dx_df = self._bin_num /2. /self._n_df
-        dx_diff = self._bin_num /2. /self._n_diff
-        dx_diff_radial = self._bin_num_rad /2. /self._n_diff_radial
+        dx_df = self._bin_num / 2. / self._n_df
+        dx_diff = self._bin_num / 2. / self._n_diff
 
         self._df_x0 = np.arange(0, self._n_df * dx_df, dx_df)
         self._diff_x0 = np.arange(0, self._n_diff * dx_diff, dx_diff)
-        self._diff_radial_x0 = np.arange(0, self._n_diff_radial * dx_diff_radial, dx_diff_radial)
 
         # # Set start diffusion profile
-        self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)                  # initialize diffusion profile with the guess value [A^2/ps]
-        self._diff_radial_coeff[0] += (np.log(self._d0) - self._diff_radial_unit)    # initialize diffusion profile with the guess value [A^2/ps]
+        # initialize diffusion profile with the guess value [A^2/ps]
+        self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)
 
     def step_model(self):
         """This function set a Step Model for the MC Diffusion Calculation
@@ -355,30 +356,31 @@ class StepModel(Model):
         self.create_basis_border()
 
         # Update diffusion profile
-        self._diff_bin = self.calc_profile(self._diff_coeff,self._diff_basis)
+        self._diff_bin = self.calc_profile(self._diff_coeff, self._diff_basis)
 
         # Update free energy profile
-        self._df_bin = self.calc_profile(self._df_coeff,self._df_basis)
-
-        # Update radial diffusion profile
-        self._diff_radial_bin = self.calc_profile(self._diff_radial_coeff,self._diff_radial_basis)
+        self._df_bin = self.calc_profile(self._df_coeff, self._df_basis)
 
         # Print for console
         if self._print_output == True:
-            print("\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------")
-            print("----------------------------------------------------------------Initialize Step Model-------------------------------------------------------------------------")
-            print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
+            print("\n")
+            print("--------------------------------------------------------------------------------")
+            print("-------------------------Initalize Step Model-----------------------------------")
+            print("--------------------------------------------------------------------------------\n")
             print("Model Inputs")
 
             # Set data list for panda table
             len_step_string = ', '.join(str(step) for step in self._len_step)
-            data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff), str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
+            data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff),
+                    str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
 
             # Set pandas table
-            df_model = pd.DataFrame(data,index=list(['Bin number','step length','frame length','nD','nF','model','pbc','guess diffusion (m2/s-1)']),columns=list(['Input']))
+            df_model = pd.DataFrame(data, index=list(
+                ['Bin number', 'step length', 'frame length', 'nD', 'nF', 'model', 'pbc', 'guess diffusion (m2/s-1)']), columns=list(['Input']))
 
             # Print panda table with model inputs
             print(df_model)
+            print("\n")
 
     def create_basis_center(self):
         """
@@ -410,13 +412,10 @@ class StepModel(Model):
 
         # Calculated the basis in the center of a bin
         x = np.arange(self._bin_num)+0.5
-        x_rad = np.arange(self._bin_num_rad)+0.5
-        basis = [np.where((x>=i) & (x<=self._bin_num-i),1.,0.) for i in self._df_x0]
-        basis_rad = [np.where((x_rad>=i) & (x_rad<=self._bin_num_rad-i),1.,0.) for i in self._diff_radial_x0]
+        basis = [np.where((x >= i) & (x <= self._bin_num-i), 1., 0.) for i in self._df_x0]
 
         # Transpose basis (is now a bin_num x ncos Matrix)
         self._df_basis = np.array(basis).transpose()
-        self._diff_radial_basis = np.array(basis_rad).transpose()
 
     def create_basis_border(self):
         """
@@ -444,7 +443,7 @@ class StepModel(Model):
 
         # Calculated the basis in the border of a bin
         x = np.arange(self._bin_num)+1.
-        basis = [np.where((x>=i) & (x<=self._bin_num-i),1.,0.) for i in self._diff_x0]
+        basis = [np.where((x >= i) & (x <= self._bin_num-i), 1., 0.) for i in self._diff_x0]
 
         # Transpose basis (is now a bin_num x ncos Matrix)
         self._diff_basis = np.array(basis).transpose()

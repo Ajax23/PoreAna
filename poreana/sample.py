@@ -989,7 +989,5 @@ class Sample:
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:
                 sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")
                 sys.stdout.flush()
-                if frame_id%100==0:
-                    print("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")
         print()
         return output

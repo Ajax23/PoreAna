@@ -22,7 +22,7 @@ class UserModelCase(unittest.TestCase):
     def setUpClass(self):
         if os.path.isdir("tests"):
             os.chdir("tests")
-            
+
         folder = 'output'
         pa.utils.mkdirp(folder)
         pa.utils.mkdirp(folder+"/temp")
@@ -245,6 +245,7 @@ class UserModelCase(unittest.TestCase):
     ################
     # MC Diffusion #
     ################
+
     # Test the entire mc diffusion method
     def test_mc_pore(self):
         # self.skipTest("Temporary")
@@ -254,7 +255,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(model,10000,2500,print_output=False)
+        MC = pa.MC(model,8000,1500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
@@ -273,6 +274,11 @@ class UserModelCase(unittest.TestCase):
         plt.figure()
         pa.diffusion.diff_profile("output/diff_test_mc.obj", infty_profile = True)
         plt.savefig("output/diffusion_profile.svg", format="svg", dpi=1000)
+
+        # Plot diffusion profile in the pore area
+        plt.figure()
+        pa.diffusion.diff_pore_profile("data/pore_system_cylinder.obj","output/diff_test_mc.obj", infty_profile = True)
+        plt.savefig("output/diffusion_pore_profile.svg", format="svg", dpi=1000)
 
         # Plot free energy profile over box length
         plt.figure()
@@ -326,6 +332,21 @@ class UserModelCase(unittest.TestCase):
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff - (1.0 * 10**-8) ) < 0.3 * 10**-8, True)
 
+    def test_print_out(self):
+        # self.skipTest("Temporary")
+
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
+
+        # Set the MC class and options
+        model._len_step = [10]
+        MC = pa.MC(model,100,2000,print_output=True)
+
+        # Do the MC alogirthm
+        MC.do_mc_cycles(model,"output/diff_test_mc.obj")
+
+
+
 
     # Test parallelisation of transition matrix
     def test_sample_p_s(self):
@@ -347,7 +368,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(list, [True]*8)
 
     # Test sampling of the transition matrix
-    def test_sample(self):
+    def test_sample_sample_trans(self):
         # self.skipTest("Temporary")
 
         # Load molecule
@@ -400,11 +421,19 @@ class UserModelCase(unittest.TestCase):
     def test_init_profiles(self):
         # self.skipTest("Temporary")
 
-        # Set the cosinus model
+        # Check cosine model
+        # Set the cosine model
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(model._diff_bin, np.array([-1.3937803336775594] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
+
+        # Set the step model
+        model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10)
+
+        # Check if the initialized profiles are corret
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
     # Test input/output tables
@@ -416,6 +445,20 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.print_mc_inputs("data/check_tables.obj",print_con=False)
         pa.diffusion.print_statistics_mc("data/check_tables.obj",print_con=False)
         pa.diffusion.print_coeff("data/check_tables.obj",print_con=False)
+
+        pa.diffusion.print_model_inputs("data/check_tables.obj",print_con=True)
+        pa.diffusion.print_mc_inputs("data/check_tables.obj",print_con=True)
+        pa.diffusion.print_statistics_mc("data/check_tables.obj",print_con=True)
+        pa.diffusion.print_coeff("data/check_tables.obj",print_con=True)
+
+        # Check output which is not coveraged by the entire MC test
+        pa.diffusion.diff_pore_profile("data/pore_system_cylinder.obj","data/check_tables.obj", infty_profile = False)
+        pa.diffusion.diff_profile("data/check_tables.obj", infty_profile = False)
+        pa.diffusion.df_profile("data/check_tables.obj")
+
+        # Check kwargs of transition heatmap
+        kwargs = {"vmin":0,"vmax":0.5, "xticklabels":30, "yticklabels":30,"cbar":True,"square":False}
+        pa.diffusion.plot_trans_mat("output/diff_mc_cyl_s.obj",10,kwargs)
 
     # Test currently only one can be initialize
     def test_init_bin_mc(self):
@@ -439,6 +482,8 @@ class UserModelCase(unittest.TestCase):
     # Gyration #
     ############
     def test_gyration(self):
+        # self.skipTest("Temporary")
+
         # Plot gyration radius
         plt.figure()
         mean_s = pa.gyration.plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", is_mean=True)
