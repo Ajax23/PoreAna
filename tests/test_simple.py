@@ -338,9 +338,12 @@ class UserModelCase(unittest.TestCase):
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
 
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
+
         # Set the MC class and options
         model._len_step = [10]
-        MC = pa.MC(model,100,2000,print_output=True)
+        MC = pa.MC(model,1,2000,print_output=True)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")

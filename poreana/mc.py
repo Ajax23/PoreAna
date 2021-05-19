@@ -78,7 +78,7 @@ class MC:
         self._delta_diff_radial_start = delta_diff_radial
 
         # Set MC options
-        self._nmc = nmc                                      # Number of MC steps
+        self._nmc = nmc + 1                                      # Number of MC steps
         self._nmc_eq = nmc_eq                                # Number of MC steps
         self._nmc_eq_radial = nmc_eq_radial                  # Number of MC steps
         self._nmc_radial = nmc_radial                        # Number of MC steps
@@ -248,35 +248,30 @@ class MC:
                     df_profile_flk += copy.deepcopy(model._df_bin)
 
                     # Calculate the mean profile over all runs
-                    mean_diff_profile_flk = [diff_profile_flk[i] /
-                                             ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
-                    mean_df_profile_flk = [df_profile_flk[i] /
-                                           ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
+                    mean_diff_profile_flk = [diff_profile_flk[i] / ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
+                    mean_df_profile_flk = [df_profile_flk[i] / ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
 
                     # Calculate the difference between the current profile and the mean of all profiles
                     delta_diff = ((model._diff_bin) - mean_diff_profile_flk)**2
                     delta_df = ((model._df_bin) - mean_df_profile_flk)**2
 
                     # Determine the fluctuation
-                    self._fluctuation_diff = np.sqrt(
-                        (self._fluctuation_diff + np.mean(delta_diff))/(imc+1))
-                    self._fluctuation_df = np.sqrt(
-                        (self._fluctuation_df + np.mean(delta_df))/(imc+1))
+                    self._fluctuation_diff = np.sqrt((self._fluctuation_diff + np.mean(delta_diff))/(imc+1))
+                    self._fluctuation_df = np.sqrt((self._fluctuation_df + np.mean(delta_df))/(imc+1))
+
 
                     # Start to print the output after the Equilibrium phase and if _print_output is true
                     if imc == self._nmc_eq and self._print_output == True:
                         print("### Start production\n")
-                        print("--------------------------------------------------------------------------------\n")
-                        print("imc"+" "+"accepted_df (%)"+ " "+ "accepted_diff (%)"+ " "+ "fluktuation_df"+ " "+ "fluktuation_diff" + "\n")
+                        print("--------------------------------------------------------------------------------")
+                        print("imc"+" "+"accepted_df (%)"+ " "+ "accepted_diff (%)"+ " "+ "fluktuation_df"+ " "+ "fluktuation_diff" )
+                        print("--------------------------------------------------------------------------------")
                     if (imc % self._print_freq == 0) and imc > self._nmc_eq and self._print_output == True:
-                        # print(imc, "\t", "%.2f" % (float(self._nacc_df)*100/(imc+1)), "\t\t\t", "%.2f" % (float(self._nacc_diff)*100/(imc+1)),
-                        #       "\t\t\t",  "%.4e" % self._fluctuation_df, "\t", "\t", "%.4e" % self._fluctuation_diff)
-                        # Progress
-                        sys.stdout.write(str(imc)+" "+ str(round(float(self._nacc_df)*100/(imc+1),2)) +" "+ str(round((self._nacc_diff)*100/(imc+1),2))+ " "+ str(self._fluctuation_df) +" "+ str(self._fluctuation_diff) +"\r")
+                        sys.stdout.write(str(imc)+" "+ str("%.2f"%(self._nacc_df*100/(imc+1))) +" "+ str("%.2f"%(self._nacc_diff*100/(imc+1)))+" "+str("%.2e"%self._fluctuation_df) +" "+ str("%.2e"%self._fluctuation_diff) +"\r")
                         sys.stdout.flush()
-                        print()
                         if imc%2000==0:
-                            print(str(imc)+" "+ str(float(self._nacc_df)*100/(imc+1))+" "+ str(float(self._nacc_diff)*100/(imc+1))+" "+ str(self._fluctuation_df)+" "+ str(self._fluctuation_diff) + "\n")
+                            print(str(imc)+" "+ str("%.2f"%(self._nacc_df*100/(imc+1))) +" "+ str("%.2f"%(self._nacc_diff*100/(imc+1)))+" "+str("%.2e"%self._fluctuation_df) +" "+ str("%.2e"%self._fluctuation_diff))
+
 
             if self._print_output == True:
                 print("--------------------------------------------------------------------------------\n\n")
@@ -315,7 +310,7 @@ class MC:
                 if self._print_output == True:
                     if self._log_like==0:
                             print("likelihood init", self._log_like_radial, "\n")
-                print("Start equilibration\n")
+                    print("### Start equilibration\n")
 
                 # Start MC Alogrithm for the radial diffusion
                 for imc in range(self._nmc_radial+self._nmc_eq_radial):
@@ -345,8 +340,8 @@ class MC:
 
                         # Print output in production phase
                         if imc == self._nmc_eq_radial and self._print_output == True:
-                            print("Start production\n")
-                            print("--------------------------------------------------------------------------------\n")
+                            print("### Start production\n")
+                            print("--------------------------------------------------------------------------------")
                             print("imc", "\t", "likelihood", "\t", "\t", "accepted_diff_rad (%)",
                                   "\t", "diff_rad_step_width", "\t", "fluktuation_diff_rad")
                         if (imc % self._print_freq == 0) and imc > self._nmc_eq_radial and self._print_output == True:
@@ -354,7 +349,8 @@ class MC:
                                 imc+1)), "\t\t\t", "%.5f" % self._delta_diff_radial, "\t", "\t", "%.4e" % self._fluctuation_diff_radial)
                             print(self._nacc_diff_radial)
                             print(np.mean(np.exp(model._diff_radial_bin + model._diff_radial_unit)) * 10**-6)
-                print("--------------------------------------------------------------------------------\n")
+                if self._print_output == True:
+                    print("--------------------------------------------------------------------------------\n")
 
                 # Save results for the current lag time
                 # copy.deepcopy(model._diff_radial_bin)
@@ -382,8 +378,7 @@ class MC:
             print("--------------------------------------------------------------------------------\n")
 
             # Set data structure fpr pandas table
-            data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step], [str("%.0f" % nacc_df_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_radial_mean[i])
-                                                                                                                                                                                                                                                                                                                                    for i in model._len_step], [str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % float(nacc_diff_radial_mean[i]*100/(self._nmc_eq_radial+self._nmc_radial))) for i in model._len_step]]
+            data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step], [str("%.0f" % nacc_df_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_radial_mean[i]) for i in model._len_step], [str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % float(nacc_diff_radial_mean[i]*100/(self._nmc_eq_radial+self._nmc_radial))) for i in model._len_step]]
 
             # Set options for pandas table
             df = pd.DataFrame(data, index=list(['fluctuation df', 'fluctuation diff', 'fluctuation rad. diff', 'acc df steps', 'acc diff steps',
@@ -783,77 +778,77 @@ class MC:
 
         return rate
 
-    def init_rate_matrix_nopbc(self, n, diff_bin, df_bin):
-        """
-        This function estimate the rate Matrix R for the current free energy
-        and log diffusion profiles over the bins for a reflected wall. The
-        dimension of the matrix is :math:`n \\times n` with n as number of
-        the bins. The calculation of the secondary diagonal elements in the
-        rate matrix :math:`R` happen with the following equations
-
-        .. math::
-
-            R_{i+1,i} = \\exp  \\underbrace{\\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right)}_{\\mathrm{diff}_\\mathrm{bin}}  - 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
-
-        .. math::
-
-            R_{i,i+1} = \\exp \\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta z^2}\\right) \\right) + 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
-
-        with :math:`\\Delta z` as the bin width, :math:`D_{i+\\frac{1}{2}}`
-        as the diffusion between to bins and :math:`F_i` as free energy in
-        the bin center.
-        The diagonal elements can be calculated with the secondary elements
-        determine with the equations above.
-
-        .. math::
-
-            R_{i,i} = -R_{i-1,i}-R_{i+1,i}
-
-        The corner of the rate matrix is set with:
-
-        .. math::
-
-            R_{1,1} = - R_{2,1} - R_{N,1}
-
-        .. math::
-
-            R_{N,N} = - R_{N-1,N} - R_{1,N}
-
-
-        Parameters
-        ----------
-        n : integer
-            Link to poresystem object file
-        diff_bin : list
-            log diffusion profile over the bins
-        df_bin : list
-            free energy profile over the bins
-
-        Returns
-        -------
-        rate matrix :
-            rate matrix for the current free energy and log diffusion profile
-        """
-
-        # Initialize rate matrix
-        rate = np.float64(np.zeros((n, n)))
-
-        # off-diagonal elements
-        delta_df_bin = df_bin[1:]-df_bin[:-1]
-        exp1 = diff_bin[:n-1] - 0.5 * delta_df_bin
-        exp2 = diff_bin[:n-1] + 0.5 * delta_df_bin
-        rate.ravel()[n::n+1] = np.exp(exp1)[:n-1]
-        rate.ravel()[1::n+1] = np.exp(exp2)[:n-1]
-
-        # corners for a reflected wall
-        rate[0, 0] = - rate[1, 0]
-        rate[-1, -1] = - rate[-2, -1]
-
-        # diagonal elements
-        for i in range(1, n-1):
-            rate[i, i] = - rate[i-1, i] - rate[i+1, i]
-
-        return rate
+    # def init_rate_matrix_nopbc(self, n, diff_bin, df_bin):
+    #     """
+    #     This function estimate the rate Matrix R for the current free energy
+    #     and log diffusion profiles over the bins for a reflected wall. The
+    #     dimension of the matrix is :math:`n \\times n` with n as number of
+    #     the bins. The calculation of the secondary diagonal elements in the
+    #     rate matrix :math:`R` happen with the following equations
+    #
+    #     .. math::
+    #
+    #         R_{i+1,i} = \\exp  \\underbrace{\\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right)}_{\\mathrm{diff}_\\mathrm{bin}}  - 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
+    #
+    #     .. math::
+    #
+    #         R_{i,i+1} = \\exp \\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta z^2}\\right) \\right) + 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
+    #
+    #     with :math:`\\Delta z` as the bin width, :math:`D_{i+\\frac{1}{2}}`
+    #     as the diffusion between to bins and :math:`F_i` as free energy in
+    #     the bin center.
+    #     The diagonal elements can be calculated with the secondary elements
+    #     determine with the equations above.
+    #
+    #     .. math::
+    #
+    #         R_{i,i} = -R_{i-1,i}-R_{i+1,i}
+    #
+    #     The corner of the rate matrix is set with:
+    #
+    #     .. math::
+    #
+    #         R_{1,1} = - R_{2,1} - R_{N,1}
+    #
+    #     .. math::
+    #
+    #         R_{N,N} = - R_{N-1,N} - R_{1,N}
+    #
+    #
+    #     Parameters
+    #     ----------
+    #     n : integer
+    #         Link to poresystem object file
+    #     diff_bin : list
+    #         log diffusion profile over the bins
+    #     df_bin : list
+    #         free energy profile over the bins
+    #
+    #     Returns
+    #     -------
+    #     rate matrix :
+    #         rate matrix for the current free energy and log diffusion profile
+    #     """
+    #
+    #     # Initialize rate matrix
+    #     rate = np.float64(np.zeros((n, n)))
+    #
+    #     # off-diagonal elements
+    #     delta_df_bin = df_bin[1:]-df_bin[:-1]
+    #     exp1 = diff_bin[:n-1] - 0.5 * delta_df_bin
+    #     exp2 = diff_bin[:n-1] + 0.5 * delta_df_bin
+    #     rate.ravel()[n::n+1] = np.exp(exp1)[:n-1]
+    #     rate.ravel()[1::n+1] = np.exp(exp2)[:n-1]
+    #
+    #     # corners for a reflected wall
+    #     rate[0, 0] = - rate[1, 0]
+    #     rate[-1, -1] = - rate[-2, -1]
+    #
+    #     # diagonal elements
+    #     for i in range(1, n-1):
+    #         rate[i, i] = - rate[i-1, i] - rate[i+1, i]
+    #
+    #     return rate
 
     ##############
     # Likelihood #
@@ -895,14 +890,14 @@ class MC:
                     rate = self.init_rate_matrix_pbc(model._bin_num, model._diff_bin, temp)
 
         # Calculate the current rate matrix for a trajectory with a reflected wall in z direction
-        elif model._pbc == False:
-            if temp is None:
-                rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, model._df_bin)
-            else:
-                if self._choice > 0.5:
-                    rate = self.init_rate_matrix_nopbc(model._bin_num,  temp, model._df_bin)
-                else:
-                    rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, temp)
+        # elif model._pbc == False:
+        #     if temp is None:
+        #         rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, model._df_bin)
+        #     else:
+        #         if self._choice > 0.5:
+        #             rate = self.init_rate_matrix_nopbc(model._bin_num,  temp, model._df_bin)
+        #         else:
+        #             rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, temp)
 
         # Calculate the propagtor
         propagator = scipy.linalg.expm(self._len_step * model._dt * rate)
