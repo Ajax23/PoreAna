@@ -24,7 +24,6 @@ poreana\.diffusion
 
      diffusion_fit
      diffusion_pore_fit
-     diffusion_radial_fit
      plot_trans_mat
 
    .. rubric:: Profiles
@@ -33,7 +32,6 @@ poreana\.diffusion
 
 
      diff_profile
-     diff_radial_profile
      diff_pore_profile
      df_profile
 

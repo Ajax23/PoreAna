@@ -298,68 +298,68 @@ class MC:
             #####################################################
 
             # Radial diffusion
-            if do_radial == True:
-                # Start MC calucalation for the radial diffusion
-                print("## Calculate radial diffusion")
-
-                # Calculated the initalize likelihood and bessel function
-                self.setup_bessel_box(model)
-                self._log_like_radial = self.log_likelihood_radial(model, model._diff_radial_bin)
-
-                # Print first likelihood
-                if self._print_output == True:
-                    if self._log_like==0:
-                            print("likelihood init", self._log_like_radial, "\n")
-                    print("### Start equilibration\n")
-
-                # Start MC Alogrithm for the radial diffusion
-                for imc in range(self._nmc_radial+self._nmc_eq_radial):
-
-                    # Do a MC move in the radial diffusion profile
-                    self.mcmove_diffusion_radial(model)
-
-                    # Update the MC movewidth
-                    self.update_movewidth_mc(imc, True)
-
-                    # Calculate the fluktuation and start the produktion
-                    if imc >= self._nmc_eq_radial:
-
-                        # Add all profiles
-                        diff_radial_profile_flk += copy.deepcopy(model._diff_radial_bin)
-
-                        # Calculate the mean profile over all runs
-                        mean_diff_radial_profile_flk = [diff_radial_profile_flk[i]/((imc-self._nmc_eq_radial)+1) for i in range(model._bin_num)]
-
-                        # Calculate the difference between the current profile and the mean of all profiles
-                        delta_diff_radial = ((model._diff_radial_bin) -
-                                             mean_diff_radial_profile_flk)**2
-
-                        # Determine the fluctuation
-                        self._fluctuation_diff_radial = np.sqrt(
-                            (self._fluctuation_diff_radial + np.mean(delta_diff_radial))/(imc+1))
-
-                        # Print output in production phase
-                        if imc == self._nmc_eq_radial and self._print_output == True:
-                            print("### Start production\n")
-                            print("--------------------------------------------------------------------------------")
-                            print("imc", "\t", "likelihood", "\t", "\t", "accepted_diff_rad (%)",
-                                  "\t", "diff_rad_step_width", "\t", "fluktuation_diff_rad")
-                        if (imc % self._print_freq == 0) and imc > self._nmc_eq_radial and self._print_output == True:
-                            print(imc, "\t", "%.6f" % self._log_like_radial, "\t", "%.2f" % (float(self._nacc_diff_radial)*100/(
-                                imc+1)), "\t\t\t", "%.5f" % self._delta_diff_radial, "\t", "\t", "%.4e" % self._fluctuation_diff_radial)
-                            print(self._nacc_diff_radial)
-                            print(np.mean(np.exp(model._diff_radial_bin + model._diff_radial_unit)) * 10**-6)
-                if self._print_output == True:
-                    print("--------------------------------------------------------------------------------\n")
-
-                # Save results for the current lag time
-                # copy.deepcopy(model._diff_radial_bin)
-                list_diff_radial_profile[self._len_step] = mean_diff_radial_profile_flk
-                list_diff_radial_coeff[self._len_step] = copy.deepcopy(model._diff_radial_coeff)
-                list_diff_radial_fluc[self._len_step] = self._fluctuation_diff_radial
-
-                # Mean over all lag times calculations
-                nacc_diff_radial_mean[self._len_step] = copy.deepcopy(self._nacc_diff_radial)
+            # if do_radial == True:
+            #     # Start MC calucalation for the radial diffusion
+            #     print("## Calculate radial diffusion")
+            #
+            #     # Calculated the initalize likelihood and bessel function
+            #     self.setup_bessel_box(model)
+            #     self._log_like_radial = self.log_likelihood_radial(model, model._diff_radial_bin)
+            #
+            #     # Print first likelihood
+            #     if self._print_output == True:
+            #         if self._log_like==0:
+            #                 print("likelihood init", self._log_like_radial, "\n")
+            #         print("### Start equilibration\n")
+            #
+            #     # Start MC Alogrithm for the radial diffusion
+            #     for imc in range(self._nmc_radial+self._nmc_eq_radial):
+            #
+            #         # Do a MC move in the radial diffusion profile
+            #         self.mcmove_diffusion_radial(model)
+            #
+            #         # Update the MC movewidth
+            #         self.update_movewidth_mc(imc, True)
+            #
+            #         # Calculate the fluktuation and start the produktion
+            #         if imc >= self._nmc_eq_radial:
+            #
+            #             # Add all profiles
+            #             diff_radial_profile_flk += copy.deepcopy(model._diff_radial_bin)
+            #
+            #             # Calculate the mean profile over all runs
+            #             mean_diff_radial_profile_flk = [diff_radial_profile_flk[i]/((imc-self._nmc_eq_radial)+1) for i in range(model._bin_num)]
+            #
+            #             # Calculate the difference between the current profile and the mean of all profiles
+            #             delta_diff_radial = ((model._diff_radial_bin) -
+            #                                  mean_diff_radial_profile_flk)**2
+            #
+            #             # Determine the fluctuation
+            #             self._fluctuation_diff_radial = np.sqrt(
+            #                 (self._fluctuation_diff_radial + np.mean(delta_diff_radial))/(imc+1))
+            #
+            #             # Print output in production phase
+            #             if imc == self._nmc_eq_radial and self._print_output == True:
+            #                 print("### Start production\n")
+            #                 print("--------------------------------------------------------------------------------")
+            #                 print("imc", "\t", "likelihood", "\t", "\t", "accepted_diff_rad (%)",
+            #                       "\t", "diff_rad_step_width", "\t", "fluktuation_diff_rad")
+            #             if (imc % self._print_freq == 0) and imc > self._nmc_eq_radial and self._print_output == True:
+            #                 print(imc, "\t", "%.6f" % self._log_like_radial, "\t", "%.2f" % (float(self._nacc_diff_radial)*100/(
+            #                     imc+1)), "\t\t\t", "%.5f" % self._delta_diff_radial, "\t", "\t", "%.4e" % self._fluctuation_diff_radial)
+            #                 print(self._nacc_diff_radial)
+            #                 print(np.mean(np.exp(model._diff_radial_bin + model._diff_radial_unit)) * 10**-6)
+            #     if self._print_output == True:
+            #         print("--------------------------------------------------------------------------------\n")
+            #
+            #     # Save results for the current lag time
+            #     # copy.deepcopy(model._diff_radial_bin)
+            #     list_diff_radial_profile[self._len_step] = mean_diff_radial_profile_flk
+            #     list_diff_radial_coeff[self._len_step] = copy.deepcopy(model._diff_radial_coeff)
+            #     list_diff_radial_fluc[self._len_step] = self._fluctuation_diff_radial
+            #
+            #     # Mean over all lag times calculations
+            #     nacc_diff_radial_mean[self._len_step] = copy.deepcopy(self._nacc_diff_radial)
 
             # If no radial diffusion is calculated set the initalize condition on the result lists
             if do_radial == False:
@@ -588,7 +588,7 @@ class MC:
             r = np.random.random()  # in [0,1[
 
             # acceptance criterion
-            if r < np.exp(dlog / self._temp):  # warum geht hier eig die Temperatur mit ein?
+            if r < np.exp(dlog / self._temp):
 
                 # Save new diffusion profile (after MC step)
                 model._df_bin[:] = df_bin_temp[:]
@@ -688,9 +688,9 @@ class MC:
                 self._nacc_df_update = 0
                 self._nacc_diff_update = 0
 
-            if ((imc+1) % self._num_mc_update == 0) and radial == True:
-                self._delta_diff_radial *= np.exp(0.1 * (float(self._nacc_diff_radial_update) / self._num_mc_update - 0.3))
-                self._nacc_diff_radial_update = 0
+            # if ((imc+1) % self._num_mc_update == 0) and radial == True:
+            #     self._delta_diff_radial *= np.exp(0.1 * (float(self._nacc_diff_radial_update) / self._num_mc_update - 0.3))
+            #     self._nacc_diff_radial_update = 0
 
     ###############
     # Rate matrix #
