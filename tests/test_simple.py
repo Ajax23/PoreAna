@@ -409,15 +409,15 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 1
-        self.assertEqual(abs(MC.log_likelihood_z(model)-(-128852.33005868513) < 10**-5),True)
+        self.assertEqual(round(MC.log_likelihood_z(model),2),-128852.33)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 2
-        self.assertEqual(abs(MC.log_likelihood_z(model)-(-165354.76731180004) < 10**-5),True)
+        self.assertEqual(round(MC.log_likelihood_z(model),2),-165354.77)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 10
-        self.assertEqual(abs(MC.log_likelihood_z(model)-(-258946.70553844847) < 10**-5),True)
+        self.assertEqual(round(MC.log_likelihood_z(model),2),-258946.71)
 
 
     # Check initial profiles

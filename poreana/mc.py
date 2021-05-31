@@ -1,16 +1,11 @@
 import numpy as np
 import scipy
 import scipy.linalg
-import numpy.linalg
 import copy
 import sys
-
 import poreana.utils as utils
 import pandas as pd
-from numpy import array
-from statistics import mean
-from .model import Model
-from collections import deque
+
 
 
 class MC:
@@ -175,15 +170,15 @@ class MC:
             lagtime_string = "Lagtime: " + str(self._len_step * model._dt) + " ps"
             if self._print_output == True:
                 print("\n")
-                print("#"+lagtime_string+"\n")
+                print("# "+lagtime_string+"\n")
 
-            # Initialize lists for the profiles
-            results_diff_profile = {}
-            results_df_profile = {}
-            results_diff_coeff = {}
-            results_df_coeff = {}
-            nacc_diff = {}
-            nacc_df = {}
+            # # Initialize lists for the profiles
+            # results_diff_profile = {}
+            # results_df_profile = {}
+            # results_diff_coeff = {}
+            # results_df_coeff = {}
+            # nacc_diff = {}
+            # nacc_df = {}
 
             # Initialize Model for every MC Run
             model.init_model()
@@ -192,15 +187,10 @@ class MC:
             # Start calucalation for the normal diffusion and free energy Profile
             if self._print_output == True:
                 print("## Calculate normal diffusion\n")
+                print("### Start equilibration\n")
 
             # Calculated the initalize likelihood
             self._log_like = self.log_likelihood_z(model)
-
-            # Print first likelihood
-            if self._print_output == True:
-                if self._log_like==0:
-                    print("likelihood init", self._log_like, "\n")
-                print("### Start equilibration\n")
 
             # Initialize a new statistic
             self.init_stats(model)
@@ -212,9 +202,9 @@ class MC:
 
             # Initialize the fluction every MC run
             diff_profile_flk = np.float64(np.zeros(model._bin_num))
-            diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
+            # diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
             df_profile_flk = np.float64(np.zeros(model._bin_num))
-            mean_diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
+            # mean_diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
             self._fluctuation_diff = 0
             self._fluctuation_diff_radial = 0
             self._fluctuation_df = 0
@@ -264,7 +254,7 @@ class MC:
                     if imc == self._nmc_eq and self._print_output == True:
                         print("### Start production\n")
                         print("--------------------------------------------------------------------------------")
-                        print("imc"+" "+"accepted_df (%)"+ " "+ "accepted_diff (%)"+ " "+ "fluktuation_df"+ " "+ "fluktuation_diff" )
+                        print("| imc"+" | "+"accepted_df(%)"+ " | "+ "accepted_diff(%)"+ " | "+ "fluktuation_df"+ " | "+ " fluktuation_diff |" )
                         print("--------------------------------------------------------------------------------")
                     if (imc % self._print_freq == 0) and imc > self._nmc_eq and self._print_output == True:
                         sys.stdout.write(str(imc)+" "+ str("%.2f"%(self._nacc_df*100/(imc+1))) +" "+ str("%.2f"%(self._nacc_diff*100/(imc+1)))+" "+str("%.2e"%self._fluctuation_df) +" "+ str("%.2e"%self._fluctuation_diff) +"\r")
@@ -876,7 +866,6 @@ class MC:
             likelihood for the current profiles in a simulation box
         """
         # Initialize log_like
-        log_like = np.float64(0.0)
         tiny = 1e-10
 
         # Calculate the current rate matrix for a trajectory with periodic boundary condition

@@ -13,7 +13,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import pandas as pd
 import itertools
-import random
 
 import poreana.utils as utils
 import poreana.density as density
@@ -480,7 +479,7 @@ def diffusion_fit(link, len_step=[], is_std=True):
     # Set vectors for plotting
     D_mean_vec = [D_mean[i] * 10 ** 9 for i in range(len(lagtime_inverse))]
     lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
-    x_vec = x = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
+    x_vec = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
 
     # fit a linear line
     fit = np.poly1d(np.polyfit(lag_time_vec, D_mean_vec, 1))
@@ -527,7 +526,6 @@ def diff_profile(link, len_step=[], infty_profile=True):
     # Load Results from the output object file
     results = utils.load(link)
     diff_bin = results["diff_profile"]
-    df_bin = results["df_profile"]
     inp = results["model"]
     diff_unit = inp["diffusion unit"]
     dt = inp["len_frame"]
@@ -643,7 +641,6 @@ def diffusion_pore_fit(link_pore, link, len_step=[], is_std=True):
     # Load Results from the output object file
     results = utils.load(link)
     diff_bin = results["diff_profile"]
-    df_bin = results["df_profile"]
     inp = results["model"]
     bins = inp["bins"]
     diff_unit = inp["diffusion unit"]
@@ -788,14 +785,13 @@ def diff_pore_profile(link_pore, link, len_step=[], infty_profile=False):
     # Load Results from the output object file
     results = utils.load(link)
     diff_bin = results["diff_profile"]
-    df_bin = results["df_profile"]
     inp = results["model"]
     bins = inp["bins"]
     diff_unit = inp["diffusion unit"]
     dt = inp["len_frame"]
     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
     diff_bin_pore = {}
-    diff = np.zeros(len(bins))
+
     # Load pore obj file
     pore = utils.load(link_pore)
     res = pore.reservoir()
@@ -936,8 +932,7 @@ def print_statistics_mc(link_out, print_con=False):
     inp = results["inp"]
     nmc_eq = inp["MC steps eq"]
     nmc = inp["MC steps"]
-    num_mc_update = inp["step width update"]
-    print_freq = inp["print freq"]
+
 
     # Read MC statistic
     nacc_df_mean = results["nacc_df"]

@@ -12,12 +12,11 @@ from poreana.model import StepModel
 from poreana.model import StepModel
 
 from poreana.mc import MC
-from poreana.diffusion import *
 
 from poreana.sample import Sample
 
 __all__ = [
     "Sample",
-    "adsorption", "density", "diffusion", "Model","CosinusModel","StepModel","MC"
+    "adsorption", "density", "diffusion", "Model","CosineModel","StepModel","MC",
     "geom", "utils"
 ]
