@@ -15,7 +15,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 import poreana.utils as utils
-import poreana.density as density
 
 
 ###################
@@ -135,14 +134,14 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
             x = x if isinstance(x, list) or isinstance(x, np.ndarray) else [x]
 
             # Get bessel function zeros
-            jz = sp.special.jnp_zeros(1, math.ceil(b))
+            jz = sc.special.jnp_zeros(1, math.ceil(b))
             # Calculate sum
             sm = [[8/(z**2*(z**2-1))*math.exp(-(z/c)**2*a*t) for z in jz] for t in x]
             # Final equation
             return [c**2*(1-sum(s)) for s in sm]
 
         # Fit function
-        popt, pcov = sp.optimize.curve_fit(diff_rad, [x*1e12 for x in time_ax], msd_r_n, p0=[1, 20, pore["diam"]/2-0.2], bounds=(0, np.inf))
+        popt, pcov = sc.optimize.curve_fit(diff_rad, [x*1e12 for x in time_ax], msd_r_n, p0=[1, 20, pore["diam"]/2-0.2], bounds=(0, np.inf))
 
         print("Diffusion radial: "+"%.3f" % (popt[0]*1e3)+" 10^-9 m^2 s^-1; Number of zeros: "+"%2i" % (math.ceil(popt[1]))+"; Radius: "+"%5.2f" % popt[2])
 
@@ -486,7 +485,7 @@ def mc_fit(link, len_step=[], is_std=True):
             fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
 
             # Set the x value for the linear fit
-            x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
+            # x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
 
             # Set the fitted diffusion coefficient on the results list
             res[i] = fit(0)
