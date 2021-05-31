@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-df\_profile
-===========
+bins\_plot
+==========
 
 .. currentmodule:: poreana.diffusion
 
-.. autofunction:: df_profile
+.. autofunction:: bins_plot

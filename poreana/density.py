@@ -161,7 +161,7 @@ def calculate(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True
     return  {"sample": sample, "num_dens": num_dens, "mean": mean, "dens": dens, "diff": num_diff}
 
 
-def plot(density, intent="", target_dens=0, is_mean=False):
+def plot(density, intent="", target_dens=0, is_mean=False, kwargs={}):
     """This function plots the density of the given object. If an intent is
     given instead, only a plot-function will be called. Available options
     for ``intent`` are
@@ -180,6 +180,8 @@ def plot(density, intent="", target_dens=0, is_mean=False):
         Target density for plot
     is_mean : bool, optional
         True to plot mean values
+    kwargs: dict, optional
+        Dictionary with plotting parameters (only for given intent)
     """
     # Define bins
     width = {}
@@ -224,5 +226,5 @@ def plot(density, intent="", target_dens=0, is_mean=False):
             print("Invalid intent. Check documentation for available options.")
             return
 
-        sns.lineplot(x=width[intent], y=density["num_dens"][intent])
+        sns.lineplot(x=width[intent], y=density["num_dens"][intent], **kwargs)
         plt.xlim([0, width[intent][-1]])

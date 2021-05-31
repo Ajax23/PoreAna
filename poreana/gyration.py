@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import poreana.utils as utils
 
 
-def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
+def plot(data_link_gyr, data_link_dens, intent="", is_mean=False, is_norm=False, kwargs={}):
     """This function plots the gyration radius. If an intent is
     given instead, only a plot-function will be called. Available
     options for ``intent`` are
@@ -32,6 +32,10 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
         Intent for plotting
     is_mean : bool, optional
         True to plot mean values
+    is_norm : bool, optional
+        True to normalize x-axis
+    kwargs: dict, optional
+        Dictionary with plotting parameters (only with given intent)
 
     Returns
     -------
@@ -45,6 +49,11 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
     width = {}
     width["in"] = gyr["data"]["in_width"][:-1] if is_pore else []
     width["ex"] = gyr["data"]["ex_width"]
+
+    if is_norm:
+        for key, val in width.items():
+            x_max = val[-1]
+            width[key] = [x/x_max for x in val]
 
     areas = ["in", "ex"] if is_pore else ["ex"]
 
@@ -82,7 +91,7 @@ def plot(data_link_gyr, data_link_dens, intent="", is_mean=False):
             print("Invalid intent. Check documentation for available options.")
             return
 
-        sns.lineplot(x=width[intent], y=gyration[intent])
+        sns.lineplot(x=width[intent], y=gyration[intent], **kwargs)
         plt.xlim([0, width[intent][-1]])
 
     return mean

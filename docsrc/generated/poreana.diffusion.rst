@@ -11,36 +11,33 @@ poreana\.diffusion
    .. autosummary::
 
       bins
+      bins_plot
       cui
       mean
 
    MC Diffusion
-   ============
-
+   ------------
 
    .. rubric:: Analysis
 
    .. autosummary::
 
-     diffusion_fit
-     diffusion_pore_fit
-     plot_trans_mat
+     mc_fit
+     mc_fit_pore
+     mc_trans_mat
 
    .. rubric:: Profiles
 
    .. autosummary::
 
-
-     diff_profile
-     diff_pore_profile
-     df_profile
+     mc_profile
+     mc_profile_pore
 
    .. rubric:: Input & Output Tables
 
    .. autosummary::
 
-
-     print_mc_inputs
-     print_model_inputs
-     print_statistics_mc
-     print_coeff
+     mc_inputs
+     mc_model
+     mc_statistics
+     mc_lag_time

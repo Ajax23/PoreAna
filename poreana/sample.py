@@ -7,9 +7,9 @@
 
 import sys
 import math
+import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
-import numpy as np
 
 import porems as pms
 import poreana.utils as utils
@@ -184,7 +184,8 @@ class Sample:
         return {"width": width, "bins": bins}
 
     def _bin_mc(self, bin_num):
-        """This function creates a simple bin structure for the pore and resevoir.
+        """This function creates a simple bin structure for the pore and
+        resevoir.
 
         Parameters
         ----------
@@ -196,7 +197,6 @@ class Sample:
         data : dictionary
             Dictionary containing a list of the bin width and a data list
         """
-
         # Ask for system type (box or pore system)
         if self._pore:
             z_length = self._pore_props["box"][2]
@@ -424,7 +424,6 @@ class Sample:
             print("Bin diffusion currently only usable for pore system.")
             return
 
-
         # Define window length
         len_window = len_obs/len_step/len_frame+1
         if not len_window == int(len_window):
@@ -603,11 +602,10 @@ class Sample:
                             data["n"][idx_ref][i] += norm[i]
 
 
-
     ################
     # MC Diffusion #
     ################
-    def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12,  com = True, pbc = True):
+    def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12):
         """Enable diffusion sampling routine with the MC Alogrithm.
 
         Parameters
@@ -620,16 +618,13 @@ class Sample:
             Number of bins to be used
         len_frame : float, optional
             Length of a frame in seconds
-        com : bool (default = True)
-            if it is True the center of mass of the molecules was used
-        pbc : bool (default = True)
-            trajectory contains periodic boundary conditions
         """
-
         # Initialize
         if self._is_diffusion_bin:
-            print("Currently only bin or MC can initialize for samling.")
+            print("Currently only bin or MC can initialize for sampling.")
             return
+
+        # Enable routine
         self._is_diffusion_mc = True
 
         # Calculate bins
@@ -638,7 +633,7 @@ class Sample:
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
                               "bin_num": bin_num, "len_step": len_step,
-                              "len_frame": len_frame, "pbc": pbc}
+                              "len_frame": len_frame, "is_pbc": True}
 
     def _diffusion_mc_data(self):
         """Create mc diffusion data structure.
@@ -658,7 +653,6 @@ class Sample:
         # Initialize transition matrix
         for step in len_step:
             data[step] = np.zeros((bin_num+2,bin_num+2),int)
-
 
         return data
 
@@ -715,7 +709,6 @@ class Sample:
         frame_id : integer
             Current frame_id
         """
-
         # Initialize
         bin_num = self._diff_mc_inp["bin_num"]
         len_step = self._diff_mc_inp["len_step"]
@@ -741,7 +734,6 @@ class Sample:
                         start = idx_list_mc[-(step+1)][res_id]
                         end = idx_list_mc[-1][res_id]
                         data[step][end,start] += 1
-
 
 
     ############
@@ -853,7 +845,6 @@ class Sample:
             # Pickle
             utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
 
-
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
             inp_diff.update(self._diff_mc_inp)
@@ -937,7 +928,7 @@ class Sample:
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
 
                 # Remove broken molecules
-                if self._is_diffusion_bin or self._is_density:
+                if not self._is_diffusion_mc:
                     is_broken = False
                     for i in range(3):
                         is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
@@ -951,7 +942,7 @@ class Sample:
                     com = com_no_pbc
 
                 # Sample if molecule not broken near boundary
-                if self._is_diffusion_bin or self._is_density:
+                if not self._is_diffusion_mc:
                     if not is_broken:
                         # Calculate distance towards center axis
                         if isinstance(self._pore, pms.PoreCylinder):
@@ -990,4 +981,5 @@ class Sample:
                 sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")
                 sys.stdout.flush()
         print()
+
         return output

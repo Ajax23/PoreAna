@@ -5,8 +5,8 @@ import copy
 import shutil
 import unittest
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -80,8 +80,6 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
         sample.init_diffusion_mc("output/diff_mc_box.obj", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
-
-
 
 
     #########
@@ -242,10 +240,10 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(mean_s, 2), 1.13)
         self.assertEqual(round(mean_p, 2), 1.13)
 
+
     ################
     # MC Diffusion #
     ################
-
     # Test the entire mc diffusion method
     def test_mc_pore(self):
         # self.skipTest("Temporary")
@@ -348,9 +346,6 @@ class UserModelCase(unittest.TestCase):
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
 
-
-
-
     # Test parallelisation of transition matrix
     def test_sample_p_s(self):
         # self.skipTest("Temporary")
@@ -418,7 +413,6 @@ class UserModelCase(unittest.TestCase):
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 10
         self.assertEqual(round(MC.log_likelihood_z(model),2),-258946.71)
-
 
     # Check initial profiles
     def test_init_profiles(self):
