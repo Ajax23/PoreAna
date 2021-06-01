@@ -11,6 +11,7 @@ import poreana.adsorption as adsorption
 import poreana.density as density
 import poreana.diffusion as diffusion
 import poreana.freeenergy as freeenergy
+import poreana.tables as tables
 import poreana.gyration as gyration
 
 import poreana.geometry as geom
@@ -21,5 +22,5 @@ __all__ = [
     "Sample",
     "Model", "CosineModel", "StepModel", "MC",
     "adsorption", "density", "diffusion", "freeenergy",
-    "geom", "utils"
+    "geom", "utils","tables"
 ]

@@ -260,32 +260,32 @@ class UserModelCase(unittest.TestCase):
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_mean, diff_table = pa.diffusion.diffusion_fit("output/diff_test_mc.obj")
-        plt.savefig("output/diffusion_fit.svg", format="svg", dpi=1000)
+        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj")
+        plt.savefig("output/mc_fit.svg", format="svg", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.diffusion_pore_fit("data/pore_system_cylinder.obj","output/diff_test_mc.obj")
-        plt.savefig("output/diffusion_pore_fit.svg", format="svg", dpi=1000)
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit_pore("data/pore_system_cylinder.obj","output/diff_test_mc.obj")
+        plt.savefig("output/mc_fit_pore.svg", format="svg", dpi=1000)
 
         # Plot diffusion profile over box length
         plt.figure()
-        pa.diffusion.diff_profile("output/diff_test_mc.obj", infty_profile = True)
+        pa.diffusion.mc_profile("output/diff_test_mc.obj", infty_profile = True)
         plt.savefig("output/diffusion_profile.svg", format="svg", dpi=1000)
 
         # Plot diffusion profile in the pore area
         plt.figure()
-        pa.diffusion.diff_pore_profile("data/pore_system_cylinder.obj","output/diff_test_mc.obj", infty_profile = True)
+        pa.diffusion.mc_profile_pore("data/pore_system_cylinder.obj","output/diff_test_mc.obj", infty_profile = True)
         plt.savefig("output/diffusion_pore_profile.svg", format="svg", dpi=1000)
 
         # Plot free energy profile over box length
         plt.figure()
-        pa.diffusion.df_profile("output/diff_test_mc.obj",[10])
+        pa.freeenergy.mc_profile("output/diff_test_mc.obj",[10])
         plt.savefig("output/energy_profile.svg", format="svg", dpi=1000)
 
         # Plot transition matrix as a heat map
         plt.figure()
-        pa.diffusion.plot_trans_mat("output/diff_test_mc.obj",10)
+        pa.diffusion.mc_trans_mat("output/diff_test_mc.obj",10)
         plt.savefig("output/transition_heatmap.svg", format="svg", dpi=1000)
 
         # Check if diffusion coefficient is in the range
@@ -308,23 +308,23 @@ class UserModelCase(unittest.TestCase):
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_mean, diff_table = pa.diffusion.diffusion_fit("output/diff_test_mc_box.obj")
+        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc_box.obj")
         plt.savefig("output/diffusion_fit_box.svg", format="svg", dpi=1000)
 
 
         # Plot diffusion profile over box length
         plt.figure()
-        pa.diffusion.diff_profile("output/diff_test_mc_box.obj", infty_profile = True)
+        pa.diffusion.mc_profile("output/diff_test_mc_box.obj", infty_profile = True)
         plt.savefig("output/diffusion_profile_box.svg", format="svg", dpi=1000)
 
         # Plot free energy profile over box length
         plt.figure()
-        pa.diffusion.df_profile("output/diff_test_mc_box.obj",[10])
+        pa.freeenergy.mc_profile("output/diff_test_mc_box.obj",[10])
         plt.savefig("output/energy_profile_box.svg", format="svg", dpi=1000)
 
         # Plot transition matrix as a heat map
         plt.figure()
-        pa.diffusion.plot_trans_mat("output/diff_test_mc_box.obj",10)
+        pa.diffusion.mc_trans_mat("output/diff_test_mc_box.obj",10)
         plt.savefig("output/transition_heatmap_box.svg", format="svg", dpi=1000)
 
         # Check if diffusion coefficient is in the range
@@ -404,15 +404,15 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 1
-        self.assertEqual(round(MC.log_likelihood_z(model),2),-128852.33)
+        self.assertEqual(round(MC._log_likelihood_z(model),2),-128852.33)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 2
-        self.assertEqual(round(MC.log_likelihood_z(model),2),-165354.77)
+        self.assertEqual(round(MC._log_likelihood_z(model),2),-165354.77)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 10
-        self.assertEqual(round(MC.log_likelihood_z(model),2),-258946.71)
+        self.assertEqual(round(MC._log_likelihood_z(model),2),-258946.71)
 
     # Check initial profiles
     def test_init_profiles(self):
@@ -438,24 +438,24 @@ class UserModelCase(unittest.TestCase):
         # self.skipTest("Temporary")
 
         # Check tables
-        pa.diffusion.print_model_inputs("data/check_tables.obj",print_con=False)
-        pa.diffusion.print_mc_inputs("data/check_tables.obj",print_con=False)
-        pa.diffusion.print_statistics_mc("data/check_tables.obj",print_con=False)
-        pa.diffusion.print_coeff("data/check_tables.obj",print_con=False)
+        pa.tables.mc_model("data/check_tables.obj",print_con=False)
+        pa.tables.mc_inputs("data/check_tables.obj",print_con=False)
+        pa.tables.mc_statistics("data/check_tables.obj",print_con=False)
+        pa.tables.mc_lag_time("data/check_tables.obj",print_con=False)
 
-        pa.diffusion.print_model_inputs("data/check_tables.obj",print_con=True)
-        pa.diffusion.print_mc_inputs("data/check_tables.obj",print_con=True)
-        pa.diffusion.print_statistics_mc("data/check_tables.obj",print_con=True)
-        pa.diffusion.print_coeff("data/check_tables.obj",print_con=True)
+        pa.tables.mc_model("data/check_tables.obj",print_con=True)
+        pa.tables.mc_inputs("data/check_tables.obj",print_con=True)
+        pa.tables.mc_statistics("data/check_tables.obj",print_con=True)
+        pa.tables.mc_lag_time("data/check_tables.obj",print_con=True)
 
         # Check output which is not coveraged by the entire MC test
-        pa.diffusion.diff_pore_profile("data/pore_system_cylinder.obj","data/check_tables.obj", infty_profile = False)
-        pa.diffusion.diff_profile("data/check_tables.obj", infty_profile = False)
-        pa.diffusion.df_profile("data/check_tables.obj")
+        pa.diffusion.mc_profile_pore("data/pore_system_cylinder.obj","data/check_tables.obj", infty_profile = False)
+        pa.diffusion.mc_profile("data/check_tables.obj", infty_profile = False)
+        pa.freeenergy.mc_profile("data/check_tables.obj")
 
         # Check kwargs of transition heatmap
         kwargs = {"vmin":0,"vmax":0.5, "xticklabels":30, "yticklabels":30,"cbar":True,"square":False}
-        pa.diffusion.plot_trans_mat("output/diff_mc_cyl_s.obj",10,kwargs)
+        pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.obj",10,kwargs)
 
     # Test currently only one can be initialize
     def test_init_bin_mc(self):

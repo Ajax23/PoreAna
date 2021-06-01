@@ -36,7 +36,7 @@ class Model:
         self._df_unit = 1.                                 # in kBT
         self._diff_unit = np.log(self._bin_width**2 / 1.)  # in m^2/s
 
-    def init_profiles(self):
+    def _init_profiles(self):
         """This function initializes the normal diffusion, radial diffusion and
         free energy profile over the bins.
         """
@@ -47,7 +47,7 @@ class Model:
         # Initalize the diffusion profile
         self._diff_bin += (np.log(self._d0) - self._diff_unit)
 
-    def calc_profile(self, coeff, basis):
+    def _calc_profile(self, coeff, basis):
         """This function calculates the diffusion and free energy profile over
         the bins. It is used to initialize the system at the beginning of the
         calculation/MC run. Additional it is needed to update the profiles
@@ -71,12 +71,12 @@ class Model:
         The basis is received by the create basis function for the chosen model:
 
         **CosineModel**
-         * :func:`CosineModel.create_basis_center`
-         * :func:`CosineModel.create_basis_border`
+         * :func:`CosineModel._create_basis_center`
+         * :func:`CosineModel._create_basis_border`
 
         **StepModel**
-         * :func:`StepModel.create_basis_center`
-         * :func:`StepModel.create_basis_border`
+         * :func:`StepModel._create_basis_center`
+         * :func:`StepModel._create_basis_border`
 
         Parameters
         ----------
@@ -139,11 +139,11 @@ class CosineModel(Model):
         self._n_diff_radial = n_diff_radial
         self._print_output = print_output
 
-        self.init_model()     # Initial model
-        self.init_profiles()  # Initial Profiles
-        self.cosine_model()   # Set basis of Fourier series
+        self._init_model()     # Initial model
+        self._init_profiles()  # Initial Profiles
+        self._cosine_model()   # Set basis of Fourier series
 
-    def init_model(self):
+    def _init_model(self):
         """This function initializes the coefficient list for the Fourier series
         and the profile list for the free energy and diffusion profile.
         It is used to reinitialize these lists at the beginning of a MC run.
@@ -158,21 +158,21 @@ class CosineModel(Model):
         # Initialize diffusion profile with the guess value [A^2/ps]
         self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)
 
-    def cosine_model(self):
+    def _cosine_model(self):
         """This function sets a Fourier Cosine Series Model for the MC Diffusion
         Calculation and determines the initialize profiles.
         """
         # Create basis (for the free energy)
-        self.create_basis_center()
+        self._create_basis_center()
 
         # Create basis (for the free energy)
-        self.create_basis_border()
+        self._create_basis_border()
 
         # Update diffusion profile
-        self._diff_bin = self.calc_profile(self._diff_coeff, self._diff_basis)
+        self._diff_bin = self._calc_profile(self._diff_coeff, self._diff_basis)
 
         # Update free energy profile
-        self._df_bin = self.calc_profile(self._df_coeff, self._df_basis)
+        self._df_bin = self._calc_profile(self._df_coeff, self._df_basis)
 
         # Print for console
         if self._print_output == True:
@@ -193,7 +193,7 @@ class CosineModel(Model):
             # Print panda table with model inputs
             print(df_model)
 
-    def create_basis_center(self):
+    def _create_basis_center(self):
         """This function creates the basis part of the Fourier series for the
         free energy and the radial diffusion profile.
         For a bin the basis is calculated with
@@ -216,7 +216,7 @@ class CosineModel(Model):
         self._df_basis = np.array(basis_df).transpose()
         self._diff_radial_basis = np.array(basis_diff_radial).transpose()
 
-    def create_basis_border(self):
+    def _create_basis_border(self):
         """This function creates the basis part in every bin of the Fourier
         series for the Diffusion :math:`\\ln \\ (D)`.
         At the bin border the basis is calculated with
@@ -274,11 +274,11 @@ class StepModel(Model):
         self._n_diff_radial = n_diff_radial
         self._print_output = print_output
 
-        self.init_model()     # Initial model
-        self.init_profiles()  # Initial Profiles
-        self.step_model()     # Set basis of Step Model
+        self._init_model()     # Initial model
+        self._init_profiles()  # Initial Profiles
+        self._step_model()     # Set basis of Step Model
 
-    def init_model(self):
+    def _init_model(self):
         """This function initializes the coefficient list for the Step Model and
         the profile list for the free energy and diffusion profile. It is used
         to reinitializes these lists for every lag time calculation.
@@ -297,21 +297,21 @@ class StepModel(Model):
         # Initialize diffusion profile with the guess value [A^2/ps]
         self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)
 
-    def step_model(self):
+    def _step_model(self):
         """This function set a Step Model for the MC Diffusion Calculation and
         determine the initialize profiles.
         """
         # create basis (for the free energy)
-        self.create_basis_center()
+        self._create_basis_center()
 
         # create basis (for the free energy)
-        self.create_basis_border()
+        self._create_basis_border()
 
         # Update diffusion profile
-        self._diff_bin = self.calc_profile(self._diff_coeff, self._diff_basis)
+        self._diff_bin = self._calc_profile(self._diff_coeff, self._diff_basis)
 
         # Update free energy profile
-        self._df_bin = self.calc_profile(self._df_coeff, self._df_basis)
+        self._df_bin = self._calc_profile(self._df_coeff, self._df_basis)
 
         # Print for console
         if self._print_output == True:
@@ -334,7 +334,7 @@ class StepModel(Model):
             print(df_model)
             print("\n")
 
-    def create_basis_center(self):
+    def _create_basis_center(self):
         """This function creates the basis part in every bin of the Step model
         for the free energy and the radial diffusion profile. The following
         explanation is for the free energy profile. For the radial diffusion
@@ -367,7 +367,7 @@ class StepModel(Model):
         # Transpose basis (is now a bin_num x ncos Matrix)
         self._df_basis = np.array(basis).transpose()
 
-    def create_basis_border(self):
+    def _create_basis_border(self):
         """This function creates the basis part in every bin of the Step model
         for the diffusion profile. The dimension of the basis matrix is
         :math:`n_{bin} \\times n_{diff}`. At the bin border the basis is

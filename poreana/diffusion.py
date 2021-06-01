@@ -8,7 +8,7 @@
 import math
 import warnings
 import itertools
-import scipy as sc
+import scipy as sp
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -374,17 +374,17 @@ def mc_trans_mat(link_in, step, kwargs={}):
         Dictionary with plotting parameters
     """
     # Load Results from the output object file
-    data = utils.load(link_in)
+    results = utils.load(link_in)
 
     # Sample obj file is loaded
-    if "inp" in data:
-        trans_mat = data["data"]
-        inp = data["inp"]
+    if "data" in results:
+        trans_mat = results["data"]
+        inp = results["inp"]
         frame_num = inp["num_frame"]
         frame_length = inp["len_frame"] * 10**12
     # Mc obj file is loaded
     else:
-        model = data["model"]
+        model = results["model"]
         trans_mat = model["data"]
         frame_num = model["num_frame"]
         frame_length = model["len_frame"]
@@ -399,7 +399,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
 ########################
 # Diffusion - MC - Box #
 ########################
-def mc_fit(link, len_step=[], is_std=True):
+def mc_fit(link, len_step=[], is_std=True, link_pore={}):
     """This function uses the diffusion profiles over box length which are
     calculated in the function :func:`do_mc_cycles` to estimate the final
     diffusion coefficient. For that a line is fitted of the averaged diffusion
@@ -436,6 +436,9 @@ def mc_fit(link, len_step=[], is_std=True):
     is_std : bool, optional
         True to calculate a mean diffusion coefficient and a Bootstrap diffusion
         to assess the dependency of the results on the chosen lag time
+    link_pore : string, optional
+        Link to the pore obj file generated with PoreMS. Only necessary is the
+        pore area is considered
 
     Returns
     -------
@@ -449,101 +452,221 @@ def mc_fit(link, len_step=[], is_std=True):
         Table of used lag times with the associated
         :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}}) \ \\left(\\frac{m^2}{s}\\right)`
     """
-    # Load Results from the output object file
-    results = utils.load(link)
-    diff_bin = results["diff_profile"]
-    inp = results["model"]
-    diff_unit = inp["diffusion unit"]
-    dt = inp["len_frame"]
 
-    # If no specific step length is chosen take the step length from the object file
-    if not len_step:
-        len_step = inp["len_step"]
+    if not link_pore:
+        # Load Results from the output object file
+        results = utils.load(link)
+        diff_bin = results["diff_profile"]
+        inp = results["model"]
+        diff_unit = inp["diffusion unit"]
+        dt = inp["len_frame"]
 
-    # Calculate mean diffusion coefficient and standard deviation
-    # Mean diffusion means the averaged of all pssible fourth tuple fitting results
-    if is_std:
-        len_step_all = len_step
+        # If no specific step length is chosen take the step length from the object file
+        if not len_step:
+            len_step = inp["len_step"]
 
-        # Determine all possible combinations
-        a = list(itertools.combinations(len_step_all, 2))
+        # Calculate mean diffusion coefficient and standard deviation
+        # Mean diffusion means the averaged of all pssible fourth tuple fitting results
+        if is_std:
+            len_step_all = len_step
 
-        # Allocate the results vector
-        res = np.zeros(len(a))
+            # Determine all possible combinations
+            a = list(itertools.combinations(len_step_all, 2))
 
-        # Fit for all combinations
-        for i in range(len(a)):
-            # Set the current tuple
-            rand = list(a[i])
+            # Allocate the results vector
+            res = np.zeros(len(a))
 
-            # Calculate the mean diffusion (m^2/s) over all bins
-            D_mean = [np.mean(np.exp(diff_bin[i] + diff_unit)) * 10**-6 for i in rand]
+            # Fit for all combinations
+            for i in range(len(a)):
+                # Set the current tuple
+                rand = list(a[i])
 
-            # Calculate the inverse lag time for the linear fit
-            lagtime_inverse = [1 / (i * dt * 10**-12) for i in rand]
+                # Calculate the mean diffusion (m^2/s) over all bins
+                D_mean = [np.mean(np.exp(diff_bin[i] + diff_unit)) * 10**-6 for i in rand]
 
-            # Fit a linear line
-            fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
+                # Calculate the inverse lag time for the linear fit
+                lagtime_inverse = [1 / (i * dt * 10**-12) for i in rand]
 
-            # Set the x value for the linear fit
-            x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
+                # Fit a linear line
+                fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
 
-            # Set the fitted diffusion coefficient on the results list
-            res[i] = fit(0)
+                # Set the x value for the linear fit
+                x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
 
-        # Determine standard deviation and mean diffusion of fourth touple method
-        diffusion_mean = np.mean(res)
-        std = res.std()
+                # Set the fitted diffusion coefficient on the results list
+                res[i] = fit(0)
 
-    # Calculate the mean diffusion (m^2/s) over all bins
-    D_mean = [np.mean(np.exp(diff_bin[i] + diff_unit)) * 10**-6 for i in len_step]
+            # Determine standard deviation and mean diffusion of fourth touple method
+            diffusion_mean = np.mean(res)
+            std = res.std()
 
-    # Calculate the inverse lag time (1/s) for the linear fit
-    lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
+        # Calculate the mean diffusion (m^2/s) over all bins
+        D_mean = [np.mean(np.exp(diff_bin[i] + diff_unit)) * 10**-6 for i in len_step]
 
-    # Fit a linear line
-    fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
+        # Calculate the inverse lag time (1/s) for the linear fit
+        lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
 
-    # Calculate the diffusion coefficient as a mean value over the bin
-    print("\nDiffusion axial: "+"%.4e" % fit(0) + " m^2/s\n")
+        # Fit a linear line
+        fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
 
-    # If is_std true print the results of the calculations
-    if is_std:
-        print("Mean Diffusion axial: "+"%.4e" % diffusion_mean + " m^2/s\n")
-        print("Standard deviation: "+"%.4e" % std + " m^2/s\n")
+        # Calculate the diffusion coefficient as a mean value over the bin
+        print("\nDiffusion axial: "+"%.4e" % fit(0) + " m^2/s\n")
 
-    # Set data frame for the used lag times
-    data = [str("%.2e" % D_mean[i]) + " $\mathrm{m^2s^{-1}}$" for i in range(len(len_step))]
-    diff_table = pd.DataFrame(data, index=list(len_step), columns=list(['$D_\mathrm{mean}$']))
-    diff_table = pd.DataFrame(diff_table.rename_axis('Step Length', axis=1))
-    styler = diff_table.style.set_caption('Selected step length')
-    diff_table = styler.set_properties(**{'text-align': 'right'})
-    diff_table = diff_table.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+        # If is_std true print the results of the calculations
+        if is_std:
+            print("Mean Diffusion axial: "+"%.4e" % diffusion_mean + " m^2/s\n")
+            print("Standard deviation: "+"%.4e" % std + " m^2/s\n")
 
-    # Set vectors for plotting
-    D_mean_vec = [D_mean[i] * 10 ** 9 for i in range(len(lagtime_inverse))]
-    lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
-    x_vec = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
+        # Set data frame for the used lag times
+        data = [str("%.2e" % D_mean[i]) + " $\mathrm{m^2s^{-1}}$" for i in range(len(len_step))]
+        diff_table = pd.DataFrame(data, index=list(len_step), columns=list(['$D_\mathrm{mean}$']))
+        diff_table = pd.DataFrame(diff_table.rename_axis('Step Length', axis=1))
+        styler = diff_table.style.set_caption('Selected step length')
+        diff_table = styler.set_properties(**{'text-align': 'right'})
+        diff_table = diff_table.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
 
-    # Fit a linear line
-    fit = np.poly1d(np.polyfit(lag_time_vec, D_mean_vec, 1))
+        # Set vectors for plotting
+        D_mean_vec = [D_mean[i] * 10 ** 9 for i in range(len(lagtime_inverse))]
+        lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
+        x_vec = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
 
-    # Plot the results
-    plt.xlim(0, 1.5*max(lag_time_vec))
-    plt.ylim(0, 1.5*max(fit(x_vec)))
-    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red')
-    sns.lineplot(x=x_vec, y=fit(x_vec))
-    legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
-    plt.legend(legend)
-    plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
-    plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+        # Fit a linear line
+        fit = np.poly1d(np.polyfit(lag_time_vec, D_mean_vec, 1))
 
-    diffusion = fit(0) * 10**-9
+        # Plot the results
+        plt.xlim(0, 1.5*max(lag_time_vec))
+        plt.ylim(0, 1.5*max(fit(x_vec)))
+        sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red')
+        sns.lineplot(x=x_vec, y=fit(x_vec))
+        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
+        plt.legend(legend)
+        plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
+        plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
 
-    return diffusion, diffusion_mean, diff_table
+        diffusion = fit(0) * 10**-9
+
+        return diffusion, diffusion_mean, diff_table
+
+    else:
+        # Load Results from the output object file
+        results = utils.load(link)
+        diff_bin = results["diff_profile"]
+        inp = results["model"]
+        bins = inp["bins"]
+        diff_unit = inp["diffusion unit"]
+        dt = inp["len_frame"]
+        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
+        diff_bin_pore = {}
+        diff = np.zeros(len(bins))
+
+        # Load pore obj file
+        pore = utils.load(link_pore)
+        res = pore.reservoir()
+        box = pore.box()
+
+        # If no specific step length is chosen take the step length from the object file
+        if not len_step:
+            len_step = inp["len_step"]
+
+        # Cut profile (chose only the pore area for fitting)
+        # Calculated start and end bin index of the pore area
+        index_start = np.digitize(res, bins)
+        index_end = np.digitize((res + box[2]), bins)
+
+        # Save for all lag times the cutted profile
+        for i in len_step:
+            diff_bin_pore[i] = {}
+            diff = diff_bin[i]
+            diff_bin_pore[i] = diff[index_start:index_end]
+
+        # If is_std true print the results of the calculations
+        if is_std:
+            len_step_all = len_step
+
+            # Determine all possible combinations
+            a = list(itertools.combinations(len_step_all, 2))
+
+            # Allocate the results vector
+            res = np.zeros(len(a))
+
+            # Fit for all combinations
+            for i in range(len(a)):
+                # Set the current tuple
+                rand = list(a[i])
+
+                # Calculate the mean diffusion (m^2/s) over all bins
+                D_mean = [np.mean(np.exp(diff_bin_pore[i] + diff_unit)) * 10**-6 for i in rand]
+
+                # Calculate the inverse lag time for the linear fit
+                lagtime_inverse = [1 / (i * dt) for i in rand]   # Inverse lagtime in s
+
+                # Fit a linear line
+                fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
+
+                # Set the x value for the linear fit
+                x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
+
+                # Set the fitted diffusion coefficient on the results list
+                res[i] = fit(0)
+
+            # Determine standard deviation and mean diffusion of fourth touple method
+            diffusion_pore_mean = np.mean(res)
+            std = res.std()
+
+        # Calculate the mean diffusion (m^2/s) over all bins
+        D_mean_all = [np.mean(np.exp(diff_bin_pore[i] + diff_unit)) * 10 ** 3 for i in len_step]
+
+        # Calculate the inverse lag time (1/s) for the linear fit
+        lagtime_inverse_all = [1 / (len_step[i] * dt) for i in range(len(len_step))]
+
+        # Plot the diffusion profiles for the different lag times
+        legend = ["lagtime " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+
+        # Fit a linear line
+        fit = np.poly1d(np.polyfit(lagtime_inverse_all, D_mean_all, 1))
+
+        # Set the x value for the linear fit
+        x = np.arange(0, max(lagtime_inverse_all) * 2, (max(lagtime_inverse_all) * 2) / 5)
+
+        # Calculate the diffusion coefficient as a mean value over the bin
+        print("\nDiffusion axial: "+"%.4e" % (float(fit(0)) * 10 ** -9) + " m^2/s\n")
+
+        # If is_std true print the results of the calculations
+        if is_std:
+            # Print results
+            print("Mean Diffusion axial: "+"%.4e" % diffusion_pore_mean + " m^2/s\n")
+            print("Standard deviation: "+"%.4e" % std + " m^2/s\n")
+
+        # Set vectors for plotting
+        D_mean_vec = [D_mean_all[i] for i in range(len(lagtime_inverse_all))]
+        lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
+        x_vec = x = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
+
+        # Set data frame for the used lag times
+        data = [str("%.4e" % (D_mean_all[i] * 10**-9)) + " $\mathrm{m^2s^{-1}}$" for i in range(len(len_step))]
+        diff_table = pd.DataFrame(data, index=list(len_step), columns=list(['$D_\mathrm{mean}$']))
+        diff_table = pd.DataFrame(diff_table.rename_axis('Step Length', axis=1))
+        styler = diff_table.style.set_caption('Selected step length')
+        diff_table = styler.set_properties(**{'text-align': 'right'})
+        diff_table = diff_table.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+
+        # Plot the results
+        plt.xlim(0, 1.5*max(lag_time_vec))
+        plt.ylim(0, 1.5*max(fit(x_vec)))
+        sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red')
+        sns.scatterplot(x=[0.0], y=[fit(0)], color='black')
+        sns.lineplot(x=x_vec, y=fit(x))
+        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
+        plt.legend(legend)
+        plt.xlabel(r"Inverse lagtime ($10^{12} \ \mathrm{s^{-1}})$")
+        plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+
+        diffusion_pore = fit(0) * 10 ** -9
+
+        return diffusion_pore, diffusion_pore_mean, diff_table
 
 
-def mc_profile(link, len_step=[], infty_profile=True):
+def mc_profile(link, len_step=[], infty_profile=True, link_pore={}):
     """This function plots the diffusion profile for a infinity
     lag time (:math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \\infty`) over the box
     fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}` list.
@@ -564,333 +687,415 @@ def mc_profile(link, len_step=[], infty_profile=True):
         are contains in the obj file are printed
     infty_profile : bool, optional
         True to only plot the profile for an infity lagtime
+    link_pore : string, optional
+        Link to the pore obj file generated with PoreMS. Only necessary is the
+        pore area is considered
     """
-    # Load Results from the output object file
-    results = utils.load(link)
-    diff_bin = results["diff_profile"]
-    inp = results["model"]
-    diff_unit = inp["diffusion unit"]
-    dt = inp["len_frame"]
-    bins = inp["bins"]
-    bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-    legend = []
 
-    # If no specific step length is chosen take the step length from the object file
-    if not len_step:
-        len_step = inp["len_step"]
+    if not link_pore:
+        # Load Results from the output object file
+        results = utils.load(link)
+        diff_bin = results["diff_profile"]
+        inp = results["model"]
+        diff_unit = inp["diffusion unit"]
+        dt = inp["len_frame"]
+        bins = inp["bins"]
+        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
+        legend = []
 
-    # Calculate the inverse lag time (1/s) for the linear fit
-    lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
+        # If no specific step length is chosen take the step length from the object file
+        if not len_step:
+            len_step = inp["len_step"]
 
-    # Calculate diffusion profiles
-    diff_profiles = [[np.exp(diff_bin[i][j] + diff_unit) * 10 **3 for j in range(len(bins))] for i in len_step]
+        # Calculate the inverse lag time (1/s) for the linear fit
+        lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
 
-    # If infty_profile is false the profiles for the different lag times are plotted
-    if not infty_profile:
-        # Plot the profiles for the
-        for i in range(len(len_step)):
-            sns.lineplot(x=bins, y=(diff_profiles[i]))       # Diffusion in m^2/s
+        # Calculate diffusion profiles
+        diff_profiles = [[np.exp(diff_bin[i][j] + diff_unit) * 10 **3 for j in range(len(bins))] for i in len_step]
 
-        # Plot the diffusion profiles for the different lag times
-        legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+        # If infty_profile is false the profiles for the different lag times are plotted
+        if not infty_profile:
+            # Plot the profiles for the
+            for i in range(len(len_step)):
+                sns.lineplot(x=bins, y=(diff_profiles[i]))       # Diffusion in m^2/s
 
-    # If infty_profile is True the diffusion profile for a infinity lag times is shwon
-    if len(len_step) >= 2 and infty_profile:
-        # Initialize fit vector
-        diff_profile_fit = []
+            # Plot the diffusion profiles for the different lag times
+            legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
-        # Calculate the mean diffusion over all bins
-        for i in range(len(bins)):
-            diff = [np.exp(diff_bin[step][i] + diff_unit) * 10**-6 for step in len_step]   # Diffusion in m^2/s
+        # If infty_profile is True the diffusion profile for a infinity lag times is shwon
+        if len(len_step) >= 2 and infty_profile:
+            # Initialize fit vector
+            diff_profile_fit = []
 
-            # fit a linear line
-            fit = np.poly1d(np.polyfit(lagtime_inverse, diff, 1))
+            # Calculate the mean diffusion over all bins
+            for i in range(len(bins)):
+                diff = [np.exp(diff_bin[step][i] + diff_unit) * 10**-6 for step in len_step]   # Diffusion in m^2/s
 
-            # Append diffusion at t-> infty
-            diff_profile_fit.append(fit(0)*10**9)
+                # fit a linear line
+                fit = np.poly1d(np.polyfit(lagtime_inverse, diff, 1))
 
-        # Plot fitted diffusion profile
-        sns.lineplot(x=bins, y=diff_profile_fit)       # Diffusion in m^2/s
+                # Append diffusion at t-> infty
+                diff_profile_fit.append(fit(0)*10**9)
 
-    # Set legend for lag times
-    if not infty_profile:
-        legend.append("Lagtime $\\infty$ ps")
-        plt.legend(legend)
+            # Plot fitted diffusion profile
+            sns.lineplot(x=bins, y=diff_profile_fit)       # Diffusion in m^2/s
 
-    # Set plot properties
-    plt.xlabel(r"Box length (nm)")
-    plt.ylabel(r"Diffusion ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+        # Set legend for lag times
+        if not infty_profile:
+            legend.append("Lagtime $\\infty$ ps")
+            plt.legend(legend)
 
+        # Set plot properties
+        plt.xlabel(r"Box length (nm)")
+        plt.ylabel(r"Diffusion ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+
+    else:
+        # Load Results from the output object file
+        results = utils.load(link)
+        diff_bin = results["diff_profile"]
+        inp = results["model"]
+        bins = inp["bins"]
+        diff_unit = inp["diffusion unit"]
+        dt = inp["len_frame"]
+        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
+        diff_bin_pore = {}
+
+        # Load pore obj file
+        pore = utils.load(link_pore)
+        res = pore.reservoir()
+        box = pore.box()
+        legend = []
+
+        # If no specific step length is chosen take the step length from the object file
+        if not len_step:
+            len_step = inp["len_step"]
+
+        # Calculate the inverse lag time (1/s) for the linear fit
+        lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
+
+        # Cut profile (chose only the pore area)
+        # Calculated start and end bin index of the pore area
+        index_start = np.digitize(res, bins)
+        index_end = np.digitize((res + box[2]), bins)
+
+        # Save for all lag times the cutted profile
+        for i in len_step:
+            diff_bin_pore[i] = {}
+            diff = diff_bin[i]
+            diff_bin_pore[i] = diff[index_start:index_end]
+
+        # List with the bins in the pore
+        bins_pore = [bins[i] - res for i in range(index_start, index_end)]
+
+        # Determine diffusion profile in the pore area
+        diff_bin_pore = [[np.exp(diff_bin_pore[j][i] + diff_unit) * 10 ** 3 for i in range(len(bins_pore))] for j in len_step]
+
+        # If infty_profile is false the profiles for the different lag times are plotted
+        if not infty_profile:
+            # Plot the diffusion profiles for the different lag times
+            legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+
+            # Plot the profiles for the
+            for i in range(len(len_step)):
+                sns.lineplot(x=(bins_pore), y=diff_bin_pore[i])       # Diffusion in m^2/s
+
+        # If infty_profile is True the diffusion profile for a infinity lag times is shown
+        if len(len_step) >= 2 and infty_profile:
+            # Initialize fit vector
+            diff_profile_fit = []
+
+            # Calculate the mean diffusion (m^2/s) over all bins
+            for i in range(len(bins_pore)):
+                diff = [diff_bin_pore[step][i] for step in range(len(len_step))]
+
+                # fit a linear line
+                fit = np.poly1d(np.polyfit(lagtime_inverse, diff, 1))
+
+                # Append diffusion at t-> infty
+                diff_profile_fit.append(fit(0))
+
+            # Plot fitted diffusion profile (m^2/s)
+            sns.lineplot(x=(bins_pore), y=diff_profile_fit)
+
+        # Set legend for lag times
+        if not infty_profile:
+            # Add legend
+            legend.append("Lagtime $\\infty$ ps")
+            plt.legend(legend)
+
+        # Set plot properties
+        plt.xlabel(r"Pore length (nm)")
+        plt.ylabel(r"Diffusion ($\mathrm{m^2s^{-1}}$)")
 
 #########################
 # Diffusion - MC - Pore #
 #########################
-def mc_fit_pore(link_pore, link, len_step=[], is_std=True):
-    """This function uses the diffusion profiles in the pore area which are
-    calculated in the function :func:`do_mc_cycles` to estimate the final
-    diffusion coefficient. For that a line is fitted of the averaged diffusion
-    profiles :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}})` for the
-    different lag times as a function of :math:`1/\\Delta_{ij}t_{\\alpha}`. The
-    function plots all mean diffusion
-    :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` over the inverse lag times and
-    the linear fit. Additional the final mean diffusion coefficient :math:`D`
-    for a lagtime :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty` is
-    printed. Also a table of the selected step length and the belonging
-    :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}})` can be displayed.
-
-    In order to be able to estimate how the choice of lag times affects the
-    result, an additional error estimation is possible. For this all possible
-    fourth tuples of the entire calculated lag times are used to estimate a
-    mean diffusion coefficient :math:`\\langle D \\rangle` which is the mean
-    value of all fourth tuples fitting results. Also the standard deviation of
-    all fitting results is printed. If there is no big difference between the
-    diffusion coefficient :math:`D` and the mean diffusion ceofficient
-    :math:`\\langle D \\rangle`, all :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})`
-    are on a straight line. The standard deviation can also be used to check
-    if the result fluctuates strongly at the choice of other lag times. This
-    error estimate is calculated if :math:`\\mathrm{is}\_{\\mathrm{std}}=True`.
-
-    Parameters
-    ----------
-    link: string
-        Link to the diffusion data object generated by the sample routine
-        :func:`MC.do_mc_cycles`
-    len_step: integer list, optional
-        List of the different step length, if it is None the lag times which
-        are contains in the obj file are printed
-    is_std : bool, optional
-        True to calculate a mean diffusion coefficient and a Bootstrap diffusion
-        to assess the dependency of the results on the chosen lag time
-
-    Returns
-    -------
-    diffusion_pore: float
-        Diffusion coefficient :math:`D \ \\left(\\frac{m^2}{s}\\right)`
-        in the pore area
-    diffusion_pore_mean: float
-        Mean diffusion coefficient
-        :math:`\\langle D \\rangle \ \\left(\\frac{m^2}{s}\\right)`
-        in the pore area
-    diff_table : obj
-        Table of used lag times with the associated
-        :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}}) \ \\left(\\frac{m^2}{s}\\right)`
-    """
-    # Load Results from the output object file
-    results = utils.load(link)
-    diff_bin = results["diff_profile"]
-    inp = results["model"]
-    bins = inp["bins"]
-    diff_unit = inp["diffusion unit"]
-    dt = inp["len_frame"]
-    bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-    diff_bin_pore = {}
-    diff = np.zeros(len(bins))
-
-    # Load pore obj file
-    pore = utils.load(link_pore)
-    res = pore.reservoir()
-    box = pore.box()
-
-    # If no specific step length is chosen take the step length from the object file
-    if not len_step:
-        len_step = inp["len_step"]
-
-    # Cut profile (chose only the pore area for fitting)
-    # Calculated start and end bin index of the pore area
-    index_start = np.digitize(res, bins)
-    index_end = np.digitize((res + box[2]), bins)
-
-    # Save for all lag times the cutted profile
-    for i in len_step:
-        diff_bin_pore[i] = {}
-        diff = diff_bin[i]
-        diff_bin_pore[i] = diff[index_start:index_end]
-
-    # If is_std true print the results of the calculations
-    if is_std:
-        len_step_all = len_step
-
-        # Determine all possible combinations
-        a = list(itertools.combinations(len_step_all, 2))
-
-        # Allocate the results vector
-        res = np.zeros(len(a))
-
-        # Fit for all combinations
-        for i in range(len(a)):
-            # Set the current tuple
-            rand = list(a[i])
-
-            # Calculate the mean diffusion (m^2/s) over all bins
-            D_mean = [np.mean(np.exp(diff_bin_pore[i] + diff_unit)) * 10**-6 for i in rand]
-
-            # Calculate the inverse lag time for the linear fit
-            lagtime_inverse = [1 / (i * dt) for i in rand]   # Inverse lagtime in s
-
-            # Fit a linear line
-            fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
-
-            # Set the x value for the linear fit
-            x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
-
-            # Set the fitted diffusion coefficient on the results list
-            res[i] = fit(0)
-
-        # Determine standard deviation and mean diffusion of fourth touple method
-        diffusion_pore_mean = np.mean(res)
-        std = res.std()
-
-    # Calculate the mean diffusion (m^2/s) over all bins
-    D_mean_all = [np.mean(np.exp(diff_bin_pore[i] + diff_unit)) * 10 ** 3 for i in len_step]
-
-    # Calculate the inverse lag time (1/s) for the linear fit
-    lagtime_inverse_all = [1 / (len_step[i] * dt) for i in range(len(len_step))]
-
-    # Plot the diffusion profiles for the different lag times
-    legend = ["lagtime " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
-
-    # Fit a linear line
-    fit = np.poly1d(np.polyfit(lagtime_inverse_all, D_mean_all, 1))
-
-    # Set the x value for the linear fit
-    x = np.arange(0, max(lagtime_inverse_all) * 2, (max(lagtime_inverse_all) * 2) / 5)
-
-    # Calculate the diffusion coefficient as a mean value over the bin
-    print("\nDiffusion axial: "+"%.4e" % (float(fit(0)) * 10 ** -9) + " m^2/s\n")
-
-    # If is_std true print the results of the calculations
-    if is_std:
-        # Print results
-        print("Mean Diffusion axial: "+"%.4e" % diffusion_pore_mean + " m^2/s\n")
-        print("Standard deviation: "+"%.4e" % std + " m^2/s\n")
-
-    # Set vectors for plotting
-    D_mean_vec = [D_mean_all[i] for i in range(len(lagtime_inverse_all))]
-    lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
-    x_vec = x = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
-
-    # Set data frame for the used lag times
-    data = [str("%.4e" % (D_mean_all[i] * 10**-9)) + " $\mathrm{m^2s^{-1}}$" for i in range(len(len_step))]
-    diff_table = pd.DataFrame(data, index=list(len_step), columns=list(['$D_\mathrm{mean}$']))
-    diff_table = pd.DataFrame(diff_table.rename_axis('Step Length', axis=1))
-    styler = diff_table.style.set_caption('Selected step length')
-    diff_table = styler.set_properties(**{'text-align': 'right'})
-    diff_table = diff_table.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
-
-    # Plot the results
-    plt.xlim(0, 1.5*max(lag_time_vec))
-    plt.ylim(0, 1.5*max(fit(x_vec)))
-    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red')
-    sns.scatterplot(x=[0.0], y=[fit(0)], color='black')
-    sns.lineplot(x=x_vec, y=fit(x))
-    legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
-    plt.legend(legend)
-    plt.xlabel(r"Inverse lagtime ($10^{12} \ \mathrm{s^{-1}})$")
-    plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
-
-    diffusion_pore = fit(0) * 10 ** -9
-
-    return diffusion_pore, diffusion_pore_mean, diff_table
-
-
-def mc_profile_pore(link_pore, link, len_step=[], infty_profile=False):
-    """This function plots the diffusion profile in the pore areas for a
-    infinity lag time (:math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \\infty`)
-    over the box fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}`
-    list. Additionally, it is possible to display the diffusion profiles for the
-    calculated lag times. Therefore, the
-    :math:`\\mathrm{infty}\_\\mathrm{profile}` has to be false.
-    The list :math:`\\mathrm{len}\_\\mathrm{step}`
-    contains the calculated step length which should be
-    displayed.
-
-    Parameters
-    ----------
-    link : string
-        Link to the diffusion data object generated by the
-        :func:`mc.MC.do_mc_cycles`
-    len_step : integer list, optional
-        List of the different step length, if it is None the lag times which
-        are contains in the obj file are printed
-    infty_profile : bool, optional
-        If its True only the profile for an infity lagtime is plotted
-    """
-    # Load Results from the output object file
-    results = utils.load(link)
-    diff_bin = results["diff_profile"]
-    inp = results["model"]
-    bins = inp["bins"]
-    diff_unit = inp["diffusion unit"]
-    dt = inp["len_frame"]
-    bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-    diff_bin_pore = {}
-
-    # Load pore obj file
-    pore = utils.load(link_pore)
-    res = pore.reservoir()
-    box = pore.box()
-    legend = []
-
-    # If no specific step length is chosen take the step length from the object file
-    if not len_step:
-        len_step = inp["len_step"]
-
-    # Calculate the inverse lag time (1/s) for the linear fit
-    lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
-
-    # Cut profile (chose only the pore area)
-    # Calculated start and end bin index of the pore area
-    index_start = np.digitize(res, bins)
-    index_end = np.digitize((res + box[2]), bins)
-
-    # Save for all lag times the cutted profile
-    for i in len_step:
-        diff_bin_pore[i] = {}
-        diff = diff_bin[i]
-        diff_bin_pore[i] = diff[index_start:index_end]
-
-    # List with the bins in the pore
-    bins_pore = [bins[i] - res for i in range(index_start, index_end)]
-
-    # Determine diffusion profile in the pore area
-    diff_bin_pore = [[np.exp(diff_bin_pore[j][i] + diff_unit) * 10 ** 3 for i in range(len(bins_pore))] for j in len_step]
-
-    # If infty_profile is false the profiles for the different lag times are plotted
-    if not infty_profile:
-        # Plot the diffusion profiles for the different lag times
-        legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
-
-        # Plot the profiles for the
-        for i in range(len(len_step)):
-            sns.lineplot(x=(bins_pore), y=diff_bin_pore[i])       # Diffusion in m^2/s
-
-    # If infty_profile is True the diffusion profile for a infinity lag times is shown
-    if len(len_step) >= 2 and infty_profile:
-        # Initialize fit vector
-        diff_profile_fit = []
-
-        # Calculate the mean diffusion (m^2/s) over all bins
-        for i in range(len(bins_pore)):
-            diff = [diff_bin_pore[step][i] for step in range(len(len_step))]
-
-            # fit a linear line
-            fit = np.poly1d(np.polyfit(lagtime_inverse, diff, 1))
-
-            # Append diffusion at t-> infty
-            diff_profile_fit.append(fit(0))
-
-        # Plot fitted diffusion profile (m^2/s)
-        sns.lineplot(x=(bins_pore), y=diff_profile_fit)
-
-    # Set legend for lag times
-    if not infty_profile:
-        # Add legend
-        legend.append("Lagtime $\\infty$ ps")
-        plt.legend(legend)
-
-    # Set plot properties
-    plt.xlabel(r"Pore length (nm)")
-    plt.ylabel(r"Diffusion ($\mathrm{m^2s^{-1}}$)")
+# def mc_fit_pore(link_pore, link, len_step=[], is_std=True):
+#     """This function uses the diffusion profiles in the pore area which are
+#     calculated in the function :func:`do_mc_cycles` to estimate the final
+#     diffusion coefficient. For that a line is fitted of the averaged diffusion
+#     profiles :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}})` for the
+#     different lag times as a function of :math:`1/\\Delta_{ij}t_{\\alpha}`. The
+#     function plots all mean diffusion
+#     :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})` over the inverse lag times and
+#     the linear fit. Additional the final mean diffusion coefficient :math:`D`
+#     for a lagtime :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty` is
+#     printed. Also a table of the selected step length and the belonging
+#     :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}})` can be displayed.
+#
+#     In order to be able to estimate how the choice of lag times affects the
+#     result, an additional error estimation is possible. For this all possible
+#     fourth tuples of the entire calculated lag times are used to estimate a
+#     mean diffusion coefficient :math:`\\langle D \\rangle` which is the mean
+#     value of all fourth tuples fitting results. Also the standard deviation of
+#     all fitting results is printed. If there is no big difference between the
+#     diffusion coefficient :math:`D` and the mean diffusion ceofficient
+#     :math:`\\langle D \\rangle`, all :math:`D_{mean}({\\Delta_{ij}t_{\\alpha}})`
+#     are on a straight line. The standard deviation can also be used to check
+#     if the result fluctuates strongly at the choice of other lag times. This
+#     error estimate is calculated if :math:`\\mathrm{is}\_{\\mathrm{std}}=True`.
+#
+#     Parameters
+#     ----------
+#     link: string
+#         Link to the diffusion data object generated by the sample routine
+#         :func:`MC.do_mc_cycles`
+#     len_step: integer list, optional
+#         List of the different step length, if it is None the lag times which
+#         are contains in the obj file are printed
+#     is_std : bool, optional
+#         True to calculate a mean diffusion coefficient and a Bootstrap diffusion
+#         to assess the dependency of the results on the chosen lag time
+#
+#     Returns
+#     -------
+#     diffusion_pore: float
+#         Diffusion coefficient :math:`D \ \\left(\\frac{m^2}{s}\\right)`
+#         in the pore area
+#     diffusion_pore_mean: float
+#         Mean diffusion coefficient
+#         :math:`\\langle D \\rangle \ \\left(\\frac{m^2}{s}\\right)`
+#         in the pore area
+#     diff_table : obj
+#         Table of used lag times with the associated
+#         :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}}) \ \\left(\\frac{m^2}{s}\\right)`
+#     """
+#     # Load Results from the output object file
+#     results = utils.load(link)
+#     diff_bin = results["diff_profile"]
+#     inp = results["model"]
+#     bins = inp["bins"]
+#     diff_unit = inp["diffusion unit"]
+#     dt = inp["len_frame"]
+#     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
+#     diff_bin_pore = {}
+#     diff = np.zeros(len(bins))
+#
+#     # Load pore obj file
+#     pore = utils.load(link_pore)
+#     res = pore.reservoir()
+#     box = pore.box()
+#
+#     # If no specific step length is chosen take the step length from the object file
+#     if not len_step:
+#         len_step = inp["len_step"]
+#
+#     # Cut profile (chose only the pore area for fitting)
+#     # Calculated start and end bin index of the pore area
+#     index_start = np.digitize(res, bins)
+#     index_end = np.digitize((res + box[2]), bins)
+#
+#     # Save for all lag times the cutted profile
+#     for i in len_step:
+#         diff_bin_pore[i] = {}
+#         diff = diff_bin[i]
+#         diff_bin_pore[i] = diff[index_start:index_end]
+#
+#     # If is_std true print the results of the calculations
+#     if is_std:
+#         len_step_all = len_step
+#
+#         # Determine all possible combinations
+#         a = list(itertools.combinations(len_step_all, 2))
+#
+#         # Allocate the results vector
+#         res = np.zeros(len(a))
+#
+#         # Fit for all combinations
+#         for i in range(len(a)):
+#             # Set the current tuple
+#             rand = list(a[i])
+#
+#             # Calculate the mean diffusion (m^2/s) over all bins
+#             D_mean = [np.mean(np.exp(diff_bin_pore[i] + diff_unit)) * 10**-6 for i in rand]
+#
+#             # Calculate the inverse lag time for the linear fit
+#             lagtime_inverse = [1 / (i * dt) for i in rand]   # Inverse lagtime in s
+#
+#             # Fit a linear line
+#             fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
+#
+#             # Set the x value for the linear fit
+#             x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
+#
+#             # Set the fitted diffusion coefficient on the results list
+#             res[i] = fit(0)
+#
+#         # Determine standard deviation and mean diffusion of fourth touple method
+#         diffusion_pore_mean = np.mean(res)
+#         std = res.std()
+#
+#     # Calculate the mean diffusion (m^2/s) over all bins
+#     D_mean_all = [np.mean(np.exp(diff_bin_pore[i] + diff_unit)) * 10 ** 3 for i in len_step]
+#
+#     # Calculate the inverse lag time (1/s) for the linear fit
+#     lagtime_inverse_all = [1 / (len_step[i] * dt) for i in range(len(len_step))]
+#
+#     # Plot the diffusion profiles for the different lag times
+#     legend = ["lagtime " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+#
+#     # Fit a linear line
+#     fit = np.poly1d(np.polyfit(lagtime_inverse_all, D_mean_all, 1))
+#
+#     # Set the x value for the linear fit
+#     x = np.arange(0, max(lagtime_inverse_all) * 2, (max(lagtime_inverse_all) * 2) / 5)
+#
+#     # Calculate the diffusion coefficient as a mean value over the bin
+#     print("\nDiffusion axial: "+"%.4e" % (float(fit(0)) * 10 ** -9) + " m^2/s\n")
+#
+#     # If is_std true print the results of the calculations
+#     if is_std:
+#         # Print results
+#         print("Mean Diffusion axial: "+"%.4e" % diffusion_pore_mean + " m^2/s\n")
+#         print("Standard deviation: "+"%.4e" % std + " m^2/s\n")
+#
+#     # Set vectors for plotting
+#     D_mean_vec = [D_mean_all[i] for i in range(len(lagtime_inverse_all))]
+#     lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
+#     x_vec = x = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
+#
+#     # Set data frame for the used lag times
+#     data = [str("%.4e" % (D_mean_all[i] * 10**-9)) + " $\mathrm{m^2s^{-1}}$" for i in range(len(len_step))]
+#     diff_table = pd.DataFrame(data, index=list(len_step), columns=list(['$D_\mathrm{mean}$']))
+#     diff_table = pd.DataFrame(diff_table.rename_axis('Step Length', axis=1))
+#     styler = diff_table.style.set_caption('Selected step length')
+#     diff_table = styler.set_properties(**{'text-align': 'right'})
+#     diff_table = diff_table.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
+#
+#     # Plot the results
+#     plt.xlim(0, 1.5*max(lag_time_vec))
+#     plt.ylim(0, 1.5*max(fit(x_vec)))
+#     sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red')
+#     sns.scatterplot(x=[0.0], y=[fit(0)], color='black')
+#     sns.lineplot(x=x_vec, y=fit(x))
+#     legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
+#     plt.legend(legend)
+#     plt.xlabel(r"Inverse lagtime ($10^{12} \ \mathrm{s^{-1}})$")
+#     plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+#
+#     diffusion_pore = fit(0) * 10 ** -9
+#
+#     return diffusion_pore, diffusion_pore_mean, diff_table
+#
+#
+# def mc_profile_pore(link_pore, link, len_step=[], infty_profile=False):
+#     """This function plots the diffusion profile in the pore areas for a
+#     infinity lag time (:math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \\infty`)
+#     over the box fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}`
+#     list. Additionally, it is possible to display the diffusion profiles for the
+#     calculated lag times. Therefore, the
+#     :math:`\\mathrm{infty}\_\\mathrm{profile}` has to be false.
+#     The list :math:`\\mathrm{len}\_\\mathrm{step}`
+#     contains the calculated step length which should be
+#     displayed.
+#
+#     Parameters
+#     ----------
+#     link : string
+#         Link to the diffusion data object generated by the
+#         :func:`mc.MC.do_mc_cycles`
+#     len_step : integer list, optional
+#         List of the different step length, if it is None the lag times which
+#         are contains in the obj file are printed
+#     infty_profile : bool, optional
+#         If its True only the profile for an infity lagtime is plotted
+#     """
+#     # Load Results from the output object file
+#     results = utils.load(link)
+#     diff_bin = results["diff_profile"]
+#     inp = results["model"]
+#     bins = inp["bins"]
+#     diff_unit = inp["diffusion unit"]
+#     dt = inp["len_frame"]
+#     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
+#     diff_bin_pore = {}
+#
+#     # Load pore obj file
+#     pore = utils.load(link_pore)
+#     res = pore.reservoir()
+#     box = pore.box()
+#     legend = []
+#
+#     # If no specific step length is chosen take the step length from the object file
+#     if not len_step:
+#         len_step = inp["len_step"]
+#
+#     # Calculate the inverse lag time (1/s) for the linear fit
+#     lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
+#
+#     # Cut profile (chose only the pore area)
+#     # Calculated start and end bin index of the pore area
+#     index_start = np.digitize(res, bins)
+#     index_end = np.digitize((res + box[2]), bins)
+#
+#     # Save for all lag times the cutted profile
+#     for i in len_step:
+#         diff_bin_pore[i] = {}
+#         diff = diff_bin[i]
+#         diff_bin_pore[i] = diff[index_start:index_end]
+#
+#     # List with the bins in the pore
+#     bins_pore = [bins[i] - res for i in range(index_start, index_end)]
+#
+#     # Determine diffusion profile in the pore area
+#     diff_bin_pore = [[np.exp(diff_bin_pore[j][i] + diff_unit) * 10 ** 3 for i in range(len(bins_pore))] for j in len_step]
+#
+#     # If infty_profile is false the profiles for the different lag times are plotted
+#     if not infty_profile:
+#         # Plot the diffusion profiles for the different lag times
+#         legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+#
+#         # Plot the profiles for the
+#         for i in range(len(len_step)):
+#             sns.lineplot(x=(bins_pore), y=diff_bin_pore[i])       # Diffusion in m^2/s
+#
+#     # If infty_profile is True the diffusion profile for a infinity lag times is shown
+#     if len(len_step) >= 2 and infty_profile:
+#         # Initialize fit vector
+#         diff_profile_fit = []
+#
+#         # Calculate the mean diffusion (m^2/s) over all bins
+#         for i in range(len(bins_pore)):
+#             diff = [diff_bin_pore[step][i] for step in range(len(len_step))]
+#
+#             # fit a linear line
+#             fit = np.poly1d(np.polyfit(lagtime_inverse, diff, 1))
+#
+#             # Append diffusion at t-> infty
+#             diff_profile_fit.append(fit(0))
+#
+#         # Plot fitted diffusion profile (m^2/s)
+#         sns.lineplot(x=(bins_pore), y=diff_profile_fit)
+#
+#     # Set legend for lag times
+#     if not infty_profile:
+#         # Add legend
+#         legend.append("Lagtime $\\infty$ ps")
+#         plt.legend(legend)
+#
+#     # Set plot properties
+#     plt.xlabel(r"Pore length (nm)")
+#     plt.ylabel(r"Diffusion ($\mathrm{m^2s^{-1}}$)")
 
 
 ###########################
