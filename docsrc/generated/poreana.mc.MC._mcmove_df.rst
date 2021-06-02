@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.init\_rate\_matrix\_pbc
-===========================
+MC\.\_mcmove\_df
+================
 
 .. currentmodule:: poreana.mc
 
-.. automethod:: MC.init_rate_matrix_pbc
+.. automethod:: MC._mcmove_df

@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-StepModel\.init\_model
-======================
+Model\.\_init\_profiles
+=======================
 
 .. currentmodule:: poreana.model
 
-.. automethod:: StepModel.init_model
+.. automethod:: Model._init_profiles

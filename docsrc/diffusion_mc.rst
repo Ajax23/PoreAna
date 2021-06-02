@@ -36,7 +36,7 @@ With the sampling obj-file the transition matrix can be plotted
     kwargs = {"vmin":0,"vmax":0.5, "xticklabels":30, "yticklabels":30,"cbar":True,"square":False}
 
     # Plot transition matrix for a step length of 10
-    pa.diffusion.plot_trans_mat("output/diff_mc_cyl_s.obj",10,kwargs)
+    pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.obj",10,kwargs)
 
 
 
@@ -72,7 +72,7 @@ The results of the MC Alogrithm the diffusion can be calculated
 .. code-block:: python
 
     # Print the results for the normal diffusion
-    diff,diff_mean,diff_table = pa.diffusion.diffusion_fit("output/diff_mc.obj")
+    diff,diff_mean,diff_table = pa.diffusion.mc_fit("output/diff_mc.obj")
 
 
 ``Diffusion axial: 1.6913e-09 m^2/s``
@@ -94,10 +94,10 @@ displayed
 .. code-block:: python
 
     # Plot diffusion profile over the simulation box
-    pa.diffusion.diff_profile("output/diff_mc.obj", infty_profile=True)
+    pa.diffusion.mc_profile("output/diff_mc.obj", infty_profile=True)
 
     # Plot free energy profile over the simulation box
-    pa.diffusion.df_profile("output/diff_mc.obj",[10])
+    pa.freeenergy.mc_profile("output/diff_mc.obj",[10])
 
 
 .. figure::  /pics/diff_df.svg
@@ -110,10 +110,10 @@ Additionally, the pore area can be considered more closely
 .. code-block:: python
 
     # Plot the lag time extrapolation for the pore ares
-    pa.diffusion.diffusion_pore_fit("data/pore_system_cylinder.obj","output/diff_test_mc.obj")
+    pa.diffusion.mc_fit_pore("data/pore_system_cylinder.obj","output/diff_mc.obj")
 
     # Plot diffusion profile in a pore
-    pa.diffusion.diff_pore_profile("data/pore_system_cylinder.obj","output/diff_test_mc.obj", infty_profile=True)
+    pa.diffusion.mc_profile("output/diff_mc.obj",link_pore="data/pore_system_cylinder.obj", infty_profile=True)
 
 
 ``Diffusion axial: 1.2534e-09 m^2/s``

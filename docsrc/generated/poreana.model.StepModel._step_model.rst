@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-CosineModel\.init\_model
+StepModel\.\_step\_model
 ========================
 
 .. currentmodule:: poreana.model
 
-.. automethod:: CosineModel.init_model
+.. automethod:: StepModel._step_model

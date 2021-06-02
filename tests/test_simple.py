@@ -253,7 +253,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(model,8000,1500,print_output=False)
+        MC = pa.MC(8000,1500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
@@ -265,7 +265,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit_pore("data/pore_system_cylinder.obj","output/diff_test_mc.obj")
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj",link_pore="data/pore_system_cylinder.obj")
         plt.savefig("output/mc_fit_pore.svg", format="svg", dpi=1000)
 
         # Plot diffusion profile over box length
@@ -275,7 +275,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot diffusion profile in the pore area
         plt.figure()
-        pa.diffusion.mc_profile_pore("data/pore_system_cylinder.obj","output/diff_test_mc.obj", infty_profile = True)
+        pa.diffusion.mc_profile("output/diff_test_mc.obj",link_pore="data/pore_system_cylinder.obj", infty_profile = True)
         plt.savefig("output/diffusion_pore_profile.svg", format="svg", dpi=1000)
 
         # Plot free energy profile over box length
@@ -301,7 +301,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(model,5000,2500,print_output=False)
+        MC = pa.MC(5000,2500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc_box.obj")
@@ -341,7 +341,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10]
-        MC = pa.MC(model,1,2000,print_output=True)
+        MC = pa.MC(1,2000,print_output=True)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc.obj")
@@ -400,7 +400,7 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Set the MC class
-        MC = pa.MC(model)
+        MC = pa.MC()
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         MC._len_step = 1
@@ -449,7 +449,7 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_lag_time("data/check_tables.obj",print_con=True)
 
         # Check output which is not coveraged by the entire MC test
-        pa.diffusion.mc_profile_pore("data/pore_system_cylinder.obj","data/check_tables.obj", infty_profile = False)
+        pa.diffusion.mc_profile("data/check_tables.obj",link_pore="data/pore_system_cylinder.obj", infty_profile = False)
         pa.diffusion.mc_profile("data/check_tables.obj", infty_profile = False)
         pa.freeenergy.mc_profile("data/check_tables.obj")
 

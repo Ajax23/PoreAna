@@ -5,8 +5,7 @@ poreana\.diffusion
 
    Bin Diffusion
    -------------
-
-   .. rubric:: Analysis
+   .. rubric:: Functions
 
    .. autosummary::
 
@@ -17,27 +16,10 @@ poreana\.diffusion
 
    MC Diffusion
    ------------
-
-   .. rubric:: Analysis
-
-   .. autosummary::
-
-     mc_fit
-     mc_fit_pore
-     mc_trans_mat
-
-   .. rubric:: Profiles
+   .. rubric:: Functions
 
    .. autosummary::
 
-     mc_profile
-     mc_profile_pore
-
-   .. rubric:: Input & Output Tables
-
-   .. autosummary::
-
-     mc_inputs
-     mc_model
-     mc_statistics
-     mc_lag_time
+      mc_fit
+      mc_profile
+      mc_trans_mat

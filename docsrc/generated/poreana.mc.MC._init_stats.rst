@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.update\_movewidth\_mc
-=========================
+MC\.\_init\_stats
+=================
 
 .. currentmodule:: poreana.mc
 
-.. automethod:: MC.update_movewidth_mc
+.. automethod:: MC._init_stats

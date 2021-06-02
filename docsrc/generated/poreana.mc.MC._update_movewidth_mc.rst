@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.setup\_bessel\_box
-======================
+MC\.\_update\_movewidth\_mc
+===========================
 
 .. currentmodule:: poreana.mc
 
-.. automethod:: MC.setup_bessel_box
+.. automethod:: MC._update_movewidth_mc

@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.mcmove\_df
+mc\_statistics
 ==============
 
-.. currentmodule:: poreana.mc
+.. currentmodule:: poreana.tables
 
-.. automethod:: MC.mcmove_df
+.. autofunction:: mc_statistics

@@ -17,5 +17,5 @@ Model
 
    .. autosummary::
    
-      ~Model.calc_profile
-      ~Model.init_profiles
+      ~Model._calc_profile
+      ~Model._init_profiles

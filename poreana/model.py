@@ -11,11 +11,13 @@ class Model:
     Parameters
     ----------
     data_link : string
-        Data link to the pickle data from sample_mc
+        Data link to the pickle data from :func:`poreana.sample.Sample.init_diffusion_mc`
     d0 : double, optional
-        Initial guess of diffusion coefficent
+        Initial guess of diffusion coefficient
     """
+
     def __init__(self, data_link, d0=1e-8):
+
         # Load data object
         sample = utils.load(data_link)
         inp = sample["inp"]
@@ -32,7 +34,7 @@ class Model:
         self._pbc = inp["is_pbc"]                        # pbc or nopbc
         self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
 
-        # Initialize units of w and v
+        # Initialize units of diffusion and free energy unit
         self._df_unit = 1.                                 # in kBT
         self._diff_unit = np.log(self._bin_width**2 / 1.)  # in m^2/s
 
@@ -44,31 +46,31 @@ class Model:
         self._df_bin = np.float64(np.zeros(self._bin_num))    # in kBT
         self._diff_bin = np.float64(np.zeros(self._bin_num))  # in dz**2/dt
 
-        # Initalize the diffusion profile
+        # Initialize the diffusion profile
         self._diff_bin += (np.log(self._d0) - self._diff_unit)
 
     def _calc_profile(self, coeff, basis):
         """This function calculates the diffusion and free energy profile over
         the bins. It is used to initialize the system at the beginning of the
-        calculation/MC run. Additional it is needed to update the profiles
+        calculation/MC run. Additionally, it is needed to update the profiles
         in the Monte Carlo part after the adjustment of a profile coefficient.
 
         The profile is determining with the basis and the coefficients for the
-        free energy with
+        diffusion with
 
         .. math::
 
-            \\mathrm{basis} = a_{k} \\cdot \\mathrm{basis}_{\\text{F}},
+            \\ln D_i = a_0 + \\sum_{k} a_{k} \\cdot \\mathrm{basis}_{\\text{F}},
 
-        and for the diffusion with
+        and for the free energy with
 
         .. math::
 
-            \\mathrm{basis} = a_{k} \\cdot \\mathrm{basis}_{\\text{D}}.
+            F_i = \\sum_{k} a_{k} \\cdot \\mathrm{basis}_{\\text{D}}.
 
-        The diffusion is calculated between to bins and the free energy
+        The diffusion is calculated between to bins on the bin border and the free energy
         in the center of a bin.
-        The basis is received by the create basis function for the chosen model:
+        The basis is received by the create basis function for the selected model:
 
         **CosineModel**
          * :func:`CosineModel._create_basis_center`
@@ -85,6 +87,7 @@ class Model:
         basis : list
             list of the basis part of model
         """
+
         # Calculate a matrix with the bin_num x ncos
         # Columns contains the n-summand in every bin
         # Line contains the summand of the series
@@ -104,7 +107,7 @@ class CosineModel(Model):
 
         \\ln \\left(D_{i+ \\frac{1}{2}}\\right)=a_{0}+\\sum_{k=1}^{n_b} a_{k} \\cdot \\cos \\left(\\frac{2\\pi ki}{n}\\right).
 
-    Similar the free energy Fourier series can be written:
+    Similarly, the free energy Fourier series can be written:
 
     .. math::
 
@@ -119,7 +122,7 @@ class CosineModel(Model):
     Parameters
     ----------
     data_link : string
-        Data link to the pickle data from :func:`Sample.init_diffusion_mc`
+        Data link to the pickle data from :func:`poreana.sample.Sample.init_diffusion_mc`
     n_diff : integer, optional
         Number of the Fourier coefficients for the diffusion profile
     n_df : integer, optional
@@ -127,7 +130,9 @@ class CosineModel(Model):
     n_diff_radial : integer, optional
         Number of the Fourier coefficients for the radial diffusion profile
     """
+
     def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
+
         # Inherit the variables from Model class
         super(CosineModel, self).__init__(data_link)
 
@@ -148,6 +153,7 @@ class CosineModel(Model):
         and the profile list for the free energy and diffusion profile.
         It is used to reinitialize these lists at the beginning of a MC run.
         """
+
         # Initialize the diffusion and free energy coefficient
         self._df_coeff = np.float64(np.zeros(self._n_df))      # in dz**2/dt
         self._diff_coeff = np.float64(np.zeros(self._n_diff))  # in dz**2/dt
@@ -162,6 +168,7 @@ class CosineModel(Model):
         """This function sets a Fourier Cosine Series Model for the MC Diffusion
         Calculation and determines the initialize profiles.
         """
+
         # Create basis (for the free energy)
         self._create_basis_center()
 
@@ -205,6 +212,7 @@ class CosineModel(Model):
         hereby :math:`k` is the number of coefficients, :math:`i` is the bin
         index and :math:`n` is the number of the bins.
         """
+
         # Allocate a vector with bin_num entries
         x = np.arange(self._bin_num)
 
@@ -218,7 +226,7 @@ class CosineModel(Model):
 
     def _create_basis_border(self):
         """This function creates the basis part in every bin of the Fourier
-        series for the Diffusion :math:`\\ln \\ (D)`.
+        series for the diffusion :math:`\\ln \\ (D)`.
         At the bin border the basis is calculated with
 
         .. math::
@@ -228,6 +236,7 @@ class CosineModel(Model):
         hereby :math:`k` is the number of coefficients, :math:`i` is the bin
         index and :math:`n` is the number of the bins.
         """
+
         # Allocate a vector with bin_num entries
         x = np.arange(self._bin_num)
 
@@ -241,8 +250,8 @@ class CosineModel(Model):
 class StepModel(Model):
     """This class sets the Step Model to calculate the free energy profile and
     the diffusion profile. This model based on a spline calculation.
-    In contrast to the Cosine Model the determined profile have not the typical
-    oscillation and recieves a profile which is better interpretable.
+    In contrast to the Cosine Model the determined profile has not the typical
+    oscillation and receives a profile which is better interpretable.
 
     .. math::
 
@@ -255,7 +264,7 @@ class StepModel(Model):
     Parameters
     ----------
     data_link : string
-        Data link to the pickle data from :func:`init_diffusion_mc`
+        Data link to the pickle data from :func:`poreana.sample.Sample.init_diffusion_mc`
     n_diff : integer, optional
         Number of the Fourier coefficients for the diffusion profile
     n_df : integer, optional
@@ -263,7 +272,9 @@ class StepModel(Model):
     n_diff_radial : integer, optional
         Number of the Fourier coefficients for the radial diffusion profile
     """
+
     def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
+
         # Inherit the variables from Model class
         super(StepModel, self).__init__(data_link)
 
@@ -283,6 +294,7 @@ class StepModel(Model):
         the profile list for the free energy and diffusion profile. It is used
         to reinitializes these lists for every lag time calculation.
         """
+
         # Initialize the diffusion and free energy coefficient
         self._df_coeff = np.float64(np.zeros(self._n_df))
         self._diff_coeff = np.float64(np.zeros(self._n_diff))
@@ -301,6 +313,7 @@ class StepModel(Model):
         """This function set a Step Model for the MC Diffusion Calculation and
         determine the initialize profiles.
         """
+
         # create basis (for the free energy)
         self._create_basis_center()
 
@@ -338,8 +351,8 @@ class StepModel(Model):
         """This function creates the basis part in every bin of the Step model
         for the free energy and the radial diffusion profile. The following
         explanation is for the free energy profile. For the radial diffusion
-        profile the number of free energy coefficients :math:`n_{df}` has to
-        exchange with :math:`n_{diff_radial}`. The Dimension of the basis matrix
+        profile the number of free energy coefficients :math:`n_{\\mathrm{df}}` has to
+        exchange with :math:`n_{\\mathrm{diff\_radial}}`. The Dimension of the basis matrix
         is :math:`n_{\\mathrm{bin}} \\times n_{\\mathrm{df}}`. For a bin the
         basis is calculated with
 

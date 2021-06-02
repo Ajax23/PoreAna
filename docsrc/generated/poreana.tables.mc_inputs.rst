@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-bins\_plot
+mc\_inputs
 ==========
 
-.. currentmodule:: poreana.diffusion
+.. currentmodule:: poreana.tables
 
-.. autofunction:: bins_plot
+.. autofunction:: mc_inputs

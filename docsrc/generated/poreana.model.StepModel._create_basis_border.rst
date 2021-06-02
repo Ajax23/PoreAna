@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-CosineModel\.create\_basis\_center
+StepModel\.\_create\_basis\_border
 ==================================
 
 .. currentmodule:: poreana.model
 
-.. automethod:: CosineModel.create_basis_center
+.. automethod:: StepModel._create_basis_border

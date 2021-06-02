@@ -11,12 +11,15 @@ class MC:
     """This class contains the Monte Carlo part of the diffusion calculation.
     The class initializes the MC (Monte Carlo) parameters and contains all
     functions to execute the MC cycle part of the diffusion calculation.
-    The MC Algorithm is divided in two parts. Frist a equilibrium MC run starts
+    The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
     to adjust the profile. The number of the equilibrium runs can be set with
     :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion
-    profile can begin. In this part the MC alogrithm calculates in every step
-    an diffusion profile. The average over all profiles which are yields in MC
-    production will be determined. The received profile gives the final results.
+    profile can start. In this part the MC Algorithm calculates in every step
+    a new diffusion profile. The average over all profiles which are yields in MC
+    production will be determined. The received profile gives the final result.
+    The MC algorithm calculates a diffusion profile for each step length
+    previously specified in the sampling (:func:`poreana.sample.Sample.init_diffusion_mc`)
+    and thus, for each lag time.
     Here you have to set also step the move width of a MC step.
 
     **More information about a MC step can be found in**
@@ -28,16 +31,16 @@ class MC:
 
     Parameters
     ----------
-    model : Model
+    model : class
         Model object which sets with the model class
     nmc_eq : integer, optional
         Number of equilibrium MC steps
     nmc : integer, optional
-        Number of prdocution MC steps
+        Number of production MC steps
     nmc_eq_radial : integer, optional
         Number of equilibrium MC steps
     nmc_radial : integer, optional
-        Number of prdocution MC steps
+        Number of production MC steps
     delta_df : float, optional
         Potential MC move width
     delta_diff : float, optional
@@ -45,7 +48,8 @@ class MC:
     delta_diff_radial : float, optional
         ln(radial diffusion) MC move width
     num_mc_update : integer, optional
-        Number of moves between MC step width adjustments ( 0 if no adjustment)
+        Number of moves between MC step width adjustments (=0 if no adjustment
+        is required)
     temp : float, optional
         Temperature in Monte Carlo acceptance criterium
     lmax : integer, optional
@@ -55,7 +59,7 @@ class MC:
     print_freq : integer, optional
         Print MC step every print_freq
     """
-    def __init__(self, model, nmc_eq=50000, nmc=100000, nmc_eq_radial=50000, nmc_radial=100000, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, num_mc_update=10, temp=1, lmax=50, print_output=True, print_freq=100):
+    def __init__(self, nmc_eq=50000, nmc=100000, nmc_eq_radial=50000, nmc_radial=100000, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, num_mc_update=10, temp=1, lmax=50, print_output=True, print_freq=100):
         # Set MC step width
         self._delta_df = delta_df                            # MC Move width free energy
         self._delta_diff = delta_diff                        # MC Move width Diffusion
@@ -87,10 +91,10 @@ class MC:
     ##############
     def do_mc_cycles(self, model, link_out, do_radial=False):
         """This function do the MC Cycle to calculate the diffusion and free
-        energy profil over the bins and save the results in a output object
-        file. This happen with the adjustment of the coefficient from the model
-        which is set with the appropriate model class. The code determine the
-        results for all lagtimes for which a transition matrix was caclulated.
+        energy profile over the bins and save the results in an output object
+        file. This happens with the adjustment of the coefficient from the model
+        which is set with the appropriate model class. The code determines the
+        results for all lag times for which a transition matrix was calculated.
         The results can be displayed with the post process functions.
 
         The MC accepted criterium for a MC step is define as
@@ -110,13 +114,14 @@ class MC:
 
         Parameters
         ----------
-        model : Model
+        model : class
             Model object which set before with the model class
         link_out : string
             Link to output object file
         do_radial : bool, optional
             True to calculate the radial diffusion
         """
+
         # Print that MC Calculation starts
         if not self._print_output:
             print("MC Calculation Start")
@@ -154,7 +159,7 @@ class MC:
         list_df_fluc = {}
         nacc_df_mean = {}
 
-        # Loop over the different step_length (lag times) (-> for every lag time a MC Claculation have to run)
+        # Loop over the different step_length (lag times) (-> for every lag time a MC Calculation have to run)
         for self._len_step in model._len_step:
             # Print that a new calculation with a new lag time starts
             lagtime_string = "Lagtime: " + str(self._len_step * model._dt) + " ps"
@@ -174,12 +179,12 @@ class MC:
             model._init_model()
             model._init_profiles()
 
-            # Start calucalation for the normal diffusion and free energy Profile
+            # Start calculation for the normal diffusion and free energy Profile
             if self._print_output:
                 print("## Calculate normal diffusion\n")
                 print("### Start equilibration\n")
 
-            # Calculated the initalize likelihood
+            # Calculated the initialize likelihood
             self._log_like = self._log_likelihood_z(model)
 
             # Initialize a new statistic
@@ -190,7 +195,7 @@ class MC:
             self._delta_diff = copy.deepcopy(self._delta_diff_start)
             self._delta_diff_radial = copy.deepcopy(self._delta_diff_radial_start)
 
-            # Initialize the fluction every MC run
+            # Initialize the fluctuation every MC run
             diff_profile_flk = np.float64(np.zeros(model._bin_num))
             # diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
             df_profile_flk = np.float64(np.zeros(model._bin_num))
@@ -200,7 +205,7 @@ class MC:
             self._fluctuation_df = 0
 
             ######################
-            # Start MC Alogrithm #
+            # Start MC Algorithm #
             ######################
             # Loop over the MC steps
             for imc in range(self._nmc + self._nmc_eq):
@@ -218,7 +223,7 @@ class MC:
                 # Update the MC movewidth
                 self._update_movewidth_mc(imc)
 
-                # Calculate the fluktuation and start the produktion
+                # Calculate the fluctuation and start the production
                 if imc >= self._nmc_eq:
 
                     # Add all profiles
@@ -257,7 +262,7 @@ class MC:
             list_diff_profile[self._len_step] = mean_diff_profile_flk
             list_df_profile[self._len_step] = mean_df_profile_flk  # copy.deepcopy(model._df_bin)
 
-            # Save the coefficents of the model for the current lag time in a list
+            # Save the coefficients of the model for the current lag time in a list
             list_diff_coeff[self._len_step] = model._diff_coeff
             list_df_coeff[self._len_step] = model._df_coeff
 
@@ -270,14 +275,14 @@ class MC:
             nacc_diff_mean[self._len_step] = copy.deepcopy(self._nacc_diff)
 
             #############################
-            # Start Radial MC Alogrithm #
+            # Start Radial MC Algorithm #
             #############################
             # Radial diffusion
             # if do_radial:
-            #     # Start MC calucalation for the radial diffusion
+            #     # Start MC calculation for the radial diffusion
             #     print("## Calculate radial diffusion")
             #
-            #     # Calculated the initalize likelihood and bessel function
+            #     # Calculated the initialize likelihood and bessel function
             #     self.setup_bessel_box(model)
             #     self._log_like_radial = self.log_likelihood_radial(model, model._diff_radial_bin)
             #
@@ -287,7 +292,7 @@ class MC:
             #                 print("likelihood init", self._log_like_radial, "\n")
             #         print("### Start equilibration\n")
             #
-            #     # Start MC Alogrithm for the radial diffusion
+            #     # Start MC Algorithm for the radial diffusion
             #     for imc in range(self._nmc_radial+self._nmc_eq_radial):
             #
             #         # Do a MC move in the radial diffusion profile
@@ -296,7 +301,7 @@ class MC:
             #         # Update the MC movewidth
             #         self._update_movewidth_mc(imc, True)
             #
-            #         # Calculate the fluktuation and start the produktion
+            #         # Calculate the fluctuation and start the production
             #         if imc >= self._nmc_eq_radial:
             #
             #             # Add all profiles
@@ -336,7 +341,7 @@ class MC:
             #     # Mean over all lag times calculations
             #     nacc_diff_radial_mean[self._len_step] = copy.deepcopy(self._nacc_diff_radial)
 
-            # If no radial diffusion is calculated set the initalize condition on the result lists
+            # If no radial diffusion is calculated set the initialize condition on the result lists
             if not do_radial:
                 # Save results for the current lag time
                 list_diff_radial_profile[self._len_step] = np.float64(np.zeros(model._bin_num))
@@ -421,15 +426,16 @@ class MC:
 
         Parameters
         ----------
-        model : Model
+        model : class
             Model object which set before with the model class
         """
+
         # Number of accepted moves
         self._nacc_df = 0          # Free energy
         self._nacc_diff = 0        # Diffusion
         self._nacc_diff_radial = 0 # Radial diffsuion
 
-        # Number of accepted oves between adjustments
+        # Number of accepted moves between adjustments
         self._nacc_df_update = 0          # Free energy
         self._nacc_diff_update = 0        # Diffsuion
         self._nacc_diff_radial_update = 0 # Radial diffsuion
@@ -437,41 +443,42 @@ class MC:
         # Number accepted for different coefficient update
         self._nacc_df_coeff = np.zeros(model._n_df, int)                   # Free energy
         self._nacc_diff_coeff = np.zeros(model._n_diff, int)               # Diffusion
-        self._nacc_diff_radial_coeff = np.zeros(model._n_diff_radial, int) # Radial diffsuion
+        self._nacc_diff_radial_coeff = np.zeros(model._n_diff_radial, int) # Radial diffusion
 
     def _mcmove_diffusion(self, model):
         """This function does the MC move for the diffusion profile and adjust
-        one coefficent of the model. A MC move in the parameter space is defined
+        one coefficient of the model. A MC move in the parameter space is defined
         by
 
         .. math::
 
             a_{k,\\mathrm{new}}= a_{k} + \\Delta_\\text{MC} \\cdot (R - 0.5)
 
-        with :math:`\\Delta_\\text{MC}` as the MC step movewidth and :math:`R`
+        with :math:`\\Delta_\\text{MC}` as the MC step move width and :math:`R`
         as a random number between :math:`0` and :math:`1`. The choice of the
         coefficient is also made by determining a random number.
 
         Parameters
         ----------
-        model : Model
+        model : class
             Model object which set with the model class
         """
+
         # Caclulate a random number to choose a random coefficient
-        ## The first coefficent of the diffusion profile is fixed 0 all the time
+        ## The first coefficient of the diffusion profile is fixed 0 all the time
         idx = np.random.randint(0, model._n_diff)
 
         # Calculate one new coefficient
         diff_coeff_temp = copy.deepcopy(model._diff_coeff)
         diff_coeff_temp[idx] += self._delta_diff * (np.random.random() - 0.5)
 
-        # Use the new coeff to calculate a new diffusion profile
+        # Use the new coefficient to calculate a new diffusion profile
         diff_bin_temp = model._calc_profile(diff_coeff_temp, model._diff_basis)
 
         # Calculate a new likelihood to check acceptance of the step
         log_like_try = self._log_likelihood_z(model, diff_bin_temp)
 
-        # Propagtor behavior (propagator is well behaved - :TODO: implement)
+        # Propagator behavior
         if log_like_try is not None and not np.isnan(log_like_try):
             # Calculate different between new and old likelihood
             dlog = log_like_try - self._log_like
@@ -484,7 +491,7 @@ class MC:
                 # Save new diffusion profile (after MC step)
                 model._diff_bin[:] = diff_bin_temp[:]
 
-                # Save new coefficent vector
+                # Save new coefficient vector
                 model._diff_coeff[:] = diff_coeff_temp[:]
 
                 # Save new likelihood
@@ -508,17 +515,17 @@ class MC:
 
             a_{k,\\mathrm{new}}= a_{k} + \\Delta_\\mathrm{MC} \\cdot (R - 0.5)
 
-        with :math:`\\Delta_\\mathrm{MC}` as the MC step movewidth and :math:`R`
+        with :math:`\\Delta_\\mathrm{MC}` as the MC step move width and :math:`R`
         as a random number between :math:`0` and :math:`1`. The choice of the
         coefficient is also made by determining a random number.
 
         Parameters
         ----------
-        model : Model
+        model : class
             Model object which set with the model class
         """
         # Caclulate a random number to choose a random coefficient
-        ## The first coefficent of the df profile is fixed 0 all the time
+        ## The first coefficient of the df profile is fixed 0 all the time
         idx = np.random.randint(1, model._n_df)
 
         # Calculate one new coefficient
@@ -531,7 +538,7 @@ class MC:
         # Calculate a new likelihood to check acceptance of the step
         log_like_try = self._log_likelihood_z(model, df_bin_temp)
 
-        # Propagtor behavior (propagator is well behaved - :TODO: implement)
+        # Propagtor behavior
         if log_like_try is not None and not np.isnan(log_like_try):
             # Calculate different between new and old likelihood
             dlog = log_like_try - self._log_like
@@ -612,7 +619,7 @@ class MC:
     #             self._nacc_diff_radial_update += 1
 
     def _update_movewidth_mc(self, imc, radial=False):
-        """This function sets a new MC movewidth after a define number of MC
+        """This function sets a new MC move width after a define number of MC
         steps :math:`n_\\text{MC,update}`. The new step width is estimate with
 
         .. math::
@@ -626,7 +633,11 @@ class MC:
         do_radial : bool
             True to calculate the radial diffusion
         """
+
+        # If _num_mc_update>0 the move width update is on
         if self._num_mc_update > 0:
+
+            # Update the move width
             if ((imc+1) % self._num_mc_update == 0) and not radial:
                 self._delta_df *= np.exp(0.1 * (float(self._nacc_df_update) / self._num_mc_update - 0.3))
                 self._delta_diff *= np.exp(0.1 * (float(self._nacc_diff_update) / self._num_mc_update - 0.3))
@@ -642,7 +653,7 @@ class MC:
     ###############
     # Rate matrix #
     ###############
-    def _init_rate_matrix_pbc(self, n, diff_bin, df_bin):
+    def _init_rate_matrix_pbc(self, bin_num, diff_bin, df_bin):
         """This function estimates the rate Matrix R for the current free energy
         and log diffusion profiles over the bins for periodic boundary
         conditions. The dimension of the matrix is :math:`n \\times n`
@@ -689,27 +700,28 @@ class MC:
 
         Parameters
         ----------
-        n : integer
-            Link to poresystem object file
+        bin_num : integer
+            Number of bins
         diff_bin : list
-            Log diffusion profile over the bins
+            Ln diffusion profile over the bins
         df_bin : list
             Free energy profile over the bins
 
         Returns
         -------
-        rate matrix :
-            Rate matrix for the current free energy and log diffusion profile
+        rate matrix : array
+            Rate matrix for the current free energy and ln diffusion profile
         """
+
         # Initialize rate matrix
-        rate = np.float64(np.zeros((n, n)))
+        rate = np.float64(np.zeros((bin_num, bin_num)))
 
         # Off-diagonal elements
         delta_df_bin = df_bin[1:]-df_bin[:-1]
-        exp1 = diff_bin[:n-1] - 0.5 * delta_df_bin
-        exp2 = diff_bin[:n-1] + 0.5 * delta_df_bin
-        rate.ravel()[n::n+1] = np.exp(exp1)[:n-1]
-        rate.ravel()[1::n+1] = np.exp(exp2)[:n-1]
+        exp1 = diff_bin[:bin_num-1] - 0.5 * delta_df_bin
+        exp2 = diff_bin[:bin_num-1] + 0.5 * delta_df_bin
+        rate.ravel()[bin_num::bin_num+1] = np.exp(exp1)[:bin_num-1]
+        rate.ravel()[1::bin_num+1] = np.exp(exp2)[:bin_num-1]
 
         # Corners and periodic boundary conditions
         rate[0, -1] = np.exp(diff_bin[-1]-0.5*(df_bin[0]-df_bin[-1]))
@@ -718,7 +730,7 @@ class MC:
         rate[-1, -1] = - rate[-2, -1] - rate[0, -1]
 
         # Diagonal elements
-        for i in range(1, n-1):
+        for i in range(1, bin_num-1):
             rate[i, i] = - rate[i-1, i] - rate[i+1, i]
 
         return rate
@@ -812,7 +824,7 @@ class MC:
         :math:`N_{ij}(\\Delta_{ij}t_{\\alpha})` as the transition matrix.
         The transition matrix contains the numbers of all observed transition
         :math:`j \\rightarrow i` at a given lag time in a simulated trajectory.
-        This matrix is sampled with the function :func:`init_diffusion_mc` from
+        This matrix is sampled with the function :func:`poreana.sample.Sample.init_diffusion_mc` from
         a simulated trajectory at the beginning and depends on the lag time.
 
         Parameters
@@ -827,8 +839,6 @@ class MC:
         log_like : float
             Likelihood for the current profiles in a simulation box
         """
-        # Initialize log_like
-        tiny = 1e-10
 
         # Calculate the current rate matrix for a trajectory with periodic boundary condition
         if model._pbc:
@@ -850,10 +860,11 @@ class MC:
         #         else:
         #             rate = self.init_rate_matrix_nopbc(model._bin_num, model._diff_bin, temp)
 
-        # Calculate the propagtor
+        # Calculate the propagator
         propagator = sc.linalg.expm(self._len_step * model._dt * rate)
 
         # Calculate likelihood
+        tiny = 1e-10
         mat = model._trans_mat[self._len_step] * np.log(propagator.clip(tiny))
         log_like = np.sum(mat)
 

@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.init\_stats
-===============
+MC\.\_mcmove\_diffusion
+=======================
 
 .. currentmodule:: poreana.mc
 
-.. automethod:: MC.init_stats
+.. automethod:: MC._mcmove_diffusion

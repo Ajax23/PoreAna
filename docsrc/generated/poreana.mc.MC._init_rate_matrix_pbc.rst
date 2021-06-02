@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.log\_likelihood\_z
-======================
+MC\.\_init\_rate\_matrix\_pbc
+=============================
 
 .. currentmodule:: poreana.mc
 
-.. automethod:: MC.log_likelihood_z
+.. automethod:: MC._init_rate_matrix_pbc
