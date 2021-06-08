@@ -208,14 +208,12 @@ def mc_inputs(link_out, print_con=False):
     inp = results["inp"]
     nmc_eq = inp["MC steps eq"]
     nmc = inp["MC steps"]
-    nmc_radial_eq = inp["MC steps radial eq"]
-    nmc_radial = inp["MC steps radial"]
     num_mc_update = inp["step width update"]
     print_freq = inp["print freq"]
 
     # Table for MC Inputs
-    data = [nmc_eq, nmc, nmc_radial_eq, nmc_radial, num_mc_update, print_freq]
-    df_mc = pd.DataFrame(data, index=list(['MC steps (Equilibrium)', 'MC steps (Production)', 'radial MC steps (Equilibrium)', 'radial MC step (Production)', 'movewidth update frequency', 'print frequency']), columns=list(['Input']))
+    data = [nmc_eq, nmc, num_mc_update, print_freq]
+    df_mc = pd.DataFrame(data, index=list(['MC steps (Equilibrium)', 'MC steps (Production)', 'movewidth update frequency', 'print frequency']), columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con:

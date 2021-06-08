@@ -608,6 +608,43 @@ class Sample:
     def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12):
         """Enable diffusion sampling routine with the MC Alogrithm.
 
+        This function sample the transition matrix for the diffusion
+        calculation with the Monte Carlo diffusion methode for a cubic
+        simulation box. The sample of the transition matrix is to be run on
+        the cluster due to a high time and resource consumption. The output,
+        a data object, is then used to calculate the self-diffusion using
+        further calculation functions for the MC Diffusion methode.
+
+        It is necessary to caculate the transition matrix for different step
+        length and so for different lag times. A lagtime
+        :math:`\\Delta_{ij}t_{\\alpha}` is defined by
+
+        .. math::
+
+            \\Delta_{ij}t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
+
+        with :math:`i` and :math:`j` as the current state of the system at two
+        different times and :math:`\\alpha` as past time between the two states.
+        To sample the transition matrix the frame length :math:`t` has to
+        be specifiy and this frame length is for all lag times the same.
+        The variation of the lag time is happend by adapting the step length
+        :math:`s` which indicates the interval between the frames. The lag time
+        is than calculated by
+
+        .. math::
+
+            \\Delta_{ij}t_{\\alpha} = t \cdot s
+
+        After the sampling a model class has to set and then the MC calculation
+        can run. Subsequently the final mean diffusion coefficient can be
+        determined with a extrapolation to
+        :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty`.
+        For the etxrapolation we need the mean diffusion over the bins for
+        different chosen lag times. That's why we have to calculate the results
+        and the transition matrix for several lag times. More information about
+        post processing and the extrapolation that you can find in
+        :func:`poreana.diffusion.mc_fit`
+
         Parameters
         ----------
         link_out : string
@@ -859,7 +896,7 @@ class Sample:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
             # Pickle
-            utils.save({"inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
+            utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
 
     def _sample_helper(self, frame_list, shift, is_pbc):
         """Helper function for sampling run.

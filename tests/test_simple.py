@@ -41,7 +41,7 @@ class UserModelCase(unittest.TestCase):
         mol_H = pms.Molecule(inp="data/heptane.gro")
 
         # Sample
-        ## Single core
+        # Single core
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.obj")
         sample.init_gyration("output/gyr_cyl_s.obj")
@@ -252,7 +252,7 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Set the MC class and options
-        model._len_step = [10,20,30,40,50]
+        model._len_step = [10,20,30,40]
         MC = pa.MC(8000,1500,print_output=False)
 
         # Do the MC alogirthm
@@ -265,7 +265,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj",link_pore="data/pore_system_cylinder.obj")
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj",is_pore=True)
         plt.savefig("output/mc_fit_pore.svg", format="svg", dpi=1000)
 
         # Plot diffusion profile over box length
@@ -275,7 +275,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot diffusion profile in the pore area
         plt.figure()
-        pa.diffusion.mc_profile("output/diff_test_mc.obj",link_pore="data/pore_system_cylinder.obj", infty_profile = True)
+        pa.diffusion.mc_profile("output/diff_test_mc.obj",is_pore=True, infty_profile = True)
         plt.savefig("output/diffusion_pore_profile.svg", format="svg", dpi=1000)
 
         # Plot free energy profile over box length
@@ -301,7 +301,7 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(5000,2500,print_output=False)
+        MC = pa.MC(100,2500,print_output=False)
 
         # Do the MC alogirthm
         MC.do_mc_cycles(model,"output/diff_test_mc_box.obj")
@@ -328,7 +328,7 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/transition_heatmap_box.svg", format="svg", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.0 * 10**-8) ) < 0.3 * 10**-8, True)
+        self.assertEqual(abs(diff - (1.3 * 10**-8) ) < 0.3 * 10**-8, True)
 
     def test_print_out(self):
         # self.skipTest("Temporary")
@@ -449,8 +449,11 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_lag_time("data/check_tables.obj",print_con=True)
 
         # Check output which is not coveraged by the entire MC test
-        pa.diffusion.mc_profile("data/check_tables.obj",link_pore="data/pore_system_cylinder.obj", infty_profile = False)
+        pa.diffusion.mc_profile("data/check_tables.obj",is_pore=True, infty_profile = False)
+        pa.diffusion.mc_profile("data/check_tables.obj",is_pore=True,section=[0,5], infty_profile = False)
+        pa.diffusion.mc_profile("data/check_tables.obj",is_pore=True, infty_profile = False)
         pa.diffusion.mc_profile("data/check_tables.obj", infty_profile = False)
+        pa.diffusion.mc_fit("data/check_tables.obj", section=[0,5])
         pa.freeenergy.mc_profile("data/check_tables.obj")
 
         # Check kwargs of transition heatmap

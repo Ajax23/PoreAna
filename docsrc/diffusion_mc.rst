@@ -33,14 +33,13 @@ With the sampling obj-file the transition matrix can be plotted
 .. code-block:: python
 
     # Set kwargs for the heatmap
-    kwargs = {"vmin":0,"vmax":0.5, "xticklabels":30, "yticklabels":30,"cbar":True,"square":False}
+    kwargs = {"vmin":0,"vmax":0.5, "xticklabels":30, "yticklabels":30, "cbar":True, "square":False}
 
     # Plot transition matrix for a step length of 10
-    pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.obj",10,kwargs)
+    pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.obj", 10, kwargs)
 
 
-
-.. figure::  /pics/trans.svg
+.. figure::  /pics/trans.png
       :align: center
       :width: 50%
       :name: fig1
@@ -54,7 +53,7 @@ After sampling, a model has to set and the MC Alogirthm started
     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
     # Set the MC class and options
-    MC = pa.MC(model,5000,5000,print_output=False)
+    MC = pa.MC(5000, 5000, print_output=False)
 
     # Do the MC alogirthm
     MC.do_mc_cycles(model,"output/diff_mc.obj")
@@ -97,7 +96,7 @@ displayed
     pa.diffusion.mc_profile("output/diff_mc.obj", infty_profile=True)
 
     # Plot free energy profile over the simulation box
-    pa.freeenergy.mc_profile("output/diff_mc.obj",[10])
+    pa.freeenergy.mc_profile("output/diff_mc.obj", [10])
 
 
 .. figure::  /pics/diff_df.svg
@@ -110,10 +109,10 @@ Additionally, the pore area can be considered more closely
 .. code-block:: python
 
     # Plot the lag time extrapolation for the pore ares
-    pa.diffusion.mc_fit_pore("data/pore_system_cylinder.obj","output/diff_mc.obj")
+    pa.diffusion.mc_fit_pore("data/pore_system_cylinder.obj", "output/diff_mc.obj")
 
     # Plot diffusion profile in a pore
-    pa.diffusion.mc_profile("output/diff_mc.obj",link_pore="data/pore_system_cylinder.obj", infty_profile=True)
+    pa.diffusion.mc_profile("output/diff_mc.obj", is_pore=True, infty_profile=True)
 
 
 ``Diffusion axial: 1.2534e-09 m^2/s``

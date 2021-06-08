@@ -34,6 +34,13 @@ class Model:
         self._pbc = inp["is_pbc"]                        # pbc or nopbc
         self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
 
+        if "pore" in sample:
+            self._pore_props = sample["pore"]
+            self._system = "pore"
+        if "box" in sample:
+            self._pore_props = sample["box"]
+            self._system = "box"
+
         # Initialize units of diffusion and free energy unit
         self._df_unit = 1.                                 # in kBT
         self._diff_unit = np.log(self._bin_width**2 / 1.)  # in m^2/s
@@ -111,7 +118,7 @@ class CosineModel(Model):
 
     .. math::
 
-        F_{i} = a_{0}+\\sum_{k=1}^{n_b} a_{k} \\cdot \\cos \\left(\\frac{2\\pi ki}{n} \\right).
+        F_{i} = a_{0}+\\sum_{k=1}^{n_b} a_{k} \\cdot \\cos \\left(\\frac{2\\pi ki}{n} \\right),
 
     with the number of bins :math:`n`, the index of a bin :math:`i`,
     the coefficients :math:`a_{k}` of the Fourier series and :math:`k` as the
@@ -252,14 +259,22 @@ class StepModel(Model):
     the diffusion profile. This model based on a spline calculation.
     In contrast to the Cosine Model the determined profile has not the typical
     oscillation and receives a profile which is better interpretable.
+    The profile will be determined with the following equations
 
     .. math::
 
-        \\ln \\left(D_{i+\\frac{1}{2}}\\right) = \\mathrm{coeff} \\cdot \\mathrm{basis}_{\\mathrm{diff}}
+        \\ln \\left(D_{i+\\frac{1}{2}}\\right) = a_{k} \\cdot \\mathrm{basis}_{\\mathrm{diff}}
 
     .. math::
 
-        F_i = \\mathrm{coeff} \\cdot \\mathrm{basis}_{\\mathrm{df}}
+        F_i = a_{k} \\cdot \\mathrm{basis}_{\\mathrm{df}}
+
+    with :math:`a_k` as the coefficients and the :math:`\\mathrm{basis}`. The
+    basis of the modell is calculated with
+
+    **StepModel**
+     * :func:`StepModel._create_basis_center`
+     * :func:`StepModel._create_basis_border`
 
     Parameters
     ----------
