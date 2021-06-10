@@ -109,15 +109,15 @@ Additionally, the pore area can be considered more closely
 .. code-block:: python
 
     # Plot the lag time extrapolation for the pore ares
-    pa.diffusion.mc_fit_pore("data/pore_system_cylinder.obj", "output/diff_mc.obj")
+    pa.diffusion.mc_fit_pore("output/diff_mc.obj", is_pore=True)
 
     # Plot diffusion profile in a pore
     pa.diffusion.mc_profile("output/diff_mc.obj", is_pore=True, infty_profile=True)
 
 
-``Diffusion axial: 1.2534e-09 m^2/s``
+``Diffusion axial (Pore): 1.2534e-09 m^2/s``
 
-``Mean Diffusion axial: 1.3417e-09 m^2/s``
+``Mean Diffusion axial (Pore): 1.3417e-09 m^2/s``
 
 ``Standard deviation: 3.1949e-10 m^2/s``
 

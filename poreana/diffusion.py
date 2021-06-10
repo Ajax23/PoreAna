@@ -479,12 +479,18 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
     if not len_step:
         len_step = inp["len_step"]
 
+    # If only the pore area should be considered
     if is_pore and not section:
         # Load pore system
-        pore = results["pore"]
-        res = pore["res"]
-        box = pore["box"]
-        legend = []
+        if "pore" in results:
+            pore = results["pore"]
+            res = pore["res"]
+            box = pore["box"]
+            legend = []
+        # If only the pore area should be considered
+        else:
+            print("obj.-file includes results of a simple box")
+            return
 
         # Cut profile (chose only the pore area)
         # Calculated start and end bin index of the pore area
@@ -496,9 +502,11 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
             diff_bin_vec[i] = {}
             diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
 
+    # If the entire system should be considered
     if not is_pore and not section:
         diff_bin_vec = diff_bin
 
+    # If a specific section of the box should be considered
     if section:
         # Cut profile
         # Calculated start and end bin index of the pore area
@@ -556,23 +564,28 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
     # Fit a linear line
     fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
 
-    # Calculate the diffusion coefficient as a mean value over the bin
+    # Print the diffusion coefficient for an entire system
     if not section and not is_pore:
         print("\nDiffusion axial: "+"%.4e" % fit(0) + " m^2/s\n")
         # If is_std true print the results of the calculations
         if is_std:
             print("Mean Diffusion axial: "+"%.4e" % diffusion_mean + " m^2/s\n")
+
+    # Print the diffusion coefficient in the pore area
     if is_pore and not section:
         print("\nDiffusion axial (Pore): "+"%.4e" % fit(0) + " m^2/s\n")
         # If is_std true print the results of the calculations
         if is_std:
             print("Mean Diffusion axial (Pore): "+"%.4e" % diffusion_mean + " m^2/s\n")
+
+    # Print the diffusion coefficient in a selected section
     if section:
         print("\nDiffusion axial ([" + str(section[0]) + "," + str(section[1]) + "]): "+"%.4e" % fit(0) + " m^2/s\n")
         # If is_std true print the results of the calculations
         if is_std:
             print("Mean Diffusion axial (["+ str(section[0]) + "," + str(section[1]) +"]): "+"%.4e" % diffusion_mean + " m^2/s\n")
 
+    # Print std deviation
     if is_std:
         print("Standard deviation: "+"%.4e" % std + " m^2/s\n")
 
@@ -659,12 +672,18 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
     if not len_step:
         len_step = inp["len_step"]
 
+    # If only the pore area should be considered
     if is_pore and not section:
         # Load pore system
-        pore = results["pore"]
-        res = pore["res"]
-        box = pore["box"]
-        legend = []
+        if "pore" in results:
+            pore = results["pore"]
+            res = pore["res"]
+            box = pore["box"]
+            legend = []
+        # If only the pore area should be considered
+        else:
+            print("obj.-file includes results of a simple box")
+            return;
 
         # Cut profile (chose only the pore area)
         # Calculated start and end bin index of the pore area
@@ -678,9 +697,11 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
 
         bins = [bins[i] - res for i in range(index_start, index_end)]
 
+    # If the entire system should be considered
     if not is_pore and not section:
         diff_bin_vec = diff_bin
 
+    # If a specific section of the box should be considered
     if section:
         # Cut profile
         # Calculated start and end bin index of the pore area
@@ -733,14 +754,17 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
 
 
     # Set plot properties
+    # Plot axis title for a entire system
     plt.xlabel(r"Box length (nm)")
     plt.ylabel(r"Diffusion ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
 
+    # Plot axis title for pore area
     if is_pore:
         # Set plot properties
         plt.xlabel(r"Pore length (nm)")
         plt.ylabel(r"Diffusion ($\mathrm{m^2s^{-1}}$)")
 
+    # Plot axis title for a section
     if section:
         # Set plot properties
         plt.xlabel(r"Box length (nm)")
