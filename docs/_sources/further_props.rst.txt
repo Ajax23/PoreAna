@@ -122,14 +122,14 @@ of radius and distance inside and outside the pore respectively
     ylim = [0, 0.2]
 
     plt.subplot(121)
-    pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="in")
+    pa.gyration.bins_plot("output/gyr.obj", "output/dens.obj", intent="in")
     plt.xlim([0, 2])
     plt.ylim(ylim)
     plt.xlabel("Distance from pore center (nm)")
     plt.ylabel(r"Radius of gyration (nm)")
 
     plt.subplot(122)
-    pa.gyration.plot("output/gyr.obj", "output/dens.obj", intent="ex")
+    pa.gyration.bins_plot("output/gyr.obj", "output/dens.obj", intent="ex")
     plt.xlim([0, 5])
     plt.ylim(ylim)
     plt.xlabel("Distance from reservoir end (nm)")

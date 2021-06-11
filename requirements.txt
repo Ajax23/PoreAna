@@ -1,4 +1,6 @@
 pandas
+scipy
 seaborn
-porems==0.2.1
+porems>=0.2.0
 chemfiles==0.10.0
+jinja2

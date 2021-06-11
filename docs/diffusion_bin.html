@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Diffusion Analysis in a pore &#8212; PoreAna 0.2.0 documentation</title>
+    <title>Diffusion Analysis in a Pore (Bin Method) &#8212; PoreAna 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.0',
+        VERSION:     '0.2.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -56,6 +56,7 @@
                 <li><a href="sample.html">Sample</a></li>
                 <li><a href="density.html">Density</a></li>
                 <li><a href="#">Diffusion (Bin)</a></li>
+                <li><a href="diffusion_mc.html">Diffusion (MC)</a></li>
                 <li><a href="further_props.html">Further Properties</a></li>
             
             
@@ -79,7 +80,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Diffusion Analysis in a pore</a></li>
+<li><a class="reference internal" href="#">Diffusion Analysis in a Pore (Bin Method)</a></li>
 </ul>
 </ul>
 </li>
@@ -112,8 +113,8 @@
   <div class="container-fluid">
   <div class="row">
     <div class="col-md-10">
-      <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="diffusion-analysis-in-a-pore">
-<h1>Diffusion Analysis in a pore<a class="headerlink" href="#diffusion-analysis-in-a-pore" title="Permalink to this headline">¶</a></h1>
+      <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="diffusion-analysis-in-a-pore-bin-method">
+<h1>Diffusion Analysis in a Pore (Bin Method)<a class="headerlink" href="#diffusion-analysis-in-a-pore-bin-method" title="Permalink to this headline">¶</a></h1>
 <p>The bin diffusion analysis needs the sampled object file using the bin
 diffusion routine</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
@@ -134,14 +135,14 @@ diffusion routine</p>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial:</span>&#160; <span class="pre">0.741</span> <span class="pre">10^-9</span> <span class="pre">m^2s^-1</span></code></p>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">radial:</span> <span class="pre">648.838</span> <span class="pre">10^-9</span> <span class="pre">m^2</span> <span class="pre">s^-1;</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">zeros:</span> <span class="pre">41;</span> <span class="pre">Radius:</span>&#160; <span class="pre">0.17</span></code></p>
 <div class="figure align-center" id="fig1">
-<a class="reference internal image-reference" href="_images/diffusion_01.svg"><img alt="_images/diffusion_01.svg" src="_images/diffusion_01.svg" width="50%" /></a>
+<a class="reference internal image-reference" href="_images/diffusion_bins_01.svg"><img alt="_images/diffusion_bins_01.svg" src="_images/diffusion_bins_01.svg" width="50%" /></a>
 </div>
 <p>or binwise</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">bins</span><span class="p">(</span><span class="s2">&quot;output/diff.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="fig2">
-<a class="reference internal image-reference" href="_images/diffusion_02.svg"><img alt="_images/diffusion_02.svg" src="_images/diffusion_02.svg" width="50%" /></a>
+<a class="reference internal image-reference" href="_images/diffusion_bins_02.svg"><img alt="_images/diffusion_bins_02.svg" src="_images/diffusion_bins_02.svg" width="50%" /></a>
 </div>
 <p>By weighting the diffusion profile with the density profile, one can
 calculate an axial mean value</p>

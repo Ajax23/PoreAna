@@ -9,4 +9,4 @@ poreana\.gyration
 
    .. autosummary::
 
-      plot
+      bins_plot

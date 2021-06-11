@@ -8,6 +8,6 @@ poreana\.density
    .. rubric:: Functions
 
    .. autosummary::
-   
-      calculate
-      plot
+
+      bins
+      bins_plot

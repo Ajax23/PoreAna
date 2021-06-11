@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>bins &#8212; PoreAna 0.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          PoreAna</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../sample.html">Sample</a></li>
+                <li><a href="../density.html">Density</a></li>
+                <li><a href="../diffusion_bin.html">Diffusion (Bin)</a></li>
+                <li><a href="../diffusion_mc.html">Diffusion (MC)</a></li>
+                <li><a href="../further_props.html">Further Properties</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">bins</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  </div>
+<div class=col-md-9 content><div class="section" id="bins">
+<h1>bins<a class="headerlink" href="#bins" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="poreana.density.bins">
+<code class="descclassname">poreana.density.</code><code class="descname">bins</code><span class="sig-paren">(</span><em>link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.bins" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function calculates the density inside and outside of the pore.
+This is done by calculating the number density <span class="math">\(\rho_n\)</span> and using the
+molar mass <span class="math">\(M\)</span> of the molecule to determine the mass density
+<span class="math">\(\rho\)</span>.</p>
+<p>The basic idea is counting the number of molecules <span class="math">\(N_i\)</span> in volume
+slices <span class="math">\(V_i\)</span>, thus getting the number density <span class="math">\(\rho_{n,i}\)</span> in
+these sub volumes. Inside the pore this is done by creating a radial slicing
+like the radial distribution function. These sub volumes are calculated by</p>
+<div class="math">
+\[V_i^\text{radial}=\pi z_\text{pore}(r_i^2-r_{i-1}^2).\]</div>
+<p>with pore length <span class="math">\(z_\text{pore}\)</span> and radius <span class="math">\(r_i\)</span> of sub volume
+<span class="math">\(i\)</span>. This yields</p>
+<div class="math">
+\[\rho_{n,i}^\text{radial}=\frac{N_i}{V_i^\text{radial}}=\frac{N_i}{\pi z_\text{pore}}\frac{1}{r_i^2-r_{i-1}^2}.\]</div>
+<p>Outside the pore, the sub volumes are given by</p>
+<div class="math">
+\[V_j^\text{ex}=(x_\text{pore}\cdot y_\text{pore}-\pi r^2)z_j\]</div>
+<p>with pore width <span class="math">\(x_\text{pore}\)</span>, height <span class="math">\(y_\text{pore}\)</span>, pore
+radius <span class="math">\(r\)</span> and slice width <span class="math">\(z_j\)</span>. Thus</p>
+<div class="math">
+\[\rho_{n,j}^\text{ex}=\frac{N_j}{V_j^\text{ex}}=\frac{N_j}{x_\text{pore}\cdot y_\text{pore}-\pi r^2}\frac{1}{z_j}.\]</div>
+<p>Note that the outside refers to the reservoirs of the pore simulation.
+Therefore the slices add up to the reservoir length <span class="math">\(z_{res}\)</span>.
+Since there is a reservoir on each side, they are brought together
+by translating the atom coordinates to one of the reservoirs. Since the
+outside density refers to the density of the outside surface, it does
+not contain the cylindrical extension of the pore inside the reservoirs.</p>
+<p>Finally, the mass density is calculated by</p>
+<div class="math">
+\[\rho=\frac M{N_A}\rho_n\]</div>
+<p>with Avogadro constant <span class="math">\(N_A\)</span>. The units are then transformed to
+<span class="math">\(\frac{\text{kg}}{\text m^3}\)</span> by</p>
+<div class="math">
+\[[\rho]=\frac{[M]\frac{\text{g}}{\text{mol}}}{[N_A]10^{23}\frac{\#}{\text{mol}}}[\rho_n]\frac{\#}{\text{nm}^3}
+       =\frac{[M]}{[N_A]}[\rho_n]\cdot10\frac{\text{kg}}{\text m^3}\]</div>
+<p>where the square brackets mean, that only the variables value is taken.
+Since finding full molecules in a sub volume is difficult, the atoms
+of the specified molecule are counted in the sub volumes and the result
+is then divided by the number of atoms the molecule consists of.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>link_data</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
+<dd><p class="first last">Link to data object generated by the sample routine <a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_density()</span></code></a></p>
+</dd>
+<dt><strong>area</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list,  optional</span></dt>
+<dd><p class="first last">Bin areas to calculate the mean number density from (pore, exout)</p>
+</dd>
+<dt><strong>target_dens</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Target density in <span class="math">\(\frac{\text{kg}}{\text{m}^3}\)</span></p>
+</dd>
+<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to print output</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Hamzeh Kraus.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

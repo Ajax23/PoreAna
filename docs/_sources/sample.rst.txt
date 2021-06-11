@@ -69,6 +69,16 @@ inputs
     sample.init_gyration("output/gyr.obj")
     sample.init_diffusion_bin("output/diff.obj")
 
+If you would like to calculated the diffusion and the free energy profile
+you have to set the MC Diffusion initalize function instead of the Bin Diffusion.
+Attention currently only the initialization of one diffusion calculation method is possible.
+
+.. code-block:: python
+
+    sample.init_density("output/dens.obj")
+    sample.init_gyration("output/gyr.obj")
+    sample.init_diffusion_mc("output/diff.obj")
+
 Finally, the sample function is initiated with the
 option to run in parallel and deactivating the periodic boundary
 conditions

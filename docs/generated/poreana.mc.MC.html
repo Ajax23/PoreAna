@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>MC &#8212; PoreAna 0.2.1 documentation</title>
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+
+  </head>
+  <body>
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html">
+          PoreAna</a>
+        <span class="navbar-text navbar-version pull-left"><b>0.2</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+                <li><a href="../api.html">API</a></li>
+                <li><a href="../sample.html">Sample</a></li>
+                <li><a href="../density.html">Density</a></li>
+                <li><a href="../diffusion_bin.html">Diffusion (Bin)</a></li>
+                <li><a href="../diffusion_mc.html">Diffusion (MC)</a></li>
+                <li><a href="../further_props.html">Further Properties</a></li>
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">MC</a></li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+            
+            
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="body col-md-12 content" role="main">
+      
+  </div>
+<div class=col-md-9 content><div class="section" id="mc">
+<h1>MC<a class="headerlink" href="#mc" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="poreana.mc.MC">
+<em class="property">class </em><code class="descclassname">poreana.mc.</code><code class="descname">MC</code><span class="sig-paren">(</span><em>nmc_eq=50000</em>, <em>nmc=100000</em>, <em>delta_df=0.05</em>, <em>delta_diff=0.05</em>, <em>num_mc_update=10</em>, <em>temp=1</em>, <em>print_output=True</em>, <em>print_freq=100</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class contains the Monte Carlo part of the diffusion calculation.
+The class initializes the MC (Monte Carlo) parameters and contains all
+functions to execute the MC cycle part of the diffusion calculation.
+The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
+to adjust the profile. The number of the equilibrium runs can be set with
+<span class="math">\(nmc_eq\)</span>. After the equilibrium phase the sampling of the diffusion
+profile can start. In this part the MC Algorithm calculates in every step
+a new diffusion profile. The average over all profiles which are yields in
+MC production will be determined. The received profile gives the final
+result. The MC algorithm calculates a diffusion profile for each step length
+previously specified in the sampling
+(<a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_diffusion_mc()</span></code></a>) and thus, for each lag
+time. Here you have to set also step the move width of a MC step.</p>
+<p><strong>More information about a MC step can be found in</strong></p>
+<ul class="simple">
+<li><a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_diffusion()</span></code></a></li>
+<li><a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_df()</span></code></a></li>
+</ul>
+<p>The MC calculation can be started with <a class="reference internal" href="poreana.mc.MC.do_mc_cycles.html#poreana.mc.MC.do_mc_cycles" title="poreana.mc.MC.do_mc_cycles"><code class="xref py py-func docutils literal"><span class="pre">do_mc_cycles()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>nmc_eq</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of equilibrium MC steps</p>
+</dd>
+<dt><strong>nmc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of production MC steps</p>
+</dd>
+<dt><strong>delta_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Potential MC move width</p>
+</dd>
+<dt><strong>delta_diff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">ln(diffusion) MC move width</p>
+</dd>
+<dt><strong>num_mc_update</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of moves between MC step width adjustments (=0 if no adjustment
+is required)</p>
+</dd>
+<dt><strong>temp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
+<dd><p class="first last">Temperature in Monte Carlo acceptance criterium</p>
+</dd>
+<dt><strong>print_output</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to print output</p>
+</dd>
+<dt><strong>print_freq</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Print MC step every print_freq</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._init_rate_matrix_pbc.html#poreana.mc.MC._init_rate_matrix_pbc" title="poreana.mc.MC._init_rate_matrix_pbc"><code class="xref py py-obj docutils literal"><span class="pre">_init_rate_matrix_pbc</span></code></a>(bin_num,&nbsp;diff_bin,&nbsp;df_bin)</td>
+<td>This function estimates the rate Matrix R for the current free energy and log diffusion profiles over the bins for periodic boundary conditions.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC._init_stats.html#poreana.mc.MC._init_stats" title="poreana.mc.MC._init_stats"><code class="xref py py-obj docutils literal"><span class="pre">_init_stats</span></code></a>(model)</td>
+<td>This function sets the MC statistic counters to zero after every MC run.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-obj docutils literal"><span class="pre">_log_likelihood_z</span></code></a>(model[,&nbsp;temp])</td>
+<td>This function estimate the likelihood of the current free energy or diffusion profile over the bins in a simulation box.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-obj docutils literal"><span class="pre">_mcmove_df</span></code></a>(model)</td>
+<td>This function does the MC move for the free energy profile and adjust the coefficents of the model.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-obj docutils literal"><span class="pre">_mcmove_diffusion</span></code></a>(model)</td>
+<td>This function does the MC move for the diffusion profile and adjust one coefficient of the model.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC._update_movewidth_mc.html#poreana.mc.MC._update_movewidth_mc" title="poreana.mc.MC._update_movewidth_mc"><code class="xref py py-obj docutils literal"><span class="pre">_update_movewidth_mc</span></code></a>(imc[,&nbsp;radial])</td>
+<td>This function sets a new MC move width after a define number of MC steps <span class="math">\(n_\text{MC,update}\)</span>.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC.do_mc_cycles.html#poreana.mc.MC.do_mc_cycles" title="poreana.mc.MC.do_mc_cycles"><code class="xref py py-obj docutils literal"><span class="pre">do_mc_cycles</span></code></a>(model,&nbsp;link_out[,&nbsp;do_radial])</td>
+<td>This function do the MC Cycle to calculate the diffusion and free energy profile over the bins and save the results in an output object file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2021, Hamzeh Kraus.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
