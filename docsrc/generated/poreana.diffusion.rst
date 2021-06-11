@@ -3,9 +3,8 @@ poreana\.diffusion
 
 .. automodule:: poreana.diffusion
 
-   Bin Diffusion
-   -------------
-   .. rubric:: Functions
+
+   .. rubric:: Bin Method
 
    .. autosummary::
 
@@ -14,9 +13,8 @@ poreana\.diffusion
       cui
       mean
 
-   MC Diffusion
-   ------------
-   .. rubric:: Functions
+
+   .. rubric:: MC Method
 
    .. autosummary::
 

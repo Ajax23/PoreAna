@@ -15,12 +15,12 @@ class MC:
     to adjust the profile. The number of the equilibrium runs can be set with
     :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion
     profile can start. In this part the MC Algorithm calculates in every step
-    a new diffusion profile. The average over all profiles which are yields in MC
-    production will be determined. The received profile gives the final result.
-    The MC algorithm calculates a diffusion profile for each step length
-    previously specified in the sampling (:func:`poreana.sample.Sample.init_diffusion_mc`)
-    and thus, for each lag time.
-    Here you have to set also step the move width of a MC step.
+    a new diffusion profile. The average over all profiles which are yields in
+    MC production will be determined. The received profile gives the final
+    result. The MC algorithm calculates a diffusion profile for each step length
+    previously specified in the sampling
+    (:func:`poreana.sample.Sample.init_diffusion_mc`) and thus, for each lag
+    time. Here you have to set also step the move width of a MC step.
 
     **More information about a MC step can be found in**
 

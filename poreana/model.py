@@ -273,8 +273,9 @@ class StepModel(Model):
     basis of the modell is calculated with
 
     **StepModel**
-     * :func:`StepModel._create_basis_center`
-     * :func:`StepModel._create_basis_border`
+
+    * :func:`StepModel._create_basis_center`
+    * :func:`StepModel._create_basis_border`
 
     Parameters
     ----------
@@ -407,6 +408,7 @@ class StepModel(Model):
                             1 & (\\mathrm{bin}+1)\\geq \\Delta x\ \\& \ (\\mathrm{bin}+1)\\leq n_{\\mathrm{bin}}-\\Delta x \\\\
                             0 &  \\mathrm{else}                                 \\
                     \\end{cases}
+                    
         hereby is :math:`bin = [0,...,n_{\\mathrm{bin}}]` with
         :math:`n_{\\mathrm{bin}}` as the number of the bins. The variable
         :math:`\\Delta x` is define by

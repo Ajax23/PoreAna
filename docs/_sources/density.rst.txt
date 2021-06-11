@@ -28,12 +28,11 @@ routine
 ``Finished frame 2001/2001...``
 
 
-The calculation of the density profile is done using the calculation
-function
+The calculation of the density profile is done using the bins function
 
 .. code-block:: python
 
-    dens = pa.density.calculate("output/dens.obj")
+    dens = pa.density.bins("output/dens.obj")
 
 ``Density inside  Pore = 0.100 #/nm^3 ;  12.941 kg/m^3``
 
@@ -44,7 +43,7 @@ and viewed using the plot function
 
 .. code-block:: python
 
-    pa.density.plot(dens)
+    pa.density.bins_plot(dens)
 
 
 .. figure::  /pics/density_01.svg

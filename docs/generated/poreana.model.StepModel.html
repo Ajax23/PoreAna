@@ -115,31 +115,39 @@
 <h1>StepModel<a class="headerlink" href="#stepmodel" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="poreana.model.StepModel">
-<em class="property">class </em><code class="descclassname">poreana.model.</code><code class="descname">StepModel</code><span class="sig-paren">(</span><em>data_link</em>, <em>n_diff=6</em>, <em>n_df=10</em>, <em>n_diff_radial=6</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.StepModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">poreana.model.</code><code class="descname">StepModel</code><span class="sig-paren">(</span><em>data_link</em>, <em>n_diff=6</em>, <em>n_df=10</em>, <em>n_diff_radial=6</em>, <em>print_output=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.StepModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class sets the Step Model to calculate the free energy profile and
 the diffusion profile. This model based on a spline calculation.
-In contrast to the Cosine Model the determined profile have not the typical
-oscillation and recieves a profile which is better interpretable.</p>
+In contrast to the Cosine Model the determined profile has not the typical
+oscillation and receives a profile which is better interpretable.
+The profile will be determined with the following equations</p>
 <div class="math">
-\[\ln \left(D_{i+\frac{1}{2}}\right) = \mathrm{coeff} \cdot \mathrm{basis}_{\mathrm{diff}}\]</div>
+\[\ln \left(D_{i+\frac{1}{2}}\right) = a_{k} \cdot \mathrm{basis}_{\mathrm{diff}}\]</div>
 <div class="math">
-\[F_i = \mathrm{coeff} \cdot \mathrm{basis}_{\mathrm{df}}\]</div>
+\[F_i = a_{k} \cdot \mathrm{basis}_{\mathrm{df}}\]</div>
+<p>with <span class="math">\(a_k\)</span> as the coefficients and the <span class="math">\(\mathrm{basis}\)</span>. The
+basis of the modell is calculated with</p>
+<p><strong>StepModel</strong></p>
+<ul class="simple">
+<li><a class="reference internal" href="poreana.model.StepModel._create_basis_center.html#poreana.model.StepModel._create_basis_center" title="poreana.model.StepModel._create_basis_center"><code class="xref py py-func docutils literal"><span class="pre">StepModel._create_basis_center()</span></code></a></li>
+<li><a class="reference internal" href="poreana.model.StepModel._create_basis_border.html#poreana.model.StepModel._create_basis_border" title="poreana.model.StepModel._create_basis_border"><code class="xref py py-func docutils literal"><span class="pre">StepModel._create_basis_border()</span></code></a></li>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>data_link</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Data link to the pickle data from <code class="xref py py-func docutils literal"><span class="pre">init_diffusion_mc()</span></code></p>
+<dd><p class="first last">Data link to the pickle data from <a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_diffusion_mc()</span></code></a></p>
 </dd>
 <dt><strong>n_diff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">number of the Fourier coefficients for the diffusion profile</p>
+<dd><p class="first last">Number of the Fourier coefficients for the diffusion profile</p>
 </dd>
 <dt><strong>n_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">number of the Fourier coefficients for the free energy profile</p>
+<dd><p class="first last">Number of the Fourier coefficients for the free energy profile</p>
 </dd>
 <dt><strong>n_diff_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">number of the Fourier coefficients for the radial diffusion profile</p>
+<dd><p class="first last">Number of the Fourier coefficients for the radial diffusion profile</p>
 </dd>
 </dl>
 </td>
@@ -153,16 +161,22 @@ oscillation and recieves a profile which is better interpretable.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.model.StepModel.create_basis_border.html#poreana.model.StepModel.create_basis_border" title="poreana.model.StepModel.create_basis_border"><code class="xref py py-obj docutils literal"><span class="pre">create_basis_border</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.model.StepModel._calc_profile.html#poreana.model.StepModel._calc_profile" title="poreana.model.StepModel._calc_profile"><code class="xref py py-obj docutils literal"><span class="pre">_calc_profile</span></code></a>(coeff,&nbsp;basis)</td>
+<td>This function calculates the diffusion and free energy profile over the bins.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.model.StepModel._create_basis_border.html#poreana.model.StepModel._create_basis_border" title="poreana.model.StepModel._create_basis_border"><code class="xref py py-obj docutils literal"><span class="pre">_create_basis_border</span></code></a>()</td>
 <td>This function creates the basis part in every bin of the Step model for the diffusion profile.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.model.StepModel.create_basis_center.html#poreana.model.StepModel.create_basis_center" title="poreana.model.StepModel.create_basis_center"><code class="xref py py-obj docutils literal"><span class="pre">create_basis_center</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.model.StepModel._create_basis_center.html#poreana.model.StepModel._create_basis_center" title="poreana.model.StepModel._create_basis_center"><code class="xref py py-obj docutils literal"><span class="pre">_create_basis_center</span></code></a>()</td>
 <td>This function creates the basis part in every bin of the Step model for the free energy and the radial diffusion profile.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.model.StepModel.init_model.html#poreana.model.StepModel.init_model" title="poreana.model.StepModel.init_model"><code class="xref py py-obj docutils literal"><span class="pre">init_model</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.model.StepModel._init_model.html#poreana.model.StepModel._init_model" title="poreana.model.StepModel._init_model"><code class="xref py py-obj docutils literal"><span class="pre">_init_model</span></code></a>()</td>
 <td>This function initializes the coefficient list for the Step Model and the profile list for the free energy and diffusion profile.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.model.StepModel.step_model.html#poreana.model.StepModel.step_model" title="poreana.model.StepModel.step_model"><code class="xref py py-obj docutils literal"><span class="pre">step_model</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.model.StepModel._init_profiles.html#poreana.model.StepModel._init_profiles" title="poreana.model.StepModel._init_profiles"><code class="xref py py-obj docutils literal"><span class="pre">_init_profiles</span></code></a>()</td>
+<td>This function initializes the normal diffusion, radial diffusion and free energy profile over the bins.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.model.StepModel._step_model.html#poreana.model.StepModel._step_model" title="poreana.model.StepModel._step_model"><code class="xref py py-obj docutils literal"><span class="pre">_step_model</span></code></a>()</td>
 <td>This function set a Step Model for the MC Diffusion Calculation and determine the initialize profiles.</td>
 </tr>
 </tbody>

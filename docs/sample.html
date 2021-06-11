@@ -164,6 +164,14 @@ inputs</p>
 <span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_bin</span><span class="p">(</span><span class="s2">&quot;output/diff.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>If you would like to calculated the diffusion and the free energy profile
+you have to set the MC Diffusion initalize function instead of the Bin Diffusion.
+Attention currently only the initialization of one diffusion calculation method is possible.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_gyration</span><span class="p">(</span><span class="s2">&quot;output/gyr.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff.obj&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
 <p>Finally, the sample function is initiated with the
 option to run in parallel and deactivating the periodic boundary
 conditions</p>

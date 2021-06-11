@@ -1,4 +1,13 @@
-Diffusion analysis in a pore (MC Method)
+:orphan:
+
+.. raw:: html
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-10">
+        <div style="text-align: justify; text-justify: inter-word;">
+
+Diffusion Analysis in a Pore (MC Method)
 ========================================
 
 The MC diffusion analysis needs the sampled object file using the mc
@@ -39,7 +48,7 @@ With the sampling obj-file the transition matrix can be plotted
     pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.obj", 10, kwargs)
 
 
-.. figure::  /pics/trans.png
+.. figure::  /pics/diffusion_mc_01.png
       :align: center
       :width: 50%
       :name: fig1
@@ -81,7 +90,7 @@ The results of the MC Alogrithm the diffusion can be calculated
 ``Standard deviation: 6.9341e-11 m^2/s``
 
 
-.. figure::  /pics/fit.svg
+.. figure::  /pics/diffusion_mc_02.svg
       :align: center
       :width: 50%
       :name: fig2
@@ -99,7 +108,7 @@ displayed
     pa.freeenergy.mc_profile("output/diff_mc.obj", [10])
 
 
-.. figure::  /pics/diff_df.svg
+.. figure::  /pics/diffusion_mc_03.svg
       :align: center
       :width: 100%
       :name: fig3
@@ -121,7 +130,15 @@ Additionally, the pore area can be considered more closely
 
 ``Standard deviation: 3.1949e-10 m^2/s``
 
-.. figure::  /pics/pore.svg
+.. figure::  /pics/diffusion_mc_04.svg
       :align: center
       :width: 100%
       :name: fig4
+
+
+.. raw:: html
+
+        </div>
+      </div>
+    </div>
+  </div>

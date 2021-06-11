@@ -17,7 +17,9 @@ StepModel
 
    .. autosummary::
 
-      ~StepModel.create_basis_border
-      ~StepModel.create_basis_center
-      ~StepModel.init_model
-      ~StepModel.step_model
+      ~StepModel._calc_profile
+      ~StepModel._create_basis_border
+      ~StepModel._create_basis_center
+      ~StepModel._init_model
+      ~StepModel._init_profiles
+      ~StepModel._step_model

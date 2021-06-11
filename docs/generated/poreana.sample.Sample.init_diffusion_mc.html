@@ -115,8 +115,37 @@
 <h1>Sample.init_diffusion_mc<a class="headerlink" href="#sample-init-diffusion-mc" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample.init_diffusion_mc">
-<code class="descclassname">Sample.</code><code class="descname">init_diffusion_mc</code><span class="sig-paren">(</span><em>link_out</em>, <em>len_step=[]</em>, <em>bin_num=100</em>, <em>len_frame=2e-12</em>, <em>com=True</em>, <em>pbc=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_diffusion_mc" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">init_diffusion_mc</code><span class="sig-paren">(</span><em>link_out</em>, <em>len_step=[]</em>, <em>bin_num=100</em>, <em>len_frame=2e-12</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_diffusion_mc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enable diffusion sampling routine with the MC Alogrithm.</p>
+<p>This function sample the transition matrix for the diffusion
+calculation with the Monte Carlo diffusion methode for a cubic
+simulation box. The sample of the transition matrix is to be run on
+the cluster due to a high time and resource consumption. The output,
+a data object, is then used to calculate the self-diffusion using
+further calculation functions for the MC Diffusion methode.</p>
+<p>It is necessary to caculate the transition matrix for different step
+length and so for different lag times. A lagtime
+<span class="math">\(\Delta_{ij}t_{\alpha}\)</span> is defined by</p>
+<div class="math">
+\[\Delta_{ij}t_{\alpha} = t_{i,\alpha} - t_{j,\alpha}\]</div>
+<p>with <span class="math">\(i\)</span> and <span class="math">\(j\)</span> as the current state of the system at two
+different times and <span class="math">\(\alpha\)</span> as past time between the two states.
+To sample the transition matrix the frame length <span class="math">\(t\)</span> has to
+be specifiy and this frame length is for all lag times the same.
+The variation of the lag time is happend by adapting the step length
+<span class="math">\(s\)</span> which indicates the interval between the frames. The lag time
+is than calculated by</p>
+<div class="math">
+\[\Delta_{ij}t_{\alpha} = t \cdot s\]</div>
+<p>After the sampling a model class has to set and then the MC calculation
+can run. Subsequently the final mean diffusion coefficient can be
+determined with a extrapolation to
+<span class="math">\(\Delta_{ij}t_{\alpha} \rightarrow \infty\)</span>.
+For the etxrapolation we need the mean diffusion over the bins for
+different chosen lag times. That’s why we have to calculate the results
+and the transition matrix for several lag times. More information about
+post processing and the extrapolation that you can find in
+<a class="reference internal" href="poreana.diffusion.mc_fit.html#poreana.diffusion.mc_fit" title="poreana.diffusion.mc_fit"><code class="xref py py-func docutils literal"><span class="pre">poreana.diffusion.mc_fit()</span></code></a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -133,12 +162,6 @@
 </dd>
 <dt><strong>len_frame</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Length of a frame in seconds</p>
-</dd>
-<dt><strong>com</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool (default = True)</span></dt>
-<dd><p class="first last">if it is True the center of mass of the molecules was used</p>
-</dd>
-<dt><strong>pbc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool (default = True)</span></dt>
-<dd><p class="first last">trajectory contains periodic boundary conditions</p>
 </dd>
 </dl>
 </td>

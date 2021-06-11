@@ -43,6 +43,7 @@ Analysis
     adsorption
     density
     diffusion
+    freeenergy
     gyration
 
 
@@ -57,4 +58,5 @@ Utilities
     :toctree: generated/
 
     utils
+    tables
     geometry

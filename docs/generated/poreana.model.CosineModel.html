@@ -115,7 +115,7 @@
 <h1>CosineModel<a class="headerlink" href="#cosinemodel" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="poreana.model.CosineModel">
-<em class="property">class </em><code class="descclassname">poreana.model.</code><code class="descname">CosineModel</code><span class="sig-paren">(</span><em>data_link</em>, <em>n_diff=6</em>, <em>n_df=10</em>, <em>n_diff_radial=6</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.CosineModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">poreana.model.</code><code class="descname">CosineModel</code><span class="sig-paren">(</span><em>data_link</em>, <em>n_diff=6</em>, <em>n_df=10</em>, <em>n_diff_radial=6</em>, <em>print_output=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.CosineModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class sets the Cosine Model to calculate the free energy profile
 and the diffusion profile. The profiles have the typical cosine oscillation.
 These profiles over the bins are expressed by the following Fourier
@@ -123,9 +123,9 @@ series. The diffusion profile is calculated between bin i and i+1  over
 the bin border with</p>
 <div class="math">
 \[\ln \left(D_{i+ \frac{1}{2}}\right)=a_{0}+\sum_{k=1}^{n_b} a_{k} \cdot \cos \left(\frac{2\pi ki}{n}\right).\]</div>
-<p>Similar the free energy Fourier series can be written:</p>
+<p>Similarly, the free energy Fourier series can be written:</p>
 <div class="math">
-\[F_{i} = a_{0}+\sum_{k=1}^{n_b} a_{k} \cdot \cos \left(\frac{2\pi ki}{n} \right).\]</div>
+\[F_{i} = a_{0}+\sum_{k=1}^{n_b} a_{k} \cdot \cos \left(\frac{2\pi ki}{n} \right),\]</div>
 <p>with the number of bins <span class="math">\(n\)</span>, the index of a bin <span class="math">\(i\)</span>,
 the coefficients <span class="math">\(a_{k}\)</span> of the Fourier series and <span class="math">\(k\)</span> as the
 number of coefficents`. The free energy is calculated in the bin center.</p>
@@ -136,16 +136,16 @@ number of coefficents`. The free energy is calculated in the bin center.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>data_link</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Data link to the pickle data from <code class="xref py py-func docutils literal"><span class="pre">Sample.init_diffusion_mc()</span></code></p>
+<dd><p class="first last">Data link to the pickle data from <a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_diffusion_mc()</span></code></a></p>
 </dd>
 <dt><strong>n_diff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">number of the Fourier coefficients for the diffusion profile</p>
+<dd><p class="first last">Number of the Fourier coefficients for the diffusion profile</p>
 </dd>
 <dt><strong>n_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">number of the Fourier coefficients for the free energy profile</p>
+<dd><p class="first last">Number of the Fourier coefficients for the free energy profile</p>
 </dd>
 <dt><strong>n_diff_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">number of the Fourier coefficients for the radial diffusion profile</p>
+<dd><p class="first last">Number of the Fourier coefficients for the radial diffusion profile</p>
 </dd>
 </dl>
 </td>
@@ -159,17 +159,23 @@ number of coefficents`. The free energy is calculated in the bin center.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.model.CosineModel.cosine_model.html#poreana.model.CosineModel.cosine_model" title="poreana.model.CosineModel.cosine_model"><code class="xref py py-obj docutils literal"><span class="pre">cosine_model</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.model.CosineModel._calc_profile.html#poreana.model.CosineModel._calc_profile" title="poreana.model.CosineModel._calc_profile"><code class="xref py py-obj docutils literal"><span class="pre">_calc_profile</span></code></a>(coeff,&nbsp;basis)</td>
+<td>This function calculates the diffusion and free energy profile over the bins.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.model.CosineModel._cosine_model.html#poreana.model.CosineModel._cosine_model" title="poreana.model.CosineModel._cosine_model"><code class="xref py py-obj docutils literal"><span class="pre">_cosine_model</span></code></a>()</td>
 <td>This function sets a Fourier Cosine Series Model for the MC Diffusion Calculation and determines the initialize profiles.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.model.CosineModel.create_basis_border.html#poreana.model.CosineModel.create_basis_border" title="poreana.model.CosineModel.create_basis_border"><code class="xref py py-obj docutils literal"><span class="pre">create_basis_border</span></code></a>()</td>
-<td>This function creates the basis part in every bin of the Fourier series for the Diffusion <span class="math">\(\ln \ (D)\)</span>.</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.model.CosineModel._create_basis_border.html#poreana.model.CosineModel._create_basis_border" title="poreana.model.CosineModel._create_basis_border"><code class="xref py py-obj docutils literal"><span class="pre">_create_basis_border</span></code></a>()</td>
+<td>This function creates the basis part in every bin of the Fourier series for the diffusion <span class="math">\(\ln \ (D)\)</span>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.model.CosineModel.create_basis_center.html#poreana.model.CosineModel.create_basis_center" title="poreana.model.CosineModel.create_basis_center"><code class="xref py py-obj docutils literal"><span class="pre">create_basis_center</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.model.CosineModel._create_basis_center.html#poreana.model.CosineModel._create_basis_center" title="poreana.model.CosineModel._create_basis_center"><code class="xref py py-obj docutils literal"><span class="pre">_create_basis_center</span></code></a>()</td>
 <td>This function creates the basis part of the Fourier series for the free energy and the radial diffusion profile.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.model.CosineModel.init_model.html#poreana.model.CosineModel.init_model" title="poreana.model.CosineModel.init_model"><code class="xref py py-obj docutils literal"><span class="pre">init_model</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.model.CosineModel._init_model.html#poreana.model.CosineModel._init_model" title="poreana.model.CosineModel._init_model"><code class="xref py py-obj docutils literal"><span class="pre">_init_model</span></code></a>()</td>
 <td>This function initializes the coefficient list for the Fourier series and the profile list for the free energy and diffusion profile.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.model.CosineModel._init_profiles.html#poreana.model.CosineModel._init_profiles" title="poreana.model.CosineModel._init_profiles"><code class="xref py py-obj docutils literal"><span class="pre">_init_profiles</span></code></a>()</td>
+<td>This function initializes the normal diffusion, radial diffusion and free energy profile over the bins.</td>
 </tr>
 </tbody>
 </table>

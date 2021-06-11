@@ -15,7 +15,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 import poreana.utils as utils
-import poreana.density as density
 
 
 ###################
@@ -283,8 +282,8 @@ def bins_plot(data, intent="plot", kwargs={}):
 
 def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_norm=False, is_check=False):
     """This function uses the diffusion coefficient slope obtained from
-    function :func:`bins` and the density slope of function
-    :func:`poreana.density.calculate` to calculate a weighted diffusion
+    function :func:`poreana.diffusion.bins` and the density slope of function
+    :func:`poreana.density.bins` to calculate a weighted diffusion
     coefficient inside the pore
 
     .. math::
@@ -309,9 +308,9 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_norm=False, is_check=False
     Parameters
     ----------
     diff_data : dictionary
-        Diffusion data dictionary from function func:`poreana.diffusion.bins`
+        Diffusion data dictionary from function :func:`poreana.diffusion.bins`
     dens_data : dictionary
-        Density data dictionary from function func:`poreana.density.calculate`
+        Density data dictionary from function :func:`poreana.density.bins`
     ax_area : list, optional
         Bin area percentage to calculate the axial diffusion coefficient
     is_norm : bool, optional

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Diffusion analysis in a pore (MC Method) &#8212; PoreAna 0.2.1 documentation</title>
+    <title>Diffusion Analysis in a Pore (MC Method) &#8212; PoreAna 0.2.1 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
@@ -80,7 +80,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Diffusion analysis in a pore (MC Method)</a></li>
+<li><a class="reference internal" href="#">Diffusion Analysis in a Pore (MC Method)</a></li>
 </ul>
 </ul>
 </li>
@@ -114,76 +114,91 @@
   <div class="row">
     <div class="col-md-10">
       <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="diffusion-analysis-in-a-pore-mc-method">
-<h1>Diffusion analysis in a pore (MC Method)<a class="headerlink" href="#diffusion-analysis-in-a-pore-mc-method" title="Permalink to this headline">¶</a></h1>
-<p>The MC diffusion analysis needs the sampled object file using the mc diffusion routine</p>
+<h1>Diffusion Analysis in a Pore (MC Method)<a class="headerlink" href="#diffusion-analysis-in-a-pore-mc-method" title="Permalink to this headline">¶</a></h1>
+<p>The MC diffusion analysis needs the sampled object file using the mc
+diffusion routine</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
 <span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
 
 <span class="c1"># Load molecule</span>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="s2">&quot;benzene&quot;</span><span class="p">,</span> <span class="s2">&quot;BEN&quot;</span><span class="p">,</span> <span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
 
-<span class="c1"># Set inputs</span>
+<span class="c1"># Set step length</span>
 <span class="n">len_steps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">,</span><span class="mi">40</span><span class="p">]</span>
+
+<span class="c1"># Set frame length</span>
+<span class="n">len_frame</span> <span class="o">=</span> <span class="mf">2e-12</span>
 
 <span class="c1"># Sample transition matrix</span>
 <span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">)</span>
-<span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="n">len_step</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="n">len_steps</span><span class="p">,</span> <span class="n">len_frame</span><span class="o">=</span><span class="n">len_frame</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">is_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+<p>With the sampling obj-file the transition matrix can be plotted</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Set kwargs for the heatmap</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;vmin&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;vmax&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;xticklabels&quot;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;yticklabels&quot;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;cbar&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">}</span>
+
+<span class="c1"># Plot transition matrix for a step length of 10</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_trans_mat</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="fig1">
+<a class="reference internal image-reference" href="_images/diffusion_mc_01.png"><img alt="_images/diffusion_mc_01.png" src="_images/diffusion_mc_01.png" style="width: 50%;" /></a>
+</div>
 <p>After sampling, a model has to set and the MC Alogirthm started</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Set Cosine Model for diffusion and energy profile</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">CosineModel</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># Set the MC class and options</span>
-<span class="n">MC</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">MC</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="mi">5000</span><span class="p">,</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">MC</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">MC</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Do the MC alogirthm</span>
-<span class="n">MC</span><span class="o">.</span><span class="n">do_mc_cycles</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_test_mc.obj&quot;</span><span class="p">)</span>
+<span class="n">MC</span><span class="o">.</span><span class="n">do_mc_cycles</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p><code class="docutils literal"><span class="pre">MC</span> <span class="pre">Calculation</span> <span class="pre">Start</span></code></p>
+<p><code class="docutils literal"><span class="pre">...</span></code></p>
+<p><code class="docutils literal"><span class="pre">MC</span> <span class="pre">Calculation</span> <span class="pre">Done.</span></code></p>
 <p>The results of the MC Alogrithm the diffusion can be calculated</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Print the results for the normal diffusion</span>
-<span class="n">diff</span><span class="p">,</span> <span class="n">diff_table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diffusion_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_test_mc.obj&quot;</span><span class="p">)</span>
+<span class="n">diff</span><span class="p">,</span><span class="n">diff_mean</span><span class="p">,</span><span class="n">diff_table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">Diffusion:</span> <span class="pre">1.8418e-09</span> <span class="pre">m^2/s</span></code></p>
-<p><code class="docutils literal"><span class="pre">Mean</span> <span class="pre">Diffusion:</span> <span class="pre">1.8306e-09</span> <span class="pre">m^2/s</span></code></p>
-<p><code class="docutils literal"><span class="pre">Standard</span> <span class="pre">deviation:</span> <span class="pre">7.2669e-11</span> <span class="pre">m^2/s</span></code></p>
-<div class="figure align-center" id="fig1">
-<a class="reference internal image-reference" href="_images/fit.svg"><img alt="_images/fit.svg" src="_images/fit.svg" width="50%" /></a>
+<p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial:</span> <span class="pre">1.6913e-09</span> <span class="pre">m^2/s</span></code></p>
+<p><code class="docutils literal"><span class="pre">Mean</span> <span class="pre">Diffusion</span> <span class="pre">axial:</span> <span class="pre">1.6777e-09</span> <span class="pre">m^2/s</span></code></p>
+<p><code class="docutils literal"><span class="pre">Standard</span> <span class="pre">deviation:</span> <span class="pre">6.9341e-11</span> <span class="pre">m^2/s</span></code></p>
+<div class="figure align-center" id="fig2">
+<a class="reference internal image-reference" href="_images/diffusion_mc_02.svg"><img alt="_images/diffusion_mc_02.svg" src="_images/diffusion_mc_02.svg" width="50%" /></a>
 </div>
-<p>or the diffusion and free energy profile over the entire system can be displayed</p>
+<p>or the diffusion and free energy profile over the entire system can be
+displayed</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot diffusion profile over the simulation box</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diff_profile</span><span class="p">(</span><span class="s2">&quot;diff_mc.obj&quot;</span><span class="p">,</span><span class="n">print_df</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Plot free energy profile over the simulation box</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">df_profile</span><span class="p">(</span><span class="s2">&quot;diff_mc.obj&quot;</span><span class="p">,[</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">freeenergy</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">])</span>
 </pre></div>
 </div>
-<div class="figure align-center" id="fig2">
-<a class="reference internal image-reference" href="_images/diff_profile.svg"><img alt="_images/diff_profile.svg" src="_images/diff_profile.svg" width="49%" /></a>
-</div>
 <div class="figure align-center" id="fig3">
-<a class="reference internal image-reference" href="_images/df_profile.svg"><img alt="_images/df_profile.svg" src="_images/df_profile.svg" width="49%" /></a>
+<a class="reference internal image-reference" href="_images/diffusion_mc_03.svg"><img alt="_images/diffusion_mc_03.svg" src="_images/diffusion_mc_03.svg" width="100%" /></a>
 </div>
 <p>Additionally, the pore area can be considered more closely</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot the lag time extrapolation for the pore ares</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diff_pore_profile</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span><span class="s2">&quot;diff_mc.obj&quot;</span><span class="p">,</span><span class="n">print_df</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit_pore</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">is_pore</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Plot diffusion profile in a pore</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">diff_pore_profile</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span><span class="s2">&quot;diff_mc.obj&quot;</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">is_pore</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">Diffusion:</span> <span class="pre">1.4061e-09</span> <span class="pre">m^2/s</span></code></p>
-<p><code class="docutils literal"><span class="pre">Mean</span> <span class="pre">Diffusion:</span> <span class="pre">1.3905e-09</span> <span class="pre">m^2/s</span></code></p>
-<p><code class="docutils literal"><span class="pre">Standard</span> <span class="pre">deviation:</span> <span class="pre">8.6283e-11</span> <span class="pre">m^2/s</span></code></p>
+<p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial</span> <span class="pre">(Pore):</span> <span class="pre">1.2534e-09</span> <span class="pre">m^2/s</span></code></p>
+<p><code class="docutils literal"><span class="pre">Mean</span> <span class="pre">Diffusion</span> <span class="pre">axial</span> <span class="pre">(Pore):</span> <span class="pre">1.3417e-09</span> <span class="pre">m^2/s</span></code></p>
+<p><code class="docutils literal"><span class="pre">Standard</span> <span class="pre">deviation:</span> <span class="pre">3.1949e-10</span> <span class="pre">m^2/s</span></code></p>
 <div class="figure align-center" id="fig4">
-<a class="reference internal image-reference" href="_images/fit_pore.svg"><img alt="_images/fit_pore.svg" src="_images/fit_pore.svg" width="50%" /></a>
-</div>
-<div class="figure align-center" id="fig5">
-<a class="reference internal image-reference" href="_images/diff_profile_pore.svg"><img alt="_images/diff_profile_pore.svg" src="_images/diff_profile_pore.svg" width="50%" /></a>
+<a class="reference internal image-reference" href="_images/diffusion_mc_04.svg"><img alt="_images/diffusion_mc_04.svg" src="_images/diffusion_mc_04.svg" width="100%" /></a>
 </div>
       </div>
     </div>

@@ -116,11 +116,11 @@
 <dl class="method">
 <dt id="poreana.mc.MC.do_mc_cycles">
 <code class="descclassname">MC.</code><code class="descname">do_mc_cycles</code><span class="sig-paren">(</span><em>model</em>, <em>link_out</em>, <em>do_radial=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC.do_mc_cycles" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function do the MC Cycle to calculate the diffusion and free energy
-profil over the bins and save the results in a output object file.
-This happen with the adjustment of the coefficient from the model which
-is set with the appropriate model class. The code determine the
-results for all lagtimes for which a transition matrix was caclulated.
+<dd><p>This function do the MC Cycle to calculate the diffusion and free
+energy profile over the bins and save the results in an output object
+file. This happens with the adjustment of the coefficient from the model
+which is set with the appropriate model class. The code determines the
+results for all lag times for which a transition matrix was calculated.
 The results can be displayed with the post process functions.</p>
 <p>The MC accepted criterium for a MC step is define as</p>
 <div class="math">
@@ -128,23 +128,23 @@ The results can be displayed with the post process functions.</p>
 <p>with <span class="math">\(T\)</span> as the temperature, <span class="math">\(r\)</span> as a random number between
 <span class="math">\(0\)</span> and <span class="math">\(1\)</span> and <span class="math">\(L_\text{new}\)</span> and
 <span class="math">\(L_\text{old}\)</span> as the likelihood for the current and the last
-step. The likelihood is calculated with <a class="reference internal" href="poreana.mc.MC.log_likelihood_z.html#poreana.mc.MC.log_likelihood_z" title="poreana.mc.MC.log_likelihood_z"><code class="xref py py-func docutils literal"><span class="pre">log_likelihood_z()</span></code></a>
+step. The likelihood is calculated with <a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-func docutils literal"><span class="pre">_log_likelihood_z()</span></code></a>
 function.</p>
 <p>Information about a single MC step can be find in
-<a class="reference internal" href="poreana.mc.MC.mcmove_diffusion.html#poreana.mc.MC.mcmove_diffusion" title="poreana.mc.MC.mcmove_diffusion"><code class="xref py py-func docutils literal"><span class="pre">mcmove_diffusion()</span></code></a> or <a class="reference internal" href="poreana.mc.MC.mcmove_df.html#poreana.mc.MC.mcmove_df" title="poreana.mc.MC.mcmove_df"><code class="xref py py-func docutils literal"><span class="pre">mcmove_df()</span></code></a></p>
+<a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_diffusion()</span></code></a> or <a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_df()</span></code></a></p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>model</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Model</span></dt>
+<dt><strong>model</strong> <span class="classifier-delimiter">:</span> <span class="classifier">class</span></dt>
 <dd><p class="first last">Model object which set before with the model class</p>
 </dd>
 <dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Link to output object file</p>
 </dd>
 <dt><strong>do_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">if it’s True the code calculate the radial diffusion too</p>
+<dd><p class="first last">True to calculate the radial diffusion</p>
 </dd>
 </dl>
 </td>

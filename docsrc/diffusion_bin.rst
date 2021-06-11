@@ -7,8 +7,8 @@
       <div class="col-md-10">
         <div style="text-align: justify; text-justify: inter-word;">
 
-Diffusion Analysis in a pore
-============================
+Diffusion Analysis in a Pore (Bin Method)
+=========================================
 
 The bin diffusion analysis needs the sampled object file using the bin
 diffusion routine
@@ -37,7 +37,7 @@ The diffusion can be calculated through the entire pore
 
 ``Diffusion radial: 648.838 10^-9 m^2 s^-1; Number of zeros: 41; Radius:  0.17``
 
-.. figure::  /pics/diffusion_01.svg
+.. figure::  /pics/diffusion_bins_01.svg
   :align: center
   :width: 50%
   :name: fig1
@@ -50,7 +50,7 @@ or binwise
     pa.diffusion.bins("output/diff.obj")
 
 
-.. figure::  /pics/diffusion_02.svg
+.. figure::  /pics/diffusion_bins_02.svg
   :align: center
   :width: 50%
   :name: fig2
