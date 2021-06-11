@@ -143,6 +143,18 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_bin("output/diff_box_test.obj", len_obs=3e-12)
 
 
+        # Test the error output if bin and MC diffusion calculation is initialized
+        # Test bin -> MC
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_bin("output/test.obj")
+        sample.init_diffusion_mc("output/test.obj")
+
+        # Test MC -> Bin
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/test.obj")
+        sample.init_diffusion_bin("output/test.obj")
+
+
     ##############
     # Adsorption #
     ##############
@@ -281,6 +293,8 @@ class UserModelCase(unittest.TestCase):
     ################
     # MC Diffusion #
     ################
+
+    # Test model class
     def test_diffusion_mc_model(self):
         # self.skipTest("Temporary")
 
@@ -298,13 +312,9 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
-    def test_diffusion_mc_mc(self):
-        ##########
-        # :TODO: # - Test MC-Class
-        ##########
-        return
 
-    def test_diffusion_mc_pore(self):
+    # Test MC class
+    def test_diffusion_mc_mc(self):
         # Pore diffusion
         # self.skipTest("Temporary")
 
@@ -313,6 +323,8 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40]
+
+        # Set MC class
         MC = pa.MC(8000,1500,print_output=False)
 
         # Do the MC alogirthm
@@ -328,29 +340,40 @@ class UserModelCase(unittest.TestCase):
         diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", is_pore=True)
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
-        # Plot diffusion profile over box length
-        plt.figure()
-        pa.diffusion.mc_profile("output/diff_test_mc.obj", infty_profile = True)
-        plt.savefig("output/diffusion_profile.pdf", format="pdf", dpi=1000)
-
-        # Plot diffusion profile in the pore area
-        plt.figure()
-        pa.diffusion.mc_profile("output/diff_test_mc.obj", is_pore=True, infty_profile = True)
-        plt.savefig("output/diffusion_pore_profile.pdf", format="pdf", dpi=1000)
-
-        # Plot free energy profile over box length
-        plt.figure()
-        pa.freeenergy.mc_profile("output/diff_test_mc.obj",[10])
-        plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
-
-        # Plot transition matrix as a heat map
-        plt.figure()
-        pa.diffusion.mc_trans_mat("output/diff_test_mc.obj",10)
-        plt.savefig("output/transition_heatmap.pdf", format="pdf", dpi=1000)
-
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
         self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
+
+        # Test MC output
+        # Set Step Model for diffusion and energy profile
+        model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
+
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
+
+        # Set the MC class and options
+        model._len_step = [10]
+        MC = pa.MC(1, 2000, print_output=True)
+
+        # Do the MC alogirthm
+        MC.do_mc_cycles(model,"output/diff_test_mc.obj")
+
+        # Test initalize likelihood
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        MC._len_step = 1
+        self.assertEqual(round(MC._log_likelihood_z(model),2),-128852.33)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        MC._len_step = 2
+        self.assertEqual(round(MC._log_likelihood_z(model),2),-165354.77)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        MC._len_step = 10
+        self.assertEqual(round(MC._log_likelihood_z(model),2),-258946.71)
+
 
     def test_diffusion_mc_box(self):
         # Box diffusion
@@ -371,114 +394,41 @@ class UserModelCase(unittest.TestCase):
         diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc_box.obj")
         plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
 
-
-        # Plot diffusion profile over box length
-        plt.figure()
-        pa.diffusion.mc_profile("output/diff_test_mc_box.obj", infty_profile = True)
-        plt.savefig("output/diffusion_profile_box.pdf", format="pdf", dpi=1000)
-
-        # Plot free energy profile over box length
-        plt.figure()
-        pa.freeenergy.mc_profile("output/diff_test_mc_box.obj",[10])
-        plt.savefig("output/energy_profile_box.pdf", format="pdf", dpi=1000)
-
-        # Plot transition matrix as a heat map
-        plt.figure()
-        pa.diffusion.mc_trans_mat("output/diff_test_mc_box.obj",10)
-        plt.savefig("output/transition_heatmap_box.pdf", format="pdf", dpi=1000)
-
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff - (1.3 * 10**-8) ) < 0.3 * 10**-8, True)
 
-    ##########
-    # :TODO: # - Braucht keine Extrafunktion eventuell in "test_diffusion_mc_MC"
-    ##########
-    # def test_print_out(self):
-    #     self.skipTest("Temporary")
-    #
-    #     # Set Cosine Model for diffusion and energy profile
-    #     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
-    #
-    #     # Set Cosine Model for diffusion and energy profile
-    #     model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
-    #
-    #     # Set the MC class and options
-    #     model._len_step = [10]
-    #     MC = pa.MC(1, 2000, print_output=True)
-    #
-    #     # Do the MC alogirthm
-    #     MC.do_mc_cycles(model,"output/diff_test_mc.obj")
 
     ##########
     # :TODO: # - Titel ist nichts aussagend und sowas wie drüber, auch woanders testen und wenn, dann auch ergebnisse vergleichen und nicht ob es durchgelaufen ist
     ##########
-    # def test_sample_p_s(self):
-    #     self.skipTest("Temporary")
-    #
-    #     # Load Transition matrix for single
-    #     trans = pa.utils.load("output/diff_mc_cyl_s.obj")
-    #     trans_s = trans["data"]
-    #
-    #     # Load Transition matrix for parallel
-    #     trans_2 = pa.utils.load("output/diff_mc_cyl_p.obj")
-    #     trans_p = trans_2["data"]
-    #
-    #     list = []
-    #     for i in [1,2,5,10,20,30,40,50]:
-    #         list.append(np.array_equal(trans_s[i],trans_p[i]))
-    #
-    #     # Check is parallelisation correct
-    #     self.assertEqual(list, [True]*8)
+    def test_parallel_sample(self):
+        # self.skipTest("Temporary")
 
-    ##########
-    # :TODO: # - Braucht keine Extrafunktion eventuell in "test_diffusion_mc_MC"
-    ##########
-    # # Test initalize likelihood
-    # def test_init_likelihood(self):
-    #     self.skipTest("Temporary")
-    #
-    #     # Set the cosinus model
-    #     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
-    #
-    #     # Set the MC class
-    #     MC = pa.MC()
-    #
-    #     # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-    #     MC._len_step = 1
-    #     self.assertEqual(round(MC._log_likelihood_z(model),2),-128852.33)
-    #
-    #     # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-    #     MC._len_step = 2
-    #     self.assertEqual(round(MC._log_likelihood_z(model),2),-165354.77)
-    #
-    #     # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-    #     MC._len_step = 10
-    #     self.assertEqual(round(MC._log_likelihood_z(model),2),-258946.71)
+        # Load Transition matrix for single
+        trans = pa.utils.load("output/diff_mc_cyl_s.obj")
+        trans_s = trans["data"]
 
-    ##########
-    # :TODO: # - Der check kommt in "test_sample" rein
-    ##########
-    # # Test currently only one can be initialize
-    # def test_init_bin_mc(self):
-    #     self.skipTest("Temporary")
-    #
-    #     # Load molecule
-    #     mol_B = pms.Molecule(inp="data/benzene.gro")
-    #
-    #     # Test bin -> MC
-    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-    #     sample.init_diffusion_bin("output/test.obj")
-    #     sample.init_diffusion_mc("output/test.obj")
-    #
-    #     # Test MC -> Bin
-    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-    #     sample.init_diffusion_mc("output/test.obj")
-    #     sample.init_diffusion_bin("output/test.obj")
+        # Load Transition matrix for parallel
+        trans_2 = pa.utils.load("output/diff_mc_cyl_p.obj")
+        trans_p = trans_2["data"]
+
+        # Test if transition matrix of single and parallel calculation is the same
+        list = []
+        for i in [1,2,5,10,20,30,40,50]:
+            list.append(np.array_equal(trans_s[i],trans_p[i]))
+
+        # Check is parallelisation correct
+        self.assertEqual(list, [True]*8)
+
 
     ###############
     # Free Energy #
     ###############
     def test_freeenergy_mc(self):
+        # Plot free energy profile over box length
+        plt.figure()
+        pa.freeenergy.mc_profile("output/diff_test_mc.obj",[10])
+        plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
         ##########
         # :TODO: #
         ##########
@@ -490,27 +440,33 @@ class UserModelCase(unittest.TestCase):
     ##########
     def test_tables(self):
         # Check tables
-        pa.tables.mc_model("data/check_tables.obj", print_con=False)
-        pa.tables.mc_inputs("data/check_tables.obj", print_con=False)
-        pa.tables.mc_statistics("data/check_tables.obj", print_con=False)
-        pa.tables.mc_lag_time("data/check_tables.obj", print_con=False)
+        pa.tables.mc_model("data/check_output.obj", print_con=False)
+        pa.tables.mc_inputs("data/check_output.obj", print_con=False)
+        pa.tables.mc_statistics("data/check_output.obj", print_con=False)
+        pa.tables.mc_lag_time("data/check_output.obj", print_con=False)
 
-        pa.tables.mc_model("data/check_tables.obj", print_con=True)
-        pa.tables.mc_inputs("data/check_tables.obj", print_con=True)
-        pa.tables.mc_statistics("data/check_tables.obj", print_con=True)
-        pa.tables.mc_lag_time("data/check_tables.obj", print_con=True)
+        pa.tables.mc_model("data/check_output.obj", print_con=True)
+        pa.tables.mc_inputs("data/check_output.obj", print_con=True)
+        pa.tables.mc_statistics("data/check_output.obj", print_con=True)
+        pa.tables.mc_lag_time("data/check_output.obj", print_con=True)
 
+    def test_diffusion_output(self):
         ##########
         # :TODO: # - Sowas in den jeweiligen Klassen testen
         ##########
-        # # Check output which is not coveraged by the entire MC test
-        # pa.diffusion.mc_profile("data/check_tables.obj", is_pore=True, infty_profile = False)
-        # pa.diffusion.mc_profile("data/check_tables.obj", is_pore=True, section=[0,5], infty_profile = False)
-        # pa.diffusion.mc_profile("data/check_tables.obj", is_pore=True, infty_profile = False)
-        # pa.diffusion.mc_profile("data/check_tables.obj", infty_profile = False)
-        # pa.diffusion.mc_fit("data/check_tables.obj", section=[0,5])
-        # pa.freeenergy.mc_profile("data/check_tables.obj")
 
+        # Check output which is not coveraged by the entire MC test
+        pa.diffusion.mc_profile("data/check_output.obj", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = True)
+        pa.diffusion.mc_trans_mat("data/check_output.obj",10)
+        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = False)
+        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, section=[0,5], infty_profile = False)
+        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = False)
+        pa.diffusion.mc_profile("data/check_output.obj", infty_profile = False)
+        pa.diffusion.mc_fit("data/check_output.obj", section=[0,5])
+
+        pa.diffusion.mc_fit("data/box_output.obj", is_pore=True)
+        pa.diffusion.mc_profile("data/box_output.obj", is_pore=True)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
