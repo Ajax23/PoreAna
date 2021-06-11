@@ -238,6 +238,12 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/gyration_ex.pdf", format="pdf", dpi=1000)
 
         plt.figure()
+        pa.gyration.bins_plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="in", is_norm=True)
+        pa.gyration.bins_plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="ex", is_norm=True)
+        plt.legend(["Interior", "Exterior"])
+        plt.savefig("output/gyration_norm.pdf", format="pdf", dpi=1000)
+
+        plt.figure()
         pa.gyration.bins_plot("output/gyr_box.obj", "output/dens_box.obj", intent="ex")
         plt.savefig("output/gyration_box.pdf", format="pdf", dpi=1000)
 
@@ -326,7 +332,7 @@ class UserModelCase(unittest.TestCase):
         plt.figure()
         pa.diffusion.mc_profile("output/diff_test_mc.obj", infty_profile = True)
         plt.savefig("output/diffusion_profile.pdf", format="pdf", dpi=1000)
-
+1
         # Plot diffusion profile in the pore area
         plt.figure()
         pa.diffusion.mc_profile("output/diff_test_mc.obj", is_pore=True, infty_profile = True)
