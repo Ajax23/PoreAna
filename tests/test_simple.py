@@ -428,6 +428,7 @@ class UserModelCase(unittest.TestCase):
     def test_tables(self):
         # Check tables
         pa.tables.mc_model("data/check_output.obj", print_con=False)
+        pa.tables.mc_model("data/box_output.obj", print_con=False)
         pa.tables.mc_inputs("data/check_output.obj", print_con=False)
         pa.tables.mc_statistics("data/check_output.obj", print_con=False)
         pa.tables.mc_lag_time("data/check_output.obj", print_con=False)
@@ -443,7 +444,7 @@ class UserModelCase(unittest.TestCase):
         ##########
 
         # Check output which is not coveraged by the entire MC test
-        pa.diffusion.mc_profile("data/check_output.obj", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj",len_step=[10,20,30,40], infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = True)
         pa.diffusion.mc_trans_mat("data/check_output.obj",10)
         pa.diffusion.mc_trans_mat("data/check_output_sample.obj",10)
