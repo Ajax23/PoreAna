@@ -61,11 +61,8 @@ After sampling, a model has to set and the MC Alogirthm started
     # Set Cosine Model for diffusion and energy profile
     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
-    # Set the MC class and options
-    MC = pa.MC(5000, 5000, print_output=False)
-
-    # Do the MC alogirthm
-    MC.do_mc_cycles(model,"output/diff_mc.obj")
+    # Do the MC Algorithm
+    pa.MC().run(model,"output/diff_mc.obj", nmc_eq=5000, nmc=5000, print_output=False)
 
 
 ``MC Calculation Start``

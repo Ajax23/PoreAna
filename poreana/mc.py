@@ -9,48 +9,88 @@ import poreana.utils as utils
 
 class MC:
     """This class contains the Monte Carlo part of the diffusion calculation.
-    The class initializes the MC (Monte Carlo) parameters and contains all
+    The class initializes the MC (Monte Carlo) and contains all
     functions to execute the MC cycle part of the diffusion calculation.
-    The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
-    to adjust the profile. The number of the equilibrium runs can be set with
-    :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion
-    profile can start. In this part the MC Algorithm calculates in every step
-    a new diffusion profile. The average over all profiles which are yields in
-    MC production will be determined. The received profile gives the final
-    result. The MC algorithm calculates a diffusion profile for each step length
-    previously specified in the sampling
-    (:func:`poreana.sample.Sample.init_diffusion_mc`) and thus, for each lag
-    time. Here you have to set also step the move width of a MC step.
 
-    **More information about a MC step can be found in**
+    The MC calculation can be started with :func:`run`.
 
-    * :func:`_mcmove_diffusion`
-    * :func:`_mcmove_df`
-
-    The MC calculation can be started with :func:`do_mc_cycles`.
-
-    Parameters
-    ----------
-    nmc_eq : integer, optional
-        Number of equilibrium MC steps
-    nmc : integer, optional
-        Number of production MC steps
-    delta_df : float, optional
-        Potential MC move width
-    delta_diff : float, optional
-        ln(diffusion) MC move width
-    num_mc_update : integer, optional
-        Number of moves between MC step width adjustments (=0 if no adjustment
-        is required)
-    temp : float, optional
-        Temperature in Monte Carlo acceptance criterium
-    print_output : bool, optional
-        True to print output
-    print_freq : integer, optional
-        Print MC step every print_freq
     """
     # def __init__(self, nmc_eq=50000, nmc=100000, nmc_eq_radial=50000, nmc_radial=100000, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, num_mc_update=10, temp=1, lmax=50, print_output=True, print_freq=100):
-    def __init__(self, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100):
+    #def __init__(self):
+
+        # Save for radial diffusion
+        #self._delta_diff_radial = delta_diff_radial          # MC Move width radial Diffusion
+        #self._delta_diff_radial_start = delta_diff_radial
+        #self._nmc_eq_radial = nmc_eq_radial                  # Number of MC steps
+        #self._nmc_radial = nmc_radial                        # Number of MC steps
+        #self._lmax = lmax                                    # Number of bessel functions
+
+    ##############
+    # MC - Cylce #
+    ##############
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100, do_radial=False):
+        """This function do the MC Cycle to calculate the diffusion and free
+        energy profile over the bins and save the results in an output object
+        file. This happens with the adjustment of the coefficient from the model
+        which is set with the appropriate model class. The code determines the
+        results for all lag times for which a transition matrix was calculated.
+        The results can be displayed with the post process functions.
+        The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
+        to adjust the profile. The number of the equilibrium runs can be set with
+        :math:`\\text{nmc\_eq}`. After the equilibrium phase the sampling of the diffusion
+        profile can start. In this part the MC Algorithm calculates in every step
+        a new diffusion profile. The average over all profiles which are yields in
+        MC production will be determined. The received profile gives the final
+        result. The MC algorithm calculates a diffusion profile for each step length
+        previously specified in the sampling
+        (:func:`poreana.sample.Sample.init_diffusion_mc`) and thus, for each lag
+        time. Here you have to set also step the move width of a MC step.
+
+        **More information about a MC step can be found in**
+
+        * :func:`_mcmove_diffusion`
+        * :func:`_mcmove_df`
+
+        The MC accepted criterium for a MC step is define as
+
+        .. math::
+
+            r < \\exp \\left ( \\frac{L_\\text{new} - L_\\text{old}}{T}  \\right)
+
+        with :math:`T` as the temperature, :math:`r` as a random number between
+        :math:`0` and :math:`1` and :math:`L_\\text{new}` and
+        :math:`L_\\text{old}` as the likelihood for the current and the last
+        step. The likelihood is calculated with :func:`_log_likelihood_z`
+        function.
+
+
+        Parameters
+        ----------
+        model : class
+            Model object which set before with the model class
+        link_out : string
+            Link to output object file
+        nmc_eq : integer, optional
+            Number of equilibrium MC steps
+        nmc : integer, optional
+            Number of production MC steps
+        delta_df : float, optional
+            Potential MC move width
+        delta_diff : float, optional
+            ln(diffusion) MC move width
+        num_mc_update : integer, optional
+            Number of moves between MC step width adjustments (=0 if no adjustment
+            is required)
+        temp : float, optional
+            Temperature in Monte Carlo acceptance criterium
+        print_output : bool, optional
+            True to print output
+        print_freq : integer, optional
+            Print MC step every print_freq
+        do_radial : bool, optional
+            True to calculate the radial diffusion
+        """
+
         # Set MC step width
         self._delta_df = delta_df                            # MC Move width free energy
         self._delta_diff = delta_diff                        # MC Move width Diffusion
@@ -72,48 +112,6 @@ class MC:
         # print frequency for MC steps (default every 100 steps)
         self._print_freq = print_freq
 
-        # Save for radial diffusion
-        #self._delta_diff_radial = delta_diff_radial          # MC Move width radial Diffusion
-        #self._delta_diff_radial_start = delta_diff_radial
-        #self._nmc_eq_radial = nmc_eq_radial                  # Number of MC steps
-        #self._nmc_radial = nmc_radial                        # Number of MC steps
-        #self._lmax = lmax                                    # Number of bessel functions
-
-    ##############
-    # MC - Cylce #
-    ##############
-    def do_mc_cycles(self, model, link_out, do_radial=False):
-        """This function do the MC Cycle to calculate the diffusion and free
-        energy profile over the bins and save the results in an output object
-        file. This happens with the adjustment of the coefficient from the model
-        which is set with the appropriate model class. The code determines the
-        results for all lag times for which a transition matrix was calculated.
-        The results can be displayed with the post process functions.
-
-        The MC accepted criterium for a MC step is define as
-
-        .. math::
-
-            r < \\exp \\left ( \\frac{L_\\text{new} - L_\\text{old}}{T}  \\right)
-
-        with :math:`T` as the temperature, :math:`r` as a random number between
-        :math:`0` and :math:`1` and :math:`L_\\text{new}` and
-        :math:`L_\\text{old}` as the likelihood for the current and the last
-        step. The likelihood is calculated with :func:`_log_likelihood_z`
-        function.
-
-        Information about a single MC step can be find in
-        :func:`_mcmove_diffusion` or :func:`_mcmove_df`
-
-        Parameters
-        ----------
-        model : class
-            Model object which set before with the model class
-        link_out : string
-            Link to output object file
-        do_radial : bool, optional
-            True to calculate the radial diffusion
-        """
 
         # Print that MC Calculation starts
         if not self._print_output:
@@ -403,7 +401,7 @@ class MC:
         inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
 
         # Set pore or box data
-        props = model._pore_props
+        props = model._sys_props
         system = model._system
 
         # Set inp data for model

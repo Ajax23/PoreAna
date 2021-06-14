@@ -35,10 +35,10 @@ class Model:
         self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
 
         if "pore" in sample:
-            self._pore_props = sample["pore"]
+            self._sys_props = sample["pore"]
             self._system = "pore"
         if "box" in sample:
-            self._pore_props = sample["box"]
+            self._sys_props = sample["box"]
             self._system = "box"
 
         # Initialize units of diffusion and free energy unit
@@ -122,7 +122,7 @@ class CosineModel(Model):
 
     with the number of bins :math:`n`, the index of a bin :math:`i`,
     the coefficients :math:`a_{k}` of the Fourier series and :math:`k` as the
-    number of coefficents`. The free energy is calculated in the bin center.
+    number of coefficents. The free energy is calculated in the bin center.
 
     For the free energy the coefficient it is assumed that :math:`a_{0} = 0`.
 
@@ -198,11 +198,11 @@ class CosineModel(Model):
             # Set data list for panda table
             len_step_string = ', '.join(str(step) for step in self._len_step)
             data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff),
-                    str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
+                    str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12)))), self._system]
 
             # Set pandas table
             df_model = pd.DataFrame(data, index=list(
-                ['Bin number', 'step length', 'frame length', 'nD', 'nF', 'model', 'pbc', 'guess diffusion (m2/s-1)']), columns=list(['Input']))
+                ['Bin number', 'step length', 'frame length', 'nD', 'nF', 'model', 'pbc', 'guess diffusion (m2/s-1)', 'system']), columns=list(['Input']))
 
             # Print panda table with model inputs
             print(df_model)
@@ -353,11 +353,11 @@ class StepModel(Model):
             # Set data list for panda table
             len_step_string = ', '.join(str(step) for step in self._len_step)
             data = [str("%.f" % self._bin_num),  len_step_string, str("%.2e" % (self._dt * 10**(-12))), str("%.f" % self._n_diff),
-                    str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12))))]
+                    str("%.f" % self._n_df), self._model, self._pbc, str("%.2e" % (self._d0 * (10**(-18))/(10**(-12)))), self._system]
 
             # Set pandas table
             df_model = pd.DataFrame(data, index=list(
-                ['Bin number', 'step length', 'frame length', 'nD', 'nF', 'model', 'pbc', 'guess diffusion (m2/s-1)']), columns=list(['Input']))
+                ['Bin number', 'step length', 'frame length', 'nD', 'nF', 'model', 'pbc', 'guess diffusion (m2/s-1)','system']), columns=list(['Input']))
 
             # Print panda table with model inputs
             print(df_model)
@@ -408,7 +408,7 @@ class StepModel(Model):
                             1 & (\\mathrm{bin}+1)\\geq \\Delta x\ \\& \ (\\mathrm{bin}+1)\\leq n_{\\mathrm{bin}}-\\Delta x \\\\
                             0 &  \\mathrm{else}                                 \\
                     \\end{cases}
-                    
+
         hereby is :math:`bin = [0,...,n_{\\mathrm{bin}}]` with
         :math:`n_{\\mathrm{bin}}` as the number of the bins. The variable
         :math:`\\Delta x` is define by

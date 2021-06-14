@@ -321,14 +321,23 @@ class UserModelCase(unittest.TestCase):
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
-        # Set the MC class and options
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        pa.MC._len_step = 1
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-128852.33)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        pa.MC._len_step = 2
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-165354.77)
+
+        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        pa.MC._len_step = 10
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-258946.71)
+
+        # Set len_step for MC run test
         model._len_step = [10,20,30,40]
 
-        # Set MC class
-        MC = pa.MC(8000,1500,print_output=False)
-
         # Do the MC alogirthm
-        MC.do_mc_cycles(model,"output/diff_test_mc.obj")
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
@@ -353,26 +362,9 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10]
-        MC = pa.MC(1, 2000, print_output=True)
 
         # Do the MC alogirthm
-        MC.do_mc_cycles(model,"output/diff_test_mc.obj")
-
-        # Test initalize likelihood
-        # Set Cosine Model for diffusion and energy profile
-        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
-
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-        MC._len_step = 1
-        self.assertEqual(round(MC._log_likelihood_z(model),2),-128852.33)
-
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-        MC._len_step = 2
-        self.assertEqual(round(MC._log_likelihood_z(model),2),-165354.77)
-
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-        MC._len_step = 10
-        self.assertEqual(round(MC._log_likelihood_z(model),2),-258946.71)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=True)
 
 
     def test_diffusion_mc_box(self):
@@ -384,10 +376,9 @@ class UserModelCase(unittest.TestCase):
 
         # Set the MC class and options
         model._len_step = [10,20,30,40,50]
-        MC = pa.MC(100,2500,print_output=False)
 
         # Do the MC alogirthm
-        MC.do_mc_cycles(model,"output/diff_test_mc_box.obj")
+        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, print_output=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
@@ -427,11 +418,14 @@ class UserModelCase(unittest.TestCase):
     def test_freeenergy_mc(self):
         # Plot free energy profile over box length
         plt.figure()
-        pa.freeenergy.mc_profile("output/diff_test_mc.obj",[10])
+        pa.freeenergy.mc_profile("output/diff_test_mc.obj")
         plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
-        ##########
-        # :TODO: #
-        ##########
+
+        results = pa.utils.load("output/diff_test_mc.obj")
+        df_bin = results["df_profile"][10]
+        print(np.sum(df_bin))
+        self.assertEqual(round(np.sum(df_bin),14), -1.19*10**(-14))
+
         return
 
 
@@ -459,6 +453,7 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.mc_profile("data/check_output.obj", infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = True)
         pa.diffusion.mc_trans_mat("data/check_output.obj",10)
+        pa.diffusion.mc_trans_mat("data/check_output_sample.obj",10)
         pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = False)
         pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, section=[0,5], infty_profile = False)
         pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = False)
