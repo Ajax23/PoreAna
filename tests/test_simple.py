@@ -421,13 +421,6 @@ class UserModelCase(unittest.TestCase):
         pa.freeenergy.mc_profile("output/diff_test_mc.obj")
         plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
 
-        results = pa.utils.load("output/diff_test_mc.obj")
-        df_bin = results["df_profile"][10]
-        print(np.sum(df_bin))
-        self.assertEqual(round(np.sum(df_bin),14), -1.19*10**(-14))
-
-        return
-
 
     ##########
     # Tables #
