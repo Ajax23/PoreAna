@@ -315,9 +315,9 @@ class UserModelCase(unittest.TestCase):
 
     # Test MC class
     def test_diffusion_mc_mc(self):
-        # Pore diffusion
         # self.skipTest("Temporary")
 
+        # Pore diffusion
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
@@ -336,8 +336,27 @@ class UserModelCase(unittest.TestCase):
         # Set len_step for MC run test
         model._len_step = [10,20,30,40]
 
+        #### Test Single ####
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False, is_parallel=False)
+
+        # Plot diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj")
+        plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
+
+        # Plot pore diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", is_pore=True)
+        plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
+
+        # Check if diffusion coefficient is in the range
+        self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
+        self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
+
+        #### Test Parallel ####
+        # Do the MC alogirthm
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False, is_parallel=True)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()

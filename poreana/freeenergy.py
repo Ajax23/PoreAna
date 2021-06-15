@@ -30,15 +30,20 @@ def mc_profile(link, len_step=[]):
     """
 
     # Load Results from the output object file
-    results = utils.load(link)
+    data = utils.load(link)
+
+    # Load results
+    results = data["output"]
     df_bin = results["df_profile"]
-    inp = results["model"]
-    dt = inp["len_frame"]
-    bins = inp["bins"]
+
+    # Load model inputs
+    model = data["model"]
+    dt = model["len_frame"]
+    bins = model["bins"]
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
-        len_step = inp["len_step"]
+        len_step = model["len_step"]
 
     # Set legend
     legend = ["lagtime " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]

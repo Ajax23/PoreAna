@@ -911,7 +911,7 @@ class Sample:
             True to apply periodic boundary conditions
 
         Returns : dictionary
-            Dictionary conatining all sampled data
+            Dictionary containing all sampled data
         """
         # Initialize
         box = self._pore_props["box"] if self._pore else self._box

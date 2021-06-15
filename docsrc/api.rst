@@ -29,7 +29,6 @@ Monte Carlo Sampling
     model.StepModel
     mc.MC
 
-
 .. _analysis_api:
 
 Analysis

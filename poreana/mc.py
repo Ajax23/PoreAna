@@ -3,6 +3,7 @@ import copy
 import scipy as sc
 import numpy as np
 import pandas as pd
+import multiprocessing as mp
 
 import poreana.utils as utils
 
@@ -28,7 +29,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100, do_radial=False):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100, do_radial=False, is_parallel=False, np=0):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -89,6 +90,10 @@ class MC:
             Print MC step every print_freq
         do_radial : bool, optional
             True to calculate the radial diffusion
+        is_parallel : bool, optional
+            True to run parallelized sampling
+        np : integer, optional
+            Number of cores to use
         """
 
         # Set MC step width
@@ -113,6 +118,14 @@ class MC:
         self._print_freq = print_freq
 
 
+        # Set dictionary for model and input informations
+        # Set inp data MC algorithm
+        inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
+
+        # Set inp data for model
+        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
+
+
         # Print that MC Calculation starts
         if not self._print_output:
             print("MC Calculation Start")
@@ -135,6 +148,82 @@ class MC:
             # Table for MC Inputs
             print(df_input)
 
+
+        # Get number of cores
+        np = np if np and np<=mp.cpu_count() else mp.cpu_count()
+
+        if is_parallel:
+            self._print_output=False
+            #len_step = [[model._len_step[i] for i in range(step_num)] for step in ]
+            pool = mp.Pool(processes=np)
+            results = [pool.apply_async(self._run_mc_helper, args=(model,[step], do_radial)) for step in model._len_step]
+            pool.close()
+            pool.join()
+            output_para = [x.get() for x in results]
+
+
+            # Destroy object
+            del results
+
+            #
+            output = output_para[0]
+            for out,step in zip(output_para[1:],model._len_step[1:]):
+                    output["diff_profile"][step] = out["diff_profile"][step]
+                    output["df_profile"][step] = out["df_profile"][step]
+                    output["diff_coeff"][step] = out["diff_coeff"][step]
+                    output["df_coeff"][step] = out["df_coeff"][step]
+                    output["nacc_df"][step] = out["nacc_df"][step]
+                    output["nacc_diff"][step] = out["nacc_diff"][step]
+                    output["fluc_diff"][step] = out["fluc_diff"][step]
+                    output["fluc_df"][step] = out["fluc_df"][step]
+                    output["list_df_coeff"][step] = out["list_df_coeff"][step]
+                    output["list_diff_coeff"][step] = out["list_diff_coeff"][step]
+        else:
+            output = self._run_mc_helper(model, model._len_step, do_radial)
+
+
+        # Print MC statistics
+        if self._print_output:
+            print("--------------------------------------------------------------------------------")
+            print("--------------------------------MC Statistics-----------------------------------")
+            print("--------------------------------------------------------------------------------\n")
+
+            # Set data structure fpr pandas table
+            data = [[str("%.4e" % output["fluc_df"][i]) for i in model._len_step], [str("%.4e" % output["fluc_diff"][i]) for i in model._len_step], [str("%.0f" % output["nacc_df"][i]) for i in model._len_step], [str("%.0f" % output["nacc_diff"][i]) for i in model._len_step], [str("%.2f" % (output["nacc_df"][i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % (output["nacc_diff"][i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step]]
+
+            # Set options for pandas table
+            df = pd.DataFrame(data, index=list(['fluctuation df', 'fluctuation diff', 'acc df steps', 'acc diff steps', 'acc df steps (%)', 'acc diff steps (%)']), columns=list(model._len_step))
+            df = pd.DataFrame(df.rename_axis('Step Length', axis=1))
+
+            # Print pandas table for the MC statistics
+            print(df)
+            print("--------------------------------------------------------------------------------\n\n")
+
+        # Print MC Calculation is done
+        print("MC Calculation Done.")
+
+        # Save inp and output data
+        utils.save({"inp": inp, "model": model_inp , model._system: model._sys_props, "output": output}, link_out)
+
+
+        return
+
+    def _run_mc_helper(self, model, len_step, do_radial):
+        """Helper function for sampling run.
+
+        Parameters
+        ----------
+        model : class
+            Model object which set before with the model class
+        len_step : list
+            List of step length
+        do_radial : bool, optional
+            True to calculate the radial diffusion
+
+        Returns : dictionary
+            Dictionary containing all MC results
+        """
+
         # Initialize result lists (profiles, coefficients, fluctuation and accepted MC steps)
         ## Diffusion
         list_diff_profile = {}
@@ -155,7 +244,7 @@ class MC:
         nacc_df_mean = {}
 
         # Loop over the different step_length (lag times) (-> for every lag time a MC Calculation have to run)
-        for self._len_step in model._len_step:
+        for self._len_step in len_step:
             # Print that a new calculation with a new lag time starts
             lagtime_string = "Lagtime: " + str(self._len_step * model._dt) + " ps"
             if self._print_output:
@@ -346,75 +435,12 @@ class MC:
                 # Mean over all lag times calculations
                 nacc_diff_radial_mean[self._len_step] = 0
 
-        # Print MC statistics
-        if self._print_output:
-            print("--------------------------------------------------------------------------------")
-            print("--------------------------------MC Statistics-----------------------------------")
-            print("--------------------------------------------------------------------------------\n")
 
-            # Set data structure fpr pandas table
-            data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step], [str("%.0f" % nacc_df_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_radial_mean[i]) for i in model._len_step], [str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step]]
-
-            # Set options for pandas table
-            df = pd.DataFrame(data, index=list(['fluctuation df', 'fluctuation diff', 'fluctuation rad. diff', 'acc df steps', 'acc diff steps', 'acc rad. diff steps', 'acc df steps (%)', 'acc diff steps (%)']), columns=list(model._len_step))
-            df = pd.DataFrame(df.rename_axis('Step Length', axis=1))
-
-            # Print pandas table for the MC statistics
-            print(df)
-            print("--------------------------------------------------------------------------------\n\n")
-
-            # # Print coefficients
-            # print("--------------------------------------------------------------------------------\n")
-            # print("--------------------------------MC Statistics-----------------------------------")
-            # print("--------------------------------------------------------------------------------\n")
-            #
-            # # Set data dictionary for the diffusion profile coefficients
-            # print("Diffusion Model Coefficients")
-            # data = {}
-            # for i in model._len_step:
-            #     data[i] = [str("%.4e" % list_diff_coeff[i][j]) for j in range(model._n_diff)]
-            # diff_coeff = pd.DataFrame(data, index=list(
-            #     np.arange(1, model._n_diff+1)), columns=list(model._len_step))
-            #
-            # # Set options for pandas table
-            # diff_coeff = pd.DataFrame(diff_coeff.rename_axis('Step Length', axis=1))
-            #
-            # # Print pandas table with diffusion profile coefficients
-            # print(diff_coeff)
-            #
-            # # Set data dictionary for the free energy profile coefficients
-            # print("\nFree Energy Model Coefficients")
-            # data = {}
-            # for i in model._len_step:
-            #     data[i] = [str("%.4e" % list_df_coeff[i][j]) for j in range(model._n_df)]
-            # df_coeff = pd.DataFrame(data, index=list(
-            #     np.arange(1, model._n_df+1)), columns=list(model._len_step))
-            #
-            # # Set options for pandas table
-            # df_coeff = pd.DataFrame(df_coeff.rename_axis('Step Length', axis=1))
-            #
-            # # Print pandas table with free energy profile coefficients
-            # print(df_coeff)
-            # print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-
-        # Set inp data MC algorithm
-        inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
-
-        # Set pore or box data
-        props = model._sys_props
-        system = model._system
-
-        # Set inp data for model
-        model = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
 
         # Set output data
-        output = {"inp": inp, system : props, "model":  model, "diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
+        output = {"diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
 
-        # Print MC Calculation is done
-        print("MC Calculation Done.")
-
-        # Save inp and output data
-        utils.save(output, link_out)
+        return output
 
     ###########################
     # Helper functions for MC #
