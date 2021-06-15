@@ -377,18 +377,18 @@ def mc_trans_mat(link_in, step, kwargs={}):
     """
 
     # Load results from the output object file
-    results = utils.load(link_in)
+    data= utils.load(link_in)
 
     # Sample obj file is loaded
-    if "data" in results:
-        trans_mat = results["data"]
-        inp = results["inp"]
+    if "data" in data:
+        trans_mat = data["data"]
+        inp = data["inp"]
         frame_num = inp["num_frame"]
         frame_length = inp["len_frame"] * 10**12
 
     # MC obj file is loaded
     else:
-        model = results["model"]
+        model = data["model"]
         trans_mat = model["data"]
         frame_num = model["num_frame"]
         frame_length = model["len_frame"]
@@ -465,24 +465,31 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
     """
 
     # Load Results from the output object file
-    results = utils.load(link)
+    data = utils.load(link)
+
+    # Load results
+    results = data["output"]
     diff_bin = results["diff_profile"]
-    inp = results["model"]
-    diff_unit = inp["diffusion unit"]
-    bins = inp["bins"]
+
+    # Load model inputs
+    model = data["model"]
+    diff_unit = model["diffusion unit"]
+    bins = model["bins"]
     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-    dt = inp["len_frame"]
+    dt = model["len_frame"]
+
+    # Set vector
     diff_bin_vec = {}
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
-        len_step = inp["len_step"]
+        len_step = model["len_step"]
 
     # If only the pore area should be considered
     if is_pore and not section:
         # Load pore system
-        if "pore" in results:
-            pore = results["pore"]
+        if "pore" in data:
+            pore = data["pore"]
             res = pore["res"]
             box = pore["box"]
             legend = []
@@ -655,27 +662,33 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
         Set a start and end location to consider a specific box area
     """
 
-    # If no link_pore is set the whole system will be considered
     # Load Results from the output object file
-    results = utils.load(link)
+    data = utils.load(link)
+
+    # Load results
+    results = data["output"]
     diff_bin = results["diff_profile"]
-    inp = results["model"]
-    diff_unit = inp["diffusion unit"]
-    dt = inp["len_frame"]
-    bins = inp["bins"]
+
+    # Load model inputs
+    model = data["model"]
+    diff_unit = model["diffusion unit"]
+    bins = model["bins"]
     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
+    dt = model["len_frame"]
+
+    # Set dictionaries
     legend = []
     diff_bin_vec = {}
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
-        len_step = inp["len_step"]
+        len_step = model["len_step"]
 
     # If only the pore area should be considered
     if is_pore and not section:
         # Load pore system
-        if "pore" in results:
-            pore = results["pore"]
+        if "pore" in data:
+            pore = data["pore"]
             res = pore["res"]
             box = pore["box"]
             legend = []
