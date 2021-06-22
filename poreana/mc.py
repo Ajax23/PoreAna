@@ -4,6 +4,7 @@ import scipy as sc
 import numpy as np
 import pandas as pd
 import multiprocessing as mp
+import numpy as numpy
 
 import poreana.utils as utils
 
@@ -125,6 +126,9 @@ class MC:
         # Set inp data for model
         model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
 
+        # If is_parallel set print_output to false
+        if is_parallel:
+            self._print_output = False
 
         # Print that MC Calculation starts
         if not self._print_output:
@@ -152,20 +156,22 @@ class MC:
         # Get number of cores
         np = np if np and np<=mp.cpu_count() else mp.cpu_count()
 
+        # List for step times per cpu
+        len_step_cpu = numpy.array_split(model._len_step,np);
+
+
+        # If is parallel is true, each lag time MC run is calculated on one CPU
         if is_parallel:
-            self._print_output=False
-            #len_step = [[model._len_step[i] for i in range(step_num)] for step in ]
             pool = mp.Pool(processes=np)
-            results = [pool.apply_async(self._run_mc_helper, args=(model,[step], do_radial)) for step in model._len_step]
+            results = [pool.apply_async(self._run_helper, args=(model,list(step), do_radial)) for step in len_step_cpu]
             pool.close()
             pool.join()
             output_para = [x.get() for x in results]
 
-
             # Destroy object
             del results
 
-            #
+            # Concatenate output
             output = output_para[0]
             for out,step in zip(output_para[1:],model._len_step[1:]):
                     output["diff_profile"][step] = out["diff_profile"][step]
@@ -179,7 +185,7 @@ class MC:
                     output["list_df_coeff"][step] = out["list_df_coeff"][step]
                     output["list_diff_coeff"][step] = out["list_diff_coeff"][step]
         else:
-            output = self._run_mc_helper(model, model._len_step, do_radial)
+            output = self._run_helper(model, model._len_step, do_radial)
 
 
         # Print MC statistics
@@ -208,7 +214,7 @@ class MC:
 
         return
 
-    def _run_mc_helper(self, model, len_step, do_radial):
+    def _run_helper(self, model, len_step, do_radial):
         """Helper function for sampling run.
 
         Parameters
@@ -434,7 +440,6 @@ class MC:
 
                 # Mean over all lag times calculations
                 nacc_diff_radial_mean[self._len_step] = 0
-
 
 
         # Set output data

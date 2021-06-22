@@ -403,7 +403,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
 ##################
 # Diffusion - MC #
 ##################
-def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
+def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[], kwargs={}):
     """This function uses the diffusion profiles over box length which are
     calculated in the function :func:`poreana.mc.MC.do_mc_cycles` to estimate
     the final diffusion coefficient. For that a line is fitted of the averaged
@@ -450,6 +450,8 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
         set is_pore as True to consider only the pore area
     section : list, optional
         Set a start and end location to consider a specific box area
+    kwargs: dict, optional
+        Dictionary with plotting parameters
 
     Returns
     -------
@@ -614,8 +616,8 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
     # Plot the results
     plt.xlim(0, 1.5*max(lag_time_vec))
     plt.ylim(0, 1.5*max(fit(x_vec)))
-    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red')
-    sns.lineplot(x=x_vec, y=fit(x_vec))
+    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red', **kwargs)
+    sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs)
     legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
     plt.legend(legend)
     plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
@@ -626,7 +628,7 @@ def mc_fit(link, len_step=[], is_std=True, is_pore=False, section=[]):
     return diffusion, diffusion_mean, diff_table
 
 
-def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[]):
+def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[], kwargs={}):
     """This function plots the diffusion profile for an infinity
     lag time (:math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \\infty`) over the box
     fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}` list.
@@ -660,6 +662,8 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
         set is_pore as True to consider only the pore area
     section : list, optional
         Set a start and end location to consider a specific box area
+    kwargs: dict, optional
+        Dictionary with plotting parameters
     """
 
     # Load Results from the output object file
@@ -736,7 +740,7 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
     if not infty_profile:
         # Plot the profiles for the
         for i in range(len(len_step)):
-            sns.lineplot(x=bins, y=(diff_profiles[i]))       # Diffusion in m^2/s
+            sns.lineplot(x=bins, y=(diff_profiles[i]), **kwargs)       # Diffusion in m^2/s
 
         # Plot the diffusion profiles for the different lag times
         legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
@@ -757,7 +761,7 @@ def mc_profile(link, len_step=[], infty_profile=True, is_pore=False, section=[])
             diff_profile_fit.append(fit(0)*10**9)
 
         # Plot fitted diffusion profile
-        sns.lineplot(x=bins, y=diff_profile_fit)       # Diffusion in m^2/s
+        sns.lineplot(x=bins, y=diff_profile_fit, **kwargs)       # Diffusion in m^2/s
 
     # Set legend for lag times
     if not infty_profile:
