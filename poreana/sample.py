@@ -667,6 +667,9 @@ class Sample:
         # Calculate bins
         bins = self._bin_mc(bin_num)["bins"]
 
+        # Sort len_step list
+        len_step.sort()
+
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
                               "bin_num": bin_num, "len_step": len_step,
@@ -682,18 +685,18 @@ class Sample:
         """
         # Initialize
         bin_num = self._diff_mc_inp["bin_num"]
-        len_step= self._diff_mc_inp["len_step"]
+        len_step = self._diff_mc_inp["len_step"]
 
         # Create dictionary
         data = {}
 
         # Initialize transition matrix
         for step in len_step:
-            data[step] = np.zeros((bin_num+2,bin_num+2),int)
+            data[step] = np.zeros((bin_num+2, bin_num+2), int)
 
         return data
 
-    def _diffusion_mc(self, data, idx_list_mc,res_id, com, frame_list, frame_id):
+    def _diffusion_mc(self, data, idx_list_mc, com, res_id, frame_list, frame_id):
         """This function sample the transition matrix for the diffusion
         calculation with the Monte Carlo diffusion methode for a cubic
         simulation box. The sample of the transition matrix is to be run on
@@ -737,10 +740,10 @@ class Sample:
             Data dictionary containing bins for axial and radial diffusion
         index_list : list
             List of dictionaries containing bin id of all molecules for each frame
-        res_id : integer
-            Current residue id
         com : list
             Center of mass of current molecule
+        res_id : integer
+            Current residue id
         frame_list : list
             List of frame ids to process
         frame_id : integer
@@ -749,28 +752,28 @@ class Sample:
         # Initialize
         bin_num = self._diff_mc_inp["bin_num"]
         len_step = self._diff_mc_inp["len_step"]
-        bins = self._bin_mc(bin_num)["bins"]
+        bins = self._diff_mc_inp["bins"]
 
         # Calculate bin index
-        idx_list_mc[-1][res_id] = np.digitize(com[2],bins)
+        idx_list_mc[-1][res_id] = np.digitize(com[2], bins)
 
         # Sample the transition matrix for the len_step
         if frame_list[0]==0:
             for step in len_step:
                 if len(idx_list_mc) >= (step+1):
-                        # Calculate transition matrix in z direction
-                        start = idx_list_mc[-(step+1)][res_id]
-                        end = idx_list_mc[-1][res_id]
-                        data[step][end,start] += 1
+                    # Calculate transition matrix in z direction
+                    start = idx_list_mc[-(step+1)][res_id]
+                    end = idx_list_mc[-1][res_id]
+                    data[step][end, start] += 1
 
         # For parallel calculation
-        if frame_list[0]!=0 and frame_id>=(frame_list[0]+max(self._diff_mc_inp["len_step"])):
+        if frame_list[0]!=0 and frame_id>=(frame_list[0] + self._diff_mc_inp["len_step"][-1]):
             for step in len_step:
                 if len(idx_list_mc) >= (step+1):
-                        # Calculate transition matrix in z direction
-                        start = idx_list_mc[-(step+1)][res_id]
-                        end = idx_list_mc[-1][res_id]
-                        data[step][end,start] += 1
+                    # Calculate transition matrix in z direction
+                    start = idx_list_mc[-(step+1)][res_id]
+                    end = idx_list_mc[-1][res_id]
+                    data[step][end, start] += 1
 
 
     ############
@@ -944,16 +947,16 @@ class Sample:
             # Add new dictionaries and remove unneeded references
             if self._is_diffusion_bin:
                 len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
+            elif self._is_diffusion_mc:
+                len_fill = self._diff_mc_inp["len_step"][-1]+1
+
+            if self._is_diffusion_bin or self._is_diffusion_mc:
                 if len(com_list) >= len_fill:
                     com_list.pop(0)
                     idx_list.pop(0)
+                    idx_list_mc.pop(0)
                 com_list.append({})
                 idx_list.append({})
-
-            # Add new dictionaries and remove unneeded references
-            if self._is_diffusion_mc:
-                if len(idx_list_mc) >= (max(self._diff_mc_inp["len_step"])+1):
-                    idx_list_mc.pop(0)
                 idx_list_mc.append({})
 
             # Run through residues
@@ -965,12 +968,11 @@ class Sample:
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
 
                 # Remove broken molecules
-                if not self._is_diffusion_mc:
-                    is_broken = False
-                    for i in range(3):
-                        is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
-                        if is_broken:
-                            break
+                is_broken = False
+                for i in range(3):
+                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
+                    if is_broken:
+                        break
 
                 # Apply periodic boundary conditions
                 if is_pbc:
@@ -1011,7 +1013,7 @@ class Sample:
                 if self._is_diffusion_bin:
                     self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:
-                    self._diffusion_mc(output["diffusion_mc"], idx_list_mc, res_id, com, frame_list, frame_id)
+                    self._diffusion_mc(output["diffusion_mc"], idx_list_mc, com, res_id, frame_list, frame_id)
 
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:
