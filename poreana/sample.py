@@ -898,6 +898,9 @@ class Sample:
             for step in self._diff_mc_inp["len_step"]:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
+
+
+
             # Pickle
             utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
 
@@ -1020,5 +1023,4 @@ class Sample:
                 sys.stdout.write("Finished frame "+frame_form%(frame_id+1)+"/"+frame_form%self._num_frame+"...\r")
                 sys.stdout.flush()
         print()
-
         return output

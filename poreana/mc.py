@@ -30,7 +30,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100, do_radial=False, is_parallel=False, np=0):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100, do_radial=False, is_parallel=True, np=0):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -215,7 +215,7 @@ class MC:
         return
 
     def _run_helper(self, model, len_step, do_radial):
-        """Helper function for sampling run.
+        """Helper function for MC run
 
         Parameters
         ----------

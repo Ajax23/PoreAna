@@ -397,7 +397,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10,20,30,40,50]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, print_output=False)
+        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, print_output=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
