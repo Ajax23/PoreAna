@@ -62,7 +62,7 @@ After sampling, a model has to set and the MC Alogirthm started
     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
     # Do the MC Algorithm
-    pa.MC().run(model,"output/diff_mc.obj", nmc_eq=5000, nmc=5000, print_output=False)
+    pa.MC().run(model,"output/diff_mc.obj", nmc_eq=5000, nmc=5000, print_output=False, is_parallel=False)
 
 
 ``MC Calculation Start``
@@ -118,7 +118,7 @@ Additionally, the pore area can be considered more closely
     pa.diffusion.mc_fit_pore("output/diff_mc.obj", is_pore=True)
 
     # Plot diffusion profile in a pore
-    pa.diffusion.mc_profile("output/diff_mc.obj", is_pore=True, infty_profile=True)
+    pa.diffusion.mc_profile("output/diff_mc.obj", section="is_pore", infty_profile=True)
 
 
 ``Diffusion axial (Pore): 1.2534e-09 m^2/s``

@@ -982,7 +982,7 @@ class Sample:
                     com = [com_no_pbc[i]-math.floor(com_no_pbc[i]/box[i])*box[i] for i in range(3)]
                 else:
                     com = com_no_pbc
-
+                    
                 # Sample if molecule not broken near boundary
                 if not self._is_diffusion_mc:
                     if not is_broken:

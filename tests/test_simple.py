@@ -347,7 +347,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", is_pore=True)
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="is_pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
@@ -365,7 +365,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", is_pore=True)
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="is_pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
@@ -458,23 +458,31 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_lag_time("data/check_output.obj", print_con=True)
 
     def test_diffusion_output(self):
-        ##########
-        # :TODO: # - Sowas in den jeweiligen Klassen testen
-        ##########
 
         # Check output which is not coveraged by the entire MC test
-        pa.diffusion.mc_profile("data/check_output.obj",len_step=[10,20,30,40], infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = True)
+        # Check diffusion profile function
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], infty_profile = False)
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "is_pore", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "is_res", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = [1,10], infty_profile = True)
+
+        # Check diffusion fitting function
+        pa.diffusion.mc_fit("data/check_output.obj", section = "is_pore")
+        pa.diffusion.mc_fit("data/check_output.obj", section = "is_res")
+        pa.diffusion.mc_fit("data/check_output.obj", section=[0,10])
+
+
+
+        # Check transition matrix heatmap
         pa.diffusion.mc_trans_mat("data/check_output.obj",10)
         pa.diffusion.mc_trans_mat("data/check_output_sample.obj",10)
-        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = False)
-        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, section=[0,5], infty_profile = False)
-        pa.diffusion.mc_profile("data/check_output.obj", is_pore=True, infty_profile = False)
-        pa.diffusion.mc_profile("data/check_output.obj", infty_profile = False)
-        pa.diffusion.mc_fit("data/check_output.obj", section=[0,5])
 
-        pa.diffusion.mc_fit("data/box_output.obj", is_pore=True)
-        pa.diffusion.mc_profile("data/box_output.obj", is_pore=True)
+
+        # Check if box not pore system
+        pa.diffusion.mc_fit("data/box_output.obj", section = "is_pore")
+        pa.diffusion.mc_fit("data/box_output.obj", section = "is_res")
+        pa.diffusion.mc_profile("data/box_output.obj", section = "is_pore")
+        pa.diffusion.mc_profile("data/box_output.obj", section = "is_res")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

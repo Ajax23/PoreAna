@@ -30,7 +30,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100, do_radial=False, is_parallel=True, np=0):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -125,10 +125,6 @@ class MC:
 
         # Set inp data for model
         model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
-
-        # If is_parallel set print_output to false
-        if is_parallel:
-            self._print_output = False
 
         # Print that MC Calculation starts
         if not self._print_output:
