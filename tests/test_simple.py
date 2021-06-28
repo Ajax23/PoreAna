@@ -383,7 +383,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=True)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=True, is_parallel=False)
 
 
     def test_diffusion_mc_box(self):
