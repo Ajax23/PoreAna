@@ -464,7 +464,7 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], infty_profile = False)
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "is_pore", infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "is_res", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = [1,10], infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", section = [1,10], infty_profile = True)
 
         # Check diffusion fitting function
         pa.diffusion.mc_fit("data/check_output.obj", section = "is_pore")

@@ -595,12 +595,19 @@ def mc_fit(link, len_step=[], is_std=True, section=[], kwargs={}):
         if is_std:
             print("Mean Diffusion axial (Pore): "+"%.4e" % diffusion_mean + " m^2/s\n")
 
-    # Print the diffusion coefficient in a selected section
+    # Print the diffusion coefficient in the reservoir area
     if section=="is_res":
-        print("\nDiffusion axial ([" + str(section_list[0]) + "," + str(section_list[1]) + "]): "+"%.4e" % fit(0) + " m^2/s\n")
+        print("\nDiffusion axial (Reservoir): "+"%.4e" % fit(0) + " m^2/s\n")
         # If is_std true print the results of the calculations
         if is_std:
-            print("Mean Diffusion axial (["+ str(section_list[0]) + "," + str(section_list[1]) +"]): "+"%.4e" % diffusion_mean + " m^2/s\n")
+            print("Mean Diffusion axial (Peservoir): "+"%.4e" % diffusion_mean + " m^2/s\n")
+
+    # Print the diffusion coefficient in a selected section
+    if len(section) == 2:
+        print("\nDiffusion axial ([" + "%.2f" % (section_list[0]) + ", " + "%.2f" % (section_list[1]) + "]): "+"%.4e" % fit(0) + " m^2/s\n")
+        # If is_std true print the results of the calculations
+        if is_std:
+            print("Mean Diffusion axial (["+ "%.2f" % (section_list[0]) + ", " + "%.2f" % (section_list[1]) +"]): "+"%.4e" % diffusion_mean + " m^2/s\n")
 
     # Print std deviation
     if is_std:
