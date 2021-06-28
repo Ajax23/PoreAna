@@ -173,7 +173,8 @@ class MC:
 
             # Concatenate output
             output = output_para[0]
-            for out,step in zip(output_para[1:],model._len_step[1:]):
+            for out,len_step in zip(output_para[1:],len_step_cpu[1:]):
+                for step in len_step:
                     output["diff_profile"][step] = out["diff_profile"][step]
                     output["df_profile"][step] = out["df_profile"][step]
                     output["diff_coeff"][step] = out["diff_coeff"][step]
