@@ -3,54 +3,100 @@ import copy
 import scipy as sc
 import numpy as np
 import pandas as pd
+import multiprocessing as mp
+import numpy as numpy
 
 import poreana.utils as utils
 
 
 class MC:
     """This class contains the Monte Carlo part of the diffusion calculation.
-    The class initializes the MC (Monte Carlo) parameters and contains all
+    The class initializes the MC (Monte Carlo) and contains all
     functions to execute the MC cycle part of the diffusion calculation.
-    The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
-    to adjust the profile. The number of the equilibrium runs can be set with
-    :math:`nmc_eq`. After the equilibrium phase the sampling of the diffusion
-    profile can start. In this part the MC Algorithm calculates in every step
-    a new diffusion profile. The average over all profiles which are yields in
-    MC production will be determined. The received profile gives the final
-    result. The MC algorithm calculates a diffusion profile for each step length
-    previously specified in the sampling
-    (:func:`poreana.sample.Sample.init_diffusion_mc`) and thus, for each lag
-    time. Here you have to set also step the move width of a MC step.
 
-    **More information about a MC step can be found in**
+    The MC calculation can be started with :func:`run`.
 
-    * :func:`_mcmove_diffusion`
-    * :func:`_mcmove_df`
-
-    The MC calculation can be started with :func:`do_mc_cycles`.
-
-    Parameters
-    ----------
-    nmc_eq : integer, optional
-        Number of equilibrium MC steps
-    nmc : integer, optional
-        Number of production MC steps
-    delta_df : float, optional
-        Potential MC move width
-    delta_diff : float, optional
-        ln(diffusion) MC move width
-    num_mc_update : integer, optional
-        Number of moves between MC step width adjustments (=0 if no adjustment
-        is required)
-    temp : float, optional
-        Temperature in Monte Carlo acceptance criterium
-    print_output : bool, optional
-        True to print output
-    print_freq : integer, optional
-        Print MC step every print_freq
     """
     # def __init__(self, nmc_eq=50000, nmc=100000, nmc_eq_radial=50000, nmc_radial=100000, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, num_mc_update=10, temp=1, lmax=50, print_output=True, print_freq=100):
-    def __init__(self, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=True, print_freq=100):
+    #def __init__(self):
+
+        # Save for radial diffusion
+        #self._delta_diff_radial = delta_diff_radial          # MC Move width radial Diffusion
+        #self._delta_diff_radial_start = delta_diff_radial
+        #self._nmc_eq_radial = nmc_eq_radial                  # Number of MC steps
+        #self._nmc_radial = nmc_radial                        # Number of MC steps
+        #self._lmax = lmax                                    # Number of bessel functions
+
+    ##############
+    # MC - Cylce #
+    ##############
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
+        """This function do the MC Cycle to calculate the diffusion and free
+        energy profile over the bins and save the results in an output object
+        file. This happens with the adjustment of the coefficient from the model
+        which is set with the appropriate model class. The code determines the
+        results for all lag times for which a transition matrix was calculated.
+        The results can be displayed with the post process functions.
+        The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
+        to adjust the profile. The number of the equilibrium runs can be set with
+        :math:`\\text{nmc\_eq}`. After the equilibrium phase the sampling of the diffusion
+        profile can start. In this part the MC Algorithm calculates in every step
+        a new diffusion profile. The average over all profiles which are yields in
+        MC production will be determined. The received profile gives the final
+        result. The MC algorithm calculates a diffusion profile for each step length
+        previously specified in the sampling
+        (:func:`poreana.sample.Sample.init_diffusion_mc`) and thus, for each lag
+        time. Here you have to set also step the move width of a MC step.
+
+        **More information about a MC step can be found in**
+
+        * :func:`_mcmove_diffusion`
+        * :func:`_mcmove_df`
+
+        The MC accepted criterium for a MC step is define as
+
+        .. math::
+
+            r < \\exp \\left ( \\frac{L_\\text{new} - L_\\text{old}}{T}  \\right)
+
+        with :math:`T` as the temperature, :math:`r` as a random number between
+        :math:`0` and :math:`1` and :math:`L_\\text{new}` and
+        :math:`L_\\text{old}` as the likelihood for the current and the last
+        step. The likelihood is calculated with :func:`_log_likelihood_z`
+        function.
+
+
+        Parameters
+        ----------
+        model : class
+            Model object which set before with the model class
+        link_out : string
+            Link to output object file
+        nmc_eq : integer, optional
+            Number of equilibrium MC steps
+        nmc : integer, optional
+            Number of production MC steps
+        delta_df : float, optional
+            Potential MC move width
+        delta_diff : float, optional
+            ln(diffusion) MC move width
+        num_mc_update : integer, optional
+            Number of moves between MC step width adjustments (=0 if no adjustment
+            is required)
+        temp : float, optional
+            Temperature in Monte Carlo acceptance criterium
+        print_output : bool, optional
+            True to print output
+        print_freq : integer, optional
+            Print MC step every print_freq
+        do_radial : bool, optional
+            True to calculate the radial diffusion
+        is_parallel : bool, optional
+            True to run parallelized sampling
+        np : integer, optional
+            Number of cores to use
+        """
+
         # Set MC step width
         self._delta_df = delta_df                            # MC Move width free energy
         self._delta_diff = delta_diff                        # MC Move width Diffusion
@@ -72,48 +118,13 @@ class MC:
         # print frequency for MC steps (default every 100 steps)
         self._print_freq = print_freq
 
-        # Save for radial diffusion
-        #self._delta_diff_radial = delta_diff_radial          # MC Move width radial Diffusion
-        #self._delta_diff_radial_start = delta_diff_radial
-        #self._nmc_eq_radial = nmc_eq_radial                  # Number of MC steps
-        #self._nmc_radial = nmc_radial                        # Number of MC steps
-        #self._lmax = lmax                                    # Number of bessel functions
 
-    ##############
-    # MC - Cylce #
-    ##############
-    def do_mc_cycles(self, model, link_out, do_radial=False):
-        """This function do the MC Cycle to calculate the diffusion and free
-        energy profile over the bins and save the results in an output object
-        file. This happens with the adjustment of the coefficient from the model
-        which is set with the appropriate model class. The code determines the
-        results for all lag times for which a transition matrix was calculated.
-        The results can be displayed with the post process functions.
+        # Set dictionary for model and input informations
+        # Set inp data MC algorithm
+        inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
 
-        The MC accepted criterium for a MC step is define as
-
-        .. math::
-
-            r < \\exp \\left ( \\frac{L_\\text{new} - L_\\text{old}}{T}  \\right)
-
-        with :math:`T` as the temperature, :math:`r` as a random number between
-        :math:`0` and :math:`1` and :math:`L_\\text{new}` and
-        :math:`L_\\text{old}` as the likelihood for the current and the last
-        step. The likelihood is calculated with :func:`_log_likelihood_z`
-        function.
-
-        Information about a single MC step can be find in
-        :func:`_mcmove_diffusion` or :func:`_mcmove_df`
-
-        Parameters
-        ----------
-        model : class
-            Model object which set before with the model class
-        link_out : string
-            Link to output object file
-        do_radial : bool, optional
-            True to calculate the radial diffusion
-        """
+        # Set inp data for model
+        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
 
         # Print that MC Calculation starts
         if not self._print_output:
@@ -137,6 +148,85 @@ class MC:
             # Table for MC Inputs
             print(df_input)
 
+
+        # Get number of cores
+        np = np if np and np<=mp.cpu_count() else mp.cpu_count()
+
+        # List for step times per cpu
+        len_step_cpu = numpy.array_split(model._len_step,np);
+
+
+        # If is parallel is true, each lag time MC run is calculated on one CPU
+        if is_parallel:
+            pool = mp.Pool(processes=np)
+            results = [pool.apply_async(self._run_helper, args=(model,list(step), do_radial)) for step in len_step_cpu]
+            pool.close()
+            pool.join()
+            output_para = [x.get() for x in results]
+
+            # Destroy object
+            del results
+
+            # Concatenate output
+            output = output_para[0]
+            for out,len_step in zip(output_para[1:],len_step_cpu[1:]):
+                for step in len_step:
+                    output["diff_profile"][step] = out["diff_profile"][step]
+                    output["df_profile"][step] = out["df_profile"][step]
+                    output["diff_coeff"][step] = out["diff_coeff"][step]
+                    output["df_coeff"][step] = out["df_coeff"][step]
+                    output["nacc_df"][step] = out["nacc_df"][step]
+                    output["nacc_diff"][step] = out["nacc_diff"][step]
+                    output["fluc_diff"][step] = out["fluc_diff"][step]
+                    output["fluc_df"][step] = out["fluc_df"][step]
+                    output["list_df_coeff"][step] = out["list_df_coeff"][step]
+                    output["list_diff_coeff"][step] = out["list_diff_coeff"][step]
+        else:
+            output = self._run_helper(model, model._len_step, do_radial)
+
+
+        # Print MC statistics
+        if self._print_output:
+            print("--------------------------------------------------------------------------------")
+            print("--------------------------------MC Statistics-----------------------------------")
+            print("--------------------------------------------------------------------------------\n")
+
+            # Set data structure fpr pandas table
+            data = [[str("%.4e" % output["fluc_df"][i]) for i in model._len_step], [str("%.4e" % output["fluc_diff"][i]) for i in model._len_step], [str("%.0f" % output["nacc_df"][i]) for i in model._len_step], [str("%.0f" % output["nacc_diff"][i]) for i in model._len_step], [str("%.2f" % (output["nacc_df"][i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % (output["nacc_diff"][i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step]]
+
+            # Set options for pandas table
+            df = pd.DataFrame(data, index=list(['fluctuation df', 'fluctuation diff', 'acc df steps', 'acc diff steps', 'acc df steps (%)', 'acc diff steps (%)']), columns=list(model._len_step))
+            df = pd.DataFrame(df.rename_axis('Step Length', axis=1))
+
+            # Print pandas table for the MC statistics
+            print(df)
+            print("--------------------------------------------------------------------------------\n\n")
+
+        # Print MC Calculation is done
+        print("MC Calculation Done.")
+
+        # Save inp and output data
+        utils.save({"inp": inp, "model": model_inp , model._system: model._sys_props, "output": output}, link_out)
+
+
+        return
+
+    def _run_helper(self, model, len_step, do_radial):
+        """Helper function for MC run
+
+        Parameters
+        ----------
+        model : class
+            Model object which set before with the model class
+        len_step : list
+            List of step length
+        do_radial : bool, optional
+            True to calculate the radial diffusion
+
+        Returns : dictionary
+            Dictionary containing all MC results
+        """
+
         # Initialize result lists (profiles, coefficients, fluctuation and accepted MC steps)
         ## Diffusion
         list_diff_profile = {}
@@ -157,7 +247,7 @@ class MC:
         nacc_df_mean = {}
 
         # Loop over the different step_length (lag times) (-> for every lag time a MC Calculation have to run)
-        for self._len_step in model._len_step:
+        for self._len_step in len_step:
             # Print that a new calculation with a new lag time starts
             lagtime_string = "Lagtime: " + str(self._len_step * model._dt) + " ps"
             if self._print_output:
@@ -348,75 +438,11 @@ class MC:
                 # Mean over all lag times calculations
                 nacc_diff_radial_mean[self._len_step] = 0
 
-        # Print MC statistics
-        if self._print_output:
-            print("--------------------------------------------------------------------------------")
-            print("--------------------------------MC Statistics-----------------------------------")
-            print("--------------------------------------------------------------------------------\n")
-
-            # Set data structure fpr pandas table
-            data = [[str("%.4e" % list_df_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_fluc[i]) for i in model._len_step], [str("%.4e" % list_diff_radial_fluc[i]) for i in model._len_step], [str("%.0f" % nacc_df_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_mean[i]) for i in model._len_step], [str("%.0f" % nacc_diff_radial_mean[i]) for i in model._len_step], [str("%.2f" % (nacc_df_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step], [str("%.2f" % (nacc_diff_mean[i]*100/(self._nmc_eq+self._nmc))) for i in model._len_step]]
-
-            # Set options for pandas table
-            df = pd.DataFrame(data, index=list(['fluctuation df', 'fluctuation diff', 'fluctuation rad. diff', 'acc df steps', 'acc diff steps', 'acc rad. diff steps', 'acc df steps (%)', 'acc diff steps (%)']), columns=list(model._len_step))
-            df = pd.DataFrame(df.rename_axis('Step Length', axis=1))
-
-            # Print pandas table for the MC statistics
-            print(df)
-            print("--------------------------------------------------------------------------------\n\n")
-
-            # # Print coefficients
-            # print("--------------------------------------------------------------------------------\n")
-            # print("--------------------------------MC Statistics-----------------------------------")
-            # print("--------------------------------------------------------------------------------\n")
-            #
-            # # Set data dictionary for the diffusion profile coefficients
-            # print("Diffusion Model Coefficients")
-            # data = {}
-            # for i in model._len_step:
-            #     data[i] = [str("%.4e" % list_diff_coeff[i][j]) for j in range(model._n_diff)]
-            # diff_coeff = pd.DataFrame(data, index=list(
-            #     np.arange(1, model._n_diff+1)), columns=list(model._len_step))
-            #
-            # # Set options for pandas table
-            # diff_coeff = pd.DataFrame(diff_coeff.rename_axis('Step Length', axis=1))
-            #
-            # # Print pandas table with diffusion profile coefficients
-            # print(diff_coeff)
-            #
-            # # Set data dictionary for the free energy profile coefficients
-            # print("\nFree Energy Model Coefficients")
-            # data = {}
-            # for i in model._len_step:
-            #     data[i] = [str("%.4e" % list_df_coeff[i][j]) for j in range(model._n_df)]
-            # df_coeff = pd.DataFrame(data, index=list(
-            #     np.arange(1, model._n_df+1)), columns=list(model._len_step))
-            #
-            # # Set options for pandas table
-            # df_coeff = pd.DataFrame(df_coeff.rename_axis('Step Length', axis=1))
-            #
-            # # Print pandas table with free energy profile coefficients
-            # print(df_coeff)
-            # print("-----------------------------------------------------------------------------------------------------------------------------------------------------------------\n")
-
-        # Set inp data MC algorithm
-        inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
-
-        # Set pore or box data
-        props = model._pore_props
-        system = model._system
-
-        # Set inp data for model
-        model = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
 
         # Set output data
-        output = {"inp": inp, system : props, "model":  model, "diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
+        output = {"diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
 
-        # Print MC Calculation is done
-        print("MC Calculation Done.")
-
-        # Save inp and output data
-        utils.save(output, link_out)
+        return output
 
     ###########################
     # Helper functions for MC #

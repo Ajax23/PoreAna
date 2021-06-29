@@ -31,11 +31,16 @@ def mc_statistics(link_out, print_con=False):
         True for printing in console
     """
 
-    # Load data from obj file
-    results = utils.load(link_out)
-    model = results["model"]
+    # Load Results from the output object file
+    data = utils.load(link_out)
+
+    # Load results
+    results = data["output"]
+
+    # Load model inputs
+    model = data["model"]
     len_step = model["len_step"]
-    inp = results["inp"]
+    inp = data["inp"]
     nmc_eq = inp["MC steps eq"]
     nmc = inp["MC steps"]
 
@@ -82,12 +87,17 @@ def mc_lag_time(link_out, print_con=False):
         True for printing in console
     """
 
-    # Load data from obj file
-    results = utils.load(link_out)
-    model = results["model"]
-    len_step = model["len_step"]
+    # Load Results from the output object file
+    data = utils.load(link_out)
+
+    # Load results
+    results = data["output"]
     diff_coeff = results["list_diff_coeff"]
     df_coeff = results["list_df_coeff"]
+
+    # Load model inputs
+    model = data["model"]
+    len_step = model["len_step"]
     nD = model["nD"]
     nF = model["nF"]
 
@@ -152,9 +162,11 @@ def mc_model(link_out, print_con=False):
     print_con: bool, optional
         True for printing in console
     """
-    # Read model inputs
-    results = utils.load(link_out)
-    model = results["model"]
+    # Load Results from the output object file
+    data = utils.load(link_out)
+
+    # Load model inputs
+    model = data["model"]
     bin_number = model["bin number"]
     len_step = model["len_step"]
     len_frame = model["len_frame"]
@@ -165,12 +177,18 @@ def mc_model(link_out, print_con=False):
     d = model["guess"]
     model = model["model"]
 
+    if "pore" in data:
+        system = "pore"
+    if "box" in data:
+        system = "box"
+
+
     # String which contains all lag times
     len_step_string = ', '.join(str(step) for step in len_step)
 
     # Dictionary for model inputs
-    data = [str("%.f" % bin_number), len_step_string, str("%.2e" % (len_frame * 10**(-12))), str("%.f" % frame_num), str("%.f" % nD), str("%.f" % nF), str("%.f" % nDrad), model, str("%.2e" % (d * 10**(-6)))]
-    df_model = pd.DataFrame(data, index=list(['Bin number', 'step length', 'frame length (s)', 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)']), columns=list(['Input']))
+    data = [str("%.f" % bin_number), len_step_string, str("%.2e" % (len_frame * 10**(-12))), str("%.f" % frame_num), str("%.f" % nD), str("%.f" % nF), str("%.f" % nDrad), model, str("%.2e" % (d * 10**(-6))), system]
+    df_model = pd.DataFrame(data, index=list(['Bin number', 'step length', 'frame length (s)', 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)', 'system']), columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con:
@@ -202,10 +220,10 @@ def mc_inputs(link_out, print_con=False):
         True for printing in console
     """
     # Load Results from the output object file
-    results = utils.load(link_out)
+    data = utils.load(link_out)
 
     # Read MC inputs
-    inp = results["inp"]
+    inp = data["inp"]
     nmc_eq = inp["MC steps eq"]
     nmc = inp["MC steps"]
     num_mc_update = inp["step width update"]
