@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="poreana",
-    version="0.2.1",
+    version="0.2.2",
     author="Hamzeh Kraus",
     author_email="kraus@itt.uni-stuttgart.de",
     description="Pore system analysis tool.",
@@ -19,5 +19,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.5',
+    install_requires=['pandas', 'seaborn', 'scipy', 'chemfiles==0.10.0', 'porems>=0.2.0', 'jinja2'],
     include_package_data=True,
 )
