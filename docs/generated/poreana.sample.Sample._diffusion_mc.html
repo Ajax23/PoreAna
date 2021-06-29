@@ -115,7 +115,7 @@
 <h1>Sample._diffusion_mc<a class="headerlink" href="#sample-diffusion-mc" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample._diffusion_mc">
-<code class="descclassname">Sample.</code><code class="descname">_diffusion_mc</code><span class="sig-paren">(</span><em>data</em>, <em>idx_list_mc</em>, <em>res_id</em>, <em>com</em>, <em>frame_list</em>, <em>frame_id</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._diffusion_mc" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">_diffusion_mc</code><span class="sig-paren">(</span><em>data</em>, <em>idx_list_mc</em>, <em>com</em>, <em>res_id</em>, <em>frame_list</em>, <em>frame_id</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._diffusion_mc" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function sample the transition matrix for the diffusion
 calculation with the Monte Carlo diffusion methode for a cubic
 simulation box. The sample of the transition matrix is to be run on
@@ -156,11 +156,11 @@ post processing and the extrapolation that you can find in
 <dt><strong>index_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">List of dictionaries containing bin id of all molecules for each frame</p>
 </dd>
-<dt><strong>res_id</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
-<dd><p class="first last">Current residue id</p>
-</dd>
 <dt><strong>com</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">Center of mass of current molecule</p>
+</dd>
+<dt><strong>res_id</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
+<dd><p class="first last">Current residue id</p>
 </dd>
 <dt><strong>frame_list</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
 <dd><p class="first last">List of frame ids to process</p>

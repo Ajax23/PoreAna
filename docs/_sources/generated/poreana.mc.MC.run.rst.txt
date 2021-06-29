@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-MC\.do\_mc\_cycles
-==================
+MC\.run
+=======
 
 .. currentmodule:: poreana.mc
 
-.. automethod:: MC.do_mc_cycles
+.. automethod:: MC.run
