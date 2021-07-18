@@ -441,9 +441,9 @@ def mc_fit(link, len_step=[], is_std=True, section=[], kwargs={}):
         True to calculate a mean diffusion coefficient
         to assess the dependency of the result on the selected lag time
     section : list, string, optional
-        If :math:`\\mathrm{section} = \\mathrm{"is\_pore"}` the pore section is
+        If :math:`\\mathrm{section} = \\mathrm{"pore"}` the pore section is
         fitted.
-        If :math:`\\mathrm{section} = \\mathrm{"is\_res"}` the left reservoir
+        If :math:`\\mathrm{section} = \\mathrm{"reservoir"}` the left reservoir
         area is fitted.
         If :math:`\\mathrm{section} = \\mathrm{[a,b]}` the box area between a
         and b is fitted.
@@ -480,7 +480,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], kwargs={}):
     diff_bin_vec = {}
 
     # Pore
-    if isinstance(section, str) and section== "is_pore":
+    if isinstance(section, str) and section== "pore":
         # If only the pore area should be considered
         # Load pore system
         if "pore" in data:
@@ -497,7 +497,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], kwargs={}):
             return;
 
     # Reservoir
-    elif isinstance(section, str) and section== "is_res":
+    elif isinstance(section, str) and section == "reservoir":
         # If only the pore area should be considered
         # Load pore system
         if "pore" in data:
@@ -562,9 +562,6 @@ def mc_fit(link, len_step=[], is_std=True, section=[], kwargs={}):
             # Fit a linear line
             fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
 
-            # Set the x value for the linear fit
-            x = np.arange(0, max(lagtime_inverse) * 2, (max(lagtime_inverse) * 2) / 5)
-
             # Set the fitted diffusion coefficient on the results list
             res[i] = fit(0)
 
@@ -589,14 +586,14 @@ def mc_fit(link, len_step=[], is_std=True, section=[], kwargs={}):
             print("Mean Diffusion axial: "+"%.4e" % diffusion_mean + " m^2/s\n")
 
     # Print the diffusion coefficient in the pore area
-    if section=="is_pore":
+    if section=="pore":
         print("\nDiffusion axial (Pore): "+"%.4e" % fit(0) + " m^2/s\n")
         # If is_std true print the results of the calculations
         if is_std:
             print("Mean Diffusion axial (Pore): "+"%.4e" % diffusion_mean + " m^2/s\n")
 
     # Print the diffusion coefficient in the reservoir area
-    if section=="is_res":
+    if section=="reservoir":
         print("\nDiffusion axial (Reservoir): "+"%.4e" % fit(0) + " m^2/s\n")
         # If is_std true print the results of the calculations
         if is_std:
@@ -669,9 +666,9 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
         Set to false to display all individual diffusion profiles for
         the selected lag times
     section : list, string, optional
-        If :math:`\\mathrm{section} = \\mathrm{"is\_pore"}` the pore section is
+        If :math:`\\mathrm{section} = \\mathrm{"pore"}` the pore section is
         fitted.
-        If :math:`\\mathrm{section} = \\mathrm{"is\_res"}` the left reservoir
+        If :math:`\\mathrm{section} = \\mathrm{"reservoir"}` the left reservoir
         area is fitted.
         If :math:`\\mathrm{section} = \\mathrm{[a,b]}` the box area between a
         and b is fitted.
@@ -691,7 +688,6 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
     model = data["model"]
     diff_unit = model["diffusion unit"]
     bins = model["bins"]
-    bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
     dt = model["len_frame"]
 
     # Set dictionaries
@@ -699,7 +695,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
     diff_bin_vec = {}
 
     # Pore
-    if isinstance(section, str) and section== "is_pore":
+    if isinstance(section, str) and section== "pore":
         # If only the pore area should be considered
         # Load pore system
         if "pore" in data:
@@ -716,7 +712,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
             return;
 
     # Reservoir
-    elif isinstance(section, str) and section== "is_res":
+    elif isinstance(section, str) and section== "reservoir":
         # If only the pore area should be considered
         # Load pore system
         if "pore" in data:
@@ -771,7 +767,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
             sns.lineplot(x=bins, y=(diff_profiles[i]), **kwargs)       # Diffusion in m^2/s
 
         # Plot the diffusion profiles for the different lag times
-        legend = ["lag time " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+        legend = ["$\Delta_{ij}t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # If infty_profile is True the diffusion profile for a infinity lag times is shwon
     if len(len_step) >= 2 and infty_profile:
@@ -792,14 +788,15 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
         sns.lineplot(x=bins, y=diff_profile_fit, **kwargs)       # Diffusion in m^2/s
 
     # Set legend for lag times
-    if not infty_profile:
-        legend.append("Lagtime $\\infty$ ps")
+    if not infty_profile and len(len_step) >= 2:
+        legend.append("$\Delta_{ij}t_{\\alpha} \rightarrow \\infty$ ps")
         plt.legend(legend)
 
 
     # Set plot properties
     # Plot axis title for a entire system
-    plt.ylabel(r"Diffusion ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+    plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
+    plt.xlabel(r"Box length (nm)")
 
 
 
