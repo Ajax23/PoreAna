@@ -11,6 +11,8 @@ import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
 
+import tracemalloc as tc
+
 import porems as pms
 import poreana.utils as utils
 import poreana.geometry as geometry
@@ -750,7 +752,6 @@ class Sample:
             Current frame_id
         """
         # Initialize
-        bin_num = self._diff_mc_inp["bin_num"]
         len_step = self._diff_mc_inp["len_step"]
         bins = self._diff_mc_inp["bins"]
 
@@ -775,6 +776,8 @@ class Sample:
                     end = idx_list_mc[-1][res_id]
                     data[step][end, start] += 1
 
+        # print(data.__sizeof__())
+        # print(idx_list_mc.__sizeof__())
 
     ############
     # Sampling #
@@ -829,16 +832,21 @@ class Sample:
 
             # Run parallel search
             pool = mp.Pool(processes=np)
+            tc.start()
             results = [pool.apply_async(self._sample_helper, args=(frame_list, shift, is_pbc,)) for frame_list in frame_np]
             pool.close()
             pool.join()
             output = [x.get() for x in results]
-
+            first_size, first_peak = tc.get_traced_memory()
+            print("first_size=" + str(first_size * 10**-3) +"\n" + "first_peak=" + str(first_peak * 10**-3) + "\n")
             # Destroy object
             del results
         else:
             # Run sampling
+            tc.start()
             output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc)]
+            first_size, first_peak = tc.get_traced_memory()
+            print("first_size=" + str(first_size * 10**-3) +"\n" + "first_peak=" + str(first_peak * 10**-3) + "\n")
 
         # Concatenate output and create pickle object files
         system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": self._box}
@@ -899,8 +907,6 @@ class Sample:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
 
-
-
             # Pickle
             utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
 
@@ -927,8 +933,13 @@ class Sample:
         idx_list_mc = []
 
         # Load trajectory
+        #tc.start()
         traj = cf.Trajectory(self._traj)
         frame_form = "%"+str(len(str(self._num_frame)))+"i"
+
+        #first_size, first_peak = tc.get_traced_memory()
+        #print("first_size=" + str(first_size * 10**-3) +"\n" + "first_peak=" + str(first_peak * 10**-3) + "\n")
+        #tc.clear_traces()
 
         # Create local data structures
         output = {}
@@ -941,26 +952,37 @@ class Sample:
         if self._is_diffusion_mc:
             output["diffusion_mc"] = self._diffusion_mc_data()
 
+        if self._is_diffusion_bin:
+            len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
+        elif self._is_diffusion_mc:
+            len_fill = self._diff_mc_inp["len_step"][-1]+1
+
+
+
+        j=1
+        #tc.start()
         # Run through frames
         for frame_id in frame_list:
             # Read frame
+
             frame = traj.read_step(frame_id)
             positions = frame.positions
 
             # Add new dictionaries and remove unneeded references
             if self._is_diffusion_bin:
-                len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
+                if len(com_list) >= len_fill:
+                    idx_list.pop(0)
+                idx_list.append({})
+
             elif self._is_diffusion_mc:
-                len_fill = self._diff_mc_inp["len_step"][-1]+1
+                if len(com_list) >= len_fill:
+                    idx_list_mc.pop(0)
+                idx_list_mc.append({})
 
             if self._is_diffusion_bin or self._is_diffusion_mc:
                 if len(com_list) >= len_fill:
                     com_list.pop(0)
-                    idx_list.pop(0)
-                    idx_list_mc.pop(0)
                 com_list.append({})
-                idx_list.append({})
-                idx_list_mc.append({})
 
             # Run through residues
             for res_id in self._res_list:
@@ -982,7 +1004,7 @@ class Sample:
                     com = [com_no_pbc[i]-math.floor(com_no_pbc[i]/box[i])*box[i] for i in range(3)]
                 else:
                     com = com_no_pbc
-                    
+
                 # Sample if molecule not broken near boundary
                 if not self._is_diffusion_mc:
                     if not is_broken:
@@ -1017,6 +1039,15 @@ class Sample:
                     self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:
                     self._diffusion_mc(output["diffusion_mc"], idx_list_mc, com, res_id, frame_list, frame_id)
+
+            j = j + 1
+
+            # if j%1000==0:
+            #     first_size, first_peak = tc.get_traced_memory()
+            #     # print("\n"+ str((idx_list_mc)) + "\n")
+            #     print(frame_list[0])
+            #     print("\n")
+            #     print("\nfirst_size=" + str(first_size* 10**-3) +"\n" + "first_peak=" + str(first_peak* 10**-3) + "\n")
 
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:

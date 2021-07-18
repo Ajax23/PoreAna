@@ -48,7 +48,7 @@ def mc_profile(link, len_step=[], kwargs={}):
         len_step = model["len_step"]
 
     # Set legend
-    legend = ["lagtime " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+    legend = ["$\Delta_{ij}t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # Plot the free energy profiles
     for i in len_step:
@@ -56,5 +56,5 @@ def mc_profile(link, len_step=[], kwargs={}):
 
     # Plot options
     plt.xlabel("Box length (nm)")
-    plt.ylabel("Free energy")
+    plt.ylabel("Free energy (-)")
     plt.legend(legend)
