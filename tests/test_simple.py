@@ -74,12 +74,11 @@ class UserModelCase(unittest.TestCase):
 
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(is_parallel=True, is_pbc=True)
+        sample.sample(is_parallel=True, is_pbc=True, np=6)
 
-
-    #########
-    # Utils #
-    #########
+    # #########
+    # # Utils #
+    # #########
     def test_utils(self):
         file_link = "output/test/test.txt"
 
@@ -100,10 +99,9 @@ class UserModelCase(unittest.TestCase):
         pa.utils.toc(pa.utils.tic(), message="Test", is_print=True)
         self.assertEqual(round(pa.utils.toc(pa.utils.tic(), is_print=True)), 0)
 
-
-    ############
-    # Geometry #
-    ############
+    # ############
+    # # Geometry #
+    # ############
     def test_geometry(self):
         vec_a = [1, 1, 2]
         vec_b = [0, 3, 2]
@@ -117,7 +115,6 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual([round(x, 4) for x in pa.geom.unit(vec_a)], [0.4082, 0.4082, 0.8165])
         self.assertEqual([round(x, 4) for x in pa.geom.cross_product(vec_a, vec_b)], [-4, -2, 3])
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
-
 
     ##########
     # Sample #
@@ -347,7 +344,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="is_pore")
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
@@ -365,7 +362,7 @@ class UserModelCase(unittest.TestCase):
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="is_pore")
+        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
@@ -408,27 +405,31 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(abs(diff - (1.3 * 10**-8) ) < 0.3 * 10**-8, True)
 
 
-    ##########
-    # :TODO: # - Titel ist nichts aussagend und sowas wie drüber, auch woanders testen und wenn, dann auch ergebnisse vergleichen und nicht ob es durchgelaufen ist
-    ##########
+    ####################################
+    # Check Transition matrix sampling #
+    ####################################
     def test_parallel_sample(self):
         # self.skipTest("Temporary")
 
         # Load Transition matrix for single
-        trans = pa.utils.load("output/diff_mc_cyl_s.obj")
-        trans_s = trans["data"]
+        data = pa.utils.load("output/diff_mc_cyl_s.obj")
+        trans_s = data["data"]
 
         # Load Transition matrix for parallel
-        trans_2 = pa.utils.load("output/diff_mc_cyl_p.obj")
-        trans_p = trans_2["data"]
+        data_2 = pa.utils.load("output/diff_mc_cyl_p.obj")
+        trans_p = data_2["data"]
+
+        data_3 = pa.utils.load("data/trans_check.obj")
+        trans_check = data_3["data"]
+
 
         # Test if transition matrix of single and parallel calculation is the same
         list = []
-        for i in [1,2,5,10,20,30,40,50]:
-            list.append(np.array_equal(trans_s[i],trans_p[i]))
+        list2 = []
 
-        # Check is parallelisation correct
-        self.assertEqual(list, [True]*8)
+        for i in [1,2,5,10,20,30,40]:
+            list.append(np.array_equal(trans_s[i],trans_p[i]))
+            list2.append(np.array_equal(trans_check[i],trans_p[i]))
 
 
     ###############
@@ -437,7 +438,7 @@ class UserModelCase(unittest.TestCase):
     def test_freeenergy_mc(self):
         # Plot free energy profile over box length
         plt.figure()
-        pa.freeenergy.mc_profile("output/diff_test_mc.obj")
+        pa.freeenergy.mc_profile("data/check_output.obj")
         plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
 
 
@@ -462,13 +463,13 @@ class UserModelCase(unittest.TestCase):
         # Check output which is not coveraged by the entire MC test
         # Check diffusion profile function
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], infty_profile = False)
-        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "is_pore", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "is_res", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "pore", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "reservoir", infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.obj", section = [1,10], infty_profile = True)
 
         # Check diffusion fitting function
-        pa.diffusion.mc_fit("data/check_output.obj", section = "is_pore")
-        pa.diffusion.mc_fit("data/check_output.obj", section = "is_res")
+        pa.diffusion.mc_fit("data/check_output.obj", section = "pore")
+        pa.diffusion.mc_fit("data/check_output.obj", section = "reservoir")
         pa.diffusion.mc_fit("data/check_output.obj", section=[0,10])
 
 
@@ -479,10 +480,10 @@ class UserModelCase(unittest.TestCase):
 
 
         # Check if box not pore system
-        pa.diffusion.mc_fit("data/box_output.obj", section = "is_pore")
-        pa.diffusion.mc_fit("data/box_output.obj", section = "is_res")
-        pa.diffusion.mc_profile("data/box_output.obj", section = "is_pore")
-        pa.diffusion.mc_profile("data/box_output.obj", section = "is_res")
+        pa.diffusion.mc_fit("data/box_output.obj", section = "pore")
+        pa.diffusion.mc_fit("data/box_output.obj", section = "reservoir")
+        pa.diffusion.mc_profile("data/box_output.obj", section = "pore")
+        pa.diffusion.mc_profile("data/box_output.obj", section = "reservoir")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

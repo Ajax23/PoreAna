@@ -758,7 +758,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], kwargs={}):
     lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
 
     # Calculate diffusion profiles
-    diff_profiles = [[np.exp(diff_bin_vec[i][j] + diff_unit) * 10 **3 for j in range(len(bins))] for i in len_step]
+    diff_profiles = [[np.exp(diff_bin_vec[i][j] + diff_unit) * 10 ** 3 for j in range(len(bins))] for i in len_step]
 
     # If infty_profile is false the profiles for the different lag times are plotted
     if not infty_profile:
