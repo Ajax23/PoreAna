@@ -32,7 +32,7 @@ class Model:
         self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
         self._trans_mat = sample["data"]                 # transition matrix
         self._pbc = inp["is_pbc"]                        # pbc or nopbc
-        self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
+
 
         if "pore" in sample:
             self._sys_props = sample["pore"]
@@ -136,9 +136,13 @@ class CosineModel(Model):
         Number of the Fourier coefficients for the free energy profile
     n_diff_radial : integer, optional
         Number of the Fourier coefficients for the radial diffusion profile
+    d0 : double, optional
+        Initial guess of diffusion coefficient
+    print_output : bool, optional
+        True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, print_output=False):
 
         # Inherit the variables from Model class
         super(CosineModel, self).__init__(data_link)
@@ -150,6 +154,7 @@ class CosineModel(Model):
         self._n_diff = n_diff
         self._n_diff_radial = n_diff_radial
         self._print_output = print_output
+        self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles
@@ -287,9 +292,13 @@ class StepModel(Model):
         Number of the Fourier coefficients for the free energy profile
     n_diff_radial : integer, optional
         Number of the Fourier coefficients for the radial diffusion profile
+    d0 : double, optional
+        Initial guess of diffusion coefficient
+    print_output : bool, optional
+        True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, print_output=False):
 
         # Inherit the variables from Model class
         super(StepModel, self).__init__(data_link)
@@ -300,6 +309,7 @@ class StepModel(Model):
         self._n_df = n_df
         self._n_diff_radial = n_diff_radial
         self._print_output = print_output
+        self._d0 = d0 * (10**18)/(10**12) 
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles

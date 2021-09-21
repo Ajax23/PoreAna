@@ -115,7 +115,7 @@ Additionally, the pore area can be considered more closely
 .. code-block:: python
 
     # Plot the lag time extrapolation for the pore ares
-    pa.diffusion.mc_fit_pore("output/diff_mc.obj", section="pore")
+    pa.diffusion.mc_fit("output/diff_mc.obj", section="pore")
 
     # Plot diffusion profile in a pore
     pa.diffusion.mc_profile("output/diff_mc.obj", section="pore", infty_profile=True)

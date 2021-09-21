@@ -234,7 +234,7 @@ class MC:
         list_diff_fluc = {}
         nacc_diff_mean = {}
 
-        ## Radial diffusion
+        # ## Radial diffusion
         list_diff_radial_profile = {}
         list_diff_radial_coeff = {}
         list_diff_radial_fluc = {}
@@ -254,13 +254,6 @@ class MC:
                 print("\n")
                 print("# "+lagtime_string+"\n")
 
-            # # Initialize lists for the profiles
-            # results_diff_profile = {}
-            # results_df_profile = {}
-            # results_diff_coeff = {}
-            # results_df_coeff = {}
-            # nacc_diff = {}
-            # nacc_df = {}
 
             # Initialize Model for every MC Run
             model._init_model()
@@ -364,7 +357,7 @@ class MC:
             #############################
             # Start Radial MC Algorithm #
             #############################
-            # Radial diffusion
+            # # Radial diffusion
             # if do_radial:
             #     # Start MC calculation for the radial diffusion
             #     print("## Calculate radial diffusion")
@@ -408,10 +401,16 @@ class MC:
             #             # Print output in production phase
             #             if imc == self._nmc_eq_radial and self._print_output:
             #                 print("### Start production\n")
-            #                 print("--------------------------------------------------------------------------------")
-            #                 print("imc", "\t", "likelihood", "\t", "\t", "accepted_diff_rad (%)",
-            #                       "\t", "diff_rad_step_width", "\t", "fluktuation_diff_rad")
+            #                 print("------------------------------------------------")
+            #                 print("imc | accepted_rdiff(%) | fluktuation_rdiff    |" )
+            #                 print("------------------------------------------------")
+            #                 mjmlll
             #             if (imc % self._print_freq == 0) and imc > self._nmc_eq_radial and self._print_output:
+            #                 sys.stdout.write(str(imc)+" "+ str("%.2f"%(self._nacc_diff*100/(imc+1)))+" "+ str("%.2e"%self._fluctuation_diff) +"\r")
+            #                 sys.stdout.flush()
+            #                 if imc%2000==0:
+            #                     print(str(imc)+" "+ str("%.2f"%(self._nacc_df*100/(imc+1))) +" "+ str("%.2f"%(self._nacc_diff*100/(imc+1)))+" "+str("%.2e"%self._fluctuation_df) +" "+ str("%.2e"%self._fluctuation_diff))
+            #
             #                 print(imc, "\t", "%.6f" % self._log_like_radial, "\t", "%.2f" % (float(self._nacc_diff_radial)*100/(
             #                     imc+1)), "\t\t\t", "%.5f" % self._delta_diff_radial, "\t", "\t", "%.4e" % self._fluctuation_diff_radial)
             #                 print(self._nacc_diff_radial)
@@ -761,76 +760,6 @@ class MC:
             rate[i, i] = - rate[i-1, i] - rate[i+1, i]
 
         return rate
-
-    # def init_rate_matrix_nopbc(self, n, diff_bin, df_bin):
-    #     """This function estimate the rate Matrix R for the current free energy
-    #     and log diffusion profiles over the bins for a reflected wall. The
-    #     dimension of the matrix is :math:`n \\times n` with n as number of
-    #     the bins. The calculation of the secondary diagonal elements in the
-    #     rate matrix :math:`R` happen with the following equations
-    #
-    #     .. math::
-    #
-    #         R_{i+1,i} = \\exp  \\underbrace{\\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\\Delta z^2}\\right) \\right)}_{\\mathrm{diff}_\\mathrm{bin}}  - 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
-    #
-    #     .. math::
-    #
-    #         R_{i,i+1} = \\exp \\left( \\ln \\left( \\frac{D_{i+\\frac{1}{2}}}{\Delta z^2}\\right) \\right) + 0.5(\\beta(F(\\Delta z_{i+1})-F(\\Delta z_{i})
-    #
-    #     with :math:`\\Delta z` as the bin width, :math:`D_{i+\\frac{1}{2}}`
-    #     as the diffusion between to bins and :math:`F_i` as free energy in
-    #     the bin center.
-    #     The diagonal elements can be calculated with the secondary elements
-    #     determine with the equations above.
-    #
-    #     .. math::
-    #
-    #         R_{i,i} = -R_{i-1,i}-R_{i+1,i}
-    #
-    #     The corner of the rate matrix is set with:
-    #
-    #     .. math::
-    #
-    #         R_{1,1} = - R_{2,1} - R_{N,1}
-    #
-    #     .. math::
-    #
-    #         R_{N,N} = - R_{N-1,N} - R_{1,N}
-    #
-    #
-    #     Parameters
-    #     ----------
-    #     n : integer
-    #         Link to poresystem object file
-    #     diff_bin : list
-    #         log diffusion profile over the bins
-    #     df_bin : list
-    #         free energy profile over the bins
-    #
-    #     Returns
-    #     -------
-    #     rate matrix :
-    #         rate matrix for the current free energy and log diffusion profile
-    #     """
-    #     # Initialize rate matrix
-    #     rate = np.float64(np.zeros((n, n)))
-    #
-    #     # Off-diagonal elements
-    #     delta_df_bin = df_bin[1:]-df_bin[:-1]
-    #     exp1 = diff_bin[:n-1] - 0.5 * delta_df_bin
-    #     exp2 = diff_bin[:n-1] + 0.5 * delta_df_bin
-    #     rate.ravel()[n::n+1] = np.exp(exp1)[:n-1]
-    #     rate.ravel()[1::n+1] = np.exp(exp2)[:n-1]
-    #
-    #     # Corners for a reflected wall
-    #     rate[0, 0] = - rate[1, 0]
-    #     rate[-1, -1] = - rate[-2, -1]
-    #
-    #     # Diagonal elements
-    #     for i in range(1, n-1):
-    #         rate[i, i] = - rate[i-1, i] - rate[i+1, i]
-    #
-    #     return rate
 
 
     ##############
