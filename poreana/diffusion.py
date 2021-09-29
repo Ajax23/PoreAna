@@ -462,8 +462,6 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, kwargs={})
     diffusion_mean: float
         Mean diffusion coefficient :math:`\\langle D \\rangle \ \\left(\\frac{m^2}{s}\\right)`
         for the calculated system
-    std : float
-        Standard deviation of different fitting possibilities
     diff_table : obj
         Table of used lag times with the associated
         :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}}) \ \\left(\\frac{m^2}{s}\\right)`
@@ -645,7 +643,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, kwargs={})
 
     diffusion = fit(0) * 10**-9
 
-    return diffusion, diffusion_mean, std, diff_table
+    return diffusion, diffusion_mean, diff_table
 
 
 def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwargs={}):
@@ -711,7 +709,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
     legend = []
     diff_bin_vec = {}
     diff_profile_fit = []
-    
+
     # Pore
     if isinstance(section, str) and section== "pore":
         # If only the pore area should be considered
