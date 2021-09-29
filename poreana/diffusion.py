@@ -403,7 +403,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
 ##################
 # Diffusion - MC #
 ##################
-def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, kwargs={}):
+def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True, kwargs={}):
     """This function uses the diffusion profiles over box length which are
     calculated in the function :func:`poreana.mc.MC.run` to estimate
     the final diffusion coefficient. For that a line is fitted of the averaged
