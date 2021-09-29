@@ -403,7 +403,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
 ##################
 # Diffusion - MC #
 ##################
-def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True, kwargs={}):
+def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True, kwargs_p={}, kwargs_fit={}):
     """This function uses the diffusion profiles over box length which are
     calculated in the function :func:`poreana.mc.MC.run` to estimate
     the final diffusion coefficient. For that a line is fitted of the averaged
@@ -451,8 +451,11 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
         Print diffusion coefficient
     plot : bool, optional
         Show the fitting plot
-    kwargs: dict, optional
-        Dictionary with plotting parameters
+    kwargs_p: dict, optional
+        Dictionary with plotting parameters for the points
+    kwargs_fit: dict, optional
+        Dictionary with plotting parameters for the fitting line
+
 
     Returns
     -------
@@ -634,8 +637,8 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
     # Plot the results
     plt.xlim(0, 1.5*max(lag_time_vec))
     plt.ylim(0, 1.5*max(fit(x_vec)))
-    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, color='red', **kwargs)
-    sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs)
+    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_p)
+    sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs_fit)
     legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
     plt.legend(legend)
     plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")

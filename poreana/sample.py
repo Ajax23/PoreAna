@@ -605,7 +605,7 @@ class Sample:
     ################
     # MC Diffusion #
     ################
-    def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12):
+    def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12, direction = 2):
         """Enable diffusion sampling routine with the MC Alogrithm.
 
         This function sample the transition matrix for the diffusion
@@ -655,6 +655,8 @@ class Sample:
             Number of bins to be used
         len_frame : float, optional
             Length of a frame in seconds
+        direction : integer, optional
+            Direction of descretization of the simulation box (x = 0; y = 1; z = 2)
         """
         # Initialize
         if self._is_diffusion_bin:
@@ -673,7 +675,7 @@ class Sample:
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
                               "bin_num": bin_num, "len_step": len_step,
-                              "len_frame": len_frame, "is_pbc": True}
+                              "len_frame": len_frame, "is_pbc": True, "direction" : int(direction)}
 
     def _diffusion_mc_data(self):
         """Create mc diffusion data structure.
@@ -752,9 +754,10 @@ class Sample:
         # Initialize
         len_step = self._diff_mc_inp["len_step"]
         bins = self._diff_mc_inp["bins"]
+        direction = self._diff_mc_inp["direction"]
 
         # Calculate bin index
-        idx_list_mc[-1][res_id] = np.digitize(com[2], bins)
+        idx_list_mc[-1][res_id] = np.digitize(com[direction], bins)
 
         # Sample the transition matrix for the len_step
         if frame_list[0]==0:
