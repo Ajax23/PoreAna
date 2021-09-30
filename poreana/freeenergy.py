@@ -62,9 +62,9 @@ def mc_profile(link, len_step=[], plot=True, kwargs={}):
         for i in len_step:
             sns.lineplot(x=bins, y=(df_bin[i]), **kwargs)
 
-    # Plot options
-    plt.xlabel("Box length (nm)")
-    plt.ylabel("Free energy (-)")
-    plt.legend(legend)
+        # Plot options
+        plt.xlabel("Box length (nm)")
+        plt.ylabel("Free energy (-)")
+        plt.legend(legend)
 
     return df_bin, bins
