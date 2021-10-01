@@ -7,6 +7,7 @@
 
 import numpy as np
 import pandas as pd
+import h5py
 
 import poreana.utils as utils
 
@@ -33,6 +34,7 @@ def mc_statistics(link_out, print_con=False):
 
     # Load Results from the output object file
     data = utils.load(link_out)
+
 
     # Load results
     results = data["output"]
@@ -163,32 +165,33 @@ def mc_model(link_out, print_con=False):
         True for printing in console
     """
     # Load Results from the output object file
-    data = utils.load(link_out)
+    #data = utils.load(link_out)
+    data = h5py.File('output/diff_test_mc.h5','r')
 
     # Load model inputs
     model = data["model"]
-    bin_number = model["bin number"]
+    bin_number = model["bin number"].shape
     len_step = model["len_step"]
-    len_frame = model["len_frame"]
-    frame_num = model["num_frame"]
-    nD = model["nD"]
-    nF = model["nF"]
-    nDrad = model["nDrad"]
-    d = model["guess"]
-    model = model["model"]
+    # len_frame = model["len_frame"].shape
+    # frame_num = model["num_frame"].shape
+    # nD = model["nD"].shape
+    # nF = model["nF"].shape
+    # nDrad = model["nDrad"].shape
+    # d = model["guess"].shape
+    # model = model["model"].shape
 
     if "pore" in data:
         system = "pore"
     if "box" in data:
         system = "box"
-
-
+    print(len_step)
+    #print(type(len_frame[0] * 10**(-12)))
     # String which contains all lag times
     len_step_string = ', '.join(str(step) for step in len_step)
 
     # Dictionary for model inputs
-    data = [str("%.f" % bin_number), len_step_string, str("%.2e" % (len_frame * 10**(-12))), str("%.f" % frame_num), str("%.f" % nD), str("%.f" % nF), str("%.f" % nDrad), model, str("%.2e" % (d * 10**(-6))), system]
-    df_model = pd.DataFrame(data, index=list(['Bin number', 'step length', 'frame length (s)', 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)', 'system']), columns=list(['Input']))
+    data = [str("%.i" % bin_number), len_step_string]#, str("%.2e" % (len_frame * 10**(-12)))]#, str("%.i" % frame_num), str("%.i" % nD), str("%.i" % nF), str("%.i" % nDrad), model, str("%.2e" % (d * 10**(-6))), system]
+    df_model = pd.DataFrame(data, index=list(['Bin number', 'step length']))#, 'frame length (s)']))#, 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)', 'system']), columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con:
@@ -220,14 +223,15 @@ def mc_inputs(link_out, print_con=False):
         True for printing in console
     """
     # Load Results from the output object file
-    data = utils.load(link_out)
+    #data = utils.load(link_out)
+    data = h5py.File('output/diff_test_mc.h5','r')
 
     # Read MC inputs
     inp = data["inp"]
-    nmc_eq = inp["MC steps eq"]
-    nmc = inp["MC steps"]
-    num_mc_update = inp["step width update"]
-    print_freq = inp["print freq"]
+    nmc_eq = inp["MC steps eq"].shape
+    nmc = inp["MC steps"].shape
+    num_mc_update = inp["step width update"].shape
+    print_freq = inp["print freq"].shape
 
     # Table for MC Inputs
     data = [nmc_eq, nmc, num_mc_update, print_freq]

@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import multiprocessing as mp
 import numpy as numpy
+import h5py
+
 
 import poreana.utils as utils
 
@@ -30,7 +32,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
+    def run(self, model, link_out, link_out2, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -207,7 +209,37 @@ class MC:
 
         # Save inp and output data
         utils.save({"inp": inp, "model": model_inp , model._system: model._sys_props, "output": output}, link_out)
+        pickle = {"inp": inp, "model": model_inp , model._system: model._sys_props, "output": output}
+        # Save results in a hdf5 file
+        f = h5py.File(link_out2, 'w')
+        #tenpy.tools.hdf5_io.save_to_hdf5(f, pickle)
+        # Create input groupe
+        inp_h5 = f.create_group("inp")
+        inp_h5.create_dataset("MC steps", inp["MC steps"], dtype="float")
+        inp_h5.create_dataset("MC steps eq", inp["MC steps eq"], dtype="float")
+        inp_h5.create_dataset("step width update", inp["step width update"], dtype="float")
+        inp_h5.create_dataset("temperature", inp["temperature"], dtype="float")
+        inp_h5.create_dataset("print freq", inp["print freq"], dtype="float")
+        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
 
+        model_h5 = f.create_group("model")
+        #model_h5.create_dataset("bin number", model._bin_num, dtype="float")
+        model_h5["bin number"] = model._bin_num
+        print(model._len_step)
+        model_h5.create_dataset("len_step", data=model._len_step, dtype=complex)
+        # model_h5.create_dataset("model", data=model._model)
+        # model_h5.create_dataset("nD", data=model._n_diff)
+        # model_h5.create_dataset("nF", data=model._n_df)
+        # model_h5.create_dataset("nDrad", data=model._n_diff_radial)
+        # model_h5.create_dataset("guess", data=model._d0)
+        # model_h5.create_dataset("pbc", data=model._pbc)
+        # model_h5.create_dataset("num_frame", data=model._frame_num)
+        # model_h5.create_dataset("bins", data=model._bins[:-1])
+        # model_h5.create_dataset("diffusion unit", data=model._diff_unit)
+        # model_h5.create_dataset("len_frame", data=model._dt, dtype="float")
+        # data = model_h5.create_group("data")
+        # for i in model._trans_mat:
+        #     data.create_dataset(str(i), data=model._trans_mat[i])
 
         return
 
