@@ -30,7 +30,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, np=0, print_freq=100, is_print=False, do_radial=False, is_parallel=True):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -85,16 +85,16 @@ class MC:
             is required)
         temp : float, optional
             Temperature in Monte Carlo acceptance criterium
-        print_output : bool, optional
-            True to print output
+        np : integer, optional
+            Number of cores to use
         print_freq : integer, optional
             Print MC step every print_freq
+        is_print : bool, optional
+            True to print output
         do_radial : bool, optional
             True to calculate the radial diffusion
         is_parallel : bool, optional
             True to run parallelized sampling
-        np : integer, optional
-            Number of cores to use
         """
 
         # Set MC step width
@@ -113,7 +113,7 @@ class MC:
 
         # Set output/print options
         # Bool (If False nothing will be printed in the konsole)
-        self._print_output = print_output
+        self._print_output = is_print
 
         # print frequency for MC steps (default every 100 steps)
         self._print_freq = print_freq

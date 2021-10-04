@@ -138,11 +138,11 @@ class CosineModel(Model):
         Number of the Fourier coefficients for the radial diffusion profile
     d0 : double, optional
         Initial guess of diffusion coefficient
-    print_output : bool, optional
+    is_print : bool, optional
         True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, is_print=False):
 
         # Inherit the variables from Model class
         super(CosineModel, self).__init__(data_link)
@@ -153,7 +153,7 @@ class CosineModel(Model):
         self._n_df = n_df
         self._n_diff = n_diff
         self._n_diff_radial = n_diff_radial
-        self._print_output = print_output
+        self._print_output = is_print
         self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
 
         self._init_model()     # Initial model
@@ -294,11 +294,11 @@ class StepModel(Model):
         Number of the Fourier coefficients for the radial diffusion profile
     d0 : double, optional
         Initial guess of diffusion coefficient
-    print_output : bool, optional
+    is_print : bool, optional
         True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, is_print=False):
 
         # Inherit the variables from Model class
         super(StepModel, self).__init__(data_link)
@@ -308,8 +308,8 @@ class StepModel(Model):
         self._n_diff = n_diff
         self._n_df = n_df
         self._n_diff_radial = n_diff_radial
-        self._print_output = print_output
-        self._d0 = d0 * (10**18)/(10**12) 
+        self._print_output = is_print
+        self._d0 = d0 * (10**18)/(10**12)
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles
