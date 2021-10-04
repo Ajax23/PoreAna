@@ -617,11 +617,11 @@ class Sample:
 
         It is necessary to caculate the transition matrix for different step
         length and so for different lag times. A lagtime
-        :math:`\\Delta_{ij}t_{\\alpha}` is defined by
+        :math:`\\Delta t_{\\alpha}` is defined by
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
+            \\Delta t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
 
         with :math:`i` and :math:`j` as the current state of the system at two
         different times and :math:`\\alpha` as past time between the two states.
@@ -633,17 +633,22 @@ class Sample:
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t \cdot s
+            \\Delta t_{\\alpha} = t \cdot s
 
         After the sampling a model class has to set and then the MC calculation
         can run. Subsequently the final mean diffusion coefficient can be
         determined with a extrapolation to
-        :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty`.
+        :math:`\\Delta t_{\\alpha} \\rightarrow \infty`.
         For the etxrapolation we need the mean diffusion over the bins for
         different chosen lag times. That's why we have to calculate the results
         and the transition matrix for several lag times. More information about
         post processing and the extrapolation that you can find in
-        :func:`poreana.diffusion.mc_fit`
+        :func:`poreana.diffusion.mc_fit`.
+
+        The direction of descretization can be also choosen. The simulation box
+        can be divided in every spatial direction and so the transition matrix
+        is sampled in the chosen direction and the diffusion is calculated in
+        this direction.
 
         Parameters
         ----------
@@ -708,11 +713,11 @@ class Sample:
 
         It is necessary to caculate the transition matrix for different step
         length and so for different lag times. A lagtime
-        :math:`\\Delta_{ij}t_{\\alpha}` is defined by
+        :math:`\\Delta t_{\\alpha}` is defined by
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
+            \\Delta t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
 
         with :math:`i` and :math:`j` as the current state of the system at two
         different times and :math:`\\alpha` as past time between the two states.
@@ -724,12 +729,12 @@ class Sample:
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t \cdot s
+            \\Delta t_{\\alpha} = t \cdot s
 
         After the sampling a model class has to set and then the MC calculation
         can run. Subsequently the final mean diffusion coefficient can be
         determined with a extrapolation to
-        :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty`.
+        :math:`\\Delta t_{\\alpha} \\rightarrow \infty`.
         For the etxrapolation we need the mean diffusion over the bins for
         different chosen lag times. That's why we have to calculate the results
         and the transition matrix for several lag times. More information about

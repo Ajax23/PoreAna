@@ -403,7 +403,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
 ##################
 # Diffusion - MC #
 ##################
-def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True, kwargs_p={}, kwargs_fit={}):
+def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=True, kwargs_scatter={}, kwargs_line={}):
     """This function uses the diffusion profiles over box length which are
     calculated in the function :func:`poreana.mc.MC.run` to estimate
     the final diffusion coefficient. For that a line is fitted of the averaged
@@ -437,9 +437,6 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
     len_step: integer, list, optional
         List of the different step length, if it is [] all calculated lag times
         will be used to fit the diffusion coefficent
-    is_std : bool, optional
-        True to calculate a mean diffusion coefficient
-        to assess the dependency of the result on the selected lag time
     section : list, string, optional
         If :math:`\\mathrm{section} = \\mathrm{"pore"}` the pore section is
         fitted.
@@ -447,13 +444,16 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
         area is fitted.
         If :math:`\\mathrm{section} = \\mathrm{[a,b]}` the box area between a
         and b is fitted.
+    is_std : bool, optional
+        True to calculate a mean diffusion coefficient
+        to assess the dependency of the result on the selected lag time
     is_print : bool, optional
         Print diffusion coefficient
-    plot : bool, optional
+    is_plot : bool, optional
         Show the fitting plot
-    kwargs_p: dict, optional
+    kwargs_scatter: dict, optional
         Dictionary with plotting parameters for the points
-    kwargs_fit: dict, optional
+    kwargs_line: dict, optional
         Dictionary with plotting parameters for the fitting line
 
 
@@ -496,7 +496,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
             box = pore["box"]
 
             # Set section
-            section_list = [res, box[2]-res]
+            area = [res, box[2]-res]
 
         # If only the pore area should be considered
         else:
@@ -513,7 +513,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
             box = pore["box"]
 
             # Set section
-            section_list = [0,res]
+            area = [0,res]
 
         # If only the pore area should be considered
         else:
@@ -522,17 +522,17 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
 
     #Area section
     elif isinstance(section, list):
-        section_list = section
+        area = section
 
     # If section is not defined -> entire system
     if not section:
         # Set section
-        section_list = [bins[0], bins[-1]]
+        area = [bins[0], bins[-1]]
 
     # Cut profile
     # Calculated start and end bin index of the pore area
-    index_start = np.digitize(section_list[0], bins)
-    index_end = np.digitize(section_list[1], bins)
+    index_start = np.digitize(area[0], bins)
+    index_end = np.digitize(area[1], bins)
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
@@ -608,11 +608,11 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
                 print("Mean Diffusion axial (Peservoir): "+"%.4e" % diffusion_mean + " m^2/s\n")
 
         # Print the diffusion coefficient in a selected section
-        if len(section) == 2:
-            print("\nDiffusion axial ([" + "%.2f" % (section_list[0]) + ", " + "%.2f" % (section_list[1]) + "]): "+"%.4e" % fit(0) + " m^2/s\n")
+        if (isinstance(section, list)) and len(section)==2:
+            print("\nDiffusion axial ([" + "%.2f" % (area[0]) + ", " + "%.2f" % (area[1]) + "]): "+"%.4e" % fit(0) + " m^2/s\n")
             # If is_std true print the results of the calculations
             if is_std:
-                print("Mean Diffusion axial (["+ "%.2f" % (section_list[0]) + ", " + "%.2f" % (section_list[1]) +"]): "+"%.4e" % diffusion_mean + " m^2/s\n")
+                print("Mean Diffusion axial (["+ "%.2f" % (area[0]) + ", " + "%.2f" % (area[1]) +"]): "+"%.4e" % diffusion_mean + " m^2/s\n")
 
         # Print std deviation
         if is_std:
@@ -631,27 +631,27 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
     lag_time_vec = [1 / (len_step[i] * dt) for i in range(len(len_step))]
     x_vec = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
 
-    # Fit a linear line
+    # Fit a linear line and calculated diffusion coefficent
     fit = np.poly1d(np.polyfit(lag_time_vec, D_mean_vec, 1))
-
-    # Plot the results
-    plt.xlim(0, 1.5*max(lag_time_vec))
-    plt.ylim(0, 1.5*max(fit(x_vec)))
-    sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_p)
-    sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs_fit)
-    legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta_{ij}t_{\\alpha})$"]
-    plt.legend(legend)
-    plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
-    plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
-
     diffusion = fit(0) * 10**-9
+
+    if is_plot:
+        # Plot the results
+        plt.xlim(0, 1.5*max(lag_time_vec))
+        plt.ylim(0, 1.5*max(fit(x_vec)))
+        sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_scatter)
+        sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs_line)
+        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta t_{\\alpha})$"]
+        plt.legend(legend)
+        plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
+        plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
 
     return diffusion, diffusion_mean, diff_table
 
 
-def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwargs={}):
+def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True, kwargs={}):
     """This function plots the diffusion profile for an infinity
-    lag time (:math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \\infty`) over the box
+    lag time (:math:`\\Delta t_{\\alpha} \\rightarrow \\infty`) over the box
     fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}` list.
     Additionally, it is possible to display the diffusion profiles for the
     calculated lag times. Therefore, the
@@ -670,9 +670,6 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
         depending on the lag time are used to calculate the diffusion profile
         for an infinite lag time or the individual diffusion profiles for these
         lag times are shown
-    infty_profile : bool, optional
-        Set to false to display all individual diffusion profiles for
-        the selected lag times
     section : list, string, optional
         If :math:`\\mathrm{section} = \\mathrm{"pore"}` the pore section is
         fitted.
@@ -680,7 +677,10 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
         area is fitted.
         If :math:`\\mathrm{section} = \\mathrm{[a,b]}` the box area between a
         and b is fitted.
-    plot : bool, optional
+    infty_profile : bool, optional
+        Set to false to display all individual diffusion profiles for
+        the selected lag times
+    is_plot : bool, optional
         Show diffusion profile
     kwargs: dict, optional
         Dictionary with plotting parameters
@@ -723,7 +723,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
             box = pore["box"]
 
             # Set section
-            section_list = [res, box[2]-res]
+            area = [res, box[2]-res]
 
         # If only the pore area should be considered
         else:
@@ -740,7 +740,7 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
             box = pore["box"]
 
             # Set section
-            section_list = [0,res]
+            area = [0,res]
 
         # If only the pore area should be considered
         else:
@@ -749,17 +749,17 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
 
     #Area section
     elif isinstance(section, list):
-        section_list = section
+        area = section
 
     # If section is not defined -> entire system
     if not section:
         # Set section
-        section_list = [bins[0], bins[-1]]
+        area = [bins[0], bins[-1]]
 
     # Cut profile
     # Calculated start and end bin index of the pore area
-    index_start = np.digitize(section_list[0], bins)
-    index_end = np.digitize(section_list[1], bins)
+    index_start = np.digitize(area[0], bins)
+    index_end = np.digitize(area[1], bins)
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
@@ -783,12 +783,12 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
 
     if not infty_profile:
         # Plot the profiles for the
-        if plot:
+        if is_plot:
             for i in range(len(len_step)):
                 sns.lineplot(x=bins, y=(diff_profiles[i]), **kwargs)       # Diffusion in m^2/s
 
         # Plot the diffusion profiles for the different lag times
-        legend = ["$\Delta_{ij}t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+        legend = ["$\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # If infty_profile is True the diffusion profile for a infinity lag times is shwon
     if len(len_step) >= 2 and infty_profile:
@@ -805,13 +805,13 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
             diff_profile_fit.append(fit(0)*10**9)
 
         # Plot fitted diffusion profile
-        if plot:
+        if is_plot:
             sns.lineplot(x=bins, y=diff_profile_fit, **kwargs)       # Diffusion in m^2/s
 
     # Set legend for lag times
-    if plot:
+    if is_plot:
         if not infty_profile and len(len_step) >= 2:
-            legend.append("$\Delta_{ij}t_{\\alpha} \rightarrow \\infty$ ps")
+            legend.append("$\Delta t_{\\alpha} \rightarrow \\infty$ ps")
             plt.legend(legend)
 
 

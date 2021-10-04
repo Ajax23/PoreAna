@@ -14,7 +14,7 @@ import poreana.utils as utils
 ####################
 # Free Energy - MC #
 ####################
-def mc_profile(link, len_step=[], plot=True, kwargs={}):
+def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
     """This function plots the free energy profile over the box for the
     calculated lag times. In contrast to the diffusion profile the diffusion
     profile has not a dependency on the lag time. If the free energy profiles
@@ -27,6 +27,8 @@ def mc_profile(link, len_step=[], plot=True, kwargs={}):
     len_step: integer list, optional
         List of the different step length, if it is [] all free energy profiles
         depending on the lag time are shown
+    is_plot : bool, optional
+        Show free energy profile
     kwargs: dict, optional
         Dictionary with plotting parameters
 
@@ -55,16 +57,16 @@ def mc_profile(link, len_step=[], plot=True, kwargs={}):
         len_step = model["len_step"]
 
     # Set legend
-    legend = ["$\Delta_{ij}t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+    legend = ["$\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # Plot the free energy profiles
-    if plot:
+    if is_plot:
         for i in len_step:
             sns.lineplot(x=bins, y=(df_bin[i]), **kwargs)
 
-    # Plot options
-    plt.xlabel("Box length (nm)")
-    plt.ylabel("Free energy (-)")
-    plt.legend(legend)
+        # Plot options
+        plt.xlabel("Box length (nm)")
+        plt.ylabel("Free energy (-)")
+        plt.legend(legend)
 
     return df_bin, bins

@@ -76,9 +76,9 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=True, is_pbc=True, np=6)
 
-    # #########
-    # # Utils #
-    # #########
+    #########
+    # Utils #
+    #########
     def test_utils(self):
         file_link = "output/test/test.txt"
 
@@ -99,9 +99,9 @@ class UserModelCase(unittest.TestCase):
         pa.utils.toc(pa.utils.tic(), message="Test", is_print=True)
         self.assertEqual(round(pa.utils.toc(pa.utils.tic(), is_print=True)), 0)
 
-    # ############
-    # # Geometry #
-    # ############
+    ############
+    # Geometry #
+    ############
     def test_geometry(self):
         vec_a = [1, 1, 2]
         vec_b = [0, 3, 2]
@@ -335,7 +335,7 @@ class UserModelCase(unittest.TestCase):
 
         #### Test Single ####
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
@@ -353,7 +353,7 @@ class UserModelCase(unittest.TestCase):
 
         #### Test Parallel ####
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False, is_parallel=True)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=True)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
@@ -371,16 +371,16 @@ class UserModelCase(unittest.TestCase):
 
         # Test MC output
         # Set Step Model for diffusion and energy profile
-        model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
+        model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, is_print=True)
 
         # Set Cosine Model for diffusion and energy profile
-        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
+        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, is_print=True)
 
         # Set the MC class and options
         model._len_step = [10]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=True, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, is_print=True, is_parallel=False)
 
 
     def test_diffusion_mc_box(self):
@@ -394,7 +394,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10,20,30,40,50]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, print_output=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
@@ -428,7 +428,7 @@ class UserModelCase(unittest.TestCase):
         list2 = []
 
         for i in [1,2,5,10,20,30,40]:
-            list.append(np.array_equal(trans_s[i],trans_p[i]))
+            list.append(np.array_equal(trans_s[i], trans_p[i]))
             list2.append(np.array_equal(trans_check[i],trans_p[i]))
 
 
