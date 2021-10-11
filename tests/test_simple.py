@@ -478,6 +478,7 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.mc_fit("data/check_output.obj", section = "pore")
         pa.diffusion.mc_fit("data/check_output.obj", section = "reservoir")
         pa.diffusion.mc_fit("data/check_output.obj", section = "test")
+        pa.diffusion.mc_fit("data/check_output.obj", section = [0,1,2])
         pa.diffusion.mc_fit("data/check_output.obj", section=[0,10])
 
 
