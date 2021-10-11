@@ -146,10 +146,15 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_bin("output/test.obj")
         sample.init_diffusion_mc("output/test.obj")
 
+
         # Test MC -> Bin
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_mc("output/test.obj")
         sample.init_diffusion_bin("output/test.obj")
+
+        # Test direction wrong input
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/test.obj", direction = 4)
 
 
     ##############
@@ -299,14 +304,14 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
         # Check step model
         model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
 
@@ -320,15 +325,15 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 1
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-128852.33)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-149002.38)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 2
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-165354.77)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-168732.83)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 10
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-258946.71)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -233148.79)
 
         # Set len_step for MC run test
         model._len_step = [10,20,30,40]
@@ -339,17 +344,17 @@ class UserModelCase(unittest.TestCase):
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj")
+        diff = pa.diffusion.mc_fit("output/diff_test_mc.obj")
         plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
+        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
-        self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
+        self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
+        self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
 
         #### Test Parallel ####
         # Do the MC alogirthm
@@ -357,17 +362,17 @@ class UserModelCase(unittest.TestCase):
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj")
+        diff = pa.diffusion.mc_fit("output/diff_test_mc.obj")
         plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
+        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
-        self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
+        self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
+        self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
 
         # Test MC output
         # Set Step Model for diffusion and energy profile
@@ -380,7 +385,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, is_print=True, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=100, nmc=2000, is_print=True, is_parallel=False)
 
 
     def test_diffusion_mc_box(self):
@@ -394,15 +399,15 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10,20,30,40,50]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=10000, nmc=2000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc_box.obj")
+        diff = pa.diffusion.mc_fit("output/diff_test_mc_box.obj")
         plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.3 * 10**-8) ) < 0.3 * 10**-8, True)
+        self.assertEqual(abs(diff[0] - (11) ) < 0.3, True)
 
 
     ####################################
@@ -429,7 +434,7 @@ class UserModelCase(unittest.TestCase):
 
         for i in [1,2,5,10,20,30,40]:
             list.append(np.array_equal(trans_s[i], trans_p[i]))
-            list2.append(np.array_equal(trans_check[i],trans_p[i]))
+            list2.append(np.array_equal(trans_check[i], trans_p[i]))
 
 
     ###############
@@ -465,11 +470,13 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], infty_profile = False)
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "pore", infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "reservoir", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "test", infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.obj", section = [1,10], infty_profile = True)
 
         # Check diffusion fitting function
         pa.diffusion.mc_fit("data/check_output.obj", section = "pore")
         pa.diffusion.mc_fit("data/check_output.obj", section = "reservoir")
+        pa.diffusion.mc_fit("data/check_output.obj", section = "test")
         pa.diffusion.mc_fit("data/check_output.obj", section=[0,10])
 
 

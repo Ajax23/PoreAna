@@ -645,7 +645,8 @@ class Sample:
         post processing and the extrapolation that you can find in
         :func:`poreana.diffusion.mc_fit`.
 
-        The direction of descretization can be also choosen. The simulation box
+        The direction of descretization can be also choosen using the input variable
+        :math:`\\mathrm{direction}`. The simulation box
         can be divided in every spatial direction and so the transition matrix
         is sampled in the chosen direction and the diffusion is calculated in
         this direction.
@@ -676,6 +677,9 @@ class Sample:
 
         # Sort len_step list
         len_step.sort()
+
+        if direction not in [0,1,2]:
+            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
 
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
