@@ -68,5 +68,6 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
         plt.xlabel("Box length (nm)")
         plt.ylabel("Free energy (-)")
         plt.legend(legend)
+        plt.xlim([0,max(bins)])
 
     return df_bin, bins
