@@ -33,24 +33,31 @@ def mc_statistics(link_out, print_con=False):
     """
 
     # Load Results from the output object file
-    data = utils.load(link_out)
-
+    data = h5py.File(link_out,'r')
 
     # Load results
     results = data["output"]
 
     # Load model inputs
     model = data["model"]
-    len_step = model["len_step"]
+    len_step = model["len_step"][:]
     inp = data["inp"]
-    nmc_eq = inp["MC steps eq"]
-    nmc = inp["MC steps"]
+    nmc_eq = int(inp["MC steps eq"].shape[0])
+    nmc = int(inp["MC steps"].shape[0])
 
     # Read MC statistic
-    nacc_df_mean = results["nacc_df"]
-    nacc_diff_mean = results["nacc_diff"]
-    list_diff_fluc = results["fluc_diff"]
-    list_df_fluc = results["fluc_df"]
+    nacc_df_mean = {}
+    nacc_diff_mean = {}
+    list_diff_fluc = {}
+    list_df_fluc = {}
+    for i in results["nacc_df"]:
+        nacc_df_mean[int(i)] = float(results["nacc_df"][i][0])
+    for i in results["nacc_diff"]:
+        nacc_diff_mean[int(i)] = float(results["nacc_diff"][i].shape[0])
+    for i in results["fluc_diff"]:
+        list_diff_fluc[int(i)] = float(results["fluc_diff"][i].shape[0])
+    for i in results["fluc_df"]:
+        list_df_fluc[int(i)] = float(results["fluc_df"][i].shape[0])
 
     # Table for MC Statistics
     data = [[str("%.4e" % list_df_fluc[i]) for i in len_step],[str("%.4e" % list_diff_fluc[i]) for i in len_step],[str("%.0f" % nacc_df_mean[i]) for i in len_step],[str("%.0f" % nacc_diff_mean[i]) for i in len_step],[str("%.2f" % (nacc_df_mean[i]*100/(nmc+nmc_eq))) for i in len_step],[str("%.2f" % (nacc_diff_mean[i]*100/(nmc+nmc_eq))) for i in len_step]]
@@ -90,18 +97,22 @@ def mc_lag_time(link_out, print_con=False):
     """
 
     # Load Results from the output object file
-    data = utils.load(link_out)
+    data = h5py.File(link_out,'r')
 
     # Load results
     results = data["output"]
-    diff_coeff = results["list_diff_coeff"]
-    df_coeff = results["list_df_coeff"]
+    diff_coeff = {}
+    df_coeff = {}
+    for i in results["diff_coeff"]:
+        diff_coeff[float(i)] = results["diff_coeff"][i][:]
+    for i in results["df_coeff"]:
+        df_coeff[float(i)] = results["df_coeff"][i][:]
 
     # Load model inputs
     model = data["model"]
-    len_step = model["len_step"]
-    nD = model["nD"]
-    nF = model["nF"]
+    len_step = model["len_step"][:]
+    nD = int(model["nD"].shape[0])
+    nF = int(model["nF"].shape[0])
 
     # Initialize data dictionary for the diffusion profile coefficients
     data = {}
@@ -109,7 +120,7 @@ def mc_lag_time(link_out, print_con=False):
     # Save diffusion profile coefficients on data dictionary
     for i in len_step:
         data[i] = [str("%.4e" % diff_coeff[i][j]) for j in range(nD)]
-
+    print(data)
     # Pandas table
     diff_coeff = pd.DataFrame(data, index=list(np.arange(1, nD+1)), columns=list(len_step))
     diff_coeff = pd.DataFrame(diff_coeff.rename_axis('Step Length', axis=1))
@@ -166,32 +177,36 @@ def mc_model(link_out, print_con=False):
     """
     # Load Results from the output object file
     #data = utils.load(link_out)
-    data = h5py.File('output/diff_test_mc.h5','r')
+    data = h5py.File(link_out,'r')
 
     # Load model inputs
     model = data["model"]
     bin_number = model["bin number"].shape
-    len_step = model["len_step"]
-    # len_frame = model["len_frame"].shape
-    # frame_num = model["num_frame"].shape
-    # nD = model["nD"].shape
-    # nF = model["nF"].shape
-    # nDrad = model["nDrad"].shape
-    # d = model["guess"].shape
-    # model = model["model"].shape
+    len_step = model["len_step"][:]
+    len_frame = model["len_frame"][0]
+    frame_num = model["num_frame"].shape
+    nD = model["nD"].shape
+    nF = model["nF"].shape
+    nDrad = model["nDrad"].shape
+    d = model["guess"][0]
+    model_string = model["model"][0].decode("utf-8")
+    pbc = model["pbc"][0]
+    if pbc == 1:
+        pbc = "True"
+    else:
+        pbc = "False"
 
     if "pore" in data:
         system = "pore"
     if "box" in data:
         system = "box"
-    print(len_step)
-    #print(type(len_frame[0] * 10**(-12)))
-    # String which contains all lag times
+
+    # Len step string
     len_step_string = ', '.join(str(step) for step in len_step)
 
     # Dictionary for model inputs
-    data = [str("%.i" % bin_number), len_step_string]#, str("%.2e" % (len_frame * 10**(-12)))]#, str("%.i" % frame_num), str("%.i" % nD), str("%.i" % nF), str("%.i" % nDrad), model, str("%.2e" % (d * 10**(-6))), system]
-    df_model = pd.DataFrame(data, index=list(['Bin number', 'step length']))#, 'frame length (s)']))#, 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)', 'system']), columns=list(['Input']))
+    data = [str("%.i" % bin_number), len_step_string, str("%.2e" % (len_frame * 10**(-12))), str("%.i" % frame_num), str("%.i" % nD), str("%.i" % nF), str("%.i" % nDrad), model_string, str("%.2e" % (d * 10**(-6))), system, pbc]
+    df_model = pd.DataFrame(data, index=list(['Bin number', 'step length', 'frame length (s)', 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)', 'system',"pbc"]), columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con:
@@ -224,18 +239,19 @@ def mc_inputs(link_out, print_con=False):
     """
     # Load Results from the output object file
     #data = utils.load(link_out)
-    data = h5py.File('output/diff_test_mc.h5','r')
+    data = h5py.File(link_out,'r')
 
     # Read MC inputs
     inp = data["inp"]
-    nmc_eq = inp["MC steps eq"].shape
-    nmc = inp["MC steps"].shape
-    num_mc_update = inp["step width update"].shape
-    print_freq = inp["print freq"].shape
+    nmc_eq = int(inp["MC steps eq"].shape[0])
+    nmc = int(inp["MC steps"].shape[0])
+    num_mc_update = int(inp["step width update"].shape[0])
+    print_freq = int(inp["print freq"].shape[0])
+    temp = float(inp["temperature"].shape[0])
 
     # Table for MC Inputs
-    data = [nmc_eq, nmc, num_mc_update, print_freq]
-    df_mc = pd.DataFrame(data, index=list(['MC steps (Equilibrium)', 'MC steps (Production)', 'movewidth update frequency', 'print frequency']), columns=list(['Input']))
+    data = [nmc_eq, nmc, temp, num_mc_update, print_freq]
+    df_mc = pd.DataFrame(data, index=list(['MC steps (Equilibrium)', 'MC steps (Production)','temperature (MC)', 'movewidth update frequency', 'print frequency']), columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con:

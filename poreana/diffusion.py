@@ -12,6 +12,7 @@ import scipy as sp
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import h5py
 import matplotlib.pyplot as plt
 
 import poreana.utils as utils
@@ -377,21 +378,24 @@ def mc_trans_mat(link_in, step, kwargs={}):
     """
 
     # Load results from the output object file
-    data= utils.load(link_in)
+    data = h5py.File(link_in,'r')
 
     # Sample obj file is loaded
     if "data" in data:
         trans_mat = data["data"]
         inp = data["inp"]
-        frame_num = inp["num_frame"]
+        frame_num = int(inp["num_frame"])
         frame_length = inp["len_frame"] * 10**12
 
     # MC obj file is loaded
     else:
         model = data["model"]
-        trans_mat = model["data"]
-        frame_num = model["num_frame"]
-        frame_length = model["len_frame"]
+        trans_mat = {}
+        for i in model["trans"]:
+            trans_mat[int(i)] = model["trans"][i][:]
+        frame_num = int(model["num_frame"].shape[0])
+        frame_length = int(model["len_frame"].shape[0])
+
 
     # Set title with selected lag time
     plt.title("Lagtime: "+ str(step * frame_length) + " ps", fontsize=10)
@@ -470,18 +474,21 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
         :math:`D_{\\mathrm{mean}}({\\Delta_{ij}t_{\\alpha}}) \ \\left(\\frac{m^2}{s}\\right)`
     """
 
-    data = utils.load(link)
+    # Load results file
+    data = h5py.File(link,'r')
 
     # Load results
     results = data["output"]
-    diff_bin = results["diff_profile"]
+    diff_bin = {}
+    for i in results["diff_profile"]:
+        diff_bin[int(i)] = results["diff_profile"][i][:]
 
     # Load model inputs
     model = data["model"]
-    diff_unit = model["diffusion unit"]
-    bins = model["bins"]
+    diff_unit = float(model["diffusion unit"][0])
+    bins = model["bins"][:]
     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-    dt = model["len_frame"]
+    dt = int(model["len_frame"][0])
 
     # Set vector
     diff_bin_vec = {}
@@ -492,8 +499,8 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
         # Load pore system
         if "pore" in data:
             pore = data["pore"]
-            res = pore["res"]
-            box = pore["box"]
+            res = float(pore["res"][0])
+            box = pore["box"][:]
 
             # Set section
             section_list = [res, box[2]-res]
@@ -509,8 +516,8 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
         # Load pore system
         if "pore" in data:
             pore = data["pore"]
-            res = pore["res"]
-            box = pore["box"]
+            res = float(pore["res"][0])
+            box = pore["box"][:]
 
             # Set section
             section_list = [0,res]
@@ -536,11 +543,10 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
-        len_step = model["len_step"]
+        len_step = model["len_step"][:]
 
 
     for i in len_step:
-        diff_bin_vec[i] = {}
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
 
     # Calculate mean diffusion coefficient and standard deviation
@@ -561,7 +567,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
             rand = list(a[i])
 
             # Calculate the mean diffusion (m^2/s) over all bins
-            D_mean = [np.mean(np.exp(diff_bin_vec[i] + diff_unit)) * 10**-6 for i in rand]
+            D_mean = [np.mean(np.exp([diff_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10**-6 for i in rand]
 
             # Calculate the inverse lag time for the linear fit
             lagtime_inverse = [1 / (i * dt * 10**-12) for i in rand]
@@ -577,7 +583,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
         std = res.std()
 
     # Calculate the mean diffusion (m^2/s) over all bins
-    D_mean = [np.mean(np.exp(diff_bin_vec[i] + diff_unit)) * 10**-6 for i in len_step]
+    D_mean = [np.mean(np.exp([diff_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10**-6 for i in len_step]
 
     # Calculate the inverse lag time (1/s) for the linear fit
     lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
@@ -696,17 +702,19 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
 
 
     # Load Results from the output object file
-    data = utils.load(link)
+    data = h5py.File(link,'r')
 
     # Load results
     results = data["output"]
-    diff_bin = results["diff_profile"]
+    diff_bin = {}
+    for i in results["diff_profile"]:
+        diff_bin[int(i)] = results["diff_profile"][i][:]
 
     # Load model inputs
     model = data["model"]
-    diff_unit = model["diffusion unit"]
-    bins = model["bins"]
-    dt = model["len_frame"]
+    diff_unit = float(model["diffusion unit"][0])
+    bins = model["bins"][:]
+    dt = int(model["len_frame"][0])
 
     # Set dictionaries
     legend = []
@@ -719,8 +727,8 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
         # Load pore system
         if "pore" in data:
             pore = data["pore"]
-            res = pore["res"]
-            box = pore["box"]
+            res = float(pore["res"][0])
+            box = pore["box"][:]
 
             # Set section
             section_list = [res, box[2]-res]
@@ -736,8 +744,8 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
         # Load pore system
         if "pore" in data:
             pore = data["pore"]
-            res = pore["res"]
-            box = pore["box"]
+            res = float(pore["res"][0])
+            box = pore["box"][:]
 
             # Set section
             section_list = [0,res]
@@ -763,11 +771,10 @@ def mc_profile(link, len_step=[], infty_profile=True, section=[], plot=True, kwa
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
-        len_step = model["len_step"]
+        len_step = model["len_step"][:]
 
     # Save for all lag times the cutted profile
     for i in len_step:
-        diff_bin_vec[i] = {}
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
 
     bins = [bins[i] for i in range(index_start, index_end)]
