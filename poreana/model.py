@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-
+import h5py
 import poreana.utils as utils
 
 
@@ -19,23 +19,35 @@ class Model:
     def __init__(self, data_link, d0=1e-8):
 
         # Load data object
-        sample = utils.load(data_link)
+        #sample = utils.load(data_link)
+        sample = h5py.File(data_link,'r')
+        print(sample)
         inp = sample["inp"]
-        self._model_inp = sample
 
         # Read the inputs
-        self._bin_num = inp["bin_num"]                   # number of bins z-direction
-        self._frame_num = inp["num_frame"]               # number of frames
-        self._len_step = inp["len_step"]                 # step length
-        self._dt = inp["len_frame"] * 10**12             # frame length [ps]
-        self._bins = inp["bins"]                         # bins [nm]
+        self._bin_num = int(inp["bin_num"][0])               # number of bins z-direction
+        self._frame_num = int(inp["num_frame"][0])             # number of frames
+        self._len_step = inp["len_step"][:]                 # step length
+        self._dt = float(inp["len_frame"][0]) * 10**12             # frame length [ps]
+        self._bins = inp["bins"][:]                         # bins [nm]
         self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
-        self._trans_mat = sample["data"]                 # transition matrix
-        self._pbc = inp["is_pbc"]                        # pbc or nopbc
 
+        self._trans_mat = {}
+        for i in sample["trans"]:
+            self._trans_mat[int(i)] = sample["trans"][i][:]                 # transition matrix
 
+        if inp["is_pbc"][0]==1:
+            self._pbc = True                     # pbc or nopbc
+        else:
+            self._pbc = False
+
+        self._sys_props = {}
         if "pore" in sample:
-            self._sys_props = sample["pore"]
+            self._sys_props["type"] = sample["pore"]["type"][0].decode("utf-8")
+            self._sys_props["res"] = float(sample["pore"]["res"][0])
+            self._sys_props["focal"] = sample["pore"]["focal"][:]
+            self._sys_props["box"] = sample["pore"]["box"][:]
+            self._sys_props["diam"] = float(sample["pore"]["diam"][0])
             self._system = "pore"
         if "box" in sample:
             self._sys_props = sample["box"]
@@ -309,7 +321,7 @@ class StepModel(Model):
         self._n_df = n_df
         self._n_diff_radial = n_diff_radial
         self._print_output = print_output
-        self._d0 = d0 * (10**18)/(10**12) 
+        self._d0 = d0 * (10**18)/(10**12)
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles
