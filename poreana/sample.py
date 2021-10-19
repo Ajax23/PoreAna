@@ -8,6 +8,7 @@
 import sys
 import math
 import numpy as np
+import h5py
 import chemfiles as cf
 import multiprocessing as mp
 
@@ -901,7 +902,51 @@ class Sample:
 
 
             # Pickle
-            utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
+            #utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
+            pickle={system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+
+            # Open hdf5 file
+            f = h5py.File(self._diff_mc_inp["output"], 'w')
+
+            # Save system to hdf5
+            dt = h5py.special_dtype(vlen=str)
+            if "pore" in pickle:
+                system = f.create_group("pore")
+                type_string = system.create_dataset("type", (1), dtype=dt)
+                res = system.create_dataset("res", shape = (1,1), dtype="float")
+                diam = system.create_dataset("diam", shape = (1,1), dtype="float")
+                system.create_dataset("focal", data=pickle["pore"]["focal"], dtype="float")
+                system.create_dataset("box", data=pickle["pore"]["box"], dtype="float")
+
+                type_string[0] = pickle["pore"]["type"]
+                res[0] = pickle["pore"]["res"]
+                diam[0] = pickle["pore"]["diam"]
+
+            if "box" in pickle:
+                system = f.create_group("box")
+
+            # Save inp to hdf5
+            inp = f.create_group("inp")
+            inp.create_dataset("bins", data=pickle["inp"]["bins"], dtype="float")
+            inp.create_dataset("len_step", data=pickle["inp"]["len_step"], dtype="float")
+            inp.create_dataset("direction", shape = (1,1), data=pickle["inp"]["direction"], dtype="float")
+            num_frame = inp.create_dataset("num_frame", shape=(1,1), dtype="int")
+            bin_num = inp.create_dataset("bin_num", shape=(1,1), dtype="float")
+            len_frame = inp.create_dataset("len_frame", shape = (1,1), dtype="float")
+            pbc = inp.create_dataset("is_pbc", shape = (1,1), dtype="float")
+
+            num_frame[0] = pickle["inp"]["num_frame"]
+            bin_num[0] = pickle["inp"]["bin_num"]
+            len_frame[0] = pickle["inp"]["len_frame"]
+            if pickle["inp"]["is_pbc"]==True:
+                pbc[0] = 1
+            else:
+                pbc[0] = 0
+
+            # Save transition matrix to hdf5
+            data = f.create_group("trans")
+            for i in pickle["data"]:
+                data.create_dataset(str(i), data=pickle["data"][i], dtype="float")
 
     def _sample_helper(self, frame_list, shift, is_pbc):
         """Helper function for sampling run.

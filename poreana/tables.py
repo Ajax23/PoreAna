@@ -181,10 +181,10 @@ def mc_model(link_out, print_con=False):
 
     # Load model inputs
     model = data["model"]
-    bin_number = model["bin number"].shape
+    bin_number = model["bin number"].shape[0]
     len_step = model["len_step"][:]
-    len_frame = model["len_frame"][0]
-    frame_num = model["num_frame"].shape
+    len_frame = model["len_frame"].shape[0]
+    frame_num = model["num_frame"].shape[0]
     nD = model["nD"].shape
     nF = model["nF"].shape
     nDrad = model["nDrad"].shape
@@ -248,6 +248,7 @@ def mc_inputs(link_out, print_con=False):
     num_mc_update = int(inp["step width update"].shape[0])
     print_freq = int(inp["print freq"].shape[0])
     temp = float(inp["temperature"].shape[0])
+    print(type(temp))
 
     # Table for MC Inputs
     data = [nmc_eq, nmc, temp, num_mc_update, print_freq]

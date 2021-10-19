@@ -32,7 +32,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, print_output=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, is_print=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -115,7 +115,7 @@ class MC:
 
         # Set output/print options
         # Bool (If False nothing will be printed in the konsole)
-        self._print_output = print_output
+        self._print_output = is_print
 
         # print frequency for MC steps (default every 100 steps)
         self._print_freq = print_freq
@@ -208,7 +208,7 @@ class MC:
         print("MC Calculation Done.")
 
         # Save inp and output data (remove if hdf5 is ready)
-        utils.save({"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}, link_out)
+        #utils.save({"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}, link_out)
 
         # pickle directory to save late in hdf5
         dict_res = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}
@@ -464,25 +464,32 @@ class MC:
 
         # Create input groupe
         inp_h5 = f.create_group("inp")
-        inp_h5.create_dataset("MC steps", shape = (1,1), data=pickle["inp"]["MC steps"], dtype="int")
-        inp_h5.create_dataset("MC steps eq", shape = (1,1),  data=pickle["inp"]["MC steps eq"], dtype="int")
-        inp_h5.create_dataset("step width update", shape = (1,1),  data=pickle["inp"]["step width update"], dtype="int")
-        inp_h5.create_dataset("temperature",  shape = (1,1), data=float(pickle["inp"]["temperature"]), dtype="float")
-        inp_h5.create_dataset("print freq",  shape = (1,1), data=pickle["inp"]["print freq"], dtype="int")
+        nmc = inp_h5.create_dataset("MC steps", shape = (1,1), dtype="int")
+        nmc_eq = inp_h5.create_dataset("MC steps eq", shape = (1,1), dtype="int")
+        step_width_update = inp_h5.create_dataset("step width update", shape = (1,1), dtype="int")
+        temp = inp_h5.create_dataset("temperature",  shape = (1,1), dtype="float")
+        print_freq = inp_h5.create_dataset("print freq",  shape = (1,1), dtype="int")
 
+        nmc[0] = pickle["inp"]["MC steps"]
+        nmc_eq[0] = pickle["inp"]["MC steps eq"]
+        step_width_update[0] = pickle["inp"]["step width update"]
+        temp[0] = pickle["inp"]["temperature"]
+        print_freq[0] = pickle["inp"]["print freq"]
 
         # Model
         model_h5 = f.create_group("model")
         model_h5.create_dataset("bin number", pickle["model"]["bin number"], dtype="int")
         model_h5.create_dataset("bins", data=pickle["model"]["bins"], dtype="float")
-        model_h5.create_dataset("diffusion unit", shape = (1,1),  data=float(pickle["model"]["diffusion unit"]), dtype="float")
-        model_h5.create_dataset("len_frame", shape = (1,1), data=float(pickle["model"]["len_frame"]), dtype="float")
         model_h5.create_dataset("len_step", data=pickle["model"]["len_step"], dtype="int")
         model_h5.create_dataset("nD", pickle["model"]["nD"], dtype="int")
         model_h5.create_dataset("nF", pickle["model"]["nF"], dtype="int")
         model_h5.create_dataset("nDrad", pickle["model"]["nDrad"], dtype="int")
-        model_h5.create_dataset("guess",  shape = (1,1), data=float(pickle["model"]["guess"]), dtype="float")
         model_h5.create_dataset("num_frame", pickle["model"]["num_frame"], dtype="int")
+        model_h5.create_dataset("diffusion unit", shape = (1,1),  data=float(pickle["model"]["diffusion unit"]), dtype="float")
+        len_frame = model_h5.create_dataset("len_frame", shape = (1,1), dtype="float")
+        model_h5.create_dataset("guess", shape = (1,1), data=float(pickle["model"]["guess"]), dtype="float")
+        len_frame[0] = pickle["model"]["len_frame"]
+
         data = model_h5.create_group("trans")
         for i in pickle["model"]["data"]:
             data.create_dataset(str(i), data=pickle["model"]["data"][i], dtype="float")
@@ -491,19 +498,18 @@ class MC:
         dt = h5py.special_dtype(vlen=str)
         model_string = model_h5.create_dataset("model", (1), dtype=dt)
         model_string[0] = pickle["model"]["model"]
-        pbc = model_h5.create_dataset("pbc", (1))
+        pbc = model_h5.create_dataset("pbc", (1,1))
         pbc[0] = pickle["model"]["pbc"]
 
         # System
-
         if "pore" in pickle:
             system = f.create_group("pore")
-            type_string = system.create_dataset("type", (1), dtype=dt)
-            type_string[0] = pickle["pore"]["type"]
-            system.create_dataset("res", shape = (1,1), data=pickle["pore"]["res"], dtype="float")
             system.create_dataset("focal", data=pickle["pore"]["focal"], dtype="float")
             system.create_dataset("box", data=pickle["pore"]["box"], dtype="float")
             system.create_dataset("diam", data=pickle["pore"]["diam"], dtype="float")
+            type_string = system.create_dataset("type", (1), dtype=dt)
+            system.create_dataset("res", shape = (1,1), data=pickle["pore"]["res"], dtype="float")
+            type_string[0] = pickle["pore"]["type"]
 
         if "box" in pickle:
             system = f.create_group("box")
@@ -525,16 +531,20 @@ class MC:
             df_coeff.create_dataset(str(i), data=pickle["output"]["df_coeff"][i], dtype="float")
         nacc_df = output.create_group("nacc_df")
         for i in pickle["output"]["nacc_df"]:
-            nacc_df .create_dataset(str(i), shape = (1,1), data=pickle["output"]["nacc_df"][i], dtype="float")
+            nacc_df_data = nacc_df.create_dataset(str(i), shape = (1,1), dtype="float")
+            nacc_df_data[0] = pickle["output"]["nacc_df"][i]
         nacc_diff = output.create_group("nacc_diff")
         for i in pickle["output"]["nacc_diff"]:
-            nacc_diff.create_dataset(str(i), shape = (1,1), data=pickle["output"]["nacc_diff"][i], dtype="float")
+            nacc_diff_data = nacc_diff.create_dataset(str(i), shape = (1,1), dtype="float")
+            nacc_diff_data[0] = pickle["output"]["nacc_diff"][i]
         fluc_df = output.create_group("fluc_df")
         for i in pickle["output"]["fluc_df"]:
-            fluc_df.create_dataset(str(i), shape = (1,1), data=pickle["output"]["fluc_df"][i], dtype="float")
+            fluc_df_data = fluc_df.create_dataset(str(i), shape = (1,1), dtype="float")
+            fluc_df_data[0] = pickle["output"]["fluc_df"][i]
         fluc_diff = output.create_group("fluc_diff")
         for i in pickle["output"]["fluc_diff"]:
-            fluc_diff.create_dataset(str(i), shape = (1,1), data=pickle["output"]["fluc_diff"][i], dtype="float")
+            fluc_diff_data = fluc_diff.create_dataset(str(i), shape = (1,1), dtype="float")
+            fluc_diff_data[0] = pickle["output"]["fluc_diff"][i]
         list_diff_coeff = output.create_group("list_diff_coeff")
         for i in pickle["output"]["list_diff_coeff"]:
             list_diff_coeff.create_dataset(str(i), data=pickle["output"]["list_diff_coeff"][i], dtype="float")
@@ -899,14 +909,13 @@ class MC:
         """
 
         # Calculate the current rate matrix for a trajectory with periodic boundary condition
-        if model._pbc:
-            if temp is None:
-                rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, model._df_bin)
+        if temp is None:
+            rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, model._df_bin)
+        else:
+            if self._choice > 0.5:
+                rate = self._init_rate_matrix_pbc(model._bin_num,  temp, model._df_bin)
             else:
-                if self._choice > 0.5:
-                    rate = self._init_rate_matrix_pbc(model._bin_num,  temp, model._df_bin)
-                else:
-                    rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, temp)
+                rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, temp)
 
         # Calculate the current rate matrix for a trajectory with a reflected wall in z direction
         # elif not model._pbc:

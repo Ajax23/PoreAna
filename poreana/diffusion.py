@@ -651,7 +651,7 @@ def mc_fit(link, len_step=[], is_std=True, section=[], is_print=True, plot=True,
     plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
 
     diffusion = fit(0) * 10**-9
-
+    print(diffusion)
     return diffusion, diffusion_mean, diff_table
 
 

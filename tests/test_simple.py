@@ -4,7 +4,6 @@ import sys
 import copy
 import shutil
 import unittest
-import h5py
 
 import numpy as np
 import pandas as pd
@@ -57,14 +56,14 @@ class UserModelCase(unittest.TestCase):
         # sample.init_density("output/dens_box.obj")
         # sample.init_gyration("output/gyr_box.obj")
         # sample.sample(shift=[0, 0, 3.3], is_parallel=False)
-        #
+
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
+        sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=False)
 
-        # sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
-        # sample.init_diffusion_mc("output/diff_mc_box.obj", len_step=[1,2,5,10,20,30,40,50])
-        # sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
+        sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
+        sample.init_diffusion_mc("output/diff_mc_box.h5", len_step=[1,2,5,10,20,30,40,50])
+        sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
 
         # ## Parallel
         # sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
@@ -72,14 +71,14 @@ class UserModelCase(unittest.TestCase):
         # sample.init_gyration("output/gyr_cyl_p.obj")
         # sample.init_diffusion_bin("output/diff_cyl_p.obj")
         # sample.sample(is_parallel=True, is_pbc=False)
-        #
-        # sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        # sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
-        # sample.sample(is_parallel=True, is_pbc=True, np=6)
 
-    # #########
-    # # Utils #
-    # #########
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_mc("output/diff_mc_cyl_p.h5", len_step=[1,2,5,10,20,30,40,50])
+        sample.sample(is_parallel=True, is_pbc=True, np=6)
+
+    #########
+    # Utils #
+    #########
     # def test_utils(self):
     #     file_link = "output/test/test.txt"
     #
@@ -100,9 +99,9 @@ class UserModelCase(unittest.TestCase):
     #     pa.utils.toc(pa.utils.tic(), message="Test", is_print=True)
     #     self.assertEqual(round(pa.utils.toc(pa.utils.tic(), is_print=True)), 0)
     #
-    # # ############
-    # # # Geometry #
-    # # ############
+    # ############
+    # # Geometry #
+    # ############
     # def test_geometry(self):
     #     vec_a = [1, 1, 2]
     #     vec_b = [0, 3, 2]
@@ -147,10 +146,15 @@ class UserModelCase(unittest.TestCase):
     #     sample.init_diffusion_bin("output/test.obj")
     #     sample.init_diffusion_mc("output/test.obj")
     #
+    #
     #     # Test MC -> Bin
     #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
     #     sample.init_diffusion_mc("output/test.obj")
     #     sample.init_diffusion_bin("output/test.obj")
+    #
+    #     # Test direction wrong input
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+    #     sample.init_diffusion_mc("output/test.obj", direction = 4)
     #
     #
     # ##############
@@ -286,29 +290,29 @@ class UserModelCase(unittest.TestCase):
     #
     #     self.assertEqual(round(mean_s, 2), 1.13)
     #     self.assertEqual(round(mean_p, 2), 1.13)
-    #
-    #
-    # ################
-    # # MC Diffusion #
-    # ################
-    #
-    # # Test model class
-    # def test_diffusion_mc_model(self):
-    #     # self.skipTest("Temporary")
-    #
-    #     # Check cosine model
-    #     model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
-    #
-    #     # Check if the initialized profiles are corret
-    #     self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
-    #     self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
-    #
-    #     # Check step model
-    #     model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10)
-    #
-    #     # Check if the initialized profiles are corret
-    #     self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-1.394] * model._bin_num)), True)
-    #     self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
+
+
+    ################
+    # MC Diffusion #
+    ################
+
+    # Test model class
+    def test_diffusion_mc_model(self):
+        self.skipTest("Temporary")
+
+        # Check cosine model
+        model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
+
+        # Check if the initialized profiles are corret
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
+
+        # Check step model
+        model = pa.StepModel("output/diff_mc_cyl_s.h5", 6, 10)
+
+        # Check if the initialized profiles are corret
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
 
     # Test MC class
@@ -317,135 +321,128 @@ class UserModelCase(unittest.TestCase):
 
         # Pore diffusion
         # Set Cosine Model for diffusion and energy profile
-        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
+        model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
 
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-        pa.MC._len_step = 1
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-128852.33)
-
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-        pa.MC._len_step = 2
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-165354.77)
-
-        # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
-        pa.MC._len_step = 10
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-258946.71)
+        # # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        # pa.MC._len_step = 1
+        # self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-149002.38)
+        #
+        # # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        # pa.MC._len_step = 2
+        # self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-168732.83)
+        #
+        # # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
+        # pa.MC._len_step = 10
+        # self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -233148.79)
 
         # Set len_step for MC run test
-        model._len_step = [10,20]
+        model._len_step = [10,20,30,40]
 
         #### Test Single ####
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.obj","output/diff_test_mc.h5" , nmc_eq=100, nmc=100, print_output=False, is_parallel=False)
-
-        f = h5py.File('output/diff_test_mc.h5','r')
-        g = f["inp"]
-        a = g["print freq"]
-        print(a.shape)
-
-        pa.tables.mc_inputs("output/diff_test_mc.h5", print_con=True)
-        pa.tables.mc_model("output/diff_test_mc.h5", print_con=True)
-
-
+        pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
-        diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj")
+        diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
         plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
+        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.h5", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
-        self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
+        self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
+        self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
 
-        # #### Test Parallel ####
-        # # Do the MC alogirthm
-        # pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=False, is_parallel=True)
-        #
-        # # Plot diffusion coefficient over inverse lagtime
-        # plt.figure()
-        # diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj")
-        # plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
-        #
-        # # Plot pore diffusion coefficient over inverse lagtime
-        # plt.figure()
-        # diff_pore, diff_mean_pore, diff_table = pa.diffusion.mc_fit("output/diff_test_mc.obj", section="pore")
-        # plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
-        #
-        # # Check if diffusion coefficient is in the range
-        # self.assertEqual(abs(diff - (1.6 * 10**-9) ) < 0.3 * 10**-9, True)
-        # self.assertEqual(abs(diff_pore - (1.2 * 10**-9) ) < 0.3 * 10**-9, True)
-        #
-        # # Test MC output
-        # # Set Step Model for diffusion and energy profile
-        # model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
-        #
-        # # Set Cosine Model for diffusion and energy profile
-        # model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, print_output=True)
-        #
-        # # Set the MC class and options
-        # model._len_step = [10]
-        #
-        # # Do the MC alogirthm
-        # pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, print_output=True, is_parallel=False)
+        #### Test Parallel ####
+        # Do the MC alogirthm
+        pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=True)
+
+        # Plot diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
+        print(diff[0])
+        plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
+
+        # Plot pore diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.h5", section="pore")
+        print(diff_pore[0])
+        plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
+
+        # Check if diffusion coefficient is in the range
+        print(diff,diff_pore)
+        self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
+        self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
+
+        # Test MC output
+        # Set Step Model for diffusion and energy profile
+        model = pa.StepModel("output/diff_mc_cyl_s.h5", 6, 10, is_print=True)
+
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10, is_print=True)
+
+        # Set the MC class and options
+        model._len_step = [10]
+
+        # Do the MC alogirthm
+        pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=100, nmc=2000, is_print=True, is_parallel=False)
 
 
-    # def test_diffusion_mc_box(self):
-    #     # Box diffusion
-    #     # self.skipTest("Temporary")
-    #
-    #     # Set Cosine Model for diffusion and energy profile
-    #     model = pa.CosineModel("output/diff_mc_box.obj", 6, 10)
-    #
-    #     # Set the MC class and options
-    #     model._len_step = [10,20,30,40,50]
-    #
-    #     # Do the MC alogirthm
-    #     pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=1000, nmc=2000, print_output=False, is_parallel=False)
-    #
-    #     # Plot diffusion coefficient over inverse lagtime
-    #     plt.figure()
-    #     diff, diff_mean, diff_table = pa.diffusion.mc_fit("output/diff_test_mc_box.obj")
-    #     plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
-    #
-    #     # Check if diffusion coefficient is in the range
-    #     self.assertEqual(abs(diff - (1.3 * 10**-8) ) < 0.3 * 10**-8, True)
-    #
-    #
-    # ####################################
-    # # Check Transition matrix sampling #
-    # ####################################
-    # def test_parallel_sample(self):
-    #     # self.skipTest("Temporary")
-    #
-    #     # Load Transition matrix for single
-    #     data = pa.utils.load("output/diff_mc_cyl_s.obj")
-    #     trans_s = data["data"]
-    #
-    #     # Load Transition matrix for parallel
-    #     data_2 = pa.utils.load("output/diff_mc_cyl_p.obj")
-    #     trans_p = data_2["data"]
-    #
-    #     data_3 = pa.utils.load("data/trans_check.obj")
-    #     trans_check = data_3["data"]
-    #
-    #
-    #     # Test if transition matrix of single and parallel calculation is the same
-    #     list = []
-    #     list2 = []
-    #
-    #     for i in [1,2,5,10,20,30,40]:
-    #         list.append(np.array_equal(trans_s[i],trans_p[i]))
-    #         list2.append(np.array_equal(trans_check[i],trans_p[i]))
-    #
-    #
-    # ###############
-    # # Free Energy #
-    # ###############
+    def test_diffusion_mc_box(self):
+        # Box diffusion
+        self.skipTest("Temporary")
+
+        # Set Cosine Model for diffusion and energy profile
+        model = pa.CosineModel("output/diff_mc_box.h5", 6, 10)
+
+        # Set the MC class and options
+        model._len_step = [10,20,30,40,50]
+
+        # Do the MC alogirthm
+        pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=10000, nmc=2000, is_print=False, is_parallel=False)
+
+        # Plot diffusion coefficient over inverse lagtime
+        plt.figure()
+        diff = pa.diffusion.mc_fit("output/diff_test_mc_box.h5")
+        plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
+
+        # Check if diffusion coefficient is in the range
+        self.assertEqual(abs(diff[0] - (11) ) < 0.3, True)
+
+
+    ####################################
+    # Check Transition matrix sampling #
+    ####################################
+    def test_parallel_sample(self):
+        self.skipTest("Temporary")
+
+        # Load Transition matrix for single
+        data = pa.utils.load("output/diff_mc_cyl_s.h5")
+        trans_s = data["data"]
+
+        # Load Transition matrix for parallel
+        data_2 = pa.utils.load("output/diff_mc_cyl_p.h5")
+        trans_p = data_2["data"]
+
+        data_3 = pa.utils.load("data/trans_check.h5")
+        trans_check = data_3["data"]
+
+
+        # Test if transition matrix of single and parallel calculation is the same
+        list = []
+        list2 = []
+
+        for i in [1,2,5,10,20,30,40]:
+            list.append(np.array_equal(trans_s[i], trans_p[i]))
+            list2.append(np.array_equal(trans_check[i], trans_p[i]))
+
+
+    ###############
+    # Free Energy #
+    ###############
     # def test_freeenergy_mc(self):
     #     # Plot free energy profile over box length
     #     plt.figure()
@@ -476,11 +473,15 @@ class UserModelCase(unittest.TestCase):
     #     pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], infty_profile = False)
     #     pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "pore", infty_profile = True)
     #     pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "reservoir", infty_profile = True)
+    #     pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = "test", infty_profile = True)
+    #     pa.diffusion.mc_profile("data/check_output.obj", len_step=[10,20,30,40], section = [0,1,2], infty_profile = True)
     #     pa.diffusion.mc_profile("data/check_output.obj", section = [1,10], infty_profile = True)
     #
     #     # Check diffusion fitting function
     #     pa.diffusion.mc_fit("data/check_output.obj", section = "pore")
     #     pa.diffusion.mc_fit("data/check_output.obj", section = "reservoir")
+    #     pa.diffusion.mc_fit("data/check_output.obj", section = "test")
+    #     pa.diffusion.mc_fit("data/check_output.obj", section = [0,1,2])
     #     pa.diffusion.mc_fit("data/check_output.obj", section=[0,10])
     #
     #
