@@ -12,16 +12,13 @@ class Model:
     ----------
     data_link : string
         Data link to the pickle data from :func:`poreana.sample.Sample.init_diffusion_mc`
-    d0 : double, optional
-        Initial guess of diffusion coefficient
     """
 
-    def __init__(self, data_link, d0=1e-8):
+    def __init__(self, data_link):
 
         # Load data object
         #sample = utils.load(data_link)
         sample = h5py.File(data_link,'r')
-        print(sample)
         inp = sample["inp"]
 
         # Read the inputs
@@ -33,8 +30,8 @@ class Model:
         self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
 
         self._trans_mat = {}
-        for i in sample["trans"]:
-            self._trans_mat[int(i)] = sample["trans"][i][:]                 # transition matrix
+        for i in sample["data"]:
+            self._trans_mat[int(i)] = sample["data"][i][:]                 # transition matrix
 
         if inp["is_pbc"][0]==1:
             self._pbc = True                     # pbc or nopbc
@@ -50,8 +47,8 @@ class Model:
             self._sys_props["diam"] = float(sample["pore"]["diam"][0])
             self._system = "pore"
         if "box" in sample:
-            self._sys_props = sample["box"]
             self._system = "box"
+            self._sys_props = sample["box"]["length"][:]
 
         # Initialize units of diffusion and free energy unit
         self._df_unit = 1.                                 # in kBT
@@ -149,12 +146,12 @@ class CosineModel(Model):
     n_diff_radial : integer, optional
         Number of the Fourier coefficients for the radial diffusion profile
     d0 : double, optional
-        Initial guess of diffusion coefficient
-    print_output : bool, optional
+        Initial guess of diffusion coefficient :math:`\\left( 10^{-9} \\frac{m^2}{s}\\right)`
+    is_print : bool, optional
         True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1, is_print=False):
 
         # Inherit the variables from Model class
         super(CosineModel, self).__init__(data_link)
@@ -165,8 +162,8 @@ class CosineModel(Model):
         self._n_df = n_df
         self._n_diff = n_diff
         self._n_diff_radial = n_diff_radial
-        self._print_output = print_output
-        self._d0 = d0 * (10**18)/(10**12)                # guess init profile [A^2/ps]
+        self._print_output = is_print
+        self._d0 = d0 * (10**9)/(10**12)                # guess init profile [A^2/ps]
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles
@@ -305,12 +302,12 @@ class StepModel(Model):
     n_diff_radial : integer, optional
         Number of the Fourier coefficients for the radial diffusion profile
     d0 : double, optional
-        Initial guess of diffusion coefficient
-    print_output : bool, optional
+        Initial guess of diffusion coefficient :math:`\\left( 10^{-9} \\frac{m^2}{s}\\right)`
+    is_print : bool, optional
         True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1e-8, print_output=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1, is_print=False):
 
         # Inherit the variables from Model class
         super(StepModel, self).__init__(data_link)
@@ -320,8 +317,9 @@ class StepModel(Model):
         self._n_diff = n_diff
         self._n_df = n_df
         self._n_diff_radial = n_diff_radial
-        self._print_output = print_output
-        self._d0 = d0 * (10**18)/(10**12)
+        self._print_output = is_print
+        self._d0 = d0 * (10**9)/(10**12)
+
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles

@@ -8,6 +8,8 @@
 import os
 import time
 import pickle
+import h5py
+import numpy as np
 
 
 def mkdirp(directory):
@@ -20,7 +22,6 @@ def mkdirp(directory):
     """
     if not os.path.exists(directory):
         os.makedirs(directory)
-
 
 def column(data):
     """Convert given row list matrix into column list matrix
@@ -116,6 +117,69 @@ def load(link):
     """
     with open(link, 'rb') as f:
         return pickle.load(f)
+
+def load_hdf(link):
+    """Load hdf5 file from the specified folder.
+
+    Parameters
+    ----------
+    link : string
+        Specific link to hdf5 file
+
+    Returns
+    -------
+    f : Object
+        Loaded hdf5 file
+    """
+    f = h5py.File(link, 'r')
+    return f
+
+def save_dict_to_hdf(link, pickle):
+    """ This function saves the output directory in a hdf5 file.
+
+    Parameters
+    ----------
+    link : string
+        Link to output hdf5 file
+    pickle : dict
+        dictionary which should be saved
+    """
+    # Save results in a hdf5 file
+    f = h5py.File(link, 'w')
+
+    # Create input groupe
+    keys = pickle.keys()
+    groups = {}
+    data_base = {}
+
+    for i in keys:
+        groups[i] = f.create_group(i)
+        if not i =="box":
+            data_base[i] = pickle[i].keys()
+
+    for i in groups:
+        if not i =="box":
+            for j in data_base[i]:
+                if isinstance(pickle[i][j],dict):
+                    data = groups[i].create_group(j)
+                    for z in pickle[i][j]:
+                        if isinstance(pickle[i][j][z],(list, np.ndarray)) :
+                            data.create_dataset(str(z),data = pickle[i][j][z])
+                        else:
+                            value = data.create_dataset(str(z), shape=(1,1))
+                            value[0] = pickle[i][j][z]
+
+                elif isinstance(pickle[i][j],str):
+                    dt = h5py.special_dtype(vlen=str)
+                    string = groups[i].create_dataset(str(j), (1), dtype=dt)
+                    string[0] = pickle[i][j]
+                elif isinstance(pickle[i][j],(list, np.ndarray)):
+                    data = groups[i].create_dataset(str(j), data = pickle[i][j])
+                else:
+                    data = groups[i].create_dataset(str(j), shape=(1,1))
+                    data[0] = pickle[i][j]
+        else:
+            groups[i].create_dataset("length",data = pickle[i])
 
 
 def mumol_m2_to_mols(c, A):

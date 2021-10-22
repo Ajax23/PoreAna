@@ -32,7 +32,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, is_print=False, print_freq=100, do_radial=False, is_parallel=True, np=0):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, np=0, print_freq=100, is_print=False, do_radial=False, is_parallel=True):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output object
         file. This happens with the adjustment of the coefficient from the model
@@ -73,7 +73,7 @@ class MC:
         model : class
             Model object which set before with the model class
         link_out : string
-            Link to output object file
+            Link to output hdf5 data file
         nmc_eq : integer, optional
             Number of equilibrium MC steps
         nmc : integer, optional
@@ -87,16 +87,16 @@ class MC:
             is required)
         temp : float, optional
             Temperature in Monte Carlo acceptance criterium
-        print_output : bool, optional
-            True to print output
+        np : integer, optional
+            Number of cores to use
         print_freq : integer, optional
             Print MC step every print_freq
+        is_print : bool, optional
+            True to print output
         do_radial : bool, optional
             True to calculate the radial diffusion
         is_parallel : bool, optional
             True to run parallelized sampling
-        np : integer, optional
-            Number of cores to use
         """
 
         # Set MC step width
@@ -213,7 +213,7 @@ class MC:
         # pickle directory to save late in hdf5
         dict_res = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}
 
-        self.save_hdf_mc_output(link_out,dict_res)
+        utils.save_dict_to_hdf(link_out,dict_res)
 
         return
 
@@ -449,111 +449,6 @@ class MC:
 
         return output
 
-    def save_hdf_mc_output(self, link, pickle):
-        """ This function saves the output directory of the MC run in a hdf5 file.
-
-        Parameters
-        ----------
-        link : string
-            Link to output hdf5 file
-        pickle : dict
-            dictionary with the results of the MC run
-        """
-        # Save results in a hdf5 file
-        f = h5py.File(link, 'w')
-
-        # Create input groupe
-        inp_h5 = f.create_group("inp")
-        nmc = inp_h5.create_dataset("MC steps", shape = (1,1), dtype="int")
-        nmc_eq = inp_h5.create_dataset("MC steps eq", shape = (1,1), dtype="int")
-        step_width_update = inp_h5.create_dataset("step width update", shape = (1,1), dtype="int")
-        temp = inp_h5.create_dataset("temperature",  shape = (1,1), dtype="float")
-        print_freq = inp_h5.create_dataset("print freq",  shape = (1,1), dtype="int")
-
-        nmc[0] = pickle["inp"]["MC steps"]
-        nmc_eq[0] = pickle["inp"]["MC steps eq"]
-        step_width_update[0] = pickle["inp"]["step width update"]
-        temp[0] = pickle["inp"]["temperature"]
-        print_freq[0] = pickle["inp"]["print freq"]
-
-        # Model
-        model_h5 = f.create_group("model")
-        model_h5.create_dataset("bin number", pickle["model"]["bin number"], dtype="int")
-        model_h5.create_dataset("bins", data=pickle["model"]["bins"], dtype="float")
-        model_h5.create_dataset("len_step", data=pickle["model"]["len_step"], dtype="int")
-        model_h5.create_dataset("nD", pickle["model"]["nD"], dtype="int")
-        model_h5.create_dataset("nF", pickle["model"]["nF"], dtype="int")
-        model_h5.create_dataset("nDrad", pickle["model"]["nDrad"], dtype="int")
-        model_h5.create_dataset("num_frame", pickle["model"]["num_frame"], dtype="int")
-        model_h5.create_dataset("diffusion unit", shape = (1,1),  data=float(pickle["model"]["diffusion unit"]), dtype="float")
-        len_frame = model_h5.create_dataset("len_frame", shape = (1,1), dtype="float")
-        model_h5.create_dataset("guess", shape = (1,1), data=float(pickle["model"]["guess"]), dtype="float")
-        len_frame[0] = pickle["model"]["len_frame"]
-
-        data = model_h5.create_group("trans")
-        for i in pickle["model"]["data"]:
-            data.create_dataset(str(i), data=pickle["model"]["data"][i], dtype="float")
-
-        # Model string
-        dt = h5py.special_dtype(vlen=str)
-        model_string = model_h5.create_dataset("model", (1), dtype=dt)
-        model_string[0] = pickle["model"]["model"]
-        pbc = model_h5.create_dataset("pbc", (1,1))
-        pbc[0] = pickle["model"]["pbc"]
-
-        # System
-        if "pore" in pickle:
-            system = f.create_group("pore")
-            system.create_dataset("focal", data=pickle["pore"]["focal"], dtype="float")
-            system.create_dataset("box", data=pickle["pore"]["box"], dtype="float")
-            system.create_dataset("diam", data=pickle["pore"]["diam"], dtype="float")
-            type_string = system.create_dataset("type", (1), dtype=dt)
-            system.create_dataset("res", shape = (1,1), data=pickle["pore"]["res"], dtype="float")
-            type_string[0] = pickle["pore"]["type"]
-
-        if "box" in pickle:
-            system = f.create_group("box")
-
-
-        # Results
-        output = f.create_group("output")
-        diff_profile = output.create_group("diff_profile")
-        df_profile = output.create_group("df_profile")
-        for i in pickle["output"]["diff_profile"]:
-            diff_profile.create_dataset(str(i), data=pickle["output"]["diff_profile"][i], dtype="float")
-            df_profile.create_dataset(str(i), data=pickle["output"]["df_profile"][i], dtype="float")
-
-        diff_coeff = output.create_group("diff_coeff")
-        for i in pickle["output"]["diff_coeff"]:
-            diff_coeff.create_dataset(str(i), data=pickle["output"]["diff_coeff"][i], dtype="float")
-        df_coeff = output.create_group("df_coeff")
-        for i in pickle["output"]["df_coeff"]:
-            df_coeff.create_dataset(str(i), data=pickle["output"]["df_coeff"][i], dtype="float")
-        nacc_df = output.create_group("nacc_df")
-        for i in pickle["output"]["nacc_df"]:
-            nacc_df_data = nacc_df.create_dataset(str(i), shape = (1,1), dtype="float")
-            nacc_df_data[0] = pickle["output"]["nacc_df"][i]
-        nacc_diff = output.create_group("nacc_diff")
-        for i in pickle["output"]["nacc_diff"]:
-            nacc_diff_data = nacc_diff.create_dataset(str(i), shape = (1,1), dtype="float")
-            nacc_diff_data[0] = pickle["output"]["nacc_diff"][i]
-        fluc_df = output.create_group("fluc_df")
-        for i in pickle["output"]["fluc_df"]:
-            fluc_df_data = fluc_df.create_dataset(str(i), shape = (1,1), dtype="float")
-            fluc_df_data[0] = pickle["output"]["fluc_df"][i]
-        fluc_diff = output.create_group("fluc_diff")
-        for i in pickle["output"]["fluc_diff"]:
-            fluc_diff_data = fluc_diff.create_dataset(str(i), shape = (1,1), dtype="float")
-            fluc_diff_data[0] = pickle["output"]["fluc_diff"][i]
-        list_diff_coeff = output.create_group("list_diff_coeff")
-        for i in pickle["output"]["list_diff_coeff"]:
-            list_diff_coeff.create_dataset(str(i), data=pickle["output"]["list_diff_coeff"][i], dtype="float")
-        list_df_coeff = output.create_group("list_df_coeff")
-        for i in pickle["output"]["list_df_coeff"]:
-            list_df_coeff.create_dataset(str(i), data=pickle["output"]["list_df_coeff"][i], dtype="float")
-
-
-        return
 
     ###########################
     # Helper functions for MC #

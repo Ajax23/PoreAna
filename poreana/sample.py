@@ -303,7 +303,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to output hdf5 data file
         bin_num : integer, optional
             Number of bins to be used
         """
@@ -403,7 +403,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to hdf5 data file
         bin_num : integer, optional
             Number of bins to be used
         len_obs : float, optional
@@ -618,11 +618,11 @@ class Sample:
 
         It is necessary to caculate the transition matrix for different step
         length and so for different lag times. A lagtime
-        :math:`\\Delta_{ij}t_{\\alpha}` is defined by
+        :math:`\\Delta t_{\\alpha}` is defined by
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
+            \\Delta t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
 
         with :math:`i` and :math:`j` as the current state of the system at two
         different times and :math:`\\alpha` as past time between the two states.
@@ -634,22 +634,28 @@ class Sample:
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t \cdot s
+            \\Delta t_{\\alpha} = t \cdot s
 
         After the sampling a model class has to set and then the MC calculation
         can run. Subsequently the final mean diffusion coefficient can be
         determined with a extrapolation to
-        :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty`.
+        :math:`\\Delta t_{\\alpha} \\rightarrow \infty`.
         For the etxrapolation we need the mean diffusion over the bins for
         different chosen lag times. That's why we have to calculate the results
         and the transition matrix for several lag times. More information about
         post processing and the extrapolation that you can find in
-        :func:`poreana.diffusion.mc_fit`
+        :func:`poreana.diffusion.mc_fit`.
+
+        The direction of descretization can be also choosen using the input variable
+        :math:`\\mathrm{direction}`. The simulation box
+        can be divided in every spatial direction and so the transition matrix
+        is sampled in the chosen direction and the diffusion is calculated in
+        this direction.
 
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to hdf5 data file
         len_step : integer, optional
             Length of the step size between frames
         bin_num : integer, optional
@@ -672,6 +678,9 @@ class Sample:
 
         # Sort len_step list
         len_step.sort()
+
+        if direction not in [0,1,2]:
+            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
 
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
@@ -709,11 +718,11 @@ class Sample:
 
         It is necessary to caculate the transition matrix for different step
         length and so for different lag times. A lagtime
-        :math:`\\Delta_{ij}t_{\\alpha}` is defined by
+        :math:`\\Delta t_{\\alpha}` is defined by
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
+            \\Delta t_{\\alpha} = t_{i,\\alpha} - t_{j,\\alpha}
 
         with :math:`i` and :math:`j` as the current state of the system at two
         different times and :math:`\\alpha` as past time between the two states.
@@ -725,12 +734,12 @@ class Sample:
 
         .. math::
 
-            \\Delta_{ij}t_{\\alpha} = t \cdot s
+            \\Delta t_{\\alpha} = t \cdot s
 
         After the sampling a model class has to set and then the MC calculation
         can run. Subsequently the final mean diffusion coefficient can be
         determined with a extrapolation to
-        :math:`\\Delta_{ij}t_{\\alpha} \\rightarrow \infty`.
+        :math:`\\Delta t_{\\alpha} \\rightarrow \infty`.
         For the etxrapolation we need the mean diffusion over the bins for
         different chosen lag times. That's why we have to calculate the results
         and the transition matrix for several lag times. More information about
@@ -856,7 +865,8 @@ class Sample:
                     data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
             # Pickle
-            utils.save({system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
+            dict_res = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}
+            utils.save_dict_to_hdf(self._dens_inp["output"],dict_res)
 
         if self._is_gyration:
             inp_gyr = inp.copy()
@@ -868,7 +878,8 @@ class Sample:
                     data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
             # Pickle
-            utils.save({system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
+            dict_res = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}
+            utils.save_dict_to_hdf(self._gyr_inp["output"],dict_res)
 
         if self._is_diffusion_bin:
             inp_diff = inp.copy()
@@ -885,7 +896,9 @@ class Sample:
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
             # Pickle
-            utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
+            dict_res = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            utils.save_dict_to_hdf(self._diff_bin_inp["output"],dict_res)
+
 
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
@@ -901,52 +914,12 @@ class Sample:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
 
-            # Pickle
-            #utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
-            pickle={system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            # Save results in dictionary
+            dict_res={system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            print(system["props"])
+            # Save dictionary to h5-file
+            utils.save_dict_to_hdf(self._diff_mc_inp["output"],dict_res)
 
-            # Open hdf5 file
-            f = h5py.File(self._diff_mc_inp["output"], 'w')
-
-            # Save system to hdf5
-            dt = h5py.special_dtype(vlen=str)
-            if "pore" in pickle:
-                system = f.create_group("pore")
-                type_string = system.create_dataset("type", (1), dtype=dt)
-                res = system.create_dataset("res", shape = (1,1), dtype="float")
-                diam = system.create_dataset("diam", shape = (1,1), dtype="float")
-                system.create_dataset("focal", data=pickle["pore"]["focal"], dtype="float")
-                system.create_dataset("box", data=pickle["pore"]["box"], dtype="float")
-
-                type_string[0] = pickle["pore"]["type"]
-                res[0] = pickle["pore"]["res"]
-                diam[0] = pickle["pore"]["diam"]
-
-            if "box" in pickle:
-                system = f.create_group("box")
-
-            # Save inp to hdf5
-            inp = f.create_group("inp")
-            inp.create_dataset("bins", data=pickle["inp"]["bins"], dtype="float")
-            inp.create_dataset("len_step", data=pickle["inp"]["len_step"], dtype="float")
-            inp.create_dataset("direction", shape = (1,1), data=pickle["inp"]["direction"], dtype="float")
-            num_frame = inp.create_dataset("num_frame", shape=(1,1), dtype="int")
-            bin_num = inp.create_dataset("bin_num", shape=(1,1), dtype="float")
-            len_frame = inp.create_dataset("len_frame", shape = (1,1), dtype="float")
-            pbc = inp.create_dataset("is_pbc", shape = (1,1), dtype="float")
-
-            num_frame[0] = pickle["inp"]["num_frame"]
-            bin_num[0] = pickle["inp"]["bin_num"]
-            len_frame[0] = pickle["inp"]["len_frame"]
-            if pickle["inp"]["is_pbc"]==True:
-                pbc[0] = 1
-            else:
-                pbc[0] = 0
-
-            # Save transition matrix to hdf5
-            data = f.create_group("trans")
-            for i in pickle["data"]:
-                data.create_dataset(str(i), data=pickle["data"][i], dtype="float")
 
     def _sample_helper(self, frame_list, shift, is_pbc):
         """Helper function for sampling run.

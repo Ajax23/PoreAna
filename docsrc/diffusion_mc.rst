@@ -31,7 +31,7 @@ diffusion routine
 
     # Sample transition matrix
     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
-    sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_steps, len_frame=len_frame)
+    sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_steps, len_frame=len_frame)
     sample.sample(is_parallel=False)
 
 ``Finished frame 2001/2001...``
@@ -45,7 +45,7 @@ With the sampling obj-file the transition matrix can be plotted
     kwargs = {"vmin":0,"vmax":0.5, "xticklabels":30, "yticklabels":30, "cbar":True, "square":False}
 
     # Plot transition matrix for a step length of 10
-    pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.obj", 10, kwargs)
+    pa.diffusion.mc_trans_mat("output/diff_mc_cyl_s.h5", 10, kwargs)
 
 
 .. figure::  /pics/diffusion_mc_01.png
@@ -59,10 +59,10 @@ After sampling, a model has to set and the MC Alogirthm started
 .. code-block:: python
 
     # Set Cosine Model for diffusion and energy profile
-    model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
+    model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
 
     # Do the MC Algorithm
-    pa.MC().run(model,"output/diff_mc.obj", nmc_eq=5000, nmc=5000, print_output=False, is_parallel=False)
+    pa.MC().run(model,"output/diff_mc.h5", nmc_eq=5000, nmc=5000, print_output=False, is_parallel=False)
 
 
 ``MC Calculation Start``
@@ -77,7 +77,7 @@ The results of the MC Alogrithm the diffusion can be calculated
 .. code-block:: python
 
     # Print the results for the normal diffusion
-    diff,diff_mean,diff_table = pa.diffusion.mc_fit("output/diff_mc.obj")
+    diff,diff_mean,diff_table = pa.diffusion.mc_fit("output/diff_mc.h5")
 
 
 ``Diffusion axial: 1.6913e-09 m^2/s``
@@ -99,10 +99,10 @@ displayed
 .. code-block:: python
 
     # Plot diffusion profile over the simulation box
-    pa.diffusion.mc_profile("output/diff_mc.obj", infty_profile=True)
+    pa.diffusion.mc_profile("output/diff_mc.h5", infty_profile=True)
 
     # Plot free energy profile over the simulation box
-    pa.freeenergy.mc_profile("output/diff_mc.obj", [10])
+    pa.freeenergy.mc_profile("output/diff_mc.h5", [10])
 
 
 .. figure::  /pics/diffusion_mc_03.svg
@@ -115,10 +115,10 @@ Additionally, the pore area can be considered more closely
 .. code-block:: python
 
     # Plot the lag time extrapolation for the pore ares
-    pa.diffusion.mc_fit("output/diff_mc.obj", section="pore")
+    pa.diffusion.mc_fit("output/diff_mc.h5", section="pore")
 
     # Plot diffusion profile in a pore
-    pa.diffusion.mc_profile("output/diff_mc.obj", section="pore", infty_profile=True)
+    pa.diffusion.mc_profile("output/diff_mc.h5", section="pore", infty_profile=True)
 
 
 ``Diffusion axial (Pore): 1.2534e-09 m^2/s``
