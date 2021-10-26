@@ -8,7 +8,6 @@
 import sys
 import math
 import numpy as np
-import h5py
 import chemfiles as cf
 import multiprocessing as mp
 
@@ -219,7 +218,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to output h5 data file
         bin_num : integer, optional
             Number of bins to be used
         """
@@ -713,7 +712,7 @@ class Sample:
         calculation with the Monte Carlo diffusion methode for a cubic
         simulation box. The sample of the transition matrix is to be run on
         the cluster due to a high time and resource consumption. The output,
-        a data object, is then used to calculate the self-diffusion using
+        a h5 data file, is then used to calculate the self-diffusion using
         further calculation functions for the MC Diffusion methode.
 
         It is necessary to caculate the transition matrix for different step
@@ -916,7 +915,7 @@ class Sample:
 
             # Save results in dictionary
             dict_res={system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
-            print(system["props"])
+
             # Save dictionary to h5-file
             utils.save_dict_to_hdf(self._diff_mc_inp["output"],dict_res)
 

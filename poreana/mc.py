@@ -34,7 +34,7 @@ class MC:
     ##############
     def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, np=0, print_freq=100, is_print=False, do_radial=False, is_parallel=True):
         """This function do the MC Cycle to calculate the diffusion and free
-        energy profile over the bins and save the results in an output object
+        energy profile over the bins and save the results in an output hdf5
         file. This happens with the adjustment of the coefficient from the model
         which is set with the appropriate model class. The code determines the
         results for all lag times for which a transition matrix was calculated.
@@ -126,7 +126,7 @@ class MC:
         inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
 
         # Set inp data for model
-        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
+        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat, "direction": model._direction}
 
         # Print that MC Calculation starts
         if not self._print_output:

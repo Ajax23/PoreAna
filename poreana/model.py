@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import h5py
 import poreana.utils as utils
 
 
@@ -11,14 +10,13 @@ class Model:
     Parameters
     ----------
     data_link : string
-        Data link to the pickle data from :func:`poreana.sample.Sample.init_diffusion_mc`
+        Data link to the h5 data file from :func:`poreana.sample.Sample.init_diffusion_mc`
     """
 
     def __init__(self, data_link):
 
-        # Load data object
-        #sample = utils.load(data_link)
-        sample = h5py.File(data_link,'r')
+        # Load hdf5 data file
+        sample = utils.load_hdf(data_link)
         inp = sample["inp"]
 
         # Read the inputs
@@ -28,6 +26,7 @@ class Model:
         self._dt = float(inp["len_frame"][0]) * 10**12             # frame length [ps]
         self._bins = inp["bins"][:]                         # bins [nm]
         self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
+        self._direction = int(inp["direction"][0])
 
         self._trans_mat = {}
         for i in sample["data"]:

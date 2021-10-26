@@ -528,7 +528,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
         if "pore" in data:
             pore = data["pore"]
             res = float(pore["res"][0])
-            box = pore["box"][:]
 
             # Set section
             area = [0,res]
@@ -793,7 +792,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         if "pore" in data:
             pore = data["pore"]
             res = float(pore["res"][0])
-            box = pore["box"][:]
 
             # Set section
             area = [0,res]
