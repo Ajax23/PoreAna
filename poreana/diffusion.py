@@ -778,7 +778,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
             box = pore["box"][:]
 
             # Set section
-            area = [res, box[2]-res]
+            area = [res, box[2]-res-2*(bins[1]-bins[0])]
 
         # If only the pore area should be considered
         else:
@@ -852,7 +852,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
                 sns.lineplot(x=bins, y=(diff_profiles[i]), **kwargs)       # Diffusion in m^2/s
 
         # Plot the diffusion profiles for the different lag times
-        legend = ["$\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+        legend = ["$\\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # If infty_profile is True the diffusion profile for a infinity lag times is shwon
     if len(len_step) >= 2 and infty_profile:
@@ -881,7 +881,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     # Set legend for lag times
     if is_plot:
         if not infty_profile and len(len_step) >= 2:
-            legend.append("$\Delta t_{\\alpha} \rightarrow \\infty$ ps")
+            legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
             plt.legend(legend)
 
 

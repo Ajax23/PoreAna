@@ -317,7 +317,7 @@ class UserModelCase(unittest.TestCase):
 
     # Test MC class
     def test_diffusion_mc_mc(self):
-        # self.skipTest("Temporary")
+        #self.skipTest("Temporary")
 
         # Pore diffusion
         # Set Cosine Model for diffusion and energy profile
