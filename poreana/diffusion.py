@@ -393,7 +393,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
             trans_mat[int(i)] = data["data"][i][:]
         inp = data["inp"]
         frame_num = int(inp["num_frame"][0])
-        frame_length = inp["len_frame"][0] * 10**12
+        frame_length = float(inp["len_frame"][0]) * 10**12
 
     # MC obj file is loaded
     else:
@@ -402,7 +402,7 @@ def mc_trans_mat(link_in, step, kwargs={}):
         for i in model["data"]:
             trans_mat[int(i)] = model["data"][i][:]
         frame_num = int(model["num_frame"][0])
-        frame_length = int(model["len_frame"][0]) * 10**12
+        frame_length = int(model["len_frame"][0])
 
 
     # Set title with selected lag time
@@ -499,7 +499,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     diff_unit = float(model["diffusion unit"][0])
     bins = model["bins"][:]
     bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-    dt = int(model["len_frame"][0])
+    dt = float(model["len_frame"][0])
 
     # Set vector
     diff_bin_vec = {}
@@ -686,7 +686,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
         plt.ylim(0, 1.5*max(fit(x_vec)))
         sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_scatter)
         sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs_line)
-        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta t_{\\alpha})$"]
+        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\\Delta t_{\\alpha})$"]
         plt.legend(legend)
         plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
         plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
@@ -759,7 +759,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     model = data["model"]
     diff_unit = float(model["diffusion unit"][0])
     bins = model["bins"][:]
-    dt = int(model["len_frame"][0])
+    dt = float(model["len_frame"][0])
 
     # Set dictionaries
     legend = []
