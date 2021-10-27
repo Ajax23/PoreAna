@@ -761,6 +761,10 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     bins = model["bins"][:]
     dt = float(model["len_frame"][0])
 
+    # If no specific step length is chosen take the step length from the object file
+    if not len_step:
+        len_step = model["len_step"][:]
+
     # Set dictionaries
     legend = []
     diff_bin_vec = {}
@@ -823,15 +827,11 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     index_start = np.digitize(area[0], bins)
     index_end = np.digitize(area[1], bins)
 
-    # If no specific step length is chosen take the step length from the object file
-    if not len_step:
-        len_step = model["len_step"][:]
-
     # Save for all lag times the cutted profile
     for i in len_step:
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
 
-
+    # Set bin list
     bins = [bins[i] for i in range(index_start, index_end)]
 
 
@@ -844,7 +844,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         diff_profiles[i] = [np.exp(diff_bin_vec[i][j] + diff_unit) * 10 ** 3 for j in range(len(bins))]
 
     # If infty_profile is false the profiles for the different lag times are plotted
-
     if not infty_profile:
         # Plot the profiles for the
         if is_plot:
@@ -882,7 +881,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     if is_plot:
         if not infty_profile and len(len_step) >= 2:
             legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
-            plt.legend(legend)
 
 
         # Set plot properties
@@ -890,8 +888,16 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
         plt.xlabel(r"Box length (nm)")
         plt.xlim([min(bins),max(bins)])
+        if legend:
+            plt.legend(legend)
 
-    return diff_profile_fit, diff_profiles, bins, np.mean(res_list)
+    # Check if profile was fitted
+    if not res_list:
+        res_list = 0
+    else:
+        np.mean(res_list)
+
+    return diff_profile_fit, diff_profiles, bins, res_list
 
 
 

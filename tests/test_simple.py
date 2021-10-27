@@ -447,11 +447,11 @@ class UserModelCase(unittest.TestCase):
     ###############
     # Free Energy #
     ###############
-    def test_freeenergy_mc(self):
-        # Plot free energy profile over box length
-        plt.figure()
-        pa.freeenergy.mc_profile("data/check_output.h5")
-        plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
+    # def test_freeenergy_mc(self):
+    #     # Plot free energy profile over box length
+    #     plt.figure()
+    #     pa.freeenergy.mc_profile("data/check_output.h5")
+    #     plt.savefig("output/energy_profile.pdf", format="pdf", dpi=1000)
 
 
     ##########
@@ -470,33 +470,33 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_statistics("data/check_output.h5", print_con=True)
         pa.tables.mc_lag_time("data/check_output.h5", print_con=True)
 
-    def test_diffusion_output(self):
-
-        # Check output which is not coveraged by the entire MC test
-        # Check diffusion profile function
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], infty_profile = False)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "pore", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "reservoir", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "test", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = [0,1,2], infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", section = [1,10], infty_profile = True)
-
-        # Check diffusion fitting function
-        pa.diffusion.mc_fit("data/check_output.h5", section = "pore")
-        pa.diffusion.mc_fit("data/check_output.h5", section = "reservoir")
-        pa.diffusion.mc_fit("data/check_output.h5", section = "test")
-        pa.diffusion.mc_fit("data/check_output.h5", section = [0,1,2])
-        pa.diffusion.mc_fit("data/check_output.h5", section=[0,10])
-
-        # Check transition matrix heatmap
-        pa.diffusion.mc_trans_mat("data/check_output.h5",10)
-        pa.diffusion.mc_trans_mat("data/check_output_sample.h5",10)
-
-        # Check if box not pore system
-        pa.diffusion.mc_fit("data/box_output.h5", section = "pore")
-        pa.diffusion.mc_fit("data/box_output.h5", section = "reservoir")
-        pa.diffusion.mc_profile("data/box_output.h5", section = "pore")
-        pa.diffusion.mc_profile("data/box_output.h5", section = "reservoir")
+    # def test_diffusion_output(self):
+    #
+    #     # Check output which is not coveraged by the entire MC test
+    #     # Check diffusion profile function
+    #     pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], infty_profile = False)
+    #     pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "pore", infty_profile = True)
+    #     pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "reservoir", infty_profile = True)
+    #     pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "test", infty_profile = True)
+    #     pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = [0,1,2], infty_profile = True)
+    #     pa.diffusion.mc_profile("data/check_output.h5", section = [1,10], infty_profile = True)
+    #
+    #     # Check diffusion fitting function
+    #     pa.diffusion.mc_fit("data/check_output.h5", section = "pore")
+    #     pa.diffusion.mc_fit("data/check_output.h5", section = "reservoir")
+    #     pa.diffusion.mc_fit("data/check_output.h5", section = "test")
+    #     pa.diffusion.mc_fit("data/check_output.h5", section = [0,1,2])
+    #     pa.diffusion.mc_fit("data/check_output.h5", section=[0,10])
+    #
+    #     # Check transition matrix heatmap
+    #     pa.diffusion.mc_trans_mat("data/check_output.h5",10)
+    #     pa.diffusion.mc_trans_mat("data/check_output_sample.h5",10)
+    #
+    #     # Check if box not pore system
+    #     pa.diffusion.mc_fit("data/box_output.h5", section = "pore")
+    #     pa.diffusion.mc_fit("data/box_output.h5", section = "reservoir")
+    #     pa.diffusion.mc_profile("data/box_output.h5", section = "pore")
+    #     pa.diffusion.mc_profile("data/box_output.h5", section = "reservoir")
 
 
 
