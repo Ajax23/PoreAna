@@ -76,6 +76,7 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=True, is_pbc=True, np=6)
 
+
     #########
     # Utils #
     #########
@@ -120,6 +121,8 @@ class UserModelCase(unittest.TestCase):
     # Sample #
     ##########
     def test_sample(self):
+        # self.skipTest("Temporary")
+
         print()
 
         # Define molecules
@@ -161,6 +164,8 @@ class UserModelCase(unittest.TestCase):
     # Adsorption #
     ##############
     def test_adsorption(self):
+        # self.skipTest("Temporary")
+
         # Calculate adsorption
         ads_s = pa.adsorption.calculate("output/dens_cyl_s.obj")
         ads_p = pa.adsorption.calculate("output/dens_cyl_p.obj")
@@ -175,6 +180,8 @@ class UserModelCase(unittest.TestCase):
     # Density #
     ###########
     def test_density(self):
+        # self.skipTest("Temporary")
+
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.obj", target_dens=16)
         dens_p = pa.density.bins("output/dens_cyl_p.obj", target_dens=16)
@@ -226,6 +233,8 @@ class UserModelCase(unittest.TestCase):
     # Gyration #
     ############
     def test_gyration(self):
+        # self.skipTest("Temporary")
+
         # Plot gyration radius
         plt.figure()
         mean_s = pa.gyration.bins_plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", is_mean=True)
@@ -269,6 +278,8 @@ class UserModelCase(unittest.TestCase):
     # Bin Diffusion #
     #################
     def test_diffusion_bin(self):
+        # self.skipTest("Temporary")
+
         # Bin diffusion
         plt.figure()
         pa.diffusion.bins_plot(pa.diffusion.bins("output/diff_cyl_s.obj"))
@@ -295,8 +306,6 @@ class UserModelCase(unittest.TestCase):
     ################
     # MC Diffusion #
     ################
-
-    # Test model class
     def test_diffusion_mc_model(self):
         # self.skipTest("Temporary")
 
@@ -314,8 +323,6 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
-
-    # Test MC class
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
 
@@ -357,7 +364,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
 
         #### Test Parallel ####
-        # Do the MC alogirthm
+        # Do the MC algorithm
         pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=True)
 
         # Plot diffusion coefficient over inverse lagtime
@@ -371,32 +378,30 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
-        self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
+        self.assertEqual(abs(diff[0]-(1.6) ) < 0.3, True)
+        self.assertEqual(abs(diff_pore[0]-(1.2) ) < 0.3, True)
 
         # Test MC output
-        # Set Step Model for diffusion and energy profile
+        ## Set Step Model for diffusion and energy profile
         model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10, is_print=True)
 
-        # Set Cosine Model for diffusion and energy profile
+        ## Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10, is_print=True)
 
-        # Set the MC class and options
+        ## Set the MC class and options
         model._len_step = [10]
 
-        # Do the MC alogirthm
+        ## Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=100, nmc=2000, is_print=True, is_parallel=False)
 
-
     def test_diffusion_mc_box(self):
-        # Box diffusion
         # self.skipTest("Temporary")
 
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_box.obj", 6, 10)
 
         # Set the MC class and options
-        model._len_step = [10,20,30,40,50]
+        model._len_step = [10, 20, 30, 40, 50]
 
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=10000, nmc=2000, is_print=False, is_parallel=False)
@@ -407,12 +412,12 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff[0] - (11) ) < 0.3, True)
+        self.assertEqual(abs(diff[0]-(11) ) < 0.3, True)
 
 
-    ####################################
-    # Check Transition matrix sampling #
-    ####################################
+    #####################
+    # Transition Matrix #
+    #####################
     def test_parallel_sample(self):
         # self.skipTest("Temporary")
 
@@ -441,6 +446,8 @@ class UserModelCase(unittest.TestCase):
     # Free Energy #
     ###############
     def test_freeenergy_mc(self):
+        # self.skipTest("Temporary")
+
         # Plot free energy profile over box length
         plt.figure()
         pa.freeenergy.mc_profile("data/check_output.obj")
@@ -451,6 +458,8 @@ class UserModelCase(unittest.TestCase):
     # Tables #
     ##########
     def test_tables(self):
+        # self.skipTest("Temporary")
+
         # Check tables
         pa.tables.mc_model("data/check_output.obj", print_con=False)
         pa.tables.mc_model("data/box_output.obj", print_con=False)
@@ -464,6 +473,7 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_lag_time("data/check_output.obj", print_con=True)
 
     def test_diffusion_output(self):
+        # self.skipTest("Temporary")
 
         # Check output which is not coveraged by the entire MC test
         # Check diffusion profile function
