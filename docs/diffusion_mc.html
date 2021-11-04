@@ -153,11 +153,8 @@ diffusion routine</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Set Cosine Model for diffusion and energy profile</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">CosineModel</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
-<span class="c1"># Set the MC class and options</span>
-<span class="n">MC</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">MC</span><span class="p">(</span><span class="mi">5000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<span class="c1"># Do the MC alogirthm</span>
-<span class="n">MC</span><span class="o">.</span><span class="n">do_mc_cycles</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">)</span>
+<span class="c1"># Do the MC Algorithm</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">MC</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">nmc_eq</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">nmc</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">MC</span> <span class="pre">Calculation</span> <span class="pre">Start</span></code></p>
@@ -191,7 +188,7 @@ displayed</p>
 <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit_pore</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">is_pore</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Plot diffusion profile in a pore</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">is_pore</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;is_pore&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial</span> <span class="pre">(Pore):</span> <span class="pre">1.2534e-09</span> <span class="pre">m^2/s</span></code></p>
