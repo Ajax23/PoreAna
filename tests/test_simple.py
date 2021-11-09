@@ -48,6 +48,10 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_bin("output/diff_cyl_s.obj")
         sample.sample(is_parallel=False)
 
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+        sample.sample(is_parallel=False)
+
         sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
         sample.init_density("output/dens_slit.obj")
         sample.sample(is_parallel=False, is_pbc=False)
@@ -186,6 +190,8 @@ class UserModelCase(unittest.TestCase):
         dens_s = pa.density.bins("output/dens_cyl_s.obj", target_dens=16)
         dens_p = pa.density.bins("output/dens_cyl_p.obj", target_dens=16)
 
+        dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
+
         dens_slit = pa.density.bins("output/dens_slit.obj", target_dens=997)
         dens_box = pa.density.bins("output/dens_box.obj")
 
@@ -194,6 +200,11 @@ class UserModelCase(unittest.TestCase):
         pa.density.bins_plot(dens_s, target_dens=0.146)
         pa.density.bins_plot(dens_s, target_dens=0.146, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        plt.figure()
+        pa.density.bins_plot(dens_no_remove)
+        plt.savefig("output/density_no_remove.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         plt.figure()

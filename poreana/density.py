@@ -105,6 +105,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     num_frame = inp["num_frame"]
     entry = inp["entry"]
     mass = inp["mass"]
+    remove_pore_from_res = inp["remove_pore_from_res"]
 
     # Load pore data
     if is_pore:
@@ -118,12 +119,19 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
 
     # Calculate bin volume
     volume = {}
+    ## Interior
     if is_pore and pore_type=="CYLINDER":
         volume["in"] = [math.pi*(box[2]-2*res-2*entry)*(width["in"][i+1]**2-width["in"][i]**2) for i in range(0, bin_num+1)]
-        volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
     elif is_pore and pore_type=="SLIT":
         volume["in"] = [box[0]*(box[2]-2*res-2*entry)*(width["in"][i+1]-width["in"][i])*2 for i in range(0, bin_num+1)]
-        volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-diam) for i in range(bin_num+1)]
+    ## Exterior
+    if is_pore:
+        if remove_pore_from_res and pore_type=="CYLINDER":
+            volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(diam/2)**2) for i in range(bin_num+1)]
+        elif remove_pore_from_res and pore_type=="SLIT":
+            volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-diam) for i in range(bin_num+1)]
+        else:
+            volume["ex"] = [2*width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
     else:
         volume["ex"] = [width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
 
