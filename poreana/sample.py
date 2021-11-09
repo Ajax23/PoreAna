@@ -211,7 +211,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True):
         """Enable density sampling routine.
 
         Parameters
@@ -220,10 +220,14 @@ class Sample:
             Link to output object file
         bin_num : integer, optional
             Number of bins to be used
+        remove_pore_from_res : bool, optional
+            True to remove an extended pore volume from the reservoirs to only
+            consider the reservoir space intersecting the crystal grid
         """
         # Initialize
         self._is_density = True
-        self._dens_inp = {"output": link_out, "bin_num": bin_num}
+        self._dens_inp = {"output": link_out, "bin_num": bin_num,
+                          "remove_pore_from_res": remove_pore_from_res}
 
     def _density_data(self):
         """Create density data structure.
@@ -286,7 +290,7 @@ class Sample:
 
             # Only consider reservoir space in vicinity of crystobalit
             # Remove an extended pore volume from the reservoir
-            if self._pore:
+            if self._pore and self._dens_inp["remove_pore_from_res"]:
                 is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
             else:
                 is_add = index <= bin_num
