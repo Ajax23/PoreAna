@@ -170,10 +170,10 @@ class UserModelCase(unittest.TestCase):
         ads_s = pa.adsorption.calculate("output/dens_cyl_s.obj")
         ads_p = pa.adsorption.calculate("output/dens_cyl_p.obj")
 
-        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads_s["num"]["in"], 2), 10.68)
-        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads_p["num"]["in"], 2), 10.68)
+        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.16)
+        self.assertEqual(round(ads_s["num"]["in"], 2), 11.16)
+        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.16)
+        self.assertEqual(round(ads_p["num"]["in"], 2), 11.16)
 
 
     ###########
@@ -185,11 +185,6 @@ class UserModelCase(unittest.TestCase):
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.obj", target_dens=16)
         dens_p = pa.density.bins("output/dens_cyl_p.obj", target_dens=16)
-
-        self.assertEqual(round(dens_s["dens"]["in"], 3), 12.941)
-        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.446)
-        self.assertEqual(round(dens_p["dens"]["in"], 3), 12.941)
-        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.446)
 
         dens_slit = pa.density.bins("output/dens_slit.obj", target_dens=997)
         dens_box = pa.density.bins("output/dens_box.obj")
@@ -225,6 +220,12 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/density_box.pdf", format="pdf", dpi=1000)
         # plt.show()
 
+        # Run tests
+        self.assertEqual(round(dens_s["dens"]["in"], 3), 13.089)
+        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.437)
+        self.assertEqual(round(dens_p["dens"]["in"], 3), 13.089)
+        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.437)
+
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")
 
@@ -242,11 +243,6 @@ class UserModelCase(unittest.TestCase):
         plt.figure()
         mean_p = pa.gyration.bins_plot("output/gyr_cyl_p.obj", "output/dens_cyl_p.obj")
         plt.savefig("output/gyration_p.pdf", format="pdf", dpi=1000)
-
-        self.assertEqual(round(mean_s["in"], 2), 0.12)
-        self.assertEqual(round(mean_s["ex"], 2), 0.15)
-        self.assertEqual(round(mean_p["in"], 2), 0.12)
-        self.assertEqual(round(mean_p["ex"], 2), 0.15)
 
         plt.figure()
         pa.gyration.bins_plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="in")
@@ -272,6 +268,11 @@ class UserModelCase(unittest.TestCase):
 
         print()
         pa.gyration.bins_plot("output/gyr_cyl_s.obj", "output/dens_cyl_s.obj", intent="DOTA")
+
+        self.assertEqual(round(mean_s["in"], 2), 0.13)
+        self.assertEqual(round(mean_s["ex"], 2), 0.15)
+        self.assertEqual(round(mean_p["in"], 2), 0.13)
+        self.assertEqual(round(mean_p["ex"], 2), 0.15)
 
 
     #################
@@ -299,8 +300,8 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.obj"), pa.density.bins("output/dens_cyl_p.obj"))
 
-        self.assertEqual(round(mean_s, 2), 1.13)
-        self.assertEqual(round(mean_p, 2), 1.13)
+        self.assertEqual(round(mean_s, 2), 1.11)
+        self.assertEqual(round(mean_p, 2), 1.11)
 
 
     ################

@@ -106,7 +106,6 @@ class Sample:
             self._pore_props["res"] = self._pore.reservoir()
             self._pore_props["focal"] = self._pore.centroid()
             self._pore_props["box"] = self._pore.box()
-            self._pore_props["box"][2] += 2*self._pore_props["res"]
 
             # Get pore diameter
             if isinstance(self._pore, pms.PoreCylinder):

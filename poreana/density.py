@@ -125,7 +125,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
         volume["in"] = [box[0]*(box[2]-2*res-2*entry)*(width["in"][i+1]-width["in"][i])*2 for i in range(0, bin_num+1)]
         volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-diam) for i in range(bin_num+1)]
     else:
-        volume["ex"] = [width["ex"][1]*box[0] for i in range(bin_num+1)]
+        volume["ex"] = [width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
 
     # Calculate the number density
     num_dens = {}
