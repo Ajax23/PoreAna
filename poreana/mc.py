@@ -213,7 +213,22 @@ class MC:
         # pickle directory to save late in hdf5
         dict_res = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}
 
-        utils.save_dict_to_hdf(link_out,dict_res)
+        if link_out[-3:]=="obj":
+            utils.save(dict_res,link_out)
+        elif link_out[-2:]=="h5":
+            print("Save hdf5 file")
+            utils.save_dict_to_hdf(link_out,dict_res)
+
+        # # Save txt file
+        # # Calculated diffusion coefficient
+        # diff_fit = diffusion.mc_fit(link_out)
+        # diff_prof = diffusion.mc_profile(link_out, infty_profile=True)
+        #
+        # if model._system == "pore":
+        #     diff_fit_pore = diffusion.mc_fit(link_out, section = "pore")
+        #     diff_fit_res = diffusion.mc_fit(link_out, section = "reservoir")
+        #
+        # if is_txt:
 
         return
 

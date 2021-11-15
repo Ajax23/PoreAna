@@ -917,7 +917,10 @@ class Sample:
             dict_res={system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
 
             # Save dictionary to h5-file
-            utils.save_dict_to_hdf(self._diff_mc_inp["output"],dict_res)
+            if self._diff_mc_inp["output"][-2:]=="h5":
+                utils.save_dict_to_hdf(self._diff_mc_inp["output"],dict_res)
+            if self._diff_mc_inp["output"][-3:]=="obj":
+                utils.save(dict_res,self._diff_mc_inp["output"])
 
 
     def _sample_helper(self, frame_list, shift, is_pbc):

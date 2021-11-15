@@ -8,6 +8,7 @@
 import numpy as np
 import pandas as pd
 import poreana.utils as utils
+import poreana.diffusion as diffusion
 
 ###############################
 # MC - Diffusion, Free Energy #
@@ -273,3 +274,13 @@ def mc_inputs(link_out, print_con=False):
     df_mc = df_mc.set_table_styles([dict(selector='th', props=[('text-align', 'left')])])
 
     return df_mc
+
+def mc_diffusion_results(link_out, print_con=False):
+
+    data = utils.load_hdf(link_out)
+    len_step =
+    diff = pa.diffusion.mc_fit(link_out, infty_profile=True)
+
+    if pore in data:
+        diff = pa.diffusion.mc_fit(link_out, infty_profile=True, section = "reservoir")
+        diff = pa.diffusion.mc_fit(link_out, infty_profile=True, section = "pore")

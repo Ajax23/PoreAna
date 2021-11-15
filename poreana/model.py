@@ -15,39 +15,71 @@ class Model:
 
     def __init__(self, data_link):
 
+
         # Load hdf5 data file
-        sample = utils.load_hdf(data_link)
-        inp = sample["inp"]
+        if data_link[-2:]=="h5":
+            sample = utils.load_hdf(data_link)
+            inp = sample["inp"]
+            # Read the inputs
+            self._bin_num = int(inp["bin_num"][0])               # number of bins z-direction
+            self._frame_num = int(inp["num_frame"][0])             # number of frames
+            self._len_step = inp["len_step"][:]                 # step length
+            self._dt = float(inp["len_frame"][0]) * 10**12             # frame length [ps]
+            self._bins = inp["bins"][:]                         # bins [nm]
+            self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
+            self._direction = int(inp["direction"][0])
 
-        # Read the inputs
-        self._bin_num = int(inp["bin_num"][0])               # number of bins z-direction
-        self._frame_num = int(inp["num_frame"][0])             # number of frames
-        self._len_step = inp["len_step"][:]                 # step length
-        self._dt = float(inp["len_frame"][0]) * 10**12             # frame length [ps]
-        self._bins = inp["bins"][:]                         # bins [nm]
-        self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
-        self._direction = int(inp["direction"][0])
+            self._trans_mat = {}
+            for i in sample["data"]:
+                self._trans_mat[int(i)] = sample["data"][i][:]                 # transition matrix
 
-        self._trans_mat = {}
-        for i in sample["data"]:
-            self._trans_mat[int(i)] = sample["data"][i][:]                 # transition matrix
+            if inp["is_pbc"][0]==1:
+                self._pbc = True                     # pbc or nopbc
+            else:
+                self._pbc = False
 
-        if inp["is_pbc"][0]==1:
-            self._pbc = True                     # pbc or nopbc
-        else:
-            self._pbc = False
+            self._sys_props = {}
+            if "pore" in sample:
+                self._sys_props["type"] = sample["pore"]["type"][0].decode("utf-8")
+                self._sys_props["res"] = float(sample["pore"]["res"][0])
+                self._sys_props["focal"] = sample["pore"]["focal"][:]
+                self._sys_props["box"] = sample["pore"]["box"][:]
+                self._sys_props["diam"] = float(sample["pore"]["diam"][0])
+                self._system = "pore"
+            if "box" in sample:
+                self._system = "box"
+                self._sys_props = sample["box"]["length"][:]
 
-        self._sys_props = {}
-        if "pore" in sample:
-            self._sys_props["type"] = sample["pore"]["type"][0].decode("utf-8")
-            self._sys_props["res"] = float(sample["pore"]["res"][0])
-            self._sys_props["focal"] = sample["pore"]["focal"][:]
-            self._sys_props["box"] = sample["pore"]["box"][:]
-            self._sys_props["diam"] = float(sample["pore"]["diam"][0])
-            self._system = "pore"
-        if "box" in sample:
-            self._system = "box"
-            self._sys_props = sample["box"]["length"][:]
+        elif data_link[-3:]=="obj":
+            sample = utils.load(data_link)
+            inp = sample["inp"]
+            # Read the inputs
+            self._bin_num = int(inp["bin_num"])               # number of bins z-direction
+            self._frame_num = int(inp["num_frame"])             # number of frames
+            self._len_step = inp["len_step"]                 # step length
+            self._dt = float(inp["len_frame"]) * 10**12             # frame length [ps]
+            self._bins = inp["bins"]                         # bins [nm]
+            self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
+            self._direction = int(inp["direction"])
+
+            self._trans_mat = {}
+            for i in sample["data"]:
+                self._trans_mat[int(i)] = sample["data"][i]                 # transition matrix
+
+            self._pbc = inp["is_pbc"]                    # pbc or nopbc
+            
+            self._sys_props = {}
+            if "pore" in sample:
+                self._sys_props["type"] = sample["pore"]["type"]
+                self._sys_props["res"] = float(sample["pore"]["res"])
+                self._sys_props["focal"] = sample["pore"]["focal"]
+                self._sys_props["box"] = sample["pore"]["box"]
+                self._sys_props["diam"] = float(sample["pore"]["diam"])
+                self._system = "pore"
+            if "box" in sample:
+                self._system = "box"
+                self._sys_props = sample["box"]["length"]
+
 
         # Initialize units of diffusion and free energy unit
         self._df_unit = 1.                                 # in kBT
