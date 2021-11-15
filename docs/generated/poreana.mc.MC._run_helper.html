@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MC.do_mc_cycles &#8212; PoreAna 0.2.1 documentation</title>
+    <title>MC._run_helper &#8212; PoreAna 0.2.1 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
@@ -80,7 +80,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">MC.do_mc_cycles</a></li>
+<li><a class="reference internal" href="#">MC._run_helper</a></li>
 </ul>
 </ul>
 </li>
@@ -111,27 +111,12 @@
     <div class="body col-md-12 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="mc-do-mc-cycles">
-<h1>MC.do_mc_cycles<a class="headerlink" href="#mc-do-mc-cycles" title="Permalink to this headline">¶</a></h1>
+<div class=col-md-9 content><div class="section" id="mc-run-helper">
+<h1>MC._run_helper<a class="headerlink" href="#mc-run-helper" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
-<dt id="poreana.mc.MC.do_mc_cycles">
-<code class="descclassname">MC.</code><code class="descname">do_mc_cycles</code><span class="sig-paren">(</span><em>model</em>, <em>link_out</em>, <em>do_radial=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC.do_mc_cycles" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function do the MC Cycle to calculate the diffusion and free
-energy profile over the bins and save the results in an output object
-file. This happens with the adjustment of the coefficient from the model
-which is set with the appropriate model class. The code determines the
-results for all lag times for which a transition matrix was calculated.
-The results can be displayed with the post process functions.</p>
-<p>The MC accepted criterium for a MC step is define as</p>
-<div class="math">
-\[r &lt; \exp \left ( \frac{L_\text{new} - L_\text{old}}{T}  \right)\]</div>
-<p>with <span class="math">\(T\)</span> as the temperature, <span class="math">\(r\)</span> as a random number between
-<span class="math">\(0\)</span> and <span class="math">\(1\)</span> and <span class="math">\(L_\text{new}\)</span> and
-<span class="math">\(L_\text{old}\)</span> as the likelihood for the current and the last
-step. The likelihood is calculated with <a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-func docutils literal"><span class="pre">_log_likelihood_z()</span></code></a>
-function.</p>
-<p>Information about a single MC step can be find in
-<a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_diffusion()</span></code></a> or <a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_df()</span></code></a></p>
+<dt id="poreana.mc.MC._run_helper">
+<code class="descclassname">MC.</code><code class="descname">_run_helper</code><span class="sig-paren">(</span><em>model</em>, <em>len_step</em>, <em>do_radial</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC._run_helper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function for MC run</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -140,11 +125,14 @@ function.</p>
 <dt><strong>model</strong> <span class="classifier-delimiter">:</span> <span class="classifier">class</span></dt>
 <dd><p class="first last">Model object which set before with the model class</p>
 </dd>
-<dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to output object file</p>
+<dt><strong>len_step</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
+<dd><p class="first last">List of step length</p>
 </dd>
 <dt><strong>do_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
 <dd><p class="first last">True to calculate the radial diffusion</p>
+</dd>
+<dt><strong>Returns</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd><p class="first last">Dictionary containing all MC results</p>
 </dd>
 </dl>
 </td>

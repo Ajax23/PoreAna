@@ -51,7 +51,7 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
 
     # Load model inputs
     model = data["model"]
-    dt = model["len_frame"]
+    dt = float(model["len_frame"][0])
     bins = model["bins"]
 
     # If no specific step length is chosen take the step length from the object file
@@ -59,7 +59,7 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
         len_step = model["len_step"][:]
 
     # Set legend
-    legend = ["$\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+    legend = ["$\\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # Plot the free energy profiles
     if is_plot:

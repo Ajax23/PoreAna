@@ -321,7 +321,7 @@ class UserModelCase(unittest.TestCase):
 
     # Test MC class
     def test_diffusion_mc_mc(self):
-        # self.skipTest("Temporary")
+        #self.skipTest("Temporary")
 
         # Pore diffusion
         # Set Cosine Model for diffusion and energy profile
@@ -509,6 +509,7 @@ class UserModelCase(unittest.TestCase):
     #     pa.diffusion.mc_fit("data/box_output.h5", section = "reservoir")
     #     pa.diffusion.mc_profile("data/box_output.h5", section = "pore")
     #     pa.diffusion.mc_profile("data/box_output.h5", section = "reservoir")
+
 
 
 if __name__ == '__main__':

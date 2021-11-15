@@ -383,6 +383,7 @@ def mc_trans_mat(link, step, kwargs={}):
         Dictionary with plotting parameters
     """
     # Load results from the output object file
+
     if link[-2:]=="h5":
         data = utils.load_hdf(link)
 
@@ -424,6 +425,7 @@ def mc_trans_mat(link, step, kwargs={}):
                 trans_mat[int(i)] = model["data"][i]
             frame_num = model["num_frame"]
             frame_length = model["len_frame"] * 10**12
+
 
 
     # Set title with selected lag time
@@ -728,7 +730,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
         plt.ylim(0, 1.5*max(fit(x_vec)))
         sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_scatter)
         sns.lineplot(x=x_vec, y=fit(x_vec), **kwargs_line)
-        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\Delta t_{\\alpha})$"]
+        legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\\Delta t_{\\alpha})$"]
         plt.legend(legend)
         plt.xlabel(r"Inverse lag time ($10^{12} \ \mathrm{s^{-1}})$")
         plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
@@ -838,6 +840,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
             res = float(pore["res"])
             box = pore["box"]
 
+
     # Set dictionaries
     legend = []
     diff_bin_vec = {}
@@ -851,7 +854,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         # Load pore system
         if "pore" in data:
             # Set section
-            area = [res, box[2]-res]
+            area = [res, box[2]-res-2*(bins[1]-bins[0])]
 
         # If only the pore area should be considered
         else:
@@ -893,12 +896,11 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     index_start = np.digitize(area[0], bins)
     index_end = np.digitize(area[1], bins)
 
-
     # Save for all lag times the cutted profile
     for i in len_step:
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
 
-
+    # Set bin list
     bins = [bins[i] for i in range(index_start, index_end)]
 
 
@@ -911,7 +913,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         diff_profiles[i] = [np.exp(diff_bin_vec[i][j] + diff_unit) * 10 ** 3 for j in range(len(bins))]
 
     # If infty_profile is false the profiles for the different lag times are plotted
-
     if not infty_profile:
         # Plot the profiles for the
         if is_plot:
@@ -919,7 +920,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
                 sns.lineplot(x=bins, y=(diff_profiles[i]), **kwargs)       # Diffusion in m^2/s
 
         # Plot the diffusion profiles for the different lag times
-        legend = ["$\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
+        legend = ["$\\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]
 
     # If infty_profile is True the diffusion profile for a infinity lag times is shwon
     if len(len_step) >= 2 and infty_profile:
@@ -948,8 +949,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     # Set legend for lag times
     if is_plot:
         if not infty_profile and len(len_step) >= 2:
-            legend.append("$\Delta t_{\\alpha} \rightarrow \\infty$ ps")
-            plt.legend(legend)
+            legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
 
 
         # Set plot properties
@@ -957,8 +957,16 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
         plt.xlabel(r"Box length (nm)")
         plt.xlim([min(bins),max(bins)])
+        if legend:
+            plt.legend(legend)
 
-    return diff_profile_fit, diff_profiles, bins, np.mean(res_list)
+    # Check if profile was fitted
+    if not res_list:
+        res_list = 0
+    else:
+        np.mean(res_list)
+
+    return diff_profile_fit, diff_profiles, bins, res_list
 
 
 

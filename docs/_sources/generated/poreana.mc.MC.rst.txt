@@ -23,4 +23,5 @@ MC
       ~MC._mcmove_df
       ~MC._mcmove_diffusion
       ~MC._update_movewidth_mc
-      ~MC.do_mc_cycles
+      ~MC._run_helper
+      ~MC.run
