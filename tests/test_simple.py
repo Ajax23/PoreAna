@@ -325,14 +325,14 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
         # Check step model
         model = pa.StepModel("output/diff_mc_cyl_s.obj", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
     def test_diffusion_mc_mc(self):
@@ -344,15 +344,15 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 1
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-149002.38)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-153141.72)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 2
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-168732.83)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-173915.99)
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 10
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -233148.79)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -238590.92)
 
         # Set len_step for MC run test
         model._len_step = [10,20,30,40]
@@ -416,7 +416,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10, 20, 30, 40, 50]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=10000, nmc=2000, is_print=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc_box.obj", nmc_eq=10000, nmc=1000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
