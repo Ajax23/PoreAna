@@ -40,23 +40,20 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
     """
 
     # Load Results from the output object file
-    data = utils.load_hdf(link)
-
-    df_bin = {}
+    data = utils.load(link)
 
     # Load results
     results = data["output"]
-    for i in results["df_profile"]:
-        df_bin[int(i)] = results["df_profile"][i][:]
+    df_bin = results["df_profile"]
 
     # Load model inputs
     model = data["model"]
-    dt = float(model["len_frame"][0])
+    dt = model["len_frame"]
     bins = model["bins"]
 
     # If no specific step length is chosen take the step length from the object file
     if not len_step:
-        len_step = model["len_step"][:]
+        len_step = model["len_step"]
 
     # Set legend
     legend = ["$\\Delta t_{\\alpha}$ = " + str(len_step[i] * dt) + " ps" for i in range(len(len_step))]

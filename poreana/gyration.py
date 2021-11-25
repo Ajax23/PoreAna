@@ -44,12 +44,13 @@ def bins_plot(data_link_gyr, data_link_dens, intent="", is_mean=False, is_norm=F
         Mean value of the radius of gyration inside and outside the pore in nm
     """
     # Load data
-    gyr = h5py.File(data_link_gyr,'r')
-    dens = h5py.File(data_link_dens,'r')
+    gyr = utils.load(data_link_gyr)
+    dens = utils.load(data_link_dens)
+
     is_pore = "pore" in gyr
     width = {}
     width["in"] = gyr["data"]["in_width"][:-1] if is_pore else []
-    width["ex"] = gyr["data"]["ex_width"][:]
+    width["ex"] = gyr["data"]["ex_width"]
 
     if is_norm:
         for key, val in width.items():

@@ -91,15 +91,15 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
         True to create plot in this function
     """
     # Load data object
-    sample = utils.load_hdf(data_link)
+    sample = utils.load(data_link)
 
     # Load data
     pore = sample["pore"]
     inp = sample["inp"]
-    len_window = int(inp["len_window"][0])
-    len_step = int(inp["len_step"][0])
-    len_frame = float(inp["len_frame"][0])
-    bins = int(inp["bin_num"][0]) if not z_dist else math.floor(z_dist/sample["data"]["width"][1])
+    len_window = int(inp["len_window"])
+    len_step = inp["len_step"]
+    len_frame = inp["len_frame"]
+    bins = int(inp["bin_num"]) if not z_dist else math.floor(z_dist/sample["data"]["width"])
     msd_z = [0 for x in range(len_window)]
     msd_r = [0 for x in range(len_window)]
     norm_z = [0 for x in range(len_window)]
@@ -111,7 +111,7 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
             msd_z[j] += sample["data"]["z_tot"][i][j]
             norm_z[j] += sample["data"]["n_tot"][i][j]
 
-    for i in range(int(inp["bin_num"][0])):
+    for i in range(int(inp["bin_num"])):
         for j in range(len_window):
             msd_r[j] += sample["data"]["r_tot"][i][j]
             norm_r[j] += sample["data"]["n_tot"][i][j]
@@ -144,7 +144,7 @@ def cui(data_link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plo
             return [c**2*(1-sum(s)) for s in sm]
 
         # Fit function
-        popt, pcov = sp.optimize.curve_fit(diff_rad, [x*1e12 for x in time_ax], msd_r_n, p0=[1, 20, float(pore["diam"][0])/2-0.2], bounds=(0, np.inf))
+        popt, pcov = sp.optimize.curve_fit(diff_rad, [x*1e12 for x in time_ax], msd_r_n, p0=[1, 20, float(pore["diam"])/2-0.2], bounds=(0, np.inf))
 
         print("Diffusion radial: "+"%.3f" % (popt[0]*1e3)+" 10^-9 m^2 s^-1; Number of zeros: "+"%2i" % (math.ceil(popt[1]))+"; Radius: "+"%5.2f" % popt[2])
 
@@ -219,26 +219,26 @@ def bins(data_link, ax_area=[0.2, 0.8], is_norm=False):
         List of the slope of the non-normalized diffusion coefficient
     """
     # Load data object
-    sample = utils.load_hdf(data_link)
+    sample = utils.load(data_link)
 
     # Load data
     inp = sample["inp"]
     width = sample["data"]["width"]
     msd_z = sample["data"]["z"]
     norm = sample["data"]["n"]
-    len_window = int(inp["len_window"][0])
-    len_step = int(inp["len_step"][0])
-    len_frame = float(inp["len_frame"][0])
+    len_window = int(inp["len_window"])
+    len_step = inp["len_step"]
+    len_frame = inp["len_frame"]
 
 
     # Normalize
-    msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(len_window)] for i in range(int(inp["bin_num"][0])+1)]
+    msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(len_window)] for i in range(int(inp["bin_num"])+1)]
 
     # Calculate slope
     f_start = int(ax_area[0]*len_window)
     f_end = int(ax_area[1]*len_window)
     time_ax = [x*len_step*len_frame for x in range(len_window)]
-    slope = [(msd_norm[i][f_end]-msd_norm[i][f_start])/(time_ax[f_end]-time_ax[f_start]) for i in range(int(inp["bin_num"][0])+1)]
+    slope = [(msd_norm[i][f_end]-msd_norm[i][f_start])/(time_ax[f_end]-time_ax[f_start]) for i in range(int(inp["bin_num"])+1)]
 
     # Calculate diffusion coefficient
     diff = [msd*1e-9**2/2*1e2**2*1e5 for msd in slope]  # 10^-9 m^2s^-1
@@ -383,49 +383,25 @@ def mc_trans_mat(link, step, kwargs={}):
         Dictionary with plotting parameters
     """
     # Load results from the output object file
+    data = utils.load(link)
 
-    if link[-2:]=="h5":
-        data = utils.load_hdf(link)
+    # Sample obj file is loaded
+    if "data" in data:
+        trans_mat = {}
+        for i in data["data"]:
+            trans_mat[int(i)] = data["data"][i][:]
+        inp = data["inp"]
+        frame_num = inp["num_frame"]
+        frame_length = inp["len_frame"] * 10**12
 
-        # Sample obj file is loaded
-        if "data" in data:
-            trans_mat = {}
-            for i in data["data"]:
-                trans_mat[int(i)] = data["data"][i][:]
-            inp = data["inp"]
-            frame_num = int(inp["num_frame"][0])
-            frame_length = float(inp["len_frame"][0]) * 10**12
-
-        # MC obj file is loaded
-        else:
-            model = data["model"]
-            trans_mat = {}
-            for i in model["data"]:
-                trans_mat[int(i)] = model["data"][i][:]
-            frame_num = int(model["num_frame"][0])
-            frame_length = float(model["len_frame"][0]) * 10**12
-
-
-    elif link[-3:]=="obj":
-        data = utils.load(link)
-        # Sample obj file is loaded
-        if "data" in data:
-            trans_mat = {}
-            for i in data["data"]:
-                trans_mat[int(i)] = data["data"][i]
-            inp = data["inp"]
-            frame_num = inp["num_frame"]
-            frame_length = inp["len_frame"] * 10**12
-
-        # MC obj file is loaded
-        else:
-            model = data["model"]
-            trans_mat = {}
-            for i in model["data"]:
-                trans_mat[int(i)] = model["data"][i]
-            frame_num = model["num_frame"]
-            frame_length = model["len_frame"] * 10**12
-
+    # MC obj file is loaded
+    else:
+        model = data["model"]
+        trans_mat = {}
+        for i in model["data"]:
+            trans_mat[int(i)] = model["data"][i]
+        frame_num = model["num_frame"]
+        frame_length = model["len_frame"] * 10**12
 
 
     # Set title with selected lag time
@@ -506,60 +482,31 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     res : float
         residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the selected lag times
     """
-    # Load results file in hdf5 format
-    if link[-2:]=="h5":
-        data = utils.load_hdf(link)
-        # Load results
-        results = data["output"]
-        diff_bin = {}
-        for i in results["diff_profile"]:
-            diff_bin[int(i)] = results["diff_profile"][i][:]
 
-        # Load model inputs
-        model = data["model"]
-        diff_unit = float(model["diffusion unit"][0])
-        bins = model["bins"][:]
-        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-        dt = float(model["len_frame"][0])
+    # Load data
+    data = utils.load(link)
 
-        # If no specific step length is chosen take the step length from the object file
-        if not len_step:
-            len_step = model["len_step"][:]
-        # If a pore system is considered
-        if "pore" in data:
-            pore = data["pore"]
-            res = float(pore["res"][0])
-            box = pore["box"][:]
 
-    # Load results file in obj format
-    elif link[-3:]=="obj":
-        data = utils.load(link)
-        # Load results
-        results = data["output"]
-        diff_bin = {}
-        for i in results["diff_profile"]:
-            diff_bin[int(i)] = results["diff_profile"][i]
+    results = data["output"]
+    diff_bin = results["diff_profile"]
+    model = data["model"]
+    bins = model["bins"]
+    dt = model["len_frame"]
+    diff_unit = model["diffusion unit"]
 
-        # Load model inputs
-        model = data["model"]
-        diff_unit = float(model["diffusion unit"])
-        bins = model["bins"][:]
-        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-        dt = float(model["len_frame"])
+    # If no specific step length is chosen take the step length from the object file
+    if not len_step:
+        len_step = model["len_step"]
 
-        # If no specific step length is chosen take the step length from the object file
-        if not len_step:
-            len_step = model["len_step"]
-
-        # If a pore system is considered
-        if "pore" in data:
-            pore = data["pore"]
-            res = float(pore["res"])
-            box = pore["box"]
+    # If a pore system is considered
+    if "pore" in data:
+        pore = data["pore"]
+        res = float(pore["res"])
+        box = pore["box"]
 
     # Set vector
     diff_bin_vec = {}
-    print(list(len_step))
+
     # Pore
     if isinstance(section, str) and section== "pore":
         # If only the pore area should be considered
@@ -650,7 +597,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
 
     # Calculate the inverse lag time (1/s) for the linear fit
     lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
-    print(lagtime_inverse)
+
     # Fit a linear line
     fit = np.poly1d(np.polyfit(lagtime_inverse, D_mean, 1))
 
@@ -739,7 +686,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
 
 
 
-def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True, kwargs={}):
+def mc_profile(link, len_step=[], section=[], infty_profile=False,  is_plot=True, kwargs={}):
     """This function plots the diffusion profile for an infinity
     lag time (:math:`\\Delta t_{\\alpha} \\rightarrow \\infty`) over the box
     fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}` list.
@@ -789,56 +736,28 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the infinite diffusion profile
     """
 
+    # Load data
+    data = utils.load(link)
 
-    if link[-2:]=="h5":
-        data = utils.load_hdf(link)
-        # Load results
-        results = data["output"]
-        diff_bin = {}
-        for i in results["diff_profile"]:
-            diff_bin[int(i)] = results["diff_profile"][i][:]
+    # Load results
+    results = data["output"]
+    diff_bin = results["diff_profile"]
 
-        # Load model inputs
-        model = data["model"]
-        diff_unit = float(model["diffusion unit"][0])
-        bins = model["bins"][:]
-        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-        dt = int(model["len_frame"][0])
+    # Load model inputs
+    model = data["model"]
+    diff_unit = model["diffusion unit"]
+    bins = model["bins"]
+    dt = model["len_frame"]
 
-        # If no specific step length is chosen take the step length from the object file
-        if not len_step:
-            len_step = model["len_step"][:]
-        # If a pore system is considered
-        if "pore" in data:
-            pore = data["pore"]
-            res = float(pore["res"][0])
-            box = pore["box"][:]
+    # If no specific step length is chosen take the step length from the object file
+    if not len_step:
+        len_step = model["len_step"]
 
-    # Load results file in obj format
-    elif link[-3:]=="obj":
-        data = utils.load(link)
-        # Load results
-        results = data["output"]
-        diff_bin = {}
-        for i in results["diff_profile"]:
-            diff_bin[int(i)] = results["diff_profile"][i]
-
-        # Load model inputs
-        model = data["model"]
-        diff_unit = float(model["diffusion unit"])
-        bins = model["bins"][:]
-        bins = [(bins[i] + (bins[1]-bins[0])) for i in range(len(bins))]
-        dt = int(model["len_frame"])
-
-        # If no specific step length is chosen take the step length from the object file
-        if not len_step:
-            len_step = model["len_step"]
-
-        # If a pore system is considered
-        if "pore" in data:
-            pore = data["pore"]
-            res = float(pore["res"])
-            box = pore["box"]
+    # If a pore system is considered
+    if "pore" in data:
+        pore = data["pore"]
+        res = pore["res"]
+        box = pore["box"]
 
 
     # Set dictionaries

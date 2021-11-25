@@ -864,8 +864,8 @@ class Sample:
                     data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
             # Pickle
-            dict_res = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}
-            utils.save_dict_to_hdf(self._dens_inp["output"],dict_res)
+            results = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}
+            utils.save(results, self._dens_inp["output"])
 
         if self._is_gyration:
             inp_gyr = inp.copy()
@@ -877,8 +877,8 @@ class Sample:
                     data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
             # Pickle
-            dict_res = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}
-            utils.save_dict_to_hdf(self._gyr_inp["output"],dict_res)
+            results = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}
+            utils.save(results, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
             inp_diff = inp.copy()
@@ -895,9 +895,8 @@ class Sample:
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
             # Pickle
-            dict_res = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
-            utils.save_dict_to_hdf(self._diff_bin_inp["output"],dict_res)
-
+            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            utils.save(results, self._diff_bin_inp["output"])
 
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
@@ -914,13 +913,10 @@ class Sample:
 
 
             # Save results in dictionary
-            dict_res={system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
 
             # Save dictionary to h5-file
-            if self._diff_mc_inp["output"][-2:]=="h5":
-                utils.save_dict_to_hdf(self._diff_mc_inp["output"],dict_res)
-            if self._diff_mc_inp["output"][-3:]=="obj":
-                utils.save(dict_res,self._diff_mc_inp["output"])
+            utils.save(results, self._diff_mc_inp["output"])
 
 
     def _sample_helper(self, frame_list, shift, is_pbc):

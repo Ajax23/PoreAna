@@ -41,29 +41,29 @@ def calculate(link_data, res_cutoff=1, is_normalize=True):
         :math:`\\left[\\frac{\\text{mmol}}{\\text{l}}\\ ,\\frac{\\mu\\text{mol}}{\\text{m}^2}\\right]`
     """
     # Load data object
-    sample = h5py.File(link_data,'r')
+    sample = utils.load(link_data)
 
     # Load pore properties
     pore = sample["pore"]
-    res = float(pore["res"][0])
-    diam = float(pore["diam"][0])
-    box = pore["box"][:]
+    res = pore["res"]
+    diam = pore["diam"]
+    box = pore["box"]
     box[2] -= 2*res
 
     # Load bins
     bins = {}
-    bins["in"] = sample["data"]["in"][:]
-    bins["ex"] = sample["data"]["ex"][:]
+    bins["in"] = sample["data"]["in"]
+    bins["ex"] = sample["data"]["ex"]
 
     # Load Width
     width = {}
-    width["in"] = sample["data"]["in_width"][:]
-    width["ex"] = sample["data"]["ex_width"][:]
+    width["in"] = sample["data"]["in_width"]
+    width["ex"] = sample["data"]["ex_width"]
 
     # Load input data
     inp = sample["inp"]
-    num_frames = int(inp["num_frame"][0])
-    entry = float(inp["entry"][0])
+    num_frames = inp["num_frame"]
+    entry = inp["entry"]
 
     # Calculate number of molecules
     num = {}

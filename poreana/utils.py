@@ -11,6 +11,7 @@ import pickle
 import h5py
 import numpy as np
 import poreana.diffusion as diffusion
+import poreana.tables as tables
 
 
 def mkdirp(directory):
@@ -90,7 +91,7 @@ def toc(t, message="", is_print=True):
 
 
 def save(obj, link):
-    """Save an object using pickle in the specified link.
+    """Save an object or hdf5 file using pickle in the specified link.
 
     Parameters
     ----------
@@ -99,12 +100,51 @@ def save(obj, link):
     link : string
         Specific link to save object
     """
-    with open(link, "wb") as f:
-        pickle.dump(obj, f)
+
+    if link[-3:]=="obj":
+        with open(link, "wb") as f:
+            pickle.dump(obj, f)
+
+    elif link[-2:]=="h5":
+        # Save results in a hdf5 file
+        f = h5py.File(link, 'w')
+
+        # Create input groupe
+        groups = {}
+        data_base = {}
+
+        for key in obj.keys():
+            groups[key] = f.create_group(key)
+            if not key =="box":
+                data_base[key] = obj[key].keys()
+        #print(groups)
+        for gkey in groups:
+            if not gkey =="box":
+                for base in data_base[gkey]:
+                    if isinstance(obj[gkey][base],dict):
+                        data = groups[gkey].create_group(base)
+                        for base2 in obj[gkey][base]:
+                            if isinstance(obj[gkey][base][base2],(list, np.ndarray)) :
+                                data.create_dataset(str(base2),data = obj[gkey][base][base2])
+                            else:
+                                value = data.create_dataset(str(base2), shape=(1,1),dtype=type(obj[gkey][base][base2]))
+                                value[0] = obj[gkey][base][base2]
+
+                    elif isinstance(obj[gkey][base],str):
+                        dt = h5py.special_dtype(vlen=str)
+                        string = groups[gkey].create_dataset(str(base), (1), dtype=dt)
+                        string[0] = obj[gkey][base]
+                    elif isinstance(obj[gkey][base],(list, np.ndarray)):
+                        data = groups[gkey].create_dataset(str(base), data = obj[gkey][base])
+                    else:
+                        data = groups[gkey].create_dataset(str(base), shape=(1,1))
+                        data[0] = obj[gkey][base]
+            else:
+                groups[gkey].create_dataset("length",data = obj[gkey])
 
 
 def load(link):
-    """Load pickled object from the specified folder.
+    """Load pickled object or a hdf5 file from the specified folder.
 
     Parameters
     ----------
@@ -116,71 +156,36 @@ def load(link):
     obj : Object
         Loaded object
     """
-    with open(link, 'rb') as f:
-        return pickle.load(f)
+    if link[-3:]=="obj":
+        with open(link, 'rb') as f:
+            return pickle.load(f)
+    elif link[-2:]=="h5":
+        data = h5py.File(link, 'r')
+        data_load = {}
 
-def load_hdf(link):
-    """Load hdf5 file from the specified folder.
-
-    Parameters
-    ----------
-    link : string
-        Specific link to hdf5 file
-
-    Returns
-    -------
-    f : Object
-        Loaded hdf5 file
-    """
-    f = h5py.File(link, 'r')
-    return f
-
-def save_dict_to_hdf(link, pickle):
-    """ This function saves the output directory in a hdf5 file.
-
-    Parameters
-    ----------
-    link : string
-        Link to output hdf5 file
-    pickle : dict
-        dictionary which should be saved
-    """
-    # Save results in a hdf5 file
-    f = h5py.File(link, 'w')
-
-    # Create input groupe
-    keys = pickle.keys()
-    groups = {}
-    data_base = {}
-
-    for i in keys:
-        groups[i] = f.create_group(i)
-        if not i =="box":
-            data_base[i] = pickle[i].keys()
-
-    for i in groups:
-        if not i =="box":
-            for j in data_base[i]:
-                if isinstance(pickle[i][j],dict):
-                    data = groups[i].create_group(j)
-                    for z in pickle[i][j]:
-                        if isinstance(pickle[i][j][z],(list, np.ndarray)) :
-                            data.create_dataset(str(z),data = pickle[i][j][z])
+        for keys in data.keys():
+            data_load[keys] = {}
+            if keys=="data":
+                for keys2 in data[keys].keys():
+                    try:
+                        data_load[keys][int(keys2)] = data[keys][keys2][:]
+                    except:
+                        data_load[keys][keys2] = data[keys][keys2][:]
+            else:
+                for keys2 in data[keys].keys():
+                    data_load[keys][keys2] = {}
+                    try:
+                        for keys3 in data[keys][keys2].keys():
+                            data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
+                    except:
+                        if len(data[keys][keys2][:])==1:
+                            try:
+                                data_load[keys][keys2] = float(data[keys][keys2][0])
+                            except:
+                                data_load[keys][keys2] = data[keys][keys2][0].decode("utf-8")
                         else:
-                            value = data.create_dataset(str(z), shape=(1,1))
-                            value[0] = pickle[i][j][z]
-
-                elif isinstance(pickle[i][j],str):
-                    dt = h5py.special_dtype(vlen=str)
-                    string = groups[i].create_dataset(str(j), (1), dtype=dt)
-                    string[0] = pickle[i][j]
-                elif isinstance(pickle[i][j],(list, np.ndarray)):
-                    data = groups[i].create_dataset(str(j), data = pickle[i][j])
-                else:
-                    data = groups[i].create_dataset(str(j), shape=(1,1))
-                    data[0] = pickle[i][j]
-        else:
-            groups[i].create_dataset("length",data = pickle[i])
+                            data_load[keys][keys2] = data[keys][keys2][:]
+        return data_load
 
 def file_to_text(link):
     """ This function converts an output directory in txt file.
@@ -194,61 +199,62 @@ def file_to_text(link):
     """
 
     # Load data
+    data = load(link)
+
     # Step Länge etc
     if link[-2:]=="h5":
-        data = load_hdf(link)
         link_txt = link[:-2] + "txt"
-        if "pore" in data:
-            system = "pore"
-            pore = data["pore"]
-            res = float(pore["res"][0])
-            diam = float(pore["diam"][0])
-            box = pore["box"][:]
-            type = pore["type"][0].decode("utf-8")
-            diff_fit_pore = diffusion.mc_fit(link, section = "pore", is_print=False)
-            diff_fit_res = diffusion.mc_fit(link, section = "reservoir", is_print=False)
-        if "box" in data:
-            system = "box"
-            box_group = data["box"]
-            box = box_group["length"]
     elif link[-3:]=="obj":
-        data = load(link)
         link_txt = link[:-3] + "txt"
-        if "pore" in data:
-            system = "pore"
-            pore = data["pore"]
-            res = float(pore["res"])
-            diam = float(pore["diam"])
-            box = pore["box"]
-            type = pore["type"]
-            diff_fit_pore = diffusion.mc_fit(link, section = "pore", is_print=False)
-            diff_fit_res = diffusion.mc_fit(link, section = "reservoir", is_print=False)
-        if "box" in data:
-            system = "box"
-            box_group = data["box"]
-            box = box_group["length"]
+
+    if "pore" in data:
+        system = "pore"
+        pore = data["pore"]
+        res = float(pore["res"])
+        diam = float(pore["diam"])
+        box = pore["box"]
+        type = pore["type"]
+    if "box" in data:
+        system = "box"
+        box_group = data["box"]
+        box = box_group["length"]
 
     # # Save txt file
     # # Calculated diffusion coefficient
-    diff_fit = diffusion.mc_fit(link, is_print=False)
+    #diff_fit = diffusion.mc_fit(link, is_print=False)
+    df_inputs = tables.mc_inputs(link, print_con=False)
+    df_model = tables.mc_model(link, print_con=False)
+    df_results = tables.mc_results(link, print_con=False)
     with open(link_txt, 'w') as file:
-        file.write("This file was created by PoreAna Package\n\n")
-        file.write("Analyzed system: " + system + "\n\n")
-        file.write("\tBox: " + str(box) + "\n\n")
-        if system == "pore":
-            file.write("\tPore Type: " + type + "\n")
-            file.write("\tReservoir: " + str(res) + "\n")
-            file.write("\tDiameter: " + str(diam) + "\n\n")
-        file.write("Diffusion analysis for the whole system:\n\n")
-        file.write("\tDiffusion axial: "+"%.4e" % (diff_fit[0] * 10 **-9) + " m^2/s\n")
-        file.write("\tResidual: "+"%.4e" % (diff_fit[3] * 10 **-9) + " m^2/s\n\n")
-        if system == "pore":
-            file.write("Diffusion analysis for the pore:\n\n")
-            file.write("\tDiffusion axial: "+"%.4e" % (diff_fit_pore[0] * 10 **-9) + " m^2/s\n")
-            file.write("\tResidual: "+"%.4e" % (diff_fit_pore[3] * 10 **-9) + " m^2/s\n\n")
-            file.write("Diffusion analysis for the reservoir:\n\n")
-            file.write("\tDiffusion axial: "+"%.4e" % (diff_fit_res[0] * 10 **-9) + " m^2/s\n")
-            file.write("\tResidual: "+"%.4e" % (diff_fit_res[3] * 10 **-9) + " m^2/s\n\n")
+        df_model_string = df_model.to_string(header=True, index=True)
+        df_inputs_string = df_inputs.to_string(header=True, index=True)
+        df_results_string = df_results.to_string(header=True, index=True)
+        #dfAsString = df.to_string(header=True, index=True)
+        file.write("Model Inputs\n")
+        file.write(df_model_string)
+        file.write("\n\n\n")
+        file.write("MC Inputs\n")
+        file.write(df_inputs_string)
+        file.write("\n\n\n")
+        file.write("MC Results\n")
+        file.write(df_results_string)
+        # file.write("This file was created by PoreAna Package\n\n")
+        # file.write("Analyzed system: " + system + "\n\n")
+        # file.write("\tBox: " + str(box) + "\n\n")
+        # if system == "pore":
+        #     file.write("\tPore Type: " + type + "\n")
+        #     file.write("\tReservoir: " + str(res) + "\n")
+        #     file.write("\tDiameter: " + str(diam) + "\n\n")
+        # file.write("Diffusion analysis for the whole system:\n\n")
+        # file.write("\tDiffusion axial: "+"%.4e" % (diff_fit[0] * 10 **-9) + " m^2/s\n")
+        # file.write("\tResidual: "+"%.4e" % (diff_fit[3] * 10 **-9) + " m^2/s\n\n")
+        # if system == "pore":
+        #     file.write("Diffusion analysis for the pore:\n\n")
+        #     file.write("\tDiffusion axial: "+"%.4e" % (diff_fit_pore[0] * 10 **-9) + " m^2/s\n")
+        #     file.write("\tResidual: "+"%.4e" % (diff_fit_pore[3] * 10 **-9) + " m^2/s\n\n")
+        #     file.write("Diffusion analysis for the reservoir:\n\n")
+        #     file.write("\tDiffusion axial: "+"%.4e" % (diff_fit_res[0] * 10 **-9) + " m^2/s\n")
+        #     file.write("\tResidual: "+"%.4e" % (diff_fit_res[3] * 10 **-9) + " m^2/s\n\n")
 
         # file.write("Diffusion profile\n\n")
         # file.write("\tBins [nm] \t \t \t \t Diffusion coefficient [10^-9 m^2s^-1] \n")

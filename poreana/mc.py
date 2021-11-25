@@ -211,13 +211,10 @@ class MC:
         #utils.save({"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}, link_out)
 
         # pickle directory to save late in hdf5
-        dict_res = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}
+        results = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}
 
-        if link_out[-3:]=="obj":
-            utils.save(dict_res,link_out)
-        elif link_out[-2:]=="h5":
-            print("Save hdf5 file")
-            utils.save_dict_to_hdf(link_out,dict_res)
+        utils.save(results,link_out)
+
 
         # # Save txt file
         # # Calculated diffusion coefficient

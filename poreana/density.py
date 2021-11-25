@@ -87,35 +87,35 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
         True to print output
     """
     # Load data object
-    sample = h5py.File(link_data,'r')
+    sample = utils.load(link_data)
     is_pore = "pore" in sample
 
     # Load bins
     bins = {}
-    bins["in"] = sample["data"]["in"][:] if is_pore else []
-    bins["ex"] = sample["data"]["ex"][:]
+    bins["in"] = sample["data"]["in"] if is_pore else []
+    bins["ex"] = sample["data"]["ex"]
 
     # Load width
     width = {}
-    width["in"] = sample["data"]["in_width"][:] if is_pore else []
-    width["ex"] = sample["data"]["ex_width"][:]
+    width["in"] = sample["data"]["in_width"] if is_pore else []
+    width["ex"] = sample["data"]["ex_width"]
 
     # Load input data
     inp = sample["inp"]
-    bin_num = int(inp["bin_num"][0])
-    num_frame = int(inp["num_frame"][0])
-    entry = float(inp["entry"][0])
-    mass = float(inp["mass"][0])
+    bin_num = int(inp["bin_num"])
+    num_frame =inp["num_frame"]
+    entry = inp["entry"]
+    mass = inp["mass"]
 
     # Load pore data
     if is_pore:
         pore = sample["pore"]
-        pore_type = pore["type"][0].decode("utf-8")
-        res = float(pore["res"][0])
-        diam = float(pore["diam"][0])
-        box = pore["box"][:]
+        pore_type = pore["type"]
+        res = pore["res"]
+        diam = pore["diam"]
+        box = pore["box"]
     else:
-        box = sample["box"]["length"][:]
+        box = sample["box"]["length"]
 
     # Calculate bin volume
     volume = {}
