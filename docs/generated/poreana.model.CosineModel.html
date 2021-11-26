@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>CosineModel &#8212; PoreAna 0.2.1 documentation</title>
+    <title>CosineModel &#8212; PoreAna 0.2.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.1',
+        VERSION:     '0.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -115,7 +115,7 @@
 <h1>CosineModel<a class="headerlink" href="#cosinemodel" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="poreana.model.CosineModel">
-<em class="property">class </em><code class="descclassname">poreana.model.</code><code class="descname">CosineModel</code><span class="sig-paren">(</span><em>data_link</em>, <em>n_diff=6</em>, <em>n_df=10</em>, <em>n_diff_radial=6</em>, <em>print_output=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.CosineModel" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">poreana.model.</code><code class="descname">CosineModel</code><span class="sig-paren">(</span><em>data_link</em>, <em>n_diff=6</em>, <em>n_df=10</em>, <em>n_diff_radial=6</em>, <em>d0=1</em>, <em>is_print=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.CosineModel" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class sets the Cosine Model to calculate the free energy profile
 and the diffusion profile. The profiles have the typical cosine oscillation.
 These profiles over the bins are expressed by the following Fourier
@@ -146,6 +146,12 @@ number of coefficents. The free energy is calculated in the bin center.</p>
 </dd>
 <dt><strong>n_diff_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
 <dd><p class="first last">Number of the Fourier coefficients for the radial diffusion profile</p>
+</dd>
+<dt><strong>d0</strong> <span class="classifier-delimiter">:</span> <span class="classifier">double, optional</span></dt>
+<dd><p class="first last">Initial guess of diffusion coefficient <span class="math">\(\left( 10^{-9} \frac{m^2}{s}\right)\)</span></p>
+</dd>
+<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to print output</p>
 </dd>
 </dl>
 </td>

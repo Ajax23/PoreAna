@@ -48,6 +48,10 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_bin("output/diff_cyl_s.h5")
         sample.sample(is_parallel=False)
 
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+        sample.sample(is_parallel=False)
+
         sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
         sample.init_density("output/dens_slit.h5")
         sample.sample(is_parallel=False, is_pbc=False)
@@ -79,6 +83,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_p.h5", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=True, is_pbc=True, np=6)
+
 
     #########
     # Utils #
@@ -125,6 +130,8 @@ class UserModelCase(unittest.TestCase):
     # # Sample #
     # ##########
     def test_sample(self):
+        # self.skipTest("Temporary")
+
         print()
 
         # Define molecules
@@ -152,6 +159,7 @@ class UserModelCase(unittest.TestCase):
         sample.init_diffusion_mc("output/test.h5")
 
 
+
         # Test MC -> Bin
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_mc("output/test.h5")
@@ -161,33 +169,38 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_mc("output/test.h5", direction = 4)
 
+        # Test direction wrong input
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/test.obj", direction = 4)
+
 
     ##############
     # Adsorption #
     ##############
     def test_adsorption(self):
+        # self.skipTest("Temporary")
+
         # Calculate adsorption
         ads_s = pa.adsorption.calculate("output/dens_cyl_s.h5")
         ads_p = pa.adsorption.calculate("output/dens_cyl_p.h5")
 
-        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads_s["num"]["in"], 2), 10.68)
-        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads_p["num"]["in"], 2), 10.68)
+        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.16)
+        self.assertEqual(round(ads_s["num"]["in"], 2), 11.16)
+        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.16)
+        self.assertEqual(round(ads_p["num"]["in"], 2), 11.16)
 
 
     ###########
     # Density #
     ###########
     def test_density(self):
+        # self.skipTest("Temporary")
+
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.h5", target_dens=16)
         dens_p = pa.density.bins("output/dens_cyl_p.h5", target_dens=16)
 
-        self.assertEqual(round(dens_s["dens"]["in"], 3), 12.941)
-        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.446)
-        self.assertEqual(round(dens_p["dens"]["in"], 3), 12.941)
-        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.446)
+        dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
 
         dens_slit = pa.density.bins("output/dens_slit.h5", target_dens=997)
         dens_box = pa.density.bins("output/dens_box.h5")
@@ -197,6 +210,11 @@ class UserModelCase(unittest.TestCase):
         pa.density.bins_plot(dens_s, target_dens=0.146)
         pa.density.bins_plot(dens_s, target_dens=0.146, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
+        # plt.show()
+
+        plt.figure()
+        pa.density.bins_plot(dens_no_remove)
+        plt.savefig("output/density_no_remove.pdf", format="pdf", dpi=1000)
         # plt.show()
 
         plt.figure()
@@ -223,6 +241,12 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/density_box.pdf", format="pdf", dpi=1000)
         # plt.show()
 
+        # Run tests
+        self.assertEqual(round(dens_s["dens"]["in"], 3), 13.089)
+        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.437)
+        self.assertEqual(round(dens_p["dens"]["in"], 3), 13.089)
+        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.437)
+
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")
 
@@ -231,6 +255,8 @@ class UserModelCase(unittest.TestCase):
     # Gyration #
     ############
     def test_gyration(self):
+        # self.skipTest("Temporary")
+
         # Plot gyration radius
         plt.figure()
         mean_s = pa.gyration.bins_plot("output/gyr_cyl_s.h5", "output/dens_cyl_s.h5", is_mean=True)
@@ -238,11 +264,6 @@ class UserModelCase(unittest.TestCase):
         plt.figure()
         mean_p = pa.gyration.bins_plot("output/gyr_cyl_p.h5", "output/dens_cyl_p.h5")
         plt.savefig("output/gyration_p.pdf", format="pdf", dpi=1000)
-
-        self.assertEqual(round(mean_s["in"], 2), 0.12)
-        self.assertEqual(round(mean_s["ex"], 2), 0.15)
-        self.assertEqual(round(mean_p["in"], 2), 0.12)
-        self.assertEqual(round(mean_p["ex"], 2), 0.15)
 
         plt.figure()
         pa.gyration.bins_plot("output/gyr_cyl_s.h5", "output/dens_cyl_s.h5", intent="in")
@@ -269,11 +290,18 @@ class UserModelCase(unittest.TestCase):
         print()
         pa.gyration.bins_plot("output/gyr_cyl_s.h5", "output/dens_cyl_s.h5", intent="DOTA")
 
+        self.assertEqual(round(mean_s["in"], 2), 0.13)
+        self.assertEqual(round(mean_s["ex"], 2), 0.15)
+        self.assertEqual(round(mean_p["in"], 2), 0.13)
+        self.assertEqual(round(mean_p["ex"], 2), 0.15)
+
 
     #################
     # Bin Diffusion #
     #################
     def test_diffusion_bin(self):
+        # self.skipTest("Temporary")
+
         # Bin diffusion
         plt.figure()
         pa.diffusion.bins_plot(pa.diffusion.bins("output/diff_cyl_s.h5"))
@@ -293,15 +321,13 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
-        self.assertEqual(round(mean_s, 2), 1.13)
-        self.assertEqual(round(mean_p, 2), 1.13)
+        self.assertEqual(round(mean_s, 2), 1.11)
+        self.assertEqual(round(mean_p, 2), 1.11)
 
 
     ################
     # MC Diffusion #
     ################
-
-    # Test model class
     def test_diffusion_mc_model(self):
         #self.skipTest("Temporary")
 
@@ -309,18 +335,19 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
+        #self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
+
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
         # Check step model
         model = pa.StepModel("output/diff_mc_cyl_s.h5", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.696] * model._bin_num)), True)
+        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
+        # self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
-
-    # Test MC class
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
 
@@ -330,15 +357,13 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 1
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-149002.38)
-
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-153141.72)
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 2
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-168732.83)
-
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-173915.99)
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 10
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -233148.79)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -238590.92)
 
 
         # Set len_step for MC run test
@@ -386,11 +411,13 @@ class UserModelCase(unittest.TestCase):
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10, is_print=True)
 
-        # Set the MC class and options
+
+        ## Set the MC class and options
         model._len_step = [10]
 
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc_spline.h5", nmc_eq=100, nmc=2000, is_print=True, is_parallel=False)
+
 
 
     def test_diffusion_mc_box(self):
@@ -400,7 +427,7 @@ class UserModelCase(unittest.TestCase):
         model = pa.CosineModel("output/diff_mc_box.h5", 6, 10)
 
         # Set the MC class and options
-        model._len_step = [10,20,30,40,50]
+        model._len_step = [10, 20, 30, 40, 50]
 
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=10000, nmc=2000, is_print=False, is_parallel=False)
@@ -430,6 +457,7 @@ class UserModelCase(unittest.TestCase):
         data = pa.utils.load("data/check_output_sample.h5")
         trans_check = data["data"]
 
+
         # Test if transition matrix of single and parallel calculation is the same
         list = []
         list2 = []
@@ -443,6 +471,8 @@ class UserModelCase(unittest.TestCase):
     # Free Energy #
     ###############
     def test_freeenergy_mc(self):
+        # self.skipTest("Temporary")
+
         # Plot free energy profile over box length
         plt.figure()
         pa.freeenergy.mc_profile("data/check_output.h5")
@@ -453,6 +483,8 @@ class UserModelCase(unittest.TestCase):
     # Tables #
     ##########
     def test_tables(self):
+        # self.skipTest("Temporary")
+
         # Check tables
         pa.tables.mc_model("data/check_output.h5", print_con=False)
         pa.tables.mc_model("data/box_output.h5", print_con=False)
@@ -468,6 +500,7 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_results("data/check_output.h5", print_con=True)
 
     def test_diffusion_output(self):
+        # self.skipTest("Temporary")
 
         # Check output which is not coveraged by the entire MC test
         # Check diffusion profile function

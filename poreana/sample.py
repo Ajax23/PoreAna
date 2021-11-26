@@ -106,7 +106,6 @@ class Sample:
             self._pore_props["res"] = self._pore.reservoir()
             self._pore_props["focal"] = self._pore.centroid()
             self._pore_props["box"] = self._pore.box()
-            self._pore_props["box"][2] += 2*self._pore_props["res"]
 
             # Get pore diameter
             if isinstance(self._pore, pms.PoreCylinder):
@@ -183,7 +182,7 @@ class Sample:
 
         return {"width": width, "bins": bins}
 
-    def _bin_mc(self, bin_num):
+    def _bin_mc(self, bin_num, direction):
         """This function creates a simple bin structure for the pore and
         resevoir.
 
@@ -191,6 +190,8 @@ class Sample:
         ----------
         bin_num : integer
             Number of bins to be used
+        direction : integer, optional
+            Direction of descretization of the simulation box (x = 0; y = 1; z = 2)
 
         Returns
         -------
@@ -199,20 +200,19 @@ class Sample:
         """
         # Ask for system type (box or pore system)
         if self._pore:
-            z_length = self._pore_props["box"][2]
+            z_length = self._pore_props["box"][direction]
         else:
-            z_length = self._box[2]
+            z_length = self._box[direction]
 
         # Define bins
         bins = [z_length/bin_num*x for x in range(bin_num+1)]
-
         return {"bins": bins}
 
 
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True):
         """Enable density sampling routine.
 
         Parameters
@@ -221,10 +221,14 @@ class Sample:
             Link to output h5 data file
         bin_num : integer, optional
             Number of bins to be used
+        remove_pore_from_res : bool, optional
+            True to remove an extended pore volume from the reservoirs to only
+            consider the reservoir space intersecting the crystal grid
         """
         # Initialize
         self._is_density = True
-        self._dens_inp = {"output": link_out, "bin_num": bin_num}
+        self._dens_inp = {"output": link_out, "bin_num": bin_num,
+                          "remove_pore_from_res": remove_pore_from_res}
 
     def _density_data(self):
         """Create density data structure.
@@ -270,22 +274,25 @@ class Sample:
         com : list
             Center of mass of current molecule
         """
+        # Initialize
         bin_num = self._dens_inp["bin_num"]
 
-        # Add molecule to bin
+        # Molecule is inside pore
         if region=="in":
-            index = math.floor(dist/data["in_width"][1])
+            index = int(dist/data["in_width"][1])
             if index <= bin_num:
                 data["in"][index] += 1
 
+        # Molecule is in the reservoir
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] >= self._pore_props["focal"][2] else com[2]
-            index = math.floor(lentgh/data["ex_width"][1])
+            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] > self._pore_props["box"][2]/2 else com[2]
+            index = int(lentgh/data["ex_width"][1])
 
-            # Only consider reservoir space in vicinity of crystobalit - remove pore
-            if self._pore:
-                is_add = dist > self._pore_props["diam"]/2 and index <= bin_num
+            # Only consider reservoir space in vicinity of crystobalit
+            # Remove an extended pore volume from the reservoir
+            if self._pore and self._dens_inp["remove_pore_from_res"]:
+                is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
             else:
                 is_add = index <= bin_num
 
@@ -374,18 +381,19 @@ class Sample:
 
         # Add molecule to bin
         if region=="in":
-            index = math.floor(dist/data["in_width"][1])
+            index = int(dist/data["in_width"][1])
             if index <= bin_num:
                 data["in"][index] += r_g
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] >= self._pore_props["focal"][2] else com[2]
-            index = math.floor(lentgh/data["ex_width"][1])
+            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] > self._pore_props["box"][2]/2 else com[2]
+            index = int(lentgh/data["ex_width"][1])
 
-            # Only consider reservoir space in vicinity of crystobalit - remove pore
+            # Only consider reservoir space in vicinity of crystobalit
+            # Remove an extended pore volume from the reservoir
             if self._pore:
-                is_add = dist > self._pore_props["diam"]/2 and index <= bin_num
+                is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
             else:
                 is_add = index <= bin_num
 
@@ -668,18 +676,19 @@ class Sample:
         if self._is_diffusion_bin:
             print("Currently only bin or MC can initialize for sampling.")
             return
+            
+        if direction not in [0,1,2]:
+            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
+            return
 
         # Enable routine
         self._is_diffusion_mc = True
 
         # Calculate bins
-        bins = self._bin_mc(bin_num)["bins"]
+        bins = self._bin_mc(bin_num, direction)["bins"]
 
         # Sort len_step list
         len_step.sort()
-
-        if direction not in [0,1,2]:
-            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
 
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
@@ -707,7 +716,7 @@ class Sample:
 
         return data
 
-    def _diffusion_mc(self, data, idx_list_mc, com, res_id, frame_list, frame_id):
+    def _diffusion_mc(self, data, idx_list, com, res_id, frame_list, frame_id):
         """This function sample the transition matrix for the diffusion
         calculation with the Monte Carlo diffusion methode for a cubic
         simulation box. The sample of the transition matrix is to be run on
@@ -766,30 +775,31 @@ class Sample:
         direction = self._diff_mc_inp["direction"]
 
         # Calculate bin index
-        idx_list_mc[-1][res_id] = np.digitize(com[direction], bins)
+        idx_list[-1][res_id] = np.digitize(com[direction], bins)
+
 
         # Sample the transition matrix for the len_step
         if frame_list[0]==0:
             for step in len_step:
-                if len(idx_list_mc) >= (step+1):
+                if len(idx_list) >= (step+1):
                     # Calculate transition matrix in z direction
-                    start = idx_list_mc[-(step+1)][res_id]
-                    end = idx_list_mc[-1][res_id]
+                    start = idx_list[-(step+1)][res_id]
+                    end = idx_list[-1][res_id]
                     data[step][end, start] += 1
 
         # For parallel calculation
         if frame_list[0]!=0 and frame_id>=(frame_list[0] + self._diff_mc_inp["len_step"][-1]):
             for step in len_step:
-                if len(idx_list_mc) >= (step+1):
+                if len(idx_list) >= (step+1):
                     # Calculate transition matrix in z direction
-                    start = idx_list_mc[-(step+1)][res_id]
-                    end = idx_list_mc[-1][res_id]
+                    start = idx_list[-(step+1)][res_id]
+                    end = idx_list[-1][res_id]
                     data[step][end, start] += 1
 
     ############
     # Sampling #
     ############
-    def sample(self, shift=[], np=0, is_pbc=True, is_parallel=True):
+    def sample(self, shift=[0, 0, 0], np=0, is_pbc=True, is_broken=False, is_parallel=True):
         """This function runs all enabled sampling routines. The output is
         stored in form of pickle files for later calculation using methods
         provided in the package.
@@ -800,18 +810,19 @@ class Sample:
         Parameters
         ----------
         shift : list, optional
-            Distances for translating all positions in nano meter
+            Vector for translating atoms in nm
         np : integer, optional
             Number of cores to use
         is_pbc : bool, optional
             True to apply periodic boundary conditions
+        is_broken : bool, optional
+            True to check for broken molecules during sampling
         is_parallel : bool, optional
             True to run parallelized sampling
         """
-        # Process shift
-        shift = shift if shift else [0, 0, 0]
+        # Process input
         if not len(shift)==3:
-            print("Wrong shift dimension.")
+            print("Sample - Wrong shift dimension.")
             return
 
         # Get number of cores
@@ -839,7 +850,7 @@ class Sample:
 
             # Run parallel search
             pool = mp.Pool(processes=np)
-            results = [pool.apply_async(self._sample_helper, args=(frame_list, shift, is_pbc,)) for frame_list in frame_np]
+            results = [pool.apply_async(self._sample_helper, args=(frame_list, shift, is_pbc, is_broken,)) for frame_list in frame_np]
             pool.close()
             pool.join()
             output = [x.get() for x in results]
@@ -848,7 +859,7 @@ class Sample:
             del results
         else:
             # Run sampling
-            output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc)]
+            output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc, is_broken)]
 
         # Concatenate output and create pickle object files
         system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": self._box}
@@ -863,9 +874,11 @@ class Sample:
                 if self._pore:
                     data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
+
             # Pickle
             results = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}
             utils.save(results, self._dens_inp["output"])
+
 
         if self._is_gyration:
             inp_gyr = inp.copy()
@@ -876,6 +889,7 @@ class Sample:
                 if self._pore:
                     data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
+
             # Pickle
             results = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}
             utils.save(results, self._gyr_inp["output"])
@@ -894,9 +908,11 @@ class Sample:
                         data_diff["z_tot"][i][j] += out["diffusion_bin"]["z_tot"][i][j]
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
+
             # Pickle
             results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
             utils.save(results, self._diff_bin_inp["output"])
+
 
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
@@ -911,7 +927,6 @@ class Sample:
             for step in self._diff_mc_inp["len_step"]:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
-
             # Save results in dictionary
             results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
 
@@ -919,7 +934,7 @@ class Sample:
             utils.save(results, self._diff_mc_inp["output"])
 
 
-    def _sample_helper(self, frame_list, shift, is_pbc):
+    def _sample_helper(self, frame_list, shift, is_pbc, is_broken):
         """Helper function for sampling run.
 
         Parameters
@@ -927,11 +942,15 @@ class Sample:
         frame_list :
             List of frame ids to process
         shift : list
-            Distances for translating all positions in nano meter
-        is_pbc : bool, optional
+            Vector for translating atoms in nm
+        is_pbc : bool
             True to apply periodic boundary conditions
+        is_broken : bool
+            True to check for broken molecules during sampling
 
-        Returns : dictionary
+        Returns
+        -------
+        output : dictionary
             Dictionary containing all sampled data
         """
 
@@ -940,11 +959,6 @@ class Sample:
         res = self._pore_props["res"] if self._pore else 0
         com_list = []
         idx_list = []
-        idx_list_mc = []
-
-        # Load trajectory
-        traj = cf.Trajectory(self._traj)
-        frame_form = "%"+str(len(str(self._num_frame)))+"i"
 
         # Create local data structures
         output = {}
@@ -957,10 +971,19 @@ class Sample:
         if self._is_diffusion_mc:
             output["diffusion_mc"] = self._diffusion_mc_data()
 
+        # Calculate length index and com lists
+
         if self._is_diffusion_bin:
             len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
         elif self._is_diffusion_mc:
             len_fill = self._diff_mc_inp["len_step"][-1]+1
+        else:
+            len_fill = 1
+
+        # Load trajectory
+        traj = cf.Trajectory(self._traj)
+        frame_form = "%"+str(len(str(self._num_frame)))+"i"
+
 
         # Run through frames
         for frame_id in frame_list:
@@ -970,20 +993,12 @@ class Sample:
             positions = frame.positions
 
             # Add new dictionaries and remove unneeded references
-            if self._is_diffusion_bin:
-                if len(com_list) >= len_fill:
-                    idx_list.pop(0)
-                idx_list.append({})
+            if len(com_list) >= len_fill:
+                idx_list.pop(0)
+                com_list.pop(0)
+            idx_list.append({})
+            com_list.append({})
 
-            elif self._is_diffusion_mc:
-                if len(com_list) >= len_fill:
-                    idx_list_mc.pop(0)
-                idx_list_mc.append({})
-
-            if self._is_diffusion_bin or self._is_diffusion_mc:
-                if len(com_list) >= len_fill:
-                    com_list.pop(0)
-                com_list.append({})
 
             # Run through residues
             for res_id in self._res_list:
@@ -993,12 +1008,11 @@ class Sample:
                 # Calculate centre of mass
                 com_no_pbc = [sum([pos[atom_id][i]*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses for i in range(3)]
 
-                # Remove broken molecules
-                is_broken = False
-                for i in range(3):
-                    is_broken = abs(com_no_pbc[i]-pos[0][i])>box[i]/3
-                    if is_broken:
-                        break
+                # Check if molecule is broken
+                if is_broken:
+                    for i in range(3):
+                        if abs(com_no_pbc[i]-pos[0][i])>box[i]/3:
+                            print("Sample - Broken molecule found - ResID: "+"%5i"%res_id+", AtomID: "+"%5i"%atom_id)
 
                 # Apply periodic boundary conditions
                 if is_pbc:
@@ -1006,22 +1020,19 @@ class Sample:
                 else:
                     com = com_no_pbc
 
-                # Sample if molecule not broken near boundary
-                if not self._is_diffusion_mc:
-                    if not is_broken:
-                        # Calculate distance towards center axis
-                        if isinstance(self._pore, pms.PoreCylinder):
-                            dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                        elif isinstance(self._pore, pms.PoreSlit):
-                            dist = abs(self._pore_props["focal"][1]-com[1])
-                        else:
-                            dist = 0
+                # Calculate distance towards center axis
+                if isinstance(self._pore, pms.PoreCylinder):
+                    dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
+                elif isinstance(self._pore, pms.PoreSlit):
+                    dist = abs(self._pore_props["focal"][1]-com[1])
+                else:
+                    dist = 0
 
-                # Set region - in-inside, ex-outside
+                # Set region - in-interior, ex-exterior
                 region = ""
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
-                elif not self._pore or com[2] <= res or com[2] > box[2]-res:
+                elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
 
                 # Remove window filling instances except from first processor
@@ -1039,7 +1050,7 @@ class Sample:
                 if self._is_diffusion_bin:
                     self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:
-                    self._diffusion_mc(output["diffusion_mc"], idx_list_mc, com, res_id, frame_list, frame_id)
+                    self._diffusion_mc(output["diffusion_mc"], idx_list, com, res_id, frame_list, frame_id)
 
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:

@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Diffusion Analysis in a Pore (MC Method) &#8212; PoreAna 0.2.1 documentation</title>
+    <title>Diffusion Analysis in a Pore (MC Method) &#8212; PoreAna 0.2.2 documentation</title>
     <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.2.1',
+        VERSION:     '0.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -185,10 +185,10 @@ displayed</p>
 </div>
 <p>Additionally, the pore area can be considered more closely</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot the lag time extrapolation for the pore ares</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit_pore</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">is_pore</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;pore&quot;</span><span class="p">)</span>
 
 <span class="c1"># Plot diffusion profile in a pore</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;is_pore&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;pore&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial</span> <span class="pre">(Pore):</span> <span class="pre">1.2534e-09</span> <span class="pre">m^2/s</span></code></p>

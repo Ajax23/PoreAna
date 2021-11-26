@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>MC.run &#8212; PoreAna 0.2.1 documentation</title>
+    <title>MC.run &#8212; PoreAna 0.2.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.1',
+        VERSION:     '0.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -115,7 +115,7 @@
 <h1>MC.run<a class="headerlink" href="#mc-run" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.mc.MC.run">
-<code class="descclassname">MC.</code><code class="descname">run</code><span class="sig-paren">(</span><em>model</em>, <em>link_out</em>, <em>nmc_eq=50000</em>, <em>nmc=100000</em>, <em>delta_df=0.05</em>, <em>delta_diff=0.05</em>, <em>num_mc_update=10</em>, <em>temp=1</em>, <em>print_output=False</em>, <em>print_freq=100</em>, <em>do_radial=False</em>, <em>is_parallel=True</em>, <em>np=0</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC.run" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">MC.</code><code class="descname">run</code><span class="sig-paren">(</span><em>model</em>, <em>link_out</em>, <em>nmc_eq=50000</em>, <em>nmc=100000</em>, <em>delta_df=0.05</em>, <em>delta_diff=0.05</em>, <em>num_mc_update=10</em>, <em>temp=1</em>, <em>np=0</em>, <em>print_freq=100</em>, <em>is_print=False</em>, <em>do_radial=False</em>, <em>is_parallel=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function do the MC Cycle to calculate the diffusion and free
 energy profile over the bins and save the results in an output object
 file. This happens with the adjustment of the coefficient from the model
@@ -175,20 +175,20 @@ is required)</p>
 <dt><strong>temp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
 <dd><p class="first last">Temperature in Monte Carlo acceptance criterium</p>
 </dd>
-<dt><strong>print_output</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to print output</p>
+<dt><strong>np</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
+<dd><p class="first last">Number of cores to use</p>
 </dd>
 <dt><strong>print_freq</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
 <dd><p class="first last">Print MC step every print_freq</p>
+</dd>
+<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to print output</p>
 </dd>
 <dt><strong>do_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
 <dd><p class="first last">True to calculate the radial diffusion</p>
 </dd>
 <dt><strong>is_parallel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
 <dd><p class="first last">True to run parallelized sampling</p>
-</dd>
-<dt><strong>np</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of cores to use</p>
 </dd>
 </dl>
 </td>

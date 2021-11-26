@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sample._diffusion_mc &#8212; PoreAna 0.2.1 documentation</title>
+    <title>Sample._diffusion_mc &#8212; PoreAna 0.2.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.1',
+        VERSION:     '0.2.2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -124,9 +124,9 @@ a data object, is then used to calculate the self-diffusion using
 further calculation functions for the MC Diffusion methode.</p>
 <p>It is necessary to caculate the transition matrix for different step
 length and so for different lag times. A lagtime
-<span class="math">\(\Delta_{ij}t_{\alpha}\)</span> is defined by</p>
+<span class="math">\(\Delta t_{\alpha}\)</span> is defined by</p>
 <div class="math">
-\[\Delta_{ij}t_{\alpha} = t_{i,\alpha} - t_{j,\alpha}\]</div>
+\[\Delta t_{\alpha} = t_{i,\alpha} - t_{j,\alpha}\]</div>
 <p>with <span class="math">\(i\)</span> and <span class="math">\(j\)</span> as the current state of the system at two
 different times and <span class="math">\(\alpha\)</span> as past time between the two states.
 To sample the transition matrix the frame length <span class="math">\(t\)</span> has to
@@ -135,11 +135,11 @@ The variation of the lag time is happend by adapting the step length
 <span class="math">\(s\)</span> which indicates the interval between the frames. The lag time
 is than calculated by</p>
 <div class="math">
-\[\Delta_{ij}t_{\alpha} = t \cdot s\]</div>
+\[\Delta t_{\alpha} = t \cdot s\]</div>
 <p>After the sampling a model class has to set and then the MC calculation
 can run. Subsequently the final mean diffusion coefficient can be
 determined with a extrapolation to
-<span class="math">\(\Delta_{ij}t_{\alpha} \rightarrow \infty\)</span>.
+<span class="math">\(\Delta t_{\alpha} \rightarrow \infty\)</span>.
 For the etxrapolation we need the mean diffusion over the bins for
 different chosen lag times. That’s why we have to calculate the results
 and the transition matrix for several lag times. More information about

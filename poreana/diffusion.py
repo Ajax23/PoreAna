@@ -578,6 +578,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
             # Calculate the mean diffusion (m^2/s) over all bins
             D_mean = [np.mean(np.exp([diff_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10**3 for i in rand]
 
+
             # Calculate the inverse lag time for the linear fit
             lagtime_inverse = [1 / (i * dt * 10**-12) for i in rand]
 
@@ -775,6 +776,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=False,  is_plot=True
             # Set section
             area = [res, box[2]-res-2*(bins[1]-bins[0])]
 
+
         # If only the pore area should be considered
         else:
             print("obj.-file includes results of a simple box")
@@ -832,6 +834,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=False,  is_plot=True
         diff_profiles[i] = [np.exp(diff_bin_vec[i][j] + diff_unit) * 10 ** 3 for j in range(len(bins))]
 
     # If infty_profile is false the profiles for the different lag times are plotted
+
     if not infty_profile:
         # Plot the profiles for the
         if is_plot:
@@ -886,6 +889,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=False,  is_plot=True
         np.mean(res_list)
 
     return diff_profile_fit, diff_profiles, bins, res_list
+
 
 
 
