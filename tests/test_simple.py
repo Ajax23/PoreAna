@@ -324,10 +324,7 @@ class UserModelCase(unittest.TestCase):
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
 
-        # pa.utils.file_to_text("data/check_output.h5")
-        # pa.tables.mc_results("data/check_output.h5", section = {"pore":[4.7,14.7],"res":[0,4]})
-        # pa.tables.mc_results("data/box_output.h5", section={"box":[2,6]})
-        # Pore diffusion
+
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
 
@@ -351,16 +348,8 @@ class UserModelCase(unittest.TestCase):
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
 
-        # Set Cosine Model for diffusion and energy profile
-        model = pa.CosineModel("output/diff_mc_cyl_s.obj", 6, 10)
-        model._len_step = [10,20,40]
-        pa.MC().run(model,"output/diff_test_mc.obj", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=False)
-        pa.utils.file_to_text("output/diff_test_mc.h5")
-        pa.utils.file_to_text("output/diff_test_mc.obj")
-
         # Plot diffusion coefficient over inverse lagtime
         diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
-        diff = pa.diffusion.mc_fit("output/diff_test_mc.obj")
         plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
@@ -371,7 +360,6 @@ class UserModelCase(unittest.TestCase):
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
         self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
-
 
         #### Test Parallel ####
         # Do the MC alogirthm
@@ -408,9 +396,6 @@ class UserModelCase(unittest.TestCase):
     def test_diffusion_mc_box(self):
         # self.skipTest("Temporary")
 
-        # Box diffusion
-        self.skipTest("Temporary")
-
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_box.h5", 6, 10)
 
@@ -427,8 +412,8 @@ class UserModelCase(unittest.TestCase):
 
         # Check if diffusion coefficient is in the range
         self.assertEqual(abs(diff[0] - (11) ) < 0.4, True)
-    #
-    #
+
+
     ####################################
     # Check Transition matrix sampling #
     ####################################
