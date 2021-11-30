@@ -176,7 +176,7 @@ def mc_model(link, print_con=False):
     d = model["guess"]
     model_string = model["model"]
     pbc = model["pbc"]
-    direction = "True"# model["direction"]
+    direction = int(model["direction"])
 
     # String for pbc
     if pbc == 1:
@@ -261,7 +261,9 @@ def mc_inputs(link, print_con=False):
 
     return df_mc
 
-def mc_results(link, print_con=True, section={"pore": [], "res":[], "box": []}):
+def mc_results(link, print_con=True, sections={"pore": [], "res":[], "box": []}):
+
+    #mc_results(section={"pore_1": [], "pore_2":})
 
     data = utils.load(link)
     model = data["model"]
@@ -279,15 +281,15 @@ def mc_results(link, print_con=True, section={"pore": [], "res":[], "box": []}):
         pore = [res,round(z_length-res,2)]
         res = [0,res]
 
-
-        diff_res = diffusion.mc_fit(link,  section = "reservoir", is_print=False, is_plot = False)
-        diff_pore = diffusion.mc_fit(link,  section = "pore", is_print=False, is_plot = False)
-
-        if section["pore"]:
+        if not sections:
+            diff_res = diffusion.mc_fit(link,  section = "reservoir", is_print=False, is_plot = False)
+            diff_pore = diffusion.mc_fit(link,  section = "pore", is_print=False, is_plot = False)
+            print("hi")
+        if sections["pore"]:
             pore = section["pore"]
             diff_pore = diffusion.mc_fit(link,  section = section["pore"], is_print=False, is_plot = False)
 
-        if section["res"]:
+        if sections["res"]:
             res = section["res"]
             diff_res = diffusion.mc_fit(link,  section = section["res"], is_print=False, is_plot = False)
 

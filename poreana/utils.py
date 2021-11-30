@@ -10,6 +10,8 @@ import time
 import pickle
 import h5py
 import numpy as np
+import pandas as pd
+import datetime
 import poreana.diffusion as diffusion
 import poreana.tables as tables
 
@@ -187,6 +189,12 @@ def load(link):
                             data_load[keys][keys2] = data[keys][keys2][:]
         return data_load
 
+def check_filetype(link):
+    if not link[-2:]=="h5" or not link[-3:]=="obj":
+        print("Wrong data type. Please select .obj or .h5 as the data type")
+        return
+
+
 def file_to_text(link):
     """ This function converts an output directory in txt file.
 
@@ -201,7 +209,7 @@ def file_to_text(link):
     # Load data
     data = load(link)
 
-    # Step Länge etc
+    # Output
     if link[-2:]=="h5":
         link_txt = link[:-2] + "txt"
     elif link[-3:]=="obj":
@@ -214,10 +222,15 @@ def file_to_text(link):
         diam = float(pore["diam"])
         box = pore["box"]
         type = pore["type"]
+        data = [[box],[diam],[res],[type]]
+        df_system = pd.DataFrame(data, index=list(["Box dimension (nm)","Pore diameter (nm)","reservoir (nm)", "type"]),columns=list(["Value"]))
     if "box" in data:
         system = "box"
         box_group = data["box"]
         box = box_group["length"]
+        data = [[box]]
+        df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
+
 
     # # Save txt file
     # # Calculated diffusion coefficient
@@ -225,42 +238,31 @@ def file_to_text(link):
     df_inputs = tables.mc_inputs(link, print_con=False)
     df_model = tables.mc_model(link, print_con=False)
     df_results = tables.mc_results(link, print_con=False)
+    df_model_string = df_model.to_string(header=True, index=True)
+    df_inputs_string = df_inputs.to_string(header=True, index=True)
+    df_results_string = df_results.to_string(header=True, index=True)
+    df_system_string = df_system.to_string(header=True, index=True)
     with open(link_txt, 'w') as file:
-        df_model_string = df_model.to_string(header=True, index=True)
-        df_inputs_string = df_inputs.to_string(header=True, index=True)
-        df_results_string = df_results.to_string(header=True, index=True)
-        #dfAsString = df.to_string(header=True, index=True)
-        file.write("Model Inputs\n")
+        file.write("# This file was created " + str(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")) + "\n")
+        file.write("# Created by:\n")
+        file.write("\t\t\t\t\t PoreAna\n\n")
+        file.write("[System]\n")
+        file.write(df_system_string)
+        file.write("\n\n\n[Model Inputs]\n")
         file.write(df_model_string)
         file.write("\n\n\n")
-        file.write("MC Inputs\n")
+        file.write("[MC Inputs]\n")
         file.write(df_inputs_string)
         file.write("\n\n\n")
-        file.write("MC Results\n")
+        file.write("[MC Results]\n")
         file.write(df_results_string)
-        # file.write("This file was created by PoreAna Package\n\n")
-        # file.write("Analyzed system: " + system + "\n\n")
-        # file.write("\tBox: " + str(box) + "\n\n")
-        # if system == "pore":
-        #     file.write("\tPore Type: " + type + "\n")
-        #     file.write("\tReservoir: " + str(res) + "\n")
-        #     file.write("\tDiameter: " + str(diam) + "\n\n")
-        # file.write("Diffusion analysis for the whole system:\n\n")
-        # file.write("\tDiffusion axial: "+"%.4e" % (diff_fit[0] * 10 **-9) + " m^2/s\n")
-        # file.write("\tResidual: "+"%.4e" % (diff_fit[3] * 10 **-9) + " m^2/s\n\n")
-        # if system == "pore":
-        #     file.write("Diffusion analysis for the pore:\n\n")
-        #     file.write("\tDiffusion axial: "+"%.4e" % (diff_fit_pore[0] * 10 **-9) + " m^2/s\n")
-        #     file.write("\tResidual: "+"%.4e" % (diff_fit_pore[3] * 10 **-9) + " m^2/s\n\n")
-        #     file.write("Diffusion analysis for the reservoir:\n\n")
-        #     file.write("\tDiffusion axial: "+"%.4e" % (diff_fit_res[0] * 10 **-9) + " m^2/s\n")
-        #     file.write("\tResidual: "+"%.4e" % (diff_fit_res[3] * 10 **-9) + " m^2/s\n\n")
 
-        # file.write("Diffusion profile\n\n")
-        # file.write("\tBins [nm] \t \t \t \t Diffusion coefficient [10^-9 m^2s^-1] \n")
-        # for i in range(len(diff_prof[2])):
-        #     file.write("\t%.2f\t\t\t\t" % diff_prof[2][i] + "%.2f" % diff_prof[0][i] + "\n")
-        # file.close()
+        file.write("\n\n[Diffusion profile]\n\n")
+        file.write("\tBins [nm] \t \t \t \t Diffusion coefficient [10^-9 m^2s^-1] \n")
+        diff = diffusion.mc_fit(link, is_print=False, is_plot = False)
+        for i in range(len(diff[2])):
+            file.write("\t%.2f\t\t\t\t" % diff_prof[2][i] + "%.2f" % diff_prof[0][i] + "\n")
+        file.close()
 
 def mumol_m2_to_mols(c, A):
     """Convert the concentration in :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`

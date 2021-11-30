@@ -16,7 +16,9 @@ class Model:
 
     def __init__(self, data_link):
 
-
+        # Check the data type of input
+        utils.check_filetype(link_out)
+        
         # Load hdf5 data file
         sample = utils.load(data_link)
 

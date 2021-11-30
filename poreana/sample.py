@@ -676,10 +676,13 @@ class Sample:
         if self._is_diffusion_bin:
             print("Currently only bin or MC can initialize for sampling.")
             return
-            
+
         if direction not in [0,1,2]:
             print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
             return
+
+        # Check the data type of output string
+        utils.check_filetype(link_out)
 
         # Enable routine
         self._is_diffusion_mc = True
