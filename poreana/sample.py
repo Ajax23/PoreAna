@@ -225,6 +225,10 @@ class Sample:
             True to remove an extended pore volume from the reservoirs to only
             consider the reservoir space intersecting the crystal grid
         """
+
+        # Check the data type of input
+        utils.check_filetype(link_out)
+
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
@@ -313,6 +317,10 @@ class Sample:
         bin_num : integer, optional
             Number of bins to be used
         """
+
+        # Check the data type of input
+        utils.check_filetype(link_out)
+
         # Initialize
         self._is_gyration = True
         self._gyr_inp = {"output": link_out, "bin_num": bin_num}
@@ -422,6 +430,10 @@ class Sample:
         bin_step_size : integer, optional
             Number of allowed bins for the molecule to leave
         """
+
+        # Check the data type of input
+        utils.check_filetype(link_out)
+
         # Initialize
         if self._is_diffusion_mc:
             print("Currently only bin or MC can initialize for samling.")

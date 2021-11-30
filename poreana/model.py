@@ -9,18 +9,18 @@ class Model:
 
     Parameters
     ----------
-    data_link : string
+    link : string
         Data link to the h5 data file from :func:`poreana.sample.Sample.init_diffusion_mc`
 
     """
 
-    def __init__(self, data_link):
+    def __init__(self, link):
 
         # Check the data type of input
-        utils.check_filetype(link_out)
-        
+        utils.check_filetype(link)
+
         # Load hdf5 data file
-        sample = utils.load(data_link)
+        sample = utils.load(link)
 
         inp = sample["inp"]
         # Read the inputs

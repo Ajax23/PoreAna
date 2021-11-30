@@ -38,6 +38,8 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
     bins : list
         bins over the box length
     """
+    # Check the data type of input
+    utils.check_filetype(link)
 
     # Load Results from the output object file
     data = utils.load(link)

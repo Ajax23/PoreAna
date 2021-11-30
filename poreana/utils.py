@@ -103,10 +103,12 @@ def save(obj, link):
         Specific link to save object
     """
 
+    # If a obj file should be saved
     if link[-3:]=="obj":
         with open(link, "wb") as f:
             pickle.dump(obj, f)
 
+    # If a h5 file should be saved
     elif link[-2:]=="h5":
         # Save results in a hdf5 file
         f = h5py.File(link, 'w')
@@ -119,7 +121,7 @@ def save(obj, link):
             groups[key] = f.create_group(key)
             if not key =="box":
                 data_base[key] = obj[key].keys()
-        #print(groups)
+
         for gkey in groups:
             if not gkey =="box":
                 for base in data_base[gkey]:
@@ -158,9 +160,13 @@ def load(link):
     obj : Object
         Loaded object
     """
+
+    # If a obj file should be load
     if link[-3:]=="obj":
         with open(link, 'rb') as f:
             return pickle.load(f)
+
+    # If a h5 file should be load
     elif link[-2:]=="h5":
         data = h5py.File(link, 'r')
         data_load = {}
@@ -190,7 +196,20 @@ def load(link):
         return data_load
 
 def check_filetype(link):
-    if not link[-2:]=="h5" or not link[-3:]=="obj":
+    """
+    This function checks the data type of a input string.
+
+    Parameters
+    ----------
+    link : string
+        Link to check if data file is correct
+
+    """
+
+    # Check if the data type is correct
+    if link[-2:]=="h5" or link[-3:]=="obj":
+        pass
+    else:
         print("Wrong data type. Please select .obj or .h5 as the data type")
         return
 
@@ -234,7 +253,6 @@ def file_to_text(link):
 
     # # Save txt file
     # # Calculated diffusion coefficient
-    #diff_fit = diffusion.mc_fit(link, is_print=False)
     df_inputs = tables.mc_inputs(link, print_con=False)
     df_model = tables.mc_model(link, print_con=False)
     df_results = tables.mc_results(link, print_con=False)
@@ -256,12 +274,13 @@ def file_to_text(link):
         file.write("\n\n\n")
         file.write("[MC Results]\n")
         file.write(df_results_string)
-
         file.write("\n\n[Diffusion profile]\n\n")
-        file.write("\tBins [nm] \t \t \t \t Diffusion coefficient [10^-9 m^2s^-1] \n")
-        diff = diffusion.mc_fit(link, is_print=False, is_plot = False)
+        file.write("Bins [nm] \t \t \t Diffusion coefficient [10^-9 m^2s^-1] \n")
+        diff = diffusion.mc_profile(link, is_plot = False, infty_profile=True)
+        diff = diffusion.mc_profile(link, is_plot = False, infty_profile=True)
         for i in range(len(diff[2])):
-            file.write("\t%.2f\t\t\t\t" % diff_prof[2][i] + "%.2f" % diff_prof[0][i] + "\n")
+            print(diff[2][i])
+            file.write("%.2f\t\t\t\t" % diff[2][i] + "%.2f" % diff[0][i] + "%.2f" % free_energy[0][i] + "\n")
         file.close()
 
 def mumol_m2_to_mols(c, A):
