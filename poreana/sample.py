@@ -103,6 +103,8 @@ class Sample:
                 self._pore_props["type"] = "CYLINDER"
             elif isinstance(self._pore, pms.PoreSlit):
                 self._pore_props["type"] = "SLIT"
+            elif isinstance(self._pore, pms.PoreAmorphCylinder):
+                self._pore_props["type"] = "CYLINDER"
             self._pore_props["res"] = self._pore.reservoir()
             self._pore_props["focal"] = self._pore.centroid()
             self._pore_props["box"] = self._pore.box()
