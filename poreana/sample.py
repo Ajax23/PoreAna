@@ -110,9 +110,9 @@ class Sample:
             self._pore_props["box"] = self._pore.box()
 
             # Get pore diameter
-            if self._pore_props["type"] = "CYLINDER":
+            if self._pore_props["type"] == "CYLINDER":
                 self._pore_props["diam"] = self._pore.diameter()
-            elif self._pore_props["type"] = "SLIT":
+            elif self._pore_props["type"] == "SLIT":
                 self._pore_props["diam"] = self._pore.height()
 
 
