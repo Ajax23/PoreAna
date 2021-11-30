@@ -96,6 +96,10 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(pa.utils.column([[1, 1, 1], [2, 2, 2]]), [[1, 2], [1, 2], [1, 2]])
 
         pa.utils.save([1, 1, 1], file_link)
+        pa.utils.check_filetype("output/test/test.txt")
+        pa.utils.file_to_text("data/box_output.obj")
+        pa.utils.file_to_text("data/check_output.h5")
+        
         print(pa.utils.load(file_link))
         self.assertEqual(pa.utils.load(file_link), [1, 1, 1])
 
@@ -172,7 +176,6 @@ class UserModelCase(unittest.TestCase):
         # Test direction wrong input
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_mc("output/test.obj", direction = 4)
-
 
     ##############
     # Adsorption #
@@ -499,6 +502,7 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_statistics("data/check_output.h5", print_con=True)
         pa.tables.mc_lag_time("data/check_output.h5", print_con=True)
         pa.tables.mc_results("data/check_output.h5", print_con=True)
+        pa.tables.mc_results("data/box_output.h5", print_con=True)
 
     def test_diffusion_output(self):
         # self.skipTest("Temporary")
