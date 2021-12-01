@@ -97,9 +97,9 @@ class UserModelCase(unittest.TestCase):
 
         pa.utils.save([1, 1, 1], file_link)
         pa.utils.check_filetype("output/test/test.txt")
-        pa.utils.file_to_text("data/box_output.obj")
-        pa.utils.file_to_text("data/check_output.h5")
-        
+        pa.utils.file_to_text("data/box_output.h5", "output/box_output.txt")
+        pa.utils.file_to_text("data/check_output.h5", "output/check_output.txt")
+
         print(pa.utils.load(file_link))
         self.assertEqual(pa.utils.load(file_link), [1, 1, 1])
 

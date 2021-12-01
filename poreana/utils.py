@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import datetime
 import poreana.diffusion as diffusion
+import poreana.freeenergy as freeenergy
 import poreana.tables as tables
 
 
@@ -214,26 +215,21 @@ def check_filetype(link):
         return
 
 
-def file_to_text(link):
+def file_to_text(link, link_output):
     """ This function converts an output directory in txt file.
 
     Parameters
     ----------
     link : string
-        Link to output hdf5 file
-    pickle : dict
-        dictionary which should be saved
+        Link to output hdf5 or obj file
+    link_output : String
+        Link to an output text file
     """
 
     # Load data
     data = load(link)
 
-    # Output
-    if link[-2:]=="h5":
-        link_txt = link[:-2] + "txt"
-    elif link[-3:]=="obj":
-        link_txt = link[:-3] + "txt"
-
+    # If pore system
     if "pore" in data:
         system = "pore"
         pore = data["pore"]
@@ -243,6 +239,8 @@ def file_to_text(link):
         type = pore["type"]
         data = [[box],[diam],[res],[type]]
         df_system = pd.DataFrame(data, index=list(["Box dimension (nm)","Pore diameter (nm)","reservoir (nm)", "type"]),columns=list(["Value"]))
+
+    # If box system
     if "box" in data:
         system = "box"
         box_group = data["box"]
@@ -260,7 +258,7 @@ def file_to_text(link):
     df_inputs_string = df_inputs.to_string(header=True, index=True)
     df_results_string = df_results.to_string(header=True, index=True)
     df_system_string = df_system.to_string(header=True, index=True)
-    with open(link_txt, 'w') as file:
+    with open(link_output, 'w') as file:
         file.write("# This file was created " + str(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")) + "\n")
         file.write("# Created by:\n")
         file.write("\t\t\t\t\t PoreAna\n\n")
@@ -274,13 +272,12 @@ def file_to_text(link):
         file.write("\n\n\n")
         file.write("[MC Results]\n")
         file.write(df_results_string)
-        file.write("\n\n[Diffusion profile]\n\n")
-        file.write("Bins [nm] \t \t \t Diffusion coefficient [10^-9 m^2s^-1] \n")
+        file.write("\n\n[Profiles]\n\n")
+        file.write("Bins [nm] \t \t \t Diffusion [10^-9 m^2s^-1] \t \t \t Free energy [-]\n")
         diff = diffusion.mc_profile(link, is_plot = False, infty_profile=True)
-        diff = diffusion.mc_profile(link, is_plot = False, infty_profile=True)
+        free_energy= freeenergy.mc_profile(link, is_plot = False)
         for i in range(len(diff[2])):
-            print(diff[2][i])
-            file.write("%.2f\t\t\t\t" % diff[2][i] + "%.2f" % diff[0][i] + "%.2f" % free_energy[0][i] + "\n")
+            file.write("%.2f\t\t\t\t" % diff[2][i] + "%.2f\t\t\t\t" % diff[0][i] + "%.2f" % free_energy[0][10][i] + "\n")
         file.close()
 
 def mumol_m2_to_mols(c, A):
