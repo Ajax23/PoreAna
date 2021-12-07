@@ -238,8 +238,8 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(dens_p["dens"]["in"], 3), 13.089)
         self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.437)
 
-        self.assertEqual(round(dens_s_mean["num_dens_weight"], 3), 0.092)
-        self.assertEqual(round(dens_s_mean["dens_weight"], 3), 11.979)
+        self.assertEqual(round(dens_s_mean["num_dens"], 3), 0.092)
+        self.assertEqual(round(dens_s_mean["dens"], 3), 11.979)
 
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")
