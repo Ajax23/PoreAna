@@ -280,7 +280,7 @@ def bins_plot(data, intent="plot", kwargs={}):
         plt.ylabel(r"Diffusion coefficient ($10^{-9}$ m${^2}$ s$^{-1}$)")
 
 
-def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_norm=False, is_check=False):
+def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
     """This function uses the diffusion coefficient slope obtained from
     function :func:`poreana.diffusion.bins` and the density slope of function
     :func:`poreana.density.bins` to calculate a weighted diffusion
@@ -313,8 +313,6 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_norm=False, is_check=False
         Density data dictionary from function :func:`poreana.density.bins`
     ax_area : list, optional
         Bin area percentage to calculate the axial diffusion coefficient
-    is_norm : bool, optional
-        True to normalize x-axis
     is_check : bool, optional
         True to plot density function fit
 

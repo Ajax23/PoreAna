@@ -18,67 +18,67 @@ class UserModelCase(unittest.TestCase):
     #################
     # Remove Output #
     #################
-    @classmethod
-    def setUpClass(self):
-        if os.path.isdir("tests"):
-            os.chdir("tests")
-
-        folder = 'output'
-        pa.utils.mkdirp(folder)
-        pa.utils.mkdirp(folder+"/temp")
-        open(folder+"/temp.txt", 'a').close()
-
-        for filename in os.listdir(folder):
-            file_path = os.path.join(folder, filename)
-            if os.path.isfile(file_path) or os.path.islink(file_path):
-                os.unlink(file_path)
-            elif os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-
-        # Load molecule
-        mol_B = pms.Molecule(inp="data/benzene.gro")
-        mol_W = pms.Molecule(inp="data/spc216.gro")
-        mol_H = pms.Molecule(inp="data/heptane.gro")
-
-        # Sample
-        ## Single core
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_density("output/dens_cyl_s.obj")
-        sample.init_gyration("output/gyr_cyl_s.obj")
-        sample.init_diffusion_bin("output/diff_cyl_s.obj")
-        sample.sample(is_parallel=False)
-
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
-        sample.sample(is_parallel=False)
-
-        sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
-        sample.init_density("output/dens_slit.obj")
-        sample.sample(is_parallel=False, is_pbc=False)
-
-        sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
-        sample.init_density("output/dens_box.obj")
-        sample.init_gyration("output/gyr_box.obj")
-        sample.sample(shift=[0, 0, 3.3], is_parallel=False)
-
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(is_parallel=False)
-
-        sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
-        sample.init_diffusion_mc("output/diff_mc_box.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
-
-        ## Parallel
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_density("output/dens_cyl_p.obj")
-        sample.init_gyration("output/gyr_cyl_p.obj")
-        sample.init_diffusion_bin("output/diff_cyl_p.obj")
-        sample.sample(is_parallel=True, is_pbc=False)
-
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
-        sample.sample(is_parallel=True, is_pbc=True, np=6)
+    # @classmethod
+    # def setUpClass(self):
+    #     if os.path.isdir("tests"):
+    #         os.chdir("tests")
+    #
+    #     folder = 'output'
+    #     pa.utils.mkdirp(folder)
+    #     pa.utils.mkdirp(folder+"/temp")
+    #     open(folder+"/temp.txt", 'a').close()
+    #
+    #     for filename in os.listdir(folder):
+    #         file_path = os.path.join(folder, filename)
+    #         if os.path.isfile(file_path) or os.path.islink(file_path):
+    #             os.unlink(file_path)
+    #         elif os.path.isdir(file_path):
+    #             shutil.rmtree(file_path)
+    #
+    #     # Load molecule
+    #     mol_B = pms.Molecule(inp="data/benzene.gro")
+    #     mol_W = pms.Molecule(inp="data/spc216.gro")
+    #     mol_H = pms.Molecule(inp="data/heptane.gro")
+    #
+    #     # Sample
+    #     ## Single core
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+    #     sample.init_density("output/dens_cyl_s.obj")
+    #     sample.init_gyration("output/gyr_cyl_s.obj")
+    #     sample.init_diffusion_bin("output/diff_cyl_s.obj")
+    #     sample.sample(is_parallel=False)
+    #
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+    #     sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+    #     sample.sample(is_parallel=False)
+    #
+    #     sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
+    #     sample.init_density("output/dens_slit.obj")
+    #     sample.sample(is_parallel=False, is_pbc=False)
+    #
+    #     sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
+    #     sample.init_density("output/dens_box.obj")
+    #     sample.init_gyration("output/gyr_box.obj")
+    #     sample.sample(shift=[0, 0, 3.3], is_parallel=False)
+    #
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+    #     sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
+    #     sample.sample(is_parallel=False)
+    #
+    #     sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
+    #     sample.init_diffusion_mc("output/diff_mc_box.obj", len_step=[1,2,5,10,20,30,40,50])
+    #     sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
+    #
+    #     ## Parallel
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+    #     sample.init_density("output/dens_cyl_p.obj")
+    #     sample.init_gyration("output/gyr_cyl_p.obj")
+    #     sample.init_diffusion_bin("output/diff_cyl_p.obj")
+    #     sample.sample(is_parallel=True, is_pbc=False)
+    #
+    #     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+    #     sample.init_diffusion_mc("output/diff_mc_cyl_p.obj", len_step=[1,2,5,10,20,30,40,50])
+    #     sample.sample(is_parallel=True, is_pbc=True, np=6)
 
 
     #########
@@ -189,6 +189,7 @@ class UserModelCase(unittest.TestCase):
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.obj", target_dens=16)
         dens_p = pa.density.bins("output/dens_cyl_p.obj", target_dens=16)
+        dens_s_mean = pa.density.mean(dens_s)
 
         dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
 
@@ -236,6 +237,9 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.437)
         self.assertEqual(round(dens_p["dens"]["in"], 3), 13.089)
         self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.437)
+
+        self.assertEqual(round(dens_s_mean["num_dens_weight"], 3), 0.092)
+        self.assertEqual(round(dens_s_mean["dens_weight"], 3), 11.979)
 
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")

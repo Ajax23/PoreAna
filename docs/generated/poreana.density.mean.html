@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sample.init_density &#8212; PoreAna 0.2.2 documentation</title>
+    <title>mean &#8212; PoreAna 0.2.2 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
@@ -80,7 +80,7 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">Sample.init_density</a></li>
+<li><a class="reference internal" href="#">mean</a></li>
 </ul>
 </ul>
 </li>
@@ -111,26 +111,38 @@
     <div class="body col-md-12 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="sample-init-density">
-<h1>Sample.init_density<a class="headerlink" href="#sample-init-density" title="Permalink to this headline">¶</a></h1>
-<dl class="method">
-<dt id="poreana.sample.Sample.init_density">
-<code class="descclassname">Sample.</code><code class="descname">init_density</code><span class="sig-paren">(</span><em>link_out</em>, <em>bin_num=150</em>, <em>remove_pore_from_res=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_density" title="Permalink to this definition">¶</a></dt>
-<dd><p>Enable density sampling routine.</p>
+<div class=col-md-9 content><div class="section" id="mean">
+<h1>mean<a class="headerlink" href="#mean" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="poreana.density.mean">
+<code class="descclassname">poreana.density.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>density</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function uses the desnity slope obtained from function
+<a class="reference internal" href="poreana.density.bins.html#poreana.density.bins" title="poreana.density.bins"><code class="xref py py-func docutils literal"><span class="pre">poreana.density.bins()</span></code></a> to calculate a weighted density inside the pore</p>
+<div class="math">
+\[\langle\rho\rangle
+=\frac{\int\rho(r)dA(r)}{\int dA(r)}.\]</div>
+<p>In a discrete form, following formula is evaluated</p>
+<div class="math">
+\[\langle\rho\rangle=\frac{\sum_{i=1}^n\rho(r_i)A(r_i)}{\sum_{i=1}^nA(r_i)}\]</div>
+<p>with the partial area</p>
+<div class="math">
+\[A(r_i)=\pi(r_i^2-r_{i-1}^2)\]</div>
+<p>of radial bin <span class="math">\(i\)</span>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to output object file</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd><p class="first last">Density object from the density calculation <a class="reference internal" href="poreana.density.bins.html#poreana.density.bins" title="poreana.density.bins"><code class="xref py py-func docutils literal"><span class="pre">bins()</span></code></a></p>
 </dd>
-<dt><strong>bin_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of bins to be used</p>
-</dd>
-<dt><strong>remove_pore_from_res</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to remove an extended pore volume from the reservoirs to only
-consider the reservoir space intersecting the crystal grid</p>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>mean</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dd><p class="first last">Weighted mean density in <span class="math">\(\frac{\text{#}}{\text{nm}^3}\)</span> and
+<span class="math">\(\frac{\text{kg}}{\text{m}^3}\)</span></p>
 </dd>
 </dl>
 </td>

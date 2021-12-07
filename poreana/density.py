@@ -236,3 +236,57 @@ def bins_plot(density, intent="", target_dens=0, is_mean=False, kwargs={}):
 
         sns.lineplot(x=width[intent], y=density["num_dens"][intent], **kwargs)
         plt.xlim([0, width[intent][-1]])
+
+def mean(density):
+    """This function uses the desnity slope obtained from function
+    :func:`poreana.density.bins` to calculate a weighted density inside the pore
+
+    .. math::
+
+        \\langle\\rho\\rangle
+        =\\frac{\\int\\rho(r)dA(r)}{\\int dA(r)}.
+
+    In a discrete form, following formula is evaluated
+
+    .. math::
+
+        \\langle\\rho\\rangle=\\frac{\\sum_{i=1}^n\\rho(r_i)A(r_i)}{\\sum_{i=1}^nA(r_i)}
+
+    with the partial area
+
+    .. math::
+
+        A(r_i)=\\pi(r_i^2-r_{i-1}^2)
+
+    of radial bin :math:`i`.
+
+    Parameters
+    ----------
+    density : dictionary
+        Density object from the density calculation :func:`bins`
+
+    Returns
+    -------
+    mean : dictionary
+        Weighted mean density in :math:`\\frac{\\text{#}}{\\text{nm}^3}` and
+        :math:`\\frac{\\text{kg}}{\\text{m}^3}`
+    """
+    # Initialize
+    bin_num = len(density["sample"]["data"]["in_width"][:-1])
+    width = density["sample"]["data"]["in_width"][:-1]
+    num_dens = density["num_dens"]["in"]
+    mass = density["sample"]["inp"]["mass"]
+
+    # Integrate density
+    num_dens_int = sum([num_dens[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+    sum_A = sum([(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+
+    # Normalize
+    num_dens_weight = num_dens_int/sum_A
+
+    # Mass denisty
+    dens_weight = mass*10/6.022*num_dens_weight
+
+    print("Mean Density: "+"%.3f" % num_dens_weight+" #/nm^3; "+"%.3f" % dens_weight+" kg/m^3")
+
+    return {"num_dens_weight": num_dens_weight, "dens_weight": dens_weight}
