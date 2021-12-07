@@ -993,10 +993,11 @@ class Sample:
                     com = com_no_pbc
 
                 # Calculate distance towards center axis
-                if self._pore_props["type"]=="CYLINDER":
-                    dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                elif self._pore_props["type"]=="SLIT":
-                    dist = abs(self._pore_props["focal"][1]-com[1])
+                if self._pore:
+                    if self._pore_props["type"]=="CYLINDER":
+                        dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
+                    elif self._pore_props["type"]=="SLIT":
+                        dist = abs(self._pore_props["focal"][1]-com[1])
                 else:
                     dist = 0
 
