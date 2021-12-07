@@ -268,8 +268,8 @@ def mean(density):
     Returns
     -------
     mean : dictionary
-        Weighted mean density in :math:`\\frac{\\text{#}}{\\text{nm}^3}` and
-        :math:`\\frac{\\text{kg}}{\\text{m}^3}`
+        Weighted mean density in :math:`\\frac{\\text{#}}{\\text{nm}^3}`
+        **num_dens** and :math:`\\frac{\\text{kg}}{\\text{m}^3}` **dens**
     """
     # Initialize
     bin_num = len(density["sample"]["data"]["in_width"][:-1])
@@ -289,4 +289,4 @@ def mean(density):
 
     print("Mean Density: "+"%.3f" % num_dens_weight+" #/nm^3; "+"%.3f" % dens_weight+" kg/m^3")
 
-    return {"num_dens_weight": num_dens_weight, "dens_weight": dens_weight}
+    return {"num_dens": num_dens_weight, "dens": dens_weight}
