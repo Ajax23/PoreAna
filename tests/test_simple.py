@@ -60,20 +60,20 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens_box.h5")
         sample.init_gyration("output/gyr_box.h5")
         sample.sample(shift=[0, 0, 3.3], is_parallel=False)
-
+        #
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=False)
-
+        #
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(is_parallel=False)
-
+        #
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
         sample.init_diffusion_mc("output/diff_mc_box.h5", len_step=[1,2,5,10,20,30,40,50])
         sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
-
-        ## Parallel
+        #
+        # ## Parallel
         sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_p.h5")
         sample.init_gyration("output/gyr_cyl_p.h5")
@@ -85,9 +85,9 @@ class UserModelCase(unittest.TestCase):
         sample.sample(is_parallel=True, is_pbc=True, np=6)
 
 
-    #########
-    # Utils #
-    #########
+    # #########
+    # # Utils #
+    # #########
     def test_utils(self):
         file_link = "output/test/test.obj"
 
@@ -99,6 +99,9 @@ class UserModelCase(unittest.TestCase):
         pa.utils.check_filetype("output/test/test.txt")
         pa.utils.file_to_text("data/box_output.h5", "output/box_output.txt")
         pa.utils.file_to_text("data/check_output.h5", "output/check_output.txt")
+        pa.utils.file_to_text("output/dens_cyl_s.h5", "output/dens_cyl_s.txt")
+        pa.utils.file_to_text("output/diff_cyl_s.h5", "output/diff_cyl_s.txt", "output/dens_cyl_s.h5",)
+        pa.utils.file_to_text("output/gyr_cyl_s.h5", "output/gyr_cyl_s.txt", "output/dens_cyl_s.h5",)
 
         print(pa.utils.load(file_link))
         self.assertEqual(pa.utils.load(file_link), [1, 1, 1])
@@ -509,11 +512,11 @@ class UserModelCase(unittest.TestCase):
 
         # Check output which is not coveraged by the entire MC test
         # Check diffusion profile function
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], infty_profile = False)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "pore", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "reservoir", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = "test", infty_profile = True)
-        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,30,40], section = [0,1,2], infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,40], infty_profile = False)
+        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,40], section = "pore", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,40], section = "reservoir", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,40], section = "test", infty_profile = True)
+        pa.diffusion.mc_profile("data/check_output.h5", len_step=[10,20,40], section = [0,1,2], infty_profile = True)
         pa.diffusion.mc_profile("data/check_output.h5", section = [1,10], infty_profile = True)
 
         # Check diffusion fitting function

@@ -399,9 +399,7 @@ def mc_trans_mat(link, step, kwargs={}):
 
     # Sample obj file is loaded
     if "data" in data:
-        trans_mat = {}
-        for i in data["data"]:
-            trans_mat[int(i)] = data["data"][i][:]
+        trans_mat = data["data"]
         inp = data["inp"]
         frame_num = inp["num_frame"]
         frame_length = inp["len_frame"] * 10**12
@@ -409,9 +407,7 @@ def mc_trans_mat(link, step, kwargs={}):
     # MC obj file is loaded
     else:
         model = data["model"]
-        trans_mat = {}
-        for i in model["data"]:
-            trans_mat[int(i)] = model["data"][i]
+        trans_mat = model["data"]
         frame_num = model["num_frame"]
         frame_length = model["len_frame"] * 10**12
 
@@ -420,7 +416,7 @@ def mc_trans_mat(link, step, kwargs={}):
     plt.title("Lagtime: "+ str(step * frame_length) + " ps", fontsize=10)
 
     # Plot the normalized transition matrix in a heatmap
-    sns.heatmap(trans_mat[step]/frame_num, **kwargs)
+    sns.heatmap(trans_mat[step], **kwargs)
 
 
 ##################
@@ -702,7 +698,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
 
 
 
-def mc_profile(link, len_step=[], section=[], infty_profile=False,  is_plot=True, kwargs={}):
+def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True, kwargs={}):
     """This function plots the diffusion profile for an infinity
     lag time (:math:`\\Delta t_{\\alpha} \\rightarrow \\infty`) over the box
     fitted with the specified :math:`\\mathrm{len}\_\\mathrm{step}` list.

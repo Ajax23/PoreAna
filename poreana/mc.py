@@ -211,7 +211,7 @@ class MC:
         #utils.save({"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}, link_out)
 
         # pickle directory to save late in hdf5
-        results = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}
+        results = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output, "type": "mc"}
 
         utils.save(results,link_out)
 

@@ -891,7 +891,7 @@ class Sample:
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
 
             # Pickle
-            results = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}
+            results = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens, "type": "dens_bin"}
             utils.save(results, self._dens_inp["output"])
 
 
@@ -906,7 +906,7 @@ class Sample:
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
 
             # Pickle
-            results = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}
+            results = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr, "type": "gyr_bin"}
             utils.save(results, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
@@ -925,7 +925,7 @@ class Sample:
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
 
             # Pickle
-            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_bin"}
             utils.save(results, self._diff_bin_inp["output"])
 
 
@@ -943,7 +943,7 @@ class Sample:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
 
             # Save results in dictionary
-            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}
+            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_mc"}
 
             # Save dictionary to h5-file
             utils.save(results, self._diff_mc_inp["output"])

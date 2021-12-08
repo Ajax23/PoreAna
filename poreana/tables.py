@@ -189,16 +189,10 @@ def mc_model(link, print_con=False):
     direction = int(model["direction"])
 
     # String for pbc
-    if pbc == 1:
-        pbc = "True"
-    else:
-        pbc = "False"
+    pbc = pbc == 1
 
     # String for system
-    if "pore" in data:
-        system = "pore"
-    if "box" in data:
-        system = "box"
+    system = "pore" if "pore" in data else "box"
 
     if direction == 0:
         direction = "x"
@@ -275,7 +269,7 @@ def mc_inputs(link, print_con=False):
 
     return df_mc
 
-def mc_results(link, print_con=True, sections={"pore": [], "res":[]}):
+def mc_results(link, print_con=False, sections={"pore": [], "res":[]}, len_step = []):
     """This function prints the MC results of the diffusion calculation. With the
     sections dictionary it can be defined different areas in which the diffusion
     coefficient will be estimated.
@@ -303,8 +297,11 @@ def mc_results(link, print_con=True, sections={"pore": [], "res":[]}):
     data = utils.load(link)
     model = data["model"]
 
+    if not len_step:
+        len_step = list(model["len_step"])
+
     # Calculate diffusion of the entire system
-    diff = diffusion.mc_fit(link, is_print=False, is_plot = False)
+    diff = diffusion.mc_fit(link, is_print=False, is_plot = False, len_step = len_step)
 
     # If pore system load pore properties
     if "pore" in data:
@@ -327,18 +324,18 @@ def mc_results(link, print_con=True, sections={"pore": [], "res":[]}):
         for section in sections:
             if section=="pore" and not sections["pore"]:
                 sections[section] = [res,round(z_length-res,2)]
-                diff_section = diffusion.mc_fit(link,  section = "pore", is_print=False, is_plot = False)
+                diff_section = diffusion.mc_fit(link,  section = "pore", is_print=False, is_plot = False, len_step = len_step)
             if section=="res" and not sections["res"]:
-                diff_section = diffusion.mc_fit(link,  section = "reservoir", is_print=False, is_plot = False)
+                diff_section = diffusion.mc_fit(link,  section = "reservoir", is_print=False, is_plot = False, len_step = len_step)
                 sections[section] = [0,res]
             else:
-                diff_section = diffusion.mc_fit(link,  section = sections[section], is_print=False, is_plot = False)
+                diff_section = diffusion.mc_fit(link,  section = sections[section], is_print=False, is_plot = False, len_step = len_step)
             data_section = [sections[section], diff_section[0], diff_section[3]]
             data.append(data_section)
             index_list.append(section)
 
         # Set pandas table
-        df_mc_results = pd.DataFrame(data, index=index_list, columns=list(['Area','Diffusion (10^-9  m^2s^-1)' ,'Residual (10^-9 m2s^-1)']))
+        df_mc_results = pd.DataFrame(data, index=index_list, columns=list(['Area (nm)','Diffusion (10^-9  m^2s^-1)' ,'Residual (10^-9 m2s^-1)']))
 
     # If box system
     else:
@@ -355,7 +352,7 @@ def mc_results(link, print_con=True, sections={"pore": [], "res":[]}):
             elif section=="res" and not sections["res"]:
                 pass
             else:
-                diff_section = diffusion.mc_fit(link, section = sections[section], is_print=False, is_plot = False)
+                diff_section = diffusion.mc_fit(link, section = sections[section], is_print=False, is_plot = False, len_step = len_step)
                 data.append([sections[section],diff_section[0],diff_section[3]])
                 index_list.append(section)
 

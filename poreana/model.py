@@ -33,6 +33,7 @@ class Model:
         self._direction = int(inp["direction"])
         self._trans_mat= sample["data"]                # transition matrix
         self._pbc = inp["is_pbc"]                    # pbc or nopbc
+        self._type = sample["type"]
 
         self._sys_props = {}
         if "pore" in sample:
