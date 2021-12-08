@@ -293,6 +293,7 @@ def mean(density, is_print=True):
     # Mass denisty
     dens_weight = mass*10/6.022*num_dens_weight
 
-    print("Mean Density: "+"%.3f" % num_dens_weight+" #/nm^3; "+"%.3f" % dens_weight+" kg/m^3")
+    if is_print:
+        print("Mean Density: "+"%.3f" % num_dens_weight+" #/nm^3; "+"%.3f" % dens_weight+" kg/m^3")
 
     return {"num_dens": num_dens_weight, "dens": dens_weight}
