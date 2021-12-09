@@ -445,7 +445,7 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff[0] - (11) ) < 0.4, True)
+        self.assertEqual(abs(diff[0] - (11) ) < 0.5, True)
 
 
     ####################################

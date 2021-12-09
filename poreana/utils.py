@@ -12,10 +12,7 @@ import h5py
 import numpy as np
 import pandas as pd
 import datetime
-import poreana.diffusion as diffusion
-import poreana.freeenergy as freeenergy
 import poreana as pa
-import poreana.tables as tables
 
 
 def mkdirp(directory):
@@ -510,8 +507,8 @@ def file_to_text(link, link_output, link_dens=[]):
 
 
         # Get profiles
-        diff = diffusion.mc_profile(link, is_plot = False, infty_profile=True)
-        free_energy= freeenergy.mc_profile(link, is_plot = False)
+        diff = pa.diffusion.mc_profile(link, is_plot = False, infty_profile=True)
+        free_energy= pa.freeenergy.mc_profile(link, is_plot = False)
 
         # Set pandas table for profiles
         data = {}
@@ -525,11 +522,11 @@ def file_to_text(link, link_output, link_dens=[]):
 
 
         # Set pandas tables
-        df_inputs = tables.mc_inputs(link, print_con=False)
+        df_inputs = pa.tables.mc_inputs(link, print_con=False)
         df_inputs = df_inputs.rename_axis('# Identifier', axis=1)
-        df_model = tables.mc_model(link, print_con=False)
+        df_model = pa.tables.mc_model(link, print_con=False)
         df_model = df_model.rename_axis('# Identifier', axis=1)
-        df_results = tables.mc_results(link, print_con=False)
+        df_results = pa.tables.mc_results(link, print_con=False)
         df_results = df_results.rename_axis('# Identifier', axis=1)
 
         # Convert pandas table to strings
