@@ -370,8 +370,8 @@ def file_to_text(link, link_output, link_dens=[]):
 
 
         # Set pandas table for input
-        data = [[data["inp"]["bin_num"]],[data["inp"]["entry"]],[data["inp"]["num_frame"]], [data["inp"]["mass"]], [bins["is_norm"]]]
-        df_inputs = pd.DataFrame(data,index = list(["Bin number","Entry","Frame number", "Mass", "is_norm"]), columns=list(["Value"]))
+        data_inp = [[data["inp"]["bin_num"]],[data["inp"]["entry"]],[data["inp"]["num_frame"]], [data["inp"]["mass"]], [bins["is_norm"]]]
+        df_inputs = pd.DataFrame(data_inp,index = list(["Bin number","Entry","Frame number", "Mass", "is_norm"]), columns=list(["Value"]))
         df_inputs = df_inputs.rename_axis('# Identifier', axis=1)
 
         # Set pandas table for bin diffusion profiles
@@ -433,7 +433,6 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = df_system.rename_axis('# Identifier', axis=1)
         # If box system
         elif "box" in data:
-            print(data)
             system = "box"
             box_group = data["box"]
             box = box_group["length"]
@@ -442,8 +441,8 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = df_system.rename_axis('# Identifier', axis=1)
 
         # Set panda table for inputs
-        data = [[data["inp"]["bin_num"]],[data["inp"]["entry"]],[data["inp"]["num_frame"]],[True if data["inp"]['remove_pore_from_res'] else False], [str("%.2f" % data["inp"]["mass"])]]
-        df_inputs = pd.DataFrame(data,index = list(["Bin number","Entry","Frame number", "Remove pore from reservoir", "Mass"]), columns=list(["Value"]))
+        data_inp = [[data["inp"]["bin_num"]],[data["inp"]["entry"]],[data["inp"]["num_frame"]],[True if data["inp"]['remove_pore_from_res'] else False], [str("%.2f" % data["inp"]["mass"])]]
+        df_inputs = pd.DataFrame(data_inp,index = list(["Bin number","Entry","Frame number", "Remove pore from reservoir", "Mass"]), columns=list(["Value"]))
         df_inputs = df_inputs.rename_axis('# Identifier', axis=1)
 
         # Calculated adsorption and set pandas table

@@ -101,7 +101,9 @@ class UserModelCase(unittest.TestCase):
         pa.utils.file_to_text("data/check_output.h5", "output/check_output.txt")
         pa.utils.file_to_text("output/dens_cyl_s.h5", "output/dens_cyl_s.txt")
         pa.utils.file_to_text("output/diff_cyl_s.h5", "output/diff_cyl_s.txt", "output/dens_cyl_s.h5",)
+        pa.utils.file_to_text("output/diff_cyl_s.h5", "output/diff_cyl_s.txt")
         pa.utils.file_to_text("output/gyr_cyl_s.h5", "output/gyr_cyl_s.txt", "output/dens_cyl_s.h5",)
+        pa.utils.file_to_text("output/gyr_cyl_s.h5", "output/gyr_cyl_s.txt")
         pa.utils.file_to_text("output/gyr_box.h5", "output/gyr_box.txt", "output/dens_box.h5",)
         pa.utils.file_to_text("output/dens_box.h5", "output/dens_box.txt")
 
