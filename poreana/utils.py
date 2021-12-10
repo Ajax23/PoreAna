@@ -289,11 +289,10 @@ def file_to_text(link, link_output, link_dens=[]):
         # If box system
         elif "box" in data:
             system = "box"
-            t = data["model"]["len_frame"]
             box_group = data["box"]
             box = box_group["length"]
-            data = [[["%.2f" % i for i in box]]]
-            df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
+            data_box = [[["%.2f" % i for i in box]]]
+            df_system = pd.DataFrame(data_box, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
             df_system = df_system.rename_axis('# Identifier', axis=1)
 
         # Set pandas table for input
@@ -302,7 +301,7 @@ def file_to_text(link, link_output, link_dens=[]):
         df_inputs = df_inputs.rename_axis('# Identifier', axis=1)
 
         # Calculate gyration and set pandas table
-        gyr_in = pa.gyration.bins_plot(link, link_dens)
+        gyr_in = pa.gyration.bins_plot(link, link_dens, intent="ex")
         gyr_pd = pd.DataFrame(gyr_in, index=(["gyration"]))
         gyr_pd = gyr_pd.rename_axis('# Identifier', axis=1)
 
@@ -419,7 +418,6 @@ def file_to_text(link, link_output, link_dens=[]):
     ####################
     # If density sample file was loaded
     elif data["type"] == "dens_bin":
-
         # If pore system
         if "pore" in data:
             system = "pore"
@@ -435,12 +433,12 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = df_system.rename_axis('# Identifier', axis=1)
         # If box system
         elif "box" in data:
+            print(data)
             system = "box"
-            t = data["model"]["len_frame"]
             box_group = data["box"]
             box = box_group["length"]
-            data = [[["%.2f" % i for i in box]]]
-            df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
+            data_box = [[["%.2f" % i for i in box]]]
+            df_system = pd.DataFrame(data_box, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
             df_system = df_system.rename_axis('# Identifier', axis=1)
 
         # Set panda table for inputs
@@ -449,9 +447,10 @@ def file_to_text(link, link_output, link_dens=[]):
         df_inputs = df_inputs.rename_axis('# Identifier', axis=1)
 
         # Calculated adsorption and set pandas table
-        ads = pa.adsorption.calculate(link)
-        df_ads = pd.DataFrame(ads)
-        df_ads = df_ads.rename_axis('# Identifier', axis=1)
+        if "pore" in data:
+            ads = pa.adsorption.calculate(link)
+            df_ads = pd.DataFrame(ads)
+            df_ads = df_ads.rename_axis('# Identifier', axis=1)
 
         # Calculated density and set pandas table
         dens = pa.density.bins(link)
@@ -459,15 +458,17 @@ def file_to_text(link, link_output, link_dens=[]):
         df_mean = df_mean.rename_axis('# Identifier', axis=1)
 
         # Set pandas table for density profile
-        data = {}
-        data["# Ex width"] = dens["sample"]["data"]["ex_width"]
-        data["Density (Ex)"] = dens["num_dens"]["ex"]
-        data["In width"] = dens["sample"]["data"]["in_width"][1:]
-        data["Density (In)"] = dens["num_dens"]["in"]
-        df_data = pd.DataFrame(data)
+        data_dens = {}
+        data_dens["# Ex width"] = dens["sample"]["data"]["ex_width"]
+        data_dens["Density (Ex)"] = dens["num_dens"]["ex"]
+        if "pore" in data:
+            data_dens["In width"] = dens["sample"]["data"]["in_width"][1:]
+            data_dens["Density (In)"] = dens["num_dens"]["in"]
+        df_data = pd.DataFrame(data_dens)
 
         # Convert pandas table to string
-        df_ads_string = df_ads.to_string(header=True, index=True, na_rep="")
+        if "pore" in data:
+            df_ads_string = df_ads.to_string(header=True, index=True, na_rep="")
         df_data_string = df_data.to_string(header=True, index=False)
         df_mean_string = df_mean.to_string(header=True, index=True)
         df_system_string = df_system.to_string(header=True, index=True)
@@ -489,8 +490,9 @@ def file_to_text(link, link_output, link_dens=[]):
             file.write(df_inputs_string)
 
             # Write adsorption table
-            file.write("\n\n[Adsorption]\n")
-            file.write(df_ads_string)
+            if "pore" in data:
+                file.write("\n\n[Adsorption]\n")
+                file.write(df_ads_string)
 
             # Write density
             file.write("\n\n[Density]\n")
