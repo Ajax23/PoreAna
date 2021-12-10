@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-save\_dict\_to\_hdf
-===================
+check\_filetype
+===============
 
 .. currentmodule:: poreana.utils
 
-.. autofunction:: save_dict_to_hdf
+.. autofunction:: check_filetype

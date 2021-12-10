@@ -116,39 +116,55 @@ def save(obj, link):
         groups = {}
         data_base = {}
 
+        # Create groups for the keys in the obj file
         for key in obj.keys():
             groups[key] = f.create_group(key)
+
+            # If key "box" only a value is on frist key level
             if key =="box":
                 pass
+            # If key "type" only a value is on frist key level
             elif key=="type":
                 pass
+            # For all other key read the second level keys
             else:
                 data_base[key] = obj[key].keys()
 
         for gkey in groups:
+            # Write the box length on data base
             if gkey =="box":
                 groups[gkey].create_dataset("length",data = obj[gkey])
+            # Write the type of calculation on data base
             elif gkey =="type":
                 dt = h5py.special_dtype(vlen=str)
                 type = groups[gkey].create_dataset("type", (1), dtype=dt)
                 type[0] = obj[gkey]
+            # Loop over second level keys
             else:
                 for base in data_base[gkey]:
+                    # Check if a third level exists
                     if isinstance(obj[gkey][base],dict):
+                        # If a third level exists create new group in first level groups
                         data = groups[gkey].create_group(base)
+                        # Loop over thrid level keys
                         for base2 in obj[gkey][base]:
+                            # Check if third level key is a matrix
                             if isinstance(obj[gkey][base][base2],(list, np.ndarray)) :
                                 data.create_dataset(str(base2),data = obj[gkey][base][base2])
+                            # Else is a vlaue (int/float)
                             else:
                                 value = data.create_dataset(str(base2), shape=(1,1))
                                 value[0] = obj[gkey][base][base2]
-
+                    # Check If second level is value/list or string
+                    # If string
                     elif isinstance(obj[gkey][base],str):
                         dt = h5py.special_dtype(vlen=str)
                         string = groups[gkey].create_dataset(str(base), (1), dtype=dt)
                         string[0] = obj[gkey][base]
+                    # If list
                     elif isinstance(obj[gkey][base],(list, np.ndarray)):
                         data = groups[gkey].create_dataset(str(base), data = obj[gkey][base])
+                    # If value
                     else:
                         data = groups[gkey].create_dataset(str(base), shape=(1,1))
                         data[0] = obj[gkey][base]
@@ -178,22 +194,30 @@ def load(link):
         data = h5py.File(link, 'r')
         data_load = {}
 
+        # Check keys in hdf5 file
         for keys in data.keys():
             data_load[keys] = {}
+            # If sample file is load
             if keys=="data":
                 for keys2 in data[keys].keys():
                     try:
                         data_load[keys][int(keys2)] = data[keys][keys2][:]
                     except:
                         data_load[keys][keys2] = data[keys][keys2][:]
+            # If key type only a string has to be load
             elif keys=="type":
                 data_load[keys] = data[keys][keys][0].decode("utf-8")
+            # other keys
             else:
+                # Load second level keys
                 for keys2 in data[keys].keys():
                     data_load[keys][keys2] = {}
+                    # Try if a thrid level exist
                     try:
+                        # load thrid level
                         for keys3 in data[keys][keys2].keys():
                             data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
+                    # Save second level data
                     except:
                         if len(data[keys][keys2][:])==1:
                             try:
@@ -223,7 +247,8 @@ def check_filetype(link):
 
 
 def file_to_text(link, link_output, link_dens=[]):
-    """ This function converts an output directory in txt file.
+    """ This function converts an output directory in txt file. For the bin diffusion
+    result text file the density sampling file is additionally necessary.
 
     Parameters
     ----------
@@ -335,14 +360,15 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = pd.DataFrame(data_system, index=list(["Box dimension (nm)","Pore diameter (nm)","reservoir (nm)", "type"]),columns=list(["Value"]))
             df_system = df_system.rename_axis('# Identifier', axis=1)
         # If box system
-        elif "box" in data:
-            system = "box"
-            t = data["model"]["len_frame"]
-            box_group = data["box"]
-            box = box_group["length"]
-            data = [[["%.2f" % i for i in box]]]
-            df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
-            df_system = df_system.rename_axis('# Identifier', axis=1)
+        # elif "box" in data:
+        #     system = "box"
+        #     t = data["model"]["len_frame"]
+        #     box_group = data["box"]
+        #     box = box_group["length"]
+        #     data = [[["%.2f" % i for i in box]]]
+        #     df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
+        #     df_system = df_system.rename_axis('# Identifier', axis=1)
+
 
         # Set pandas table for input
         data = [[data["inp"]["bin_num"]],[data["inp"]["entry"]],[data["inp"]["num_frame"]], [data["inp"]["mass"]], [bins["is_norm"]]]

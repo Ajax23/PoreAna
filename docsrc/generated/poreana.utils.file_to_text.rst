@@ -5,9 +5,9 @@
     </div>
     <div class=col-md-9 content>
 
-load\_hdf
-=========
+file\_to\_text
+==============
 
 .. currentmodule:: poreana.utils
 
-.. autofunction:: load_hdf
+.. autofunction:: file_to_text
