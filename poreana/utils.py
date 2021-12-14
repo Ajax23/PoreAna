@@ -121,13 +121,8 @@ def save(obj, link):
             groups[key] = f.create_group(key)
 
             # If key "box" only a value is on frist key level
-            if key =="box":
-                pass
-            # If key "type" only a value is on frist key level
-            elif key=="type":
-                pass
+            if not key in ["box","type"]:
             # For all other key read the second level keys
-            else:
                 data_base[key] = obj[key].keys()
 
         for gkey in groups:
@@ -315,7 +310,7 @@ def file_to_text(link, link_output, link_dens=[]):
             # Write file header
             file.write("# This file was created " + str(datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")) + "\n")
             file.write("# Analysis created using  PoreAna\n")
-            file.write("# Object file : " + os.path.dirname(os.path.abspath(__file__)) + link + "\n")
+            file.write("# Object file : " + os.path.dirname(os.path.abspath(__file__)) + link + "\n\n")
 
             # Write System table
             file.write("[System]\n")
@@ -358,15 +353,6 @@ def file_to_text(link, link_output, link_dens=[]):
             data_system = [[["%.2f" % i for i in box]],[diam],[res],[type]]
             df_system = pd.DataFrame(data_system, index=list(["Box dimension (nm)","Pore diameter (nm)","reservoir (nm)", "type"]),columns=list(["Value"]))
             df_system = df_system.rename_axis('# Identifier', axis=1)
-        # If box system
-        # elif "box" in data:
-        #     system = "box"
-        #     t = data["model"]["len_frame"]
-        #     box_group = data["box"]
-        #     box = box_group["length"]
-        #     data = [[["%.2f" % i for i in box]]]
-        #     df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
-        #     df_system = df_system.rename_axis('# Identifier', axis=1)
 
 
         # Set pandas table for input
@@ -453,7 +439,10 @@ def file_to_text(link, link_output, link_dens=[]):
 
         # Calculated density and set pandas table
         dens = pa.density.bins(link)
-        df_mean = pd.DataFrame([[dens["mean"]["in"], dens["dens"]["in"]],[dens["mean"]["ex"], dens["dens"]["ex"]]],index = list(["Density inside pore","Density outside pore"]), columns=list(["Density (#/nm^3)", "Density (kg/m^3)"]))
+        if  "pore" in data:
+            df_mean = pd.DataFrame([[dens["mean"]["in"], dens["dens"]["in"]],[dens["mean"]["ex"], dens["dens"]["ex"]]],index = list(["Density inside pore","Density outside pore"]), columns=list(["Density (#/nm^3)", "Density (kg/m^3)"]))
+        else:
+            df_mean = pd.DataFrame([[dens["mean"]["ex"], dens["dens"]["ex"]]],index = list(["Density box"]), columns=list(["Density (#/nm^3)", "Density (kg/m^3)"]))
         df_mean = df_mean.rename_axis('# Identifier', axis=1)
 
         # Set pandas table for density profile

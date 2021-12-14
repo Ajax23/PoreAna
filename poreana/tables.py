@@ -193,19 +193,12 @@ def mc_model(link, print_con=False):
 
     # String for system
     system = "pore" if "pore" in data else "box"
-
-    if direction == 0:
-        direction = "x"
-    elif direction == 1:
-        direction = "y"
-    elif direction == 2:
-        direction = "z"
-
+ 
     # Len step string
     len_step_string = ', '.join(str(step) for step in len_step)
 
     # Dictionary for model inputs
-    data = [str("%.i" % bin_number), len_step_string, str("%.2e" % (len_frame * 10**(-12))), str("%.i" % frame_num), str("%.i" % nD), str("%.i" % nF), str("%.i" % nDrad), model_string, str("%.2e" % (d * 10**(-6))), system, pbc, direction]
+    data = [str("%.i" % bin_number), len_step_string, str("%.2e" % (len_frame * 10**(-12))), str("%.i" % frame_num), str("%.i" % nD), str("%.i" % nF), str("%.i" % nDrad), model_string, str("%.2e" % (d * 10**(-6))), system, pbc, str("%.i" % direction)]
     df_model = pd.DataFrame(data, index=list(['Bin number', 'step length', 'frame length (s)', 'frame number', 'nD', 'nF', 'nDrad', 'model', 'guess diffusion (m2/s-1)', 'system',"pbc", "direction"]), columns=list(['Input']))
 
     # If the table has to print in console and not in a jupyter notebook
@@ -350,18 +343,14 @@ def mc_results(link, print_con=False, sections={"pore": [], "res":[]}, len_step 
         index_list = ["Box"]
 
         # Calculate diffusion in the defined areas
-        for section in sections:
-            if section=="pore" and not sections["pore"]:
-                pass
-            elif section=="res" and not sections["res"]:
-                pass
-            else:
-                diff_section = diffusion.mc_fit(link, section = sections[section], is_print=False, is_plot = False, len_step = len_step)
-                data.append([sections[section],diff_section[0],diff_section[3]])
-                index_list.append(section)
+        for key,section in sections.items():
+            if section:
+                diff_section = diffusion.mc_fit(link, section = section, is_print=False, is_plot = False, len_step = len_step)
+                data.append([section,diff_section[0],diff_section[3]])
+                index_list.append(key)
 
         # Set pandas table
-        df_mc_results = pd.DataFrame(data, index=index_list, columns=list(['Area','Diffusion (10^-9  m^2s^-1)' ,'Residual (10^-9 m2s^-1)']))
+        df_mc_results = pd.DataFrame(data, index=index_list, columns=list(['Area (nm)','Diffusion (10^-9  m^2s^-1)' ,'Residual (10^-9 m2s^-1)']))
 
     # If the table has to print in console and not in a jupyter notebook
     if print_con:

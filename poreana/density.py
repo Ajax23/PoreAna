@@ -85,6 +85,12 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
         Target density in :math:`\\frac{\\text{kg}}{\\text{m}^3}`
     is_print : bool, optional
         True to print output
+
+    Returns
+    -------
+    density : dictionary
+        dictonary with inputs and the calculated density profiles and mean
+        density
     """
     # Load data object
     sample = utils.load(link_data)

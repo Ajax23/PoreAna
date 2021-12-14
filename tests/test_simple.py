@@ -510,7 +510,8 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_lag_time("data/check_output.h5", print_con=True)
         pa.tables.mc_results("data/check_output.h5", print_con=True)
         pa.tables.mc_results("data/box_output.h5", print_con=True)
-        pa.tables.mc_results("data/box_output.h5", print_con=True)
+        pa.tables.mc_results("data/check_output.h5", print_con=True, sections={"test":[0,5]})
+        pa.tables.mc_results("data/box_output.h5", print_con=True, sections={"test":[0,5]})
 
     def test_diffusion_output(self):
         # self.skipTest("Temporary")

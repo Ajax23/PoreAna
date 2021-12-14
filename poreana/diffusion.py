@@ -373,7 +373,7 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_norm=False, is_check=False
 ######################################
 # Diffusion - MC - Transition Matrix #
 ######################################
-def mc_trans_mat(link, step, kwargs={}):
+def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
     """This function plots the occupation of a normalized transition matrix as a
     heatmap. To normalize the transition matrix the number of the frame are used.
     This means that all entries in the transition matrix are divided by the
@@ -402,15 +402,21 @@ def mc_trans_mat(link, step, kwargs={}):
         trans_mat = data["data"]
         inp = data["inp"]
         frame_num = inp["num_frame"]
-        frame_length = inp["len_frame"] * 10**12
+        frame_length = inp["len_frame"]
 
     # MC obj file is loaded
     else:
         model = data["model"]
         trans_mat = model["data"]
         frame_num = model["num_frame"]
-        frame_length = model["len_frame"] * 10**12
+        frame_length = model["len_frame"]
 
+    # Normalized transition matrix with frame number
+    if is_norm:
+        trans_mat[step] = trans_mat[step]/frame_num
+
+    if is_diagonal:
+        trans_mat[step][np.diag_indices_from(trans_mat[step])] = 0
 
     # Set title with selected lag time
     plt.title("Lagtime: "+ str(step * frame_length) + " ps", fontsize=10)
