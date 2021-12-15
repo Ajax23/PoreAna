@@ -858,7 +858,9 @@ class Sample:
 
             if self._is_diffusion_mc:
                 frame_end = [x+max(self._diff_mc_inp["len_step"]) for i, x in enumerate(frame_end)]
-                frame_end[-1] = frame_end[-1]-max(self._diff_mc_inp["len_step"])
+                for i in range(len(frame_end)):
+                    if frame_end[i] >= self._num_frame:
+                        frame_end[i] = frame_end[i]-max(self._diff_mc_inp["len_step"])
 
             # Create working lists for processors
             frame_np = [list(range(frame_start[i], frame_end[i])) for i in range(np)]

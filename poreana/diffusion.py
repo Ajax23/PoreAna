@@ -389,6 +389,10 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
         Step length for which the transition matrix is to be displayed
     kwargs: dict, optional
         Dictionary with plotting parameters
+    is_norm: bool,optional
+        Normalized the transition with the number for frames
+    is_diagonal: bool, optional
+        Set the matrix diagonal to zero
     """
 
     # Check the data type of input
