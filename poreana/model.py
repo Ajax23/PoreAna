@@ -45,7 +45,7 @@ class Model:
             self._system = "pore"
         if "box" in sample:
             self._system = "box"
-            self._sys_props = sample["box"]["length"]
+            self._sys_props["length"] = sample["box"]["length"]
 
 
         # Initialize units of diffusion and free energy unit

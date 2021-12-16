@@ -128,7 +128,7 @@ def save(obj, link):
         for gkey in groups:
             # Write the box length on data base
             if gkey =="box":
-                groups[gkey].create_dataset("length",data = obj[gkey])
+                groups[gkey].create_dataset("length",data = obj[gkey]["length"])
             # Write the type of calculation on data base
             elif gkey =="type":
                 dt = h5py.special_dtype(vlen=str)

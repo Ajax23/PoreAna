@@ -860,7 +860,7 @@ class Sample:
                 frame_end = [x+max(self._diff_mc_inp["len_step"]) for i, x in enumerate(frame_end)]
                 for i in range(len(frame_end)):
                     if frame_end[i] >= self._num_frame:
-                        frame_end[i] = frame_end[i]-max(self._diff_mc_inp["len_step"])
+                        frame_end[i] = frame_end[-1]-max(self._diff_mc_inp["len_step"])
 
             # Create working lists for processors
             frame_np = [list(range(frame_start[i], frame_end[i])) for i in range(np)]
@@ -879,7 +879,7 @@ class Sample:
             output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc, is_broken)]
 
         # Concatenate output and create pickle object files
-        system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": self._box}
+        system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": {"length" :self._box}}
         inp = {"num_frame": self._num_frame, "mass": self._mol.get_mass(), "entry": self._entry}
 
         if self._is_density:

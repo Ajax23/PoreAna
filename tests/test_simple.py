@@ -441,7 +441,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10, 20, 30, 40, 50]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=10000, nmc=2000, is_print=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=3000, nmc=1000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
@@ -449,7 +449,7 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff[0] - (11) ) < 0.5, True)
+        self.assertEqual(abs(diff[0] - (10.5) ) < 0.7, True)
 
 
     ####################################
