@@ -382,13 +382,13 @@ class UserModelCase(unittest.TestCase):
 
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 1
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-153141.72)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-149411.12)
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 2
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-173915.99)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2),-169616.56)
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 10
-        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -238590.92)
+        self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -234093.97)
 
         # Set len_step for MC run test
         model._len_step = [10,20,40]
@@ -451,7 +451,7 @@ class UserModelCase(unittest.TestCase):
         model._len_step = [10, 20, 30, 40, 50]
 
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=3000, nmc=1000, is_print=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=10000, nmc=3000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
