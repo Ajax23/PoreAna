@@ -1,6 +1,7 @@
 pandas
 scipy
 seaborn
+h5py
 porems>=0.2.0
 chemfiles==0.10.0
 jinja2

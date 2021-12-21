@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-
 import poreana.utils as utils
 
 
@@ -10,34 +9,44 @@ class Model:
 
     Parameters
     ----------
-    data_link : string
-        Data link to the pickle data from :func:`poreana.sample.Sample.init_diffusion_mc`
+    link : string
+        Data link to the h5 data file from :func:`poreana.sample.Sample.init_diffusion_mc`
+
     """
 
-    def __init__(self, data_link):
+    def __init__(self, link):
 
-        # Load data object
-        sample = utils.load(data_link)
+        # Check the data type of input
+        utils.check_filetype(link)
+
+        # Load hdf5 data file
+        sample = utils.load(link)
+
         inp = sample["inp"]
-        self._model_inp = sample
-
         # Read the inputs
-        self._bin_num = inp["bin_num"]                   # number of bins z-direction
-        self._frame_num = inp["num_frame"]               # number of frames
+        self._bin_num = int(inp["bin_num"])               # number of bins z-direction
+        self._frame_num = int(inp["num_frame"])             # number of frames
         self._len_step = inp["len_step"]                 # step length
-        self._dt = inp["len_frame"] * 10**12             # frame length [ps]
-        self._bins = inp["bins"]                         # bins [nm]
+        self._dt = float(inp["len_frame"]) * 10**12             # frame length [ps]
+        self._bins = inp["bins"]                      # bins [nm]
         self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
-        self._trans_mat = sample["data"]                 # transition matrix
-        self._pbc = inp["is_pbc"]                        # pbc or nopbc
+        self._direction = int(inp["direction"])
+        self._trans_mat= sample["data"]                # transition matrix
+        self._pbc = inp["is_pbc"]                    # pbc or nopbc
+        self._type = sample["type"]
 
-
+        self._sys_props = {}
         if "pore" in sample:
-            self._sys_props = sample["pore"]
+            self._sys_props["type"] = sample["pore"]["type"]
+            self._sys_props["res"] = float(sample["pore"]["res"])
+            self._sys_props["focal"] = sample["pore"]["focal"]
+            self._sys_props["box"] = sample["pore"]["box"]
+            self._sys_props["diam"] = float(sample["pore"]["diam"])
             self._system = "pore"
         if "box" in sample:
-            self._sys_props = sample["box"]
             self._system = "box"
+            self._sys_props["length"] = sample["box"]["length"]
+
 
         # Initialize units of diffusion and free energy unit
         self._df_unit = 1.                                 # in kBT

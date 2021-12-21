@@ -3,13 +3,15 @@ poreana\.utils
 
 .. automodule:: poreana.utils
 
-   
-   
+
+
    .. rubric:: Functions
 
    .. autosummary::
-   
+
+      check_filetype
       column
+      file_to_text
       load
       mkdirp
       mmol_g_to_mumol_m2
@@ -20,13 +22,3 @@ poreana\.utils
       save
       tic
       toc
-   
-   
-
-   
-   
-   
-
-   
-   
-   

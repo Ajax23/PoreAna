@@ -21,7 +21,7 @@ diffusion routine
     mol = pms.Molecule(inp="data/benzene.gro")
 
     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, [])
-    sample.init_diffusion_bin("output/diff.obj")
+    sample.init_diffusion_bin("output/diff.h5")
     sample.sample()
 
 ``Finished frame 2001/2001...``
@@ -31,7 +31,7 @@ The diffusion can be calculated through the entire pore
 
 .. code-block:: python
 
-    pa.diffusion.cui("output/diff.obj")
+    pa.diffusion.cui("output/diff.h5")
 
 ``Diffusion axial:  0.741 10^-9 m^2s^-1``
 
@@ -47,7 +47,7 @@ or binwise
 
 .. code-block:: python
 
-    pa.diffusion.bins("output/diff.obj")
+    pa.diffusion.bins("output/diff.h5")
 
 
 .. figure::  /pics/diffusion_bins_02.svg
@@ -61,7 +61,7 @@ calculate an axial mean value
 
 .. code-block:: python
 
-    pa.diffusion.mean("output/diff.obj", "output/dens.obj")
+    pa.diffusion.mean("output/diff.h5", "output/dens.h5")
 
 
 ``Mean Diffusion axial: 1.131 10^-9 m^2s^-1``
