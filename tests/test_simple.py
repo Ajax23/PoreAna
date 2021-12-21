@@ -52,6 +52,10 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+        sample.sample(is_parallel=False)
+
         sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
         sample.init_density("output/dens_slit.h5")
         sample.sample(is_parallel=False, is_pbc=False)
@@ -305,6 +309,11 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(mean_p["in"], 2), 0.13)
         self.assertEqual(round(mean_p["ex"], 2), 0.15)
 
+        self.assertEqual(round(mean_s["in"], 2), 0.13)
+        self.assertEqual(round(mean_s["ex"], 2), 0.15)
+        self.assertEqual(round(mean_p["in"], 2), 0.13)
+        self.assertEqual(round(mean_p["ex"], 2), 0.15)
+
 
     #################
     # Bin Diffusion #
@@ -346,8 +355,6 @@ class UserModelCase(unittest.TestCase):
 
         # Check if the initialized profiles are corret
         self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
-        #self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
-
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
         # Check step model
@@ -355,9 +362,8 @@ class UserModelCase(unittest.TestCase):
 
         # Check if the initialized profiles are corret
         self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
-        # self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
-    #
+
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
 
@@ -375,7 +381,6 @@ class UserModelCase(unittest.TestCase):
         # Set the variable because this happen in the do_mc_cycles function -> not necessary to call to check the likelihood and Check if the initalize likelihood is correct
         pa.MC._len_step = 10
         self.assertEqual(round(pa.MC()._log_likelihood_z(model),2), -238590.92)
-
 
         # Set len_step for MC run test
         model._len_step = [10,20,40]
@@ -401,6 +406,7 @@ class UserModelCase(unittest.TestCase):
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=True)
 
+
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
         diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
@@ -412,8 +418,8 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff[0] - (1.6) ) < 0.3, True)
-        self.assertEqual(abs(diff_pore[0] - (1.2) ) < 0.3, True)
+        self.assertEqual(abs(diff[0]-(1.6) ) < 0.3, True)
+        self.assertEqual(abs(diff_pore[0]-(1.2) ) < 0.3, True)
 
         # Test MC output
         # Set Step Model for diffusion and energy profile
@@ -430,7 +436,6 @@ class UserModelCase(unittest.TestCase):
         pa.MC().run(model,"output/diff_test_mc_spline.h5", nmc_eq=100, nmc=2000, is_print=True, is_parallel=False)
 
 
-
     def test_diffusion_mc_box(self):
         # self.skipTest("Temporary")
 
@@ -443,6 +448,7 @@ class UserModelCase(unittest.TestCase):
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=3000, nmc=1000, is_print=False, is_parallel=False)
 
+
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
         diff = pa.diffusion.mc_fit("output/diff_test_mc_box.h5")
@@ -452,9 +458,10 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(abs(diff[0] - (10.5) ) < 0.7, True)
 
 
-    ####################################
-    # Check Transition matrix sampling #
-    ####################################
+
+    #####################
+    # Transition Matrix #
+    #####################
     def test_parallel_sample(self):
         #self.skipTest("Temporary")
 
@@ -495,7 +502,6 @@ class UserModelCase(unittest.TestCase):
     ##########
     def test_tables(self):
         # self.skipTest("Temporary")
-
         # Check tables
         pa.tables.mc_model("data/check_output.h5", print_con=False)
         pa.tables.mc_model("data/box_output.h5", print_con=False)

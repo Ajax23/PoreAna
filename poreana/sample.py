@@ -792,7 +792,6 @@ class Sample:
         # Calculate bin index
         idx_list[-1][res_id] = np.digitize(com[direction], bins)
 
-
         # Sample the transition matrix for the len_step
         if frame_list[0]==0:
             for step in len_step:
@@ -930,7 +929,6 @@ class Sample:
             results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_bin"}
             utils.save(results, self._diff_bin_inp["output"])
 
-
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
             inp_diff.update(self._diff_mc_inp)
@@ -970,7 +968,6 @@ class Sample:
         output : dictionary
             Dictionary containing all sampled data
         """
-
         # Initialize
         box = self._pore_props["box"] if self._pore else self._box
         res = self._pore_props["res"] if self._pore else 0
@@ -989,7 +986,6 @@ class Sample:
             output["diffusion_mc"] = self._diffusion_mc_data()
 
         # Calculate length index and com lists
-
         if self._is_diffusion_bin:
             len_fill = self._diff_bin_inp["len_window"]*self._diff_bin_inp["len_step"]
         elif self._is_diffusion_mc:
@@ -1001,11 +997,9 @@ class Sample:
         traj = cf.Trajectory(self._traj)
         frame_form = "%"+str(len(str(self._num_frame)))+"i"
 
-
         # Run through frames
         for frame_id in frame_list:
             # Read frame
-
             frame = traj.read_step(frame_id)
             positions = frame.positions
 
@@ -1015,7 +1009,6 @@ class Sample:
                 com_list.pop(0)
             idx_list.append({})
             com_list.append({})
-
 
             # Run through residues
             for res_id in self._res_list:
