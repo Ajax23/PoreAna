@@ -6,8 +6,8 @@
 
 
 import seaborn as sns
-import matplotlib.pyplot as plt
 import poreana.utils as utils
+import matplotlib.pyplot as plt
 
 
 ####################

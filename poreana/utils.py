@@ -7,11 +7,11 @@
 
 import os
 import time
-import pickle
 import h5py
+import pickle
+import datetime
 import numpy as np
 import pandas as pd
-import datetime
 import poreana as pa
 
 

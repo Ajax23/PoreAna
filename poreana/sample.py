@@ -99,18 +99,15 @@ class Sample:
         # Get pore properties
         self._pore_props = {}
         if self._pore:
-            if isinstance(self._pore, pms.PoreCylinder):
-                self._pore_props["type"] = "CYLINDER"
-            elif isinstance(self._pore, pms.PoreSlit):
-                self._pore_props["type"] = "SLIT"
+            self._pore_props["type"] = self._pore.shape()
             self._pore_props["res"] = self._pore.reservoir()
             self._pore_props["focal"] = self._pore.centroid()
             self._pore_props["box"] = self._pore.box()
 
             # Get pore diameter
-            if isinstance(self._pore, pms.PoreCylinder):
+            if self._pore_props["type"] == "CYLINDER":
                 self._pore_props["diam"] = self._pore.diameter()
-            elif isinstance(self._pore, pms.PoreSlit):
+            elif self._pore_props["type"] == "SLIT":
                 self._pore_props["diam"] = self._pore.height()
 
 
@@ -1031,10 +1028,11 @@ class Sample:
                     com = com_no_pbc
 
                 # Calculate distance towards center axis
-                if isinstance(self._pore, pms.PoreCylinder):
-                    dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                elif isinstance(self._pore, pms.PoreSlit):
-                    dist = abs(self._pore_props["focal"][1]-com[1])
+                if self._pore:
+                    if self._pore_props["type"]=="CYLINDER":
+                        dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
+                    elif self._pore_props["type"]=="SLIT":
+                        dist = abs(self._pore_props["focal"][1]-com[1])
                 else:
                     dist = 0
 

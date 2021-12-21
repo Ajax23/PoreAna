@@ -56,6 +56,10 @@ class UserModelCase(unittest.TestCase):
         sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
+        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+        sample.sample(is_parallel=False)
+
         sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
         sample.init_density("output/dens_slit.h5")
         sample.sample(is_parallel=False, is_pbc=False)
@@ -198,10 +202,10 @@ class UserModelCase(unittest.TestCase):
         ads_s = pa.adsorption.calculate("output/dens_cyl_s.h5")
         ads_p = pa.adsorption.calculate("output/dens_cyl_p.h5")
 
-        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.16)
-        self.assertEqual(round(ads_s["num"]["in"], 2), 11.16)
-        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.16)
-        self.assertEqual(round(ads_p["num"]["in"], 2), 11.16)
+        self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.15)
+        self.assertEqual(round(ads_s["num"]["in"], 2), 10.77)
+        self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.15)
+        self.assertEqual(round(ads_p["num"]["in"], 2), 10.77)
 
 
     ###########
@@ -257,13 +261,10 @@ class UserModelCase(unittest.TestCase):
         # plt.show()
 
         # Run tests
-        self.assertEqual(round(dens_s["dens"]["in"], 3), 13.089)
-        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.437)
-        self.assertEqual(round(dens_p["dens"]["in"], 3), 13.089)
-        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.437)
-
-        self.assertEqual(round(dens_s_mean["num_dens"], 3), 0.127)
-        self.assertEqual(round(dens_s_mean["dens"], 3), 16.452)
+        self.assertEqual(round(dens_s["dens"]["in"], 3), 12.982)
+        self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.432)
+        self.assertEqual(round(dens_p["dens"]["in"], 3), 12.982)
+        self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.432)
 
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")
@@ -318,6 +319,11 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(mean_p["in"], 2), 0.13)
         self.assertEqual(round(mean_p["ex"], 2), 0.15)
 
+        self.assertEqual(round(mean_s["in"], 2), 0.13)
+        self.assertEqual(round(mean_s["ex"], 2), 0.15)
+        self.assertEqual(round(mean_p["in"], 2), 0.13)
+        self.assertEqual(round(mean_p["ex"], 2), 0.15)
+
 
     #################
     # Bin Diffusion #
@@ -344,34 +350,32 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
-        self.assertEqual(round(mean_s, 2), 1.11)
-        self.assertEqual(round(mean_p, 2), 1.11)
+        self.assertEqual(round(mean_s, 2), 1.13)
+        self.assertEqual(round(mean_p, 2), 1.13)
 
 
     ################
     # MC Diffusion #
     ################
     def test_diffusion_mc_model(self):
-        #self.skipTest("Temporary")
+        # self.skipTest("Temporary")
 
         # Check cosine model
         model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
-        self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
+        self.assertTrue(np.array_equal(np.round(model._diff_bin,3), np.array([-3.702] * model._bin_num)))
+        self.assertTrue(np.array_equal(model._df_bin, np.array([0] * model._bin_num)))
 
         # Check step model
         model = pa.StepModel("output/diff_mc_cyl_s.h5", 6, 10)
 
         # Check if the initialized profiles are corret
-        self.assertEqual(np.array_equal(np.round(model._diff_bin,3), np.array([-3.727] * model._bin_num)), True)
+        self.assertTrue(np.array_equal(np.round(model._diff_bin,3), np.array([-3.702] * model._bin_num)))
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
 
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
-
-
 
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10)
@@ -410,7 +414,6 @@ class UserModelCase(unittest.TestCase):
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=8000, nmc=2000, is_print=False, is_parallel=True)
 
-
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
         diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
@@ -432,13 +435,11 @@ class UserModelCase(unittest.TestCase):
         # Set Cosine Model for diffusion and energy profile
         model = pa.CosineModel("output/diff_mc_cyl_s.h5", 6, 10, is_print=True)
 
-
         ## Set the MC class and options
         model._len_step = [10]
 
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc_spline.h5", nmc_eq=100, nmc=2000, is_print=True, is_parallel=False)
-
 
     def test_diffusion_mc_box(self):
         # self.skipTest("Temporary")
@@ -452,7 +453,6 @@ class UserModelCase(unittest.TestCase):
         # Do the MC alogirthm
         pa.MC().run(model,"output/diff_test_mc_box.h5", nmc_eq=3000, nmc=1000, is_print=False, is_parallel=False)
 
-
         # Plot diffusion coefficient over inverse lagtime
         plt.figure()
         diff = pa.diffusion.mc_fit("output/diff_test_mc_box.h5")
@@ -462,12 +462,11 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(abs(diff[0] - (10.5) ) < 0.7, True)
 
 
-
     #####################
     # Transition Matrix #
     #####################
     def test_parallel_sample(self):
-        #self.skipTest("Temporary")
+        # self.skipTest("Temporary")
 
         # Load Transition matrix for single
         data = pa.utils.load("output/diff_mc_cyl_s.h5")
@@ -478,7 +477,6 @@ class UserModelCase(unittest.TestCase):
 
         data = pa.utils.load("data/check_output_sample.h5")
         trans_check = data["data"]
-
 
         # Test if transition matrix of single and parallel calculation is the same
         list = []
@@ -506,6 +504,7 @@ class UserModelCase(unittest.TestCase):
     ##########
     def test_tables(self):
         # self.skipTest("Temporary")
+
         # Check tables
         pa.tables.mc_model("data/check_output.h5", print_con=False)
         pa.tables.mc_model("data/box_output.h5", print_con=False)

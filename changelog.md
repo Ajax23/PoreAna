@@ -3,6 +3,7 @@
 * Add a MC result table to compare diffusion coefficients in self-defined box areas
 * Obj. and hdf5 files can be convert in a text file with the most important inputs and results
 * Calculate mean density inside Pore
+* Restructure sample call for new PoreMS logic
 
 # v0.2.1
 * Most routines are now usable for non-pore simulations
