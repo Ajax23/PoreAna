@@ -21,7 +21,7 @@ routine
     mol = pms.Molecule(inp="data/benzene.gro")
 
     sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, [])
-    sample.init_density("output/dens.obj")
+    sample.init_density("output/dens.h5")
     sample.sample()
 
 
@@ -32,7 +32,7 @@ The calculation of the density profile is done using the bins function
 
 .. code-block:: python
 
-    dens = pa.density.bins("output/dens.obj")
+    dens = pa.density.bins("output/dens.h5")
 
 ``Density inside  Pore = 0.100 #/nm^3 ;  12.941 kg/m^3``
 

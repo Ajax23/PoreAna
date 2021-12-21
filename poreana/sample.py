@@ -182,7 +182,7 @@ class Sample:
 
         return {"width": width, "bins": bins}
 
-    def _bin_mc(self, bin_num):
+    def _bin_mc(self, bin_num, direction):
         """This function creates a simple bin structure for the pore and
         resevoir.
 
@@ -190,6 +190,8 @@ class Sample:
         ----------
         bin_num : integer
             Number of bins to be used
+        direction : integer, optional
+            Direction of descretization of the simulation box (x = 0; y = 1; z = 2)
 
         Returns
         -------
@@ -198,13 +200,12 @@ class Sample:
         """
         # Ask for system type (box or pore system)
         if self._pore:
-            z_length = self._pore_props["box"][2]
+            z_length = self._pore_props["box"][direction]
         else:
-            z_length = self._box[2]
+            z_length = self._box[direction]
 
         # Define bins
         bins = [z_length/bin_num*x for x in range(bin_num+1)]
-
         return {"bins": bins}
 
 
@@ -217,13 +218,17 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to output h5 data file
         bin_num : integer, optional
             Number of bins to be used
         remove_pore_from_res : bool, optional
             True to remove an extended pore volume from the reservoirs to only
             consider the reservoir space intersecting the crystal grid
         """
+
+        # Check the data type of input
+        utils.check_filetype(link_out)
+
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
@@ -308,10 +313,14 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to output hdf5 data file
         bin_num : integer, optional
             Number of bins to be used
         """
+
+        # Check the data type of input
+        utils.check_filetype(link_out)
+
         # Initialize
         self._is_gyration = True
         self._gyr_inp = {"output": link_out, "bin_num": bin_num}
@@ -409,7 +418,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to hdf5 data file
         bin_num : integer, optional
             Number of bins to be used
         len_obs : float, optional
@@ -421,6 +430,10 @@ class Sample:
         bin_step_size : integer, optional
             Number of allowed bins for the molecule to leave
         """
+
+        # Check the data type of input
+        utils.check_filetype(link_out)
+
         # Initialize
         if self._is_diffusion_mc:
             print("Currently only bin or MC can initialize for samling.")
@@ -661,7 +674,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output object file
+            Link to hdf5 data file
         len_step : integer, optional
             Length of the step size between frames
         bin_num : integer, optional
@@ -676,17 +689,21 @@ class Sample:
             print("Currently only bin or MC can initialize for sampling.")
             return
 
+        if direction not in [0,1,2]:
+            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
+            return
+
+        # Check the data type of output string
+        utils.check_filetype(link_out)
+
         # Enable routine
         self._is_diffusion_mc = True
 
         # Calculate bins
-        bins = self._bin_mc(bin_num)["bins"]
+        bins = self._bin_mc(bin_num, direction)["bins"]
 
         # Sort len_step list
         len_step.sort()
-
-        if direction not in [0,1,2]:
-            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
 
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
@@ -719,7 +736,7 @@ class Sample:
         calculation with the Monte Carlo diffusion methode for a cubic
         simulation box. The sample of the transition matrix is to be run on
         the cluster due to a high time and resource consumption. The output,
-        a data object, is then used to calculate the self-diffusion using
+        a h5 data file, is then used to calculate the self-diffusion using
         further calculation functions for the MC Diffusion methode.
 
         It is necessary to caculate the transition matrix for different step
@@ -840,7 +857,9 @@ class Sample:
 
             if self._is_diffusion_mc:
                 frame_end = [x+max(self._diff_mc_inp["len_step"]) for i, x in enumerate(frame_end)]
-                frame_end[-1] = frame_end[-1]-max(self._diff_mc_inp["len_step"])
+                for i in range(len(frame_end)):
+                    if frame_end[i] >= self._num_frame:
+                        frame_end[i] = frame_end[-1]-max(self._diff_mc_inp["len_step"])
 
             # Create working lists for processors
             frame_np = [list(range(frame_start[i], frame_end[i])) for i in range(np)]
@@ -859,7 +878,7 @@ class Sample:
             output = [self._sample_helper(list(range(self._num_frame)), shift, is_pbc, is_broken)]
 
         # Concatenate output and create pickle object files
-        system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": self._box}
+        system = {"sys": "pore", "props": self._pore_props} if self._pore else {"sys": "box", "props": {"length" :self._box}}
         inp = {"num_frame": self._num_frame, "mass": self._mol.get_mass(), "entry": self._entry}
 
         if self._is_density:
@@ -871,7 +890,11 @@ class Sample:
                 if self._pore:
                     data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
-            utils.save({system["sys"]: system["props"], "inp": inp_dens, "data": data_dens}, self._dens_inp["output"])
+
+            # Pickle
+            results = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens, "type": "dens_bin"}
+            utils.save(results, self._dens_inp["output"])
+
 
         if self._is_gyration:
             inp_gyr = inp.copy()
@@ -882,7 +905,10 @@ class Sample:
                 if self._pore:
                     data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
-            utils.save({system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr}, self._gyr_inp["output"])
+
+            # Pickle
+            results = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr, "type": "gyr_bin"}
+            utils.save(results, self._gyr_inp["output"])
 
         if self._is_diffusion_bin:
             inp_diff = inp.copy()
@@ -898,7 +924,10 @@ class Sample:
                         data_diff["z_tot"][i][j] += out["diffusion_bin"]["z_tot"][i][j]
                         data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
                         data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
-            utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_bin_inp["output"])
+
+            # Pickle
+            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_bin"}
+            utils.save(results, self._diff_bin_inp["output"])
 
         if self._is_diffusion_mc:
             inp_diff = inp.copy()
@@ -912,7 +941,13 @@ class Sample:
 
             for step in self._diff_mc_inp["len_step"]:
                 data_diff[step] = data_diff[step][1:-1,1:-1]
-            utils.save({system["sys"]: system["props"], "inp": inp_diff, "data": data_diff}, self._diff_mc_inp["output"])
+
+            # Save results in dictionary
+            results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_mc"}
+
+            # Save dictionary to h5-file
+            utils.save(results, self._diff_mc_inp["output"])
+
 
     def _sample_helper(self, frame_list, shift, is_pbc, is_broken):
         """Helper function for sampling run.
