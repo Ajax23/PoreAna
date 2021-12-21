@@ -213,6 +213,7 @@ class UserModelCase(unittest.TestCase):
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.h5", target_dens=16)
         dens_p = pa.density.bins("output/dens_cyl_p.h5", target_dens=16)
+        dens_s_mean = pa.density.mean(dens_s)
 
         dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
 
@@ -260,6 +261,9 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.437)
         self.assertEqual(round(dens_p["dens"]["in"], 3), 13.089)
         self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.437)
+
+        self.assertEqual(round(dens_s_mean["num_dens"], 3), 0.127)
+        self.assertEqual(round(dens_s_mean["dens"], 3), 16.452)
 
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")

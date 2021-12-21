@@ -115,23 +115,30 @@
 <h1>Sample._sample_helper<a class="headerlink" href="#sample-sample-helper" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample._sample_helper">
-<code class="descclassname">Sample.</code><code class="descname">_sample_helper</code><span class="sig-paren">(</span><em>frame_list</em>, <em>shift</em>, <em>is_pbc</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._sample_helper" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">_sample_helper</code><span class="sig-paren">(</span><em>frame_list</em>, <em>shift</em>, <em>is_pbc</em>, <em>is_broken</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample._sample_helper" title="Permalink to this definition">¶</a></dt>
 <dd><p>Helper function for sampling run.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>frame_list :</strong></dt>
 <dd><p class="first last">List of frame ids to process</p>
 </dd>
 <dt><strong>shift</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">Distances for translating all positions in nano meter</p>
+<dd><p class="first last">Vector for translating atoms in nm</p>
 </dd>
-<dt><strong>is_pbc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dt><strong>is_pbc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
 <dd><p class="first last">True to apply periodic boundary conditions</p>
 </dd>
-<dt><strong>Returns</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
+<dt><strong>is_broken</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">True to check for broken molecules during sampling</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>output</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
 <dd><p class="first last">Dictionary containing all sampled data</p>
 </dd>
 </dl>

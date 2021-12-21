@@ -11,3 +11,4 @@ poreana\.density
 
       bins
       bins_plot
+      mean
