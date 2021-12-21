@@ -1,10 +1,12 @@
 import sys
 import copy
+import h5py
 import scipy as sc
 import numpy as np
 import pandas as pd
 import multiprocessing as mp
 import numpy as numpy
+
 
 import poreana.utils as utils
 
@@ -32,7 +34,7 @@ class MC:
     ##############
     def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, np=0, print_freq=100, is_print=False, do_radial=False, is_parallel=True):
         """This function do the MC Cycle to calculate the diffusion and free
-        energy profile over the bins and save the results in an output object
+        energy profile over the bins and save the results in an output hdf5
         file. This happens with the adjustment of the coefficient from the model
         which is set with the appropriate model class. The code determines the
         results for all lag times for which a transition matrix was calculated.
@@ -71,7 +73,7 @@ class MC:
         model : class
             Model object which set before with the model class
         link_out : string
-            Link to output object file
+            Link to output hdf5 data file
         nmc_eq : integer, optional
             Number of equilibrium MC steps
         nmc : integer, optional
@@ -124,7 +126,7 @@ class MC:
         inp = {"MC steps": self._nmc, "MC steps eq": self._nmc_eq, "step width update": self._num_mc_update,  "temperature": self._temp, "print freq": self._print_freq}
 
         # Set inp data for model
-        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat}
+        model_inp = {"bin number": model._bin_num, "bins": model._bins[:-1], "diffusion unit": model._diff_unit, "len_frame": model._dt, "len_step": model._len_step, "model": model._model, "nD": model._n_diff, "nF": model._n_df, "nDrad": model._n_diff_radial, "guess": model._d0, "pbc": model._pbc, "num_frame": model._frame_num, "data": model._trans_mat, "direction": model._direction}
 
         # Print that MC Calculation starts
         if not self._print_output:
@@ -205,9 +207,25 @@ class MC:
         # Print MC Calculation is done
         print("MC Calculation Done.")
 
-        # Save inp and output data
-        utils.save({"inp": inp, "model": model_inp , model._system: model._sys_props, "output": output}, link_out)
+        # Save inp and output data (remove if hdf5 is ready)
+        #utils.save({"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output}, link_out)
 
+        # pickle directory to save late in hdf5
+        results = {"inp": inp, "model": model_inp, model._system: model._sys_props, "output": output, "type": "mc"}
+
+        utils.save(results,link_out)
+
+
+        # # Save txt file
+        # # Calculated diffusion coefficient
+        # diff_fit = diffusion.mc_fit(link_out)
+        # diff_prof = diffusion.mc_profile(link_out, infty_profile=True)
+        #
+        # if model._system == "pore":
+        #     diff_fit_pore = diffusion.mc_fit(link_out, section = "pore")
+        #     diff_fit_res = diffusion.mc_fit(link_out, section = "reservoir")
+        #
+        # if is_txt:
 
         return
 
@@ -442,6 +460,7 @@ class MC:
         output = {"diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
 
         return output
+
 
     ###########################
     # Helper functions for MC #
@@ -797,14 +816,13 @@ class MC:
         """
 
         # Calculate the current rate matrix for a trajectory with periodic boundary condition
-        if model._pbc:
-            if temp is None:
-                rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, model._df_bin)
+        if temp is None:
+            rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, model._df_bin)
+        else:
+            if self._choice > 0.5:
+                rate = self._init_rate_matrix_pbc(model._bin_num,  temp, model._df_bin)
             else:
-                if self._choice > 0.5:
-                    rate = self._init_rate_matrix_pbc(model._bin_num,  temp, model._df_bin)
-                else:
-                    rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, temp)
+                rate = self._init_rate_matrix_pbc(model._bin_num, model._diff_bin, temp)
 
         # Calculate the current rate matrix for a trajectory with a reflected wall in z direction
         # elif not model._pbc:
