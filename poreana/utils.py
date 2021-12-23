@@ -270,7 +270,6 @@ def file_to_text(link, link_output, link_dens=[]):
         # If pore system
         if "pore" in data:
             # Read data
-            system = "pore"
             pore = data["pore"]
             res = float(pore["res"])
             diam = float(pore["diam"])
@@ -283,7 +282,6 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = df_system.rename_axis('# Identifier', axis=1)
         # If box system
         elif "box" in data:
-            system = "box"
             box_group = data["box"]
             box = box_group["length"]
             data_box = [[["%.2f" % i for i in box]]]
@@ -315,6 +313,10 @@ def file_to_text(link, link_output, link_dens=[]):
             # Write System table
             file.write("[System]\n")
             file.write(df_system_string)
+
+            # Write Inputs
+            file.write("[Input]\n")
+            file.write(df_inputs_string)
 
             # Write gyration table
             file.write("\n\n[Gyration]\n")

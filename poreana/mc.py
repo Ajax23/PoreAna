@@ -1,12 +1,10 @@
 import sys
 import copy
-import h5py
 import scipy as sc
 import numpy as np
 import pandas as pd
 import multiprocessing as mp
 import numpy as numpy
-
 
 import poreana.utils as utils
 

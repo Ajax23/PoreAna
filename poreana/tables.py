@@ -132,10 +132,10 @@ def mc_lag_time(link, print_con=False):
 
     # Save free energy profile coefficients on data dictionary
     for i in len_step:
-        data[i] = [str("%.4e" % df_coeff[i][j]) for j in range(int(nD))]
+        data[i] = [str("%.4e" % df_coeff[i][j]) for j in range(int(nF))]
 
     # Pandas table
-    df_coeff = pd.DataFrame(data, index=list(np.arange(1, int(nD)+1)), columns=list(len_step))
+    df_coeff = pd.DataFrame(data, index=list(np.arange(1, int(nF)+1)), columns=list(len_step))
     df_coeff = pd.DataFrame(df_coeff.rename_axis('Step Length', axis=1))
 
     # If the table has to print in console and not in a jupyter notebook
@@ -193,7 +193,7 @@ def mc_model(link, print_con=False):
 
     # String for system
     system = "pore" if "pore" in data else "box"
- 
+
     # Len step string
     len_step_string = ', '.join(str(step) for step in len_step)
 
@@ -318,16 +318,16 @@ def mc_results(link, print_con=False, sections={"pore": [], "res":[]}, len_step 
         index_list = ["Box"]
 
         # Calculate diffusion in the defined areas
-        for section in sections:
-            if section=="pore" and not sections["pore"]:
-                sections[section] = [res,round(z_length-res,2)]
+        for key,section in sections.items():
+            if key=="pore" and not section:
+                sections[key] = [res,round(z_length-res,2)]
                 diff_section = diffusion.mc_fit(link,  section = "pore", is_print=False, is_plot = False, len_step = len_step)
-            if section=="res" and not sections["res"]:
+            if key=="res" and not section:
                 diff_section = diffusion.mc_fit(link,  section = "reservoir", is_print=False, is_plot = False, len_step = len_step)
-                sections[section] = [0,res]
+                sections[key] = [0,res]
             else:
-                diff_section = diffusion.mc_fit(link,  section = sections[section], is_print=False, is_plot = False, len_step = len_step)
-            data_section = [sections[section], diff_section[0], diff_section[3]]
+                diff_section = diffusion.mc_fit(link,  section = section, is_print=False, is_plot = False, len_step = len_step)
+            data_section = [key, diff_section[0], diff_section[3]]
             data.append(data_section)
             index_list.append(section)
 

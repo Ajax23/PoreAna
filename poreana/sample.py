@@ -11,7 +11,6 @@ import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
 
-import porems as pms
 import poreana.utils as utils
 import poreana.geometry as geometry
 
