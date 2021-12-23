@@ -201,7 +201,7 @@ def load(link):
                         data_load[keys][keys2] = data[keys][keys2][:]
             # If key type only a string has to be load
             elif keys=="type":
-                data_load[keys] = data[keys][keys][0].decode("utf-8")
+                data_load[keys] = str(data[keys][keys][0], 'utf-8') #data[keys][keys][0].encode().decode("utf-8")
             # other keys
             else:
                 # Load second level keys
@@ -218,7 +218,7 @@ def load(link):
                             try:
                                 data_load[keys][keys2] = float(data[keys][keys2][0])
                             except:
-                                data_load[keys][keys2] = data[keys][keys2][0].decode("utf-8")
+                                data_load[keys][keys2] = str(data[keys][keys2][0], 'utf-8') #.encode().decode("utf-8")
                         else:
                             data_load[keys][keys2] = data[keys][keys2][:]
         return data_load

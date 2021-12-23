@@ -405,6 +405,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
         inp = data["inp"]
         frame_num = inp["num_frame"]
         frame_length = inp["len_frame"]
+        bins = inp["bins"]
 
     # MC obj file is loaded
     else:
@@ -412,6 +413,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
         trans_mat = model["data"]
         frame_num = model["num_frame"]
         frame_length = model["len_frame"]
+        bins = model["bins"]
 
     # Normalized transition matrix with frame number
     if is_norm:
@@ -425,6 +427,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
 
     # Plot the normalized transition matrix in a heatmap
     sns.heatmap(trans_mat[step], **kwargs)
+
 
 
 ##################
@@ -613,7 +616,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
 
     # Calculate the mean diffusion (m^2/s) over all bins
     D_mean = [np.mean(np.exp([diff_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10**3 for i in len_step]
-
 
     # Calculate the inverse lag time (1/s) for the linear fit
     lagtime_inverse = [1 / (len_step[i] * dt * 10**-12) for i in range(len(len_step))]
