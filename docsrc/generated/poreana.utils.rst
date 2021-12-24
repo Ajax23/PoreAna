@@ -9,7 +9,6 @@ poreana\.utils
 
    .. autosummary::
 
-      check_filetype
       column
       file_to_text
       load

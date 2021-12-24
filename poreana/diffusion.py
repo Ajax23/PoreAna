@@ -90,10 +90,6 @@ def cui(link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plot=Tru
     is_plot : bool, optional
         True to create plot in this function
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data object
     sample = utils.load(link)
 
@@ -222,10 +218,6 @@ def bins(link, ax_area=[0.2, 0.8], is_norm=False):
     diffusion : list
         List of the slope of the non-normalized diffusion coefficient
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data object
     sample = utils.load(link)
 
@@ -392,10 +384,6 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
     is_diagonal: bool, optional
         Set the matrix diagonal to zero
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load results from the output object file
     data = utils.load(link)
 
@@ -501,10 +489,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     res : float
         residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the selected lag times
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data
     data = utils.load(link)
 
@@ -757,10 +741,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     res : float
         residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the infinite diffusion profile
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data
     data = utils.load(link)
 

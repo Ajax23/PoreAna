@@ -8,6 +8,7 @@
 import os
 import time
 import h5py
+import yaml
 import pickle
 import datetime
 import numpy as np
@@ -25,6 +26,7 @@ def mkdirp(directory):
     """
     if not os.path.exists(directory):
         os.makedirs(directory)
+
 
 def column(data):
     """Convert given row list matrix into column list matrix
@@ -101,13 +103,12 @@ def save(obj, link):
     link : string
         Specific link to save object
     """
-
-    # If a obj file should be saved
+    # Pickle object file
     if link[-3:]=="obj":
         with open(link, "wb") as f:
             pickle.dump(obj, f)
 
-    # If a h5 file should be saved
+    # Hd5 file
     elif link[-2:]=="h5":
         # Save results in a hdf5 file
         f = h5py.File(link, 'w')
@@ -128,7 +129,7 @@ def save(obj, link):
         for gkey in groups:
             # Write the box length on data base
             if gkey =="box":
-                groups[gkey].create_dataset("length",data = obj[gkey]["length"])
+                groups[gkey].create_dataset("length",data=obj[gkey]["length"])
             # Write the type of calculation on data base
             elif gkey =="type":
                 dt = h5py.special_dtype(vlen=str)
@@ -138,14 +139,14 @@ def save(obj, link):
             else:
                 for base in data_base[gkey]:
                     # Check if a third level exists
-                    if isinstance(obj[gkey][base],dict):
+                    if isinstance(obj[gkey][base], dict):
                         # If a third level exists create new group in first level groups
                         data = groups[gkey].create_group(base)
                         # Loop over thrid level keys
                         for base2 in obj[gkey][base]:
                             # Check if third level key is a matrix
-                            if isinstance(obj[gkey][base][base2],(list, np.ndarray)) :
-                                data.create_dataset(str(base2),data = obj[gkey][base][base2])
+                            if isinstance(obj[gkey][base][base2], (list, np.ndarray)):
+                                data.create_dataset(str(base2), data=obj[gkey][base][base2])
                             # Else is a vlaue (int/float)
                             else:
                                 value = data.create_dataset(str(base2), shape=(1,1))
@@ -157,35 +158,42 @@ def save(obj, link):
                         string = groups[gkey].create_dataset(str(base), (1), dtype=dt)
                         string[0] = obj[gkey][base]
                     # If list
-                    elif isinstance(obj[gkey][base],(list, np.ndarray)):
-                        data = groups[gkey].create_dataset(str(base), data = obj[gkey][base])
+                    elif isinstance(obj[gkey][base], (list, np.ndarray)):
+                        data = groups[gkey].create_dataset(str(base), data=obj[gkey][base])
                     # If value
                     else:
                         data = groups[gkey].create_dataset(str(base), shape=(1,1))
                         data[0] = obj[gkey][base]
 
 
-def load(link):
-    """Load pickled object or a hdf5 file from the specified folder.
+def load(link, file_type=""):
+    """Load pickled object files, yaml files, and hd5 files.
 
     Parameters
     ----------
     link : string
         Specific link to load object
+    file_type : string, optional
+        Specify filetype - **obj**, **yml**, **h5**  leave empty for automatic
+        determination
 
     Returns
     -------
     obj : Object
         Loaded object
     """
-
-    # If a obj file should be load
-    if link[-3:]=="obj":
+    # Pickle object file
+    if file_type=="obj" or (not file_type and link[-3:]=="obj"):
         with open(link, 'rb') as f:
             return pickle.load(f)
 
-    # If a h5 file should be load
-    elif link[-2:]=="h5":
+    # YAML file
+    elif file_type=="yml" or (not file_type and link[-3:]=="yml"):
+        with open(link, "r") as file_in:
+            return yaml.load(file_in, Loader=yaml.FullLoader)
+
+    # Hd5 file
+    elif file_type=="h5" or (not file_type and link[-2:]=="h5"):
         data = h5py.File(link, 'r')
         data_load = {}
 
@@ -197,7 +205,7 @@ def load(link):
                 for keys2 in data[keys].keys():
                     try:
                         data_load[keys][int(keys2)] = data[keys][keys2][:]
-                    except:
+                    except(BaseException):
                         data_load[keys][keys2] = data[keys][keys2][:]
             # If key type only a string has to be load
             elif keys=="type":
@@ -213,36 +221,22 @@ def load(link):
                         for keys3 in data[keys][keys2].keys():
                             data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
                     # Save second level data
-                    except:
+                    except(BaseException):
                         if len(data[keys][keys2][:])==1:
                             try:
                                 data_load[keys][keys2] = float(data[keys][keys2][0])
-                            except:
+                            except(BaseException):
                                 data_load[keys][keys2] = str(data[keys][keys2][0], 'utf-8') #.encode().decode("utf-8")
                         else:
                             data_load[keys][keys2] = data[keys][keys2][:]
         return data_load
-
-def check_filetype(link):
-    """
-    This function checks the data type of a input string.
-
-    Parameters
-    ----------
-    link : string
-        Link to check if data file is correct
-    """
-
-    # Check if the data type is correct
-    if link[-2:]=="h5" or link[-3:]=="obj":
-        pass
     else:
-        print("Wrong data type. Please select .obj or .h5 as the data type")
+        print("Unknown file type...")
         return
 
 
 def file_to_text(link, link_output, link_dens=[]):
-    """ This function converts an output directory in txt file. For the bin diffusion
+    """This function converts an output directory in txt file. For the bin diffusion
     result text file the density sampling file is additionally necessary.
 
     Parameters
@@ -330,7 +324,6 @@ def file_to_text(link, link_output, link_dens=[]):
     ##########################
     # If diffusion bin sample file was loaded
     elif data["type"] == "diff_bin":
-
         # Check inputs (for bin diffusion is density sample file necessary)
         if not link_dens:
             print("Bin diffusion needs a density sampling file. Check documentation and set a link_dens.")
@@ -344,7 +337,6 @@ def file_to_text(link, link_output, link_dens=[]):
         # If pore system
         if "pore" in data:
             # Read data
-            system = "pore"
             pore = data["pore"]
             res = float(pore["res"])
             diam = float(pore["diam"])
@@ -408,7 +400,6 @@ def file_to_text(link, link_output, link_dens=[]):
     elif data["type"] == "dens_bin":
         # If pore system
         if "pore" in data:
-            system = "pore"
             pore = data["pore"]
             res = float(pore["res"])
             diam = float(pore["diam"])
@@ -421,7 +412,6 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = df_system.rename_axis('# Identifier', axis=1)
         # If box system
         elif "box" in data:
-            system = "box"
             box_group = data["box"]
             box = box_group["length"]
             data_box = [[["%.2f" % i for i in box]]]
@@ -502,7 +492,6 @@ def file_to_text(link, link_output, link_dens=[]):
     elif data["type"] == "mc":
         # If pore system
         if "pore" in data:
-            system = "pore"
             pore = data["pore"]
             t = data["model"]["len_frame"]
             res = float(pore["res"])
@@ -515,7 +504,6 @@ def file_to_text(link, link_output, link_dens=[]):
 
         # If box system
         elif "box" in data:
-            system = "box"
             t = data["model"]["len_frame"]
             box_group = data["box"]
             box = box_group["length"]

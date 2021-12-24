@@ -123,13 +123,13 @@ routine</p>
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
 
 <span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="p">[])</span>
-<span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
 <p>The calculation of the density profile is done using the bins function</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">dens</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">bins</span><span class="p">(</span><span class="s2">&quot;output/dens.obj&quot;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">dens</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">density</span><span class="o">.</span><span class="n">bins</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Density</span> <span class="pre">inside</span>&#160; <span class="pre">Pore</span> <span class="pre">=</span> <span class="pre">0.100</span> <span class="pre">#/nm^3</span> <span class="pre">;</span>&#160; <span class="pre">12.941</span> <span class="pre">kg/m^3</span></code></p>

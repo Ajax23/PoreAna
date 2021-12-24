@@ -120,13 +120,13 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-obj docutils literal"><span class="pre">bins</span></code></a>(data_link[,&nbsp;ax_area,&nbsp;is_norm])</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-obj docutils literal"><span class="pre">bins</span></code></a>(link[,&nbsp;ax_area,&nbsp;is_norm])</td>
 <td>This function calculates the axial (z-axis) diffusion coefficient as a function of the radial distance.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.bins_plot.html#poreana.diffusion.bins_plot" title="poreana.diffusion.bins_plot"><code class="xref py py-obj docutils literal"><span class="pre">bins_plot</span></code></a>(data[,&nbsp;intent,&nbsp;kwargs])</td>
 <td>This function calculates the axial plots the diffusion profile calculated by the function <a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-func docutils literal"><span class="pre">poreana.diffusion.bins()</span></code></a>.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.cui.html#poreana.diffusion.cui" title="poreana.diffusion.cui"><code class="xref py py-obj docutils literal"><span class="pre">cui</span></code></a>(data_link[,&nbsp;z_dist,&nbsp;ax_area,&nbsp;intent,&nbsp;…])</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.cui.html#poreana.diffusion.cui" title="poreana.diffusion.cui"><code class="xref py py-obj docutils literal"><span class="pre">cui</span></code></a>(link[,&nbsp;z_dist,&nbsp;ax_area,&nbsp;intent,&nbsp;is_fit,&nbsp;…])</td>
 <td>This function samples and calculates the diffusion coefficient of a molecule group in a pore in both axial and radial direction, as described in the paper of <a class="reference external" href="https://doi.org/10.1063/1.1989314">Cui</a>.</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.mean.html#poreana.diffusion.mean" title="poreana.diffusion.mean"><code class="xref py py-obj docutils literal"><span class="pre">mean</span></code></a>(diff_data,&nbsp;dens_data[,&nbsp;ax_area,&nbsp;is_check])</td>
@@ -147,7 +147,7 @@
 <tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.mc_profile.html#poreana.diffusion.mc_profile" title="poreana.diffusion.mc_profile"><code class="xref py py-obj docutils literal"><span class="pre">mc_profile</span></code></a>(link[,&nbsp;len_step,&nbsp;section,&nbsp;…])</td>
 <td>This function plots the diffusion profile for an infinity lag time (<span class="math">\(\Delta t_{\alpha} \rightarrow \infty\)</span>) over the box fitted with the specified <span class="math">\(\mathrm{len}\_\mathrm{step}\)</span> list.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.mc_trans_mat.html#poreana.diffusion.mc_trans_mat" title="poreana.diffusion.mc_trans_mat"><code class="xref py py-obj docutils literal"><span class="pre">mc_trans_mat</span></code></a>(link_in,&nbsp;step[,&nbsp;kwargs])</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.mc_trans_mat.html#poreana.diffusion.mc_trans_mat" title="poreana.diffusion.mc_trans_mat"><code class="xref py py-obj docutils literal"><span class="pre">mc_trans_mat</span></code></a>(link,&nbsp;step[,&nbsp;kwargs,&nbsp;is_norm,&nbsp;…])</td>
 <td>This function plots the occupation of a normalized transition matrix as a heatmap.</td>
 </tr>
 </tbody>
