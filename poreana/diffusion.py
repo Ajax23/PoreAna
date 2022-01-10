@@ -371,7 +371,7 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
 ######################################
 # Diffusion - MC - Transition Matrix #
 ######################################
-def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
+def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_length=True):
     """This function plots the occupation of a normalized transition matrix as a
     heatmap. To normalize the transition matrix the number of the frame are used.
     This means that all entries in the transition matrix are divided by the
@@ -391,6 +391,8 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
         Normalized the transition with the number for frames
     is_diagonal: bool, optional
         Set the matrix diagonal to zero
+    is_length: bool, optional
+        x axis is output in box length
     """
 
     # Check the data type of input
@@ -401,33 +403,61 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False):
 
     # Sample obj file is loaded
     if "data" in data:
-        trans_mat = data["data"]
+        trans_mat = data["data"][step]
         inp = data["inp"]
         frame_num = inp["num_frame"]
-        frame_length = inp["len_frame"]
+        frame_length = float(inp["len_frame"])
         bins = inp["bins"]
 
     # MC obj file is loaded
     else:
         model = data["model"]
-        trans_mat = model["data"]
+        trans_mat = model["data"][step]
         frame_num = model["num_frame"]
-        frame_length = model["len_frame"]
+        frame_length = float(model["len_frame"])
         bins = model["bins"]
 
     # Normalized transition matrix with frame number
     if is_norm:
-        trans_mat[step] = trans_mat[step]/frame_num
+        trans_mat = trans_mat/frame_num
 
+    # Set diagonal elements of the transition matrix to zero
     if is_diagonal:
-        trans_mat[step][np.diag_indices_from(trans_mat[step])] = 0
+        trans_mat[np.diag_indices_from(trans_mat)] = 0
+
+    # Calculation of the width of the diagonal occupation of the transition matrix
+    results=[]
+    # Loop over the rows of the transition matrix
+    for i in range(len(trans_mat[:])-1):
+        # Right side of the matrix (row)
+        row_right= trans_mat[i][i:]
+        # Left side of the matrix (row)
+        row_left = trans_mat[i][:i]
+        # If a one element is zero call index
+        if np.where(row_right==0)[0].size != 0:
+            results.append(np.min(np.where(row_right==0)))
+        if np.where(row_left==0)[0].size != 0:
+            results.append(i-np.max(np.where(row_left==0)))
+
+    # Get average of index
+    idx_avg = np.mean(results)
+    print("Width of occupancy: " + str(idx_avg))
+
+    # Set x axis from bins to box length
+    if is_length:
+        trans_new={}
+        for i in range(len(bins)-1):
+            trans_new[str(round(bins[i],2))] = trans_mat[i]
+        trans_mat = pd.DataFrame(trans_new)
+
 
     # Set title with selected lag time
-    plt.title("Lagtime: "+ str(step * frame_length) + " ps", fontsize=10)
+    plt.title("Lagtime: "+ str(step * frame_length * 10**12) + " ps", fontsize=10)
 
     # Plot the normalized transition matrix in a heatmap
-    sns.heatmap(trans_mat[step], **kwargs)
-
+    sns.heatmap(trans_mat, **kwargs)
+    if is_length:
+        plt.xlabel("Box length (nm)")
 
 
 ##################

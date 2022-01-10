@@ -344,7 +344,6 @@ def file_to_text(link, link_output, link_dens=[]):
         # If pore system
         if "pore" in data:
             # Read data
-            system = "pore"
             pore = data["pore"]
             res = float(pore["res"])
             diam = float(pore["diam"])
@@ -408,7 +407,6 @@ def file_to_text(link, link_output, link_dens=[]):
     elif data["type"] == "dens_bin":
         # If pore system
         if "pore" in data:
-            system = "pore"
             pore = data["pore"]
             res = float(pore["res"])
             diam = float(pore["diam"])
@@ -421,7 +419,6 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = df_system.rename_axis('# Identifier', axis=1)
         # If box system
         elif "box" in data:
-            system = "box"
             box_group = data["box"]
             box = box_group["length"]
             data_box = [[["%.2f" % i for i in box]]]
@@ -502,7 +499,6 @@ def file_to_text(link, link_output, link_dens=[]):
     elif data["type"] == "mc":
         # If pore system
         if "pore" in data:
-            system = "pore"
             pore = data["pore"]
             t = data["model"]["len_frame"]
             res = float(pore["res"])
@@ -515,7 +511,6 @@ def file_to_text(link, link_output, link_dens=[]):
 
         # If box system
         elif "box" in data:
-            system = "box"
             t = data["model"]["len_frame"]
             box_group = data["box"]
             box = box_group["length"]
@@ -531,7 +526,7 @@ def file_to_text(link, link_output, link_dens=[]):
         # Set pandas table for profiles
         data = {}
         data["# Bins [nm]"] = diff[2]
-        for i in diff[1]:
+        for i in diff[1].keys():
             data["D (t={})".format(t*i)] = diff[1][i]
         data["   D (t=∞)"]=diff[0]
         for i in free_energy[0].keys():

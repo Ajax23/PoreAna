@@ -327,9 +327,9 @@ def mc_results(link, print_con=False, sections={"pore": [], "res":[]}, len_step 
                 sections[key] = [0,res]
             else:
                 diff_section = diffusion.mc_fit(link,  section = section, is_print=False, is_plot = False, len_step = len_step)
-            data_section = [key, diff_section[0], diff_section[3]]
+            data_section = [sections[key], diff_section[0], diff_section[3]]
             data.append(data_section)
-            index_list.append(section)
+            index_list.append(key)
 
         # Set pandas table
         df_mc_results = pd.DataFrame(data, index=index_list, columns=list(['Area (nm)','Diffusion (10^-9  m^2s^-1)' ,'Residual (10^-9 m2s^-1)']))
