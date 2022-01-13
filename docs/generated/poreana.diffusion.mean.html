@@ -115,7 +115,7 @@
 <h1>mean<a class="headerlink" href="#mean" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="poreana.diffusion.mean">
-<code class="descclassname">poreana.diffusion.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.diffusion.mean" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">poreana.diffusion.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>diff_data, dens_data, ax_area=[0.2, 0.8], is_print=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.diffusion.mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function uses the diffusion coefficient slope obtained from
 function <a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-func docutils literal"><span class="pre">poreana.diffusion.bins()</span></code></a> and the density slope of function
 <a class="reference internal" href="poreana.density.bins.html#poreana.density.bins" title="poreana.density.bins"><code class="xref py py-func docutils literal"><span class="pre">poreana.density.bins()</span></code></a> to calculate a weighted diffusion
@@ -129,7 +129,10 @@ coefficient inside the pore</p>
 <p>with the partial area</p>
 <div class="math">
 \[A(r_i)=\pi(r_i^2-r_{i-1}^2)\]</div>
-<p>of radial bin <span class="math">\(i\)</span>.</p>
+<p>of radial bin <span class="math">\(i\)</span>. It is assumed that the discretization of the
+density is finer than the diffusion. Therefore, the diffusion values for
+each density bin are interpolated between the nearest available diffusion
+values.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -144,8 +147,8 @@ coefficient inside the pore</p>
 <dt><strong>ax_area</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list, optional</span></dt>
 <dd><p class="first last">Bin area percentage to calculate the axial diffusion coefficient</p>
 </dd>
-<dt><strong>is_check</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to plot density function fit</p>
+<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True to print mean diffusion</p>
 </dd>
 </dl>
 </td>

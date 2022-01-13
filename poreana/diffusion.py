@@ -287,7 +287,7 @@ def bins_plot(data, intent="plot", kwargs={}):
         plt.ylabel(r"Diffusion coefficient ($10^{-9}$ m${^2}$ s$^{-1}$)")
 
 
-def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
+def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_print=True):
     """This function uses the diffusion coefficient slope obtained from
     function :func:`poreana.diffusion.bins` and the density slope of function
     :func:`poreana.density.bins` to calculate a weighted diffusion
@@ -310,7 +310,10 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
 
         A(r_i)=\\pi(r_i^2-r_{i-1}^2)
 
-    of radial bin :math:`i`.
+    of radial bin :math:`i`. It is assumed that the discretization of the
+    density is finer than the diffusion. Therefore, the diffusion values for
+    each density bin are interpolated between the nearest available diffusion
+    values.
 
     Parameters
     ----------
@@ -320,42 +323,55 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
         Density data dictionary from function :func:`poreana.density.bins`
     ax_area : list, optional
         Bin area percentage to calculate the axial diffusion coefficient
-    is_check : bool, optional
-        True to plot density function fit
+    is_print : bool, optional
+        True to print mean diffusion
 
     Returns
     -------
     diff_weight : float
         Density weighted mean axial diffusion in 10^-9 m^2s^-1
     """
-    # Get number of bins
-    bin_num = len(diff_data["width"][:-1])
+    # Load density
+    dens_x = dens_data["sample"]["data"]["in_width"]
+    dens_y = dens_data["num_dens"]["in"]
 
-    # Set diffusion functions
-    width = diff_data["width"][:-1]
-    diff = diff_data["diff"]
+    # Load diffusion
+    diff_w = diff_data["width"][1]
+    diff_x = diff_data["width"]
+    diff_y = diff_data["diff"]
 
-    # Fit density function
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', r'Polyfit may be poorly conditioned')
-        param = np.polyfit(dens_data["sample"]["data"]["in_width"][:-1], dens_data["num_dens"]["in"], 100)
-        dens_f = np.poly1d(param)(width)
+    # Integrate density and density weighted diffusion
+    temp_diff = []
+    dens_int = 0
+    diff_int = 0
+    for dens_bin, dens_x_val in enumerate(dens_x[:-1]):
+        # only consider effective radius
+        if dens_y[dens_bin]>0:
+            # Find closest bins in diffusion
+            diff_bins = [math.floor(dens_x_val/diff_w), math.ceil(dens_x_val/diff_w)]
 
-    # Plot fit
-    if is_check:
-        sns.lineplot(x=dens_data["sample"]["data"]["in_width"][:-1], y=dens_data["num_dens"]["in"])
-        sns.lineplot(x=width, y=dens_f)
+            # Check boundary
+            if diff_bins[1] <= len(diff_x):
+                interp_x = [diff_x[bin_id] for bin_id in diff_bins]
+                interp_y = [diff_y[bin_id] for bin_id in diff_bins]
 
-    # Integrate density
-    dens_int = sum([dens_f[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+                # Linear interpolation for diffusion
+                diff_y_val = np.interp(dens_x_val, interp_x, interp_y)
+                temp_diff.append(diff_y_val)
+            else:
+                diff_y_val = diff_y[diff_bins[0]]
 
-    # Calculate weighted diffusion
-    diff_int = sum([dens_f[i]*diff[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+            # Integrate
+            int_area = (dens_x[dens_bin+1]**2-dens_x[dens_bin]**2)
+            dens_int += int_area*dens_y[dens_bin]
+            diff_int += int_area*dens_y[dens_bin]*diff_y_val
 
     # Normalize
     diff_weight = diff_int/dens_int
 
-    print("Mean Diffusion axial: "+"%.3f" % diff_weight+" 10^-9 m^2s^-1")
+    # Output
+    if is_print:
+        print("Mean Diffusion axial: "+"%.3f" % diff_weight+" 10^-9 m^2s^-1")
 
     return diff_weight
 
