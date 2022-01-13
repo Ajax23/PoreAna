@@ -146,8 +146,8 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
 
     ##########
-    # # Sample #
-    # ##########
+    # Sample #
+    ##########
     def test_sample(self):
         # self.skipTest("Temporary")
 
@@ -344,8 +344,7 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         plt.figure()
-        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"), is_check=True)
-        plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
+        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"))
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
         self.assertEqual(round(mean_s, 2), 1.13)
