@@ -17,8 +17,8 @@ class MC:
     The MC calculation can be started with :func:`run`.
 
     """
-    # def __init__(self, nmc_eq=50000, nmc=100000, nmc_eq_radial=50000, nmc_radial=100000, delta_df=0.05, delta_diff=0.05, delta_diff_radial=0.05, num_mc_update=10, temp=1, lmax=50, print_output=True, print_freq=100):
-    #def __init__(self):
+    def __init__(self):
+        return
 
         # Save for radial diffusion
         #self._delta_diff_radial = delta_diff_radial          # MC Move width radial Diffusion

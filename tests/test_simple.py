@@ -42,25 +42,25 @@ class UserModelCase(unittest.TestCase):
 
         # Sample
         ## Single core
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.h5")
         sample.init_gyration("output/gyr_cyl_s.h5")
         sample.init_diffusion_bin("output/diff_cyl_s.h5")
         sample.sample(is_parallel=False)
 
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
-        sample = pa.Sample("data/pore_system_slit.obj", "data/traj_slit.xtc", mol_W)
+        sample = pa.Sample("data/pore_system_slit.yml", "data/traj_slit.xtc", mol_W)
         sample.init_density("output/dens_slit.h5")
         sample.sample(is_parallel=False, is_pbc=False)
 
@@ -69,27 +69,27 @@ class UserModelCase(unittest.TestCase):
         sample.init_gyration("output/gyr_box.h5")
         sample.sample(shift=[0, 0, 3.3], is_parallel=False)
 
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1,2,5,10,20,30,40,50,100,200,250,300,350])
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=False)
 
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1,2,5,10,20,30,40,50,100,200,250,300,350])
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=True)
 
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
-        sample.init_diffusion_mc("output/diff_mc_box.h5", len_step=[1,2,5,10,20,30,40,50])
+        sample.init_diffusion_mc("output/diff_mc_box.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50])
         sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
         #
         # ## Parallel
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_p.h5")
         sample.init_gyration("output/gyr_cyl_p.h5")
         sample.init_diffusion_bin("output/diff_cyl_p.h5")
         sample.sample(is_parallel=True, is_pbc=False)
 
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_p.h5", len_step=[1,2,5,10,20,30,40,50,100,200,250,300,350])
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
+        sample.init_diffusion_mc("output/diff_mc_cyl_p.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=True, is_pbc=True, np=6)
 
 
@@ -104,7 +104,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(pa.utils.column([[1, 1, 1], [2, 2, 2]]), [[1, 2], [1, 2], [1, 2]])
 
         pa.utils.save([1, 1, 1], file_link)
-        pa.utils.check_filetype("output/test/test.txt")
+        self.assertIsNone(pa.utils.load("output/test/test.txt", file_type="DOTA"))
         pa.utils.file_to_text("data/box_output.h5", "output/box_output.txt")
         pa.utils.file_to_text("data/check_output.h5", "output/check_output.txt")
         pa.utils.file_to_text("output/dens_cyl_s.h5", "output/dens_cyl_s.txt")
@@ -146,8 +146,8 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
 
     ##########
-    # # Sample #
-    # ##########
+    # Sample #
+    ##########
     def test_sample(self):
         # self.skipTest("Temporary")
 
@@ -159,12 +159,12 @@ class UserModelCase(unittest.TestCase):
         mol2.add("H", [0, 0, 0])
 
         # Sanity checks
-        pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol2)
-        pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, atoms=["C1"], masses=[1, 1])
-        pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol).sample(shift=[1])
+        pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol2)
+        pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol, atoms=["C1"], masses=[1, 1])
+        pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol).sample(shift=[1])
 
         # Diffusion
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, atoms=["C1"])
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol, atoms=["C1"])
         sample.init_diffusion_bin("output/diff_np_s.h5", len_obs=3e-12)
 
         sample = pa.Sample([0, 0, 1], "data/traj_cylinder.xtc", mol, atoms=["C1"])
@@ -173,24 +173,22 @@ class UserModelCase(unittest.TestCase):
 
         # Test the error output if bin and MC diffusion calculation is initialized
         # Test bin -> MC
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_bin("output/test.h5")
-        sample.init_diffusion_mc("output/test.h5")
-
-
+        sample.init_diffusion_mc("output/test.h5", len_step=[1, 2, 5, 10])
 
         # Test MC -> Bin
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
-        sample.init_diffusion_mc("output/test.h5")
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/test.h5", len_step=[1, 2, 5, 10])
         sample.init_diffusion_bin("output/test.h5")
 
         # Test direction wrong input
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
-        sample.init_diffusion_mc("output/test.h5", direction = 4)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/test.h5", len_step=[1, 2, 5, 10], direction=4)
 
         # Test direction wrong input
-        sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol)
-        sample.init_diffusion_mc("output/test.obj", direction = 4)
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
+        sample.init_diffusion_mc("output/test.obj", len_step=[1, 2, 5, 10], direction=4)
 
     ##############
     # Adsorption #
@@ -346,8 +344,7 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         plt.figure()
-        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"), is_check=True)
-        plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
+        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"))
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
         self.assertEqual(round(mean_s, 2), 1.13)
@@ -519,8 +516,11 @@ class UserModelCase(unittest.TestCase):
         pa.tables.mc_lag_time("data/check_output.h5", print_con=True)
         pa.tables.mc_results("data/check_output.h5", print_con=True)
         pa.tables.mc_results("data/box_output.h5", print_con=True)
-        pa.tables.mc_results("data/check_output.h5", print_con=True, sections={"test":[0,5]})
-        pa.tables.mc_results("data/box_output.h5", print_con=True, sections={"test":[0,5]})
+        pa.tables.mc_results("data/check_output.h5", print_con=True, sections={"test": [0,5]})
+        pa.tables.mc_results("data/box_output.h5", print_con=True, sections={"test": [0,5]})
+
+        print()
+        self.assertIsNone(pa.tables.mc_results("data/box_output.h5", sections={"DOTA": []}))
 
     def test_diffusion_output(self):
         # self.skipTest("Temporary")

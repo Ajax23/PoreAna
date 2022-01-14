@@ -108,7 +108,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     # Load input data
     inp = sample["inp"]
     bin_num = int(inp["bin_num"])
-    num_frame =inp["num_frame"]
+    num_frame = inp["num_frame"]
     entry = inp["entry"]
     mass = inp["mass"]
     remove_pore_from_res = inp["remove_pore_from_res"]
@@ -242,6 +242,7 @@ def bins_plot(density, intent="", target_dens=0, is_mean=False, kwargs={}):
 
         sns.lineplot(x=width[intent], y=density["num_dens"][intent], **kwargs)
         plt.xlim([0, width[intent][-1]])
+
 
 def mean(density, is_print=True):
     """This function uses the desnity slope obtained from function

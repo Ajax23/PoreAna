@@ -133,7 +133,7 @@ diffusion routine</p>
 
 <span class="c1"># Sample transition matrix</span>
 <span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">)</span>
-<span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="n">len_steps</span><span class="p">,</span> <span class="n">len_frame</span><span class="o">=</span><span class="n">len_frame</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.h5&quot;</span><span class="p">,</span> <span class="n">len_steps</span><span class="p">,</span> <span class="n">len_frame</span><span class="o">=</span><span class="n">len_frame</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">is_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -143,7 +143,7 @@ diffusion routine</p>
 <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;vmin&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">&quot;vmax&quot;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;xticklabels&quot;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;yticklabels&quot;</span><span class="p">:</span><span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;cbar&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;square&quot;</span><span class="p">:</span><span class="kc">False</span><span class="p">}</span>
 
 <span class="c1"># Plot transition matrix for a step length of 10</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_trans_mat</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_trans_mat</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.h5&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="fig1">
@@ -151,10 +151,10 @@ diffusion routine</p>
 </div>
 <p>After sampling, a model has to set and the MC Alogirthm started</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Set Cosine Model for diffusion and energy profile</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">CosineModel</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.obj&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">CosineModel</span><span class="p">(</span><span class="s2">&quot;output/diff_mc_cyl_s.h5&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># Do the MC Algorithm</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">MC</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">nmc_eq</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">nmc</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">MC</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">model</span><span class="p">,</span><span class="s2">&quot;output/diff_mc.h5&quot;</span><span class="p">,</span> <span class="n">nmc_eq</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">nmc</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">print_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">is_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">MC</span> <span class="pre">Calculation</span> <span class="pre">Start</span></code></p>
@@ -162,7 +162,7 @@ diffusion routine</p>
 <p><code class="docutils literal"><span class="pre">MC</span> <span class="pre">Calculation</span> <span class="pre">Done.</span></code></p>
 <p>The results of the MC Alogrithm the diffusion can be calculated</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Print the results for the normal diffusion</span>
-<span class="n">diff</span><span class="p">,</span><span class="n">diff_mean</span><span class="p">,</span><span class="n">diff_table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">)</span>
+<span class="n">diff</span><span class="p">,</span><span class="n">diff_mean</span><span class="p">,</span><span class="n">diff_table</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.h5&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial:</span> <span class="pre">1.6913e-09</span> <span class="pre">m^2/s</span></code></p>
@@ -174,10 +174,10 @@ diffusion routine</p>
 <p>or the diffusion and free energy profile over the entire system can be
 displayed</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot diffusion profile over the simulation box</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.h5&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Plot free energy profile over the simulation box</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">freeenergy</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">freeenergy</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.h5&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">10</span><span class="p">])</span>
 </pre></div>
 </div>
 <div class="figure align-center" id="fig3">
@@ -185,10 +185,10 @@ displayed</p>
 </div>
 <p>Additionally, the pore area can be considered more closely</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Plot the lag time extrapolation for the pore ares</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;pore&quot;</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_fit</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.h5&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;pore&quot;</span><span class="p">)</span>
 
 <span class="c1"># Plot diffusion profile in a pore</span>
-<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.obj&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;pore&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">diffusion</span><span class="o">.</span><span class="n">mc_profile</span><span class="p">(</span><span class="s2">&quot;output/diff_mc.h5&quot;</span><span class="p">,</span> <span class="n">section</span><span class="o">=</span><span class="s2">&quot;pore&quot;</span><span class="p">,</span> <span class="n">infty_profile</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal"><span class="pre">Diffusion</span> <span class="pre">axial</span> <span class="pre">(Pore):</span> <span class="pre">1.2534e-09</span> <span class="pre">m^2/s</span></code></p>

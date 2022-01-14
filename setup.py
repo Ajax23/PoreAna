@@ -19,6 +19,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.5',
-    install_requires=['pandas', 'seaborn', 'scipy', 'chemfiles==0.10.0', 'porems>=0.2.4', 'jinja2', "h5py"],
+    install_requires=['pandas', 'seaborn', 'scipy', 'chemfiles==0.10.0', 'porems>=0.2.0', 'jinja2', 'h5py', 'pyyaml'],
     include_package_data=True,
 )

@@ -115,7 +115,7 @@
 <h1>mean<a class="headerlink" href="#mean" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="poreana.density.mean">
-<code class="descclassname">poreana.density.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>density</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.mean" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">poreana.density.</code><code class="descname">mean</code><span class="sig-paren">(</span><em>density</em>, <em>is_print=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.density.mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function uses the desnity slope obtained from function
 <a class="reference internal" href="poreana.density.bins.html#poreana.density.bins" title="poreana.density.bins"><code class="xref py py-func docutils literal"><span class="pre">poreana.density.bins()</span></code></a> to calculate a weighted density inside the pore</p>
 <div class="math">
@@ -136,13 +136,16 @@
 <dt><strong>density</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
 <dd><p class="first last">Density object from the density calculation <a class="reference internal" href="poreana.density.bins.html#poreana.density.bins" title="poreana.density.bins"><code class="xref py py-func docutils literal"><span class="pre">bins()</span></code></a></p>
 </dd>
+<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">True to print result</p>
+</dd>
 </dl>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>mean</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
-<dd><p class="first last">Weighted mean density in <span class="math">\(\frac{\text{#}}{\text{nm}^3}\)</span> and
-<span class="math">\(\frac{\text{kg}}{\text{m}^3}\)</span></p>
+<dd><p class="first last">Weighted mean density in <span class="math">\(\frac{\text{#}}{\text{nm}^3}\)</span>
+<strong>num_dens</strong> and <span class="math">\(\frac{\text{kg}}{\text{m}^3}\)</span> <strong>dens</strong></p>
 </dd>
 </dl>
 </td>

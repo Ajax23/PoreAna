@@ -46,7 +46,7 @@ class Sample:
     """
     def __init__(self, system, link_traj, mol, atoms=[], masses=[], entry=0.5):
         # Initialize
-        self._pore = utils.load(system) if isinstance(system, str) else None
+        self._pore = utils.load(system, file_type="yml") if isinstance(system, str) else None
         self._box = system if isinstance(system, list) else []
         self._traj = link_traj
         self._mol = mol
@@ -98,16 +98,16 @@ class Sample:
         # Get pore properties
         self._pore_props = {}
         if self._pore:
-            self._pore_props["type"] = self._pore.shape()
-            self._pore_props["res"] = self._pore.reservoir()
-            self._pore_props["focal"] = self._pore.centroid()
-            self._pore_props["box"] = self._pore.box()
+            self._pore_props["type"] = self._pore["shape"]
+            self._pore_props["res"] = self._pore["reservoir"]
+            self._pore_props["focal"] = self._pore["centroid"]
+            self._pore_props["box"] = self._pore["dimensions"]
 
             # Get pore diameter
             if self._pore_props["type"] == "CYLINDER":
-                self._pore_props["diam"] = self._pore.diameter()
+                self._pore_props["diam"] = self._pore["diameter"]
             elif self._pore_props["type"] == "SLIT":
-                self._pore_props["diam"] = self._pore.height()
+                self._pore_props["diam"] = self._pore["height"]
 
 
     ########
@@ -221,10 +221,6 @@ class Sample:
             True to remove an extended pore volume from the reservoirs to only
             consider the reservoir space intersecting the crystal grid
         """
-
-        # Check the data type of input
-        utils.check_filetype(link_out)
-
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
@@ -313,10 +309,6 @@ class Sample:
         bin_num : integer, optional
             Number of bins to be used
         """
-
-        # Check the data type of input
-        utils.check_filetype(link_out)
-
         # Initialize
         self._is_gyration = True
         self._gyr_inp = {"output": link_out, "bin_num": bin_num}
@@ -426,13 +418,9 @@ class Sample:
         bin_step_size : integer, optional
             Number of allowed bins for the molecule to leave
         """
-
-        # Check the data type of input
-        utils.check_filetype(link_out)
-
         # Initialize
         if self._is_diffusion_mc:
-            print("Currently only bin or MC can initialize for samling.")
+            print("Binning and MC-approaches cannot be run in parallel.")
             return
         if self._pore:
             self._is_diffusion_bin = True
@@ -621,7 +609,7 @@ class Sample:
     ################
     # MC Diffusion #
     ################
-    def init_diffusion_mc(self, link_out, len_step=[], bin_num=100, len_frame=2e-12, direction = 2):
+    def init_diffusion_mc(self, link_out, len_step, bin_num=100, len_frame=2e-12, direction = 2):
         """Enable diffusion sampling routine with the MC Alogrithm.
 
         This function sample the transition matrix for the diffusion
@@ -671,26 +659,24 @@ class Sample:
         ----------
         link_out : string
             Link to hdf5 data file
-        len_step : integer, optional
+        len_step : integer
             Length of the step size between frames
         bin_num : integer, optional
             Number of bins to be used
         len_frame : float, optional
             Length of a frame in seconds
         direction : integer, optional
-            Direction of descretization of the simulation box (x = 0; y = 1; z = 2)
+            Direction of descretization of the simulation box (**0** (x-axis);
+            **1** (y-axis); **2** (z-axis))
         """
         # Initialize
         if self._is_diffusion_bin:
-            print("Currently only bin or MC can initialize for sampling.")
+            print("Binning and MC-approaches cannot be run in parallel.")
             return
 
         if direction not in [0,1,2]:
-            print("Wrong input! Possible inputs for direction are x = 0, y = 1 and z = 2 ")
+            print("Wrong directional input. Possible inputs are 0 (x-axis), 1 (y-axis), and 2 (z-axis)...")
             return
-
-        # Check the data type of output string
-        utils.check_filetype(link_out)
 
         # Enable routine
         self._is_diffusion_mc = True

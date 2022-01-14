@@ -115,8 +115,8 @@
 <h1>load<a class="headerlink" href="#load" title="Permalink to this headline">¶</a></h1>
 <dl class="function">
 <dt id="poreana.utils.load">
-<code class="descclassname">poreana.utils.</code><code class="descname">load</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.utils.load" title="Permalink to this definition">¶</a></dt>
-<dd><p>Load pickled object from the specified folder.</p>
+<code class="descclassname">poreana.utils.</code><code class="descname">load</code><span class="sig-paren">(</span><em>link</em>, <em>file_type=''</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.utils.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load pickled object files, yaml files, and hd5 files.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -124,6 +124,10 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
 <dt><strong>link</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
 <dd><p class="first last">Specific link to load object</p>
+</dd>
+<dt><strong>file_type</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
+<dd><p class="first last">Specify filetype - <strong>obj</strong>, <strong>yml</strong>, <strong>h5</strong>  leave empty for automatic
+determination</p>
 </dd>
 </dl>
 </td>

@@ -90,10 +90,6 @@ def cui(link, z_dist=0, ax_area=[0.2, 0.8], intent="", is_fit=False, is_plot=Tru
     is_plot : bool, optional
         True to create plot in this function
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data object
     sample = utils.load(link)
 
@@ -222,10 +218,6 @@ def bins(link, ax_area=[0.2, 0.8], is_norm=False):
     diffusion : list
         List of the slope of the non-normalized diffusion coefficient
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data object
     sample = utils.load(link)
 
@@ -295,7 +287,7 @@ def bins_plot(data, intent="plot", kwargs={}):
         plt.ylabel(r"Diffusion coefficient ($10^{-9}$ m${^2}$ s$^{-1}$)")
 
 
-def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
+def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_print=True):
     """This function uses the diffusion coefficient slope obtained from
     function :func:`poreana.diffusion.bins` and the density slope of function
     :func:`poreana.density.bins` to calculate a weighted diffusion
@@ -318,7 +310,10 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
 
         A(r_i)=\\pi(r_i^2-r_{i-1}^2)
 
-    of radial bin :math:`i`.
+    of radial bin :math:`i`. It is assumed that the discretization of the
+    density is finer than the diffusion. Therefore, the diffusion values for
+    each density bin are interpolated between the nearest available diffusion
+    values.
 
     Parameters
     ----------
@@ -328,42 +323,55 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
         Density data dictionary from function :func:`poreana.density.bins`
     ax_area : list, optional
         Bin area percentage to calculate the axial diffusion coefficient
-    is_check : bool, optional
-        True to plot density function fit
+    is_print : bool, optional
+        True to print mean diffusion
 
     Returns
     -------
     diff_weight : float
         Density weighted mean axial diffusion in 10^-9 m^2s^-1
     """
-    # Get number of bins
-    bin_num = len(diff_data["width"][:-1])
+    # Load density
+    dens_x = dens_data["sample"]["data"]["in_width"]
+    dens_y = dens_data["num_dens"]["in"]
 
-    # Set diffusion functions
-    width = diff_data["width"][:-1]
-    diff = diff_data["diff"]
+    # Load diffusion
+    diff_w = diff_data["width"][1]
+    diff_x = diff_data["width"]
+    diff_y = diff_data["diff"]
 
-    # Fit density function
-    with warnings.catch_warnings():
-        warnings.filterwarnings('ignore', r'Polyfit may be poorly conditioned')
-        param = np.polyfit(dens_data["sample"]["data"]["in_width"][:-1], dens_data["num_dens"]["in"], 100)
-        dens_f = np.poly1d(param)(width)
+    # Integrate density and density weighted diffusion
+    temp_diff = []
+    dens_int = 0
+    diff_int = 0
+    for dens_bin, dens_x_val in enumerate(dens_x[:-1]):
+        # only consider effective radius
+        if dens_y[dens_bin]>0:
+            # Find closest bins in diffusion
+            diff_bins = [math.floor(dens_x_val/diff_w), math.ceil(dens_x_val/diff_w)]
 
-    # Plot fit
-    if is_check:
-        sns.lineplot(x=dens_data["sample"]["data"]["in_width"][:-1], y=dens_data["num_dens"]["in"])
-        sns.lineplot(x=width, y=dens_f)
+            # Check boundary
+            if diff_bins[1] <= len(diff_x):
+                interp_x = [diff_x[bin_id] for bin_id in diff_bins]
+                interp_y = [diff_y[bin_id] for bin_id in diff_bins]
 
-    # Integrate density
-    dens_int = sum([dens_f[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+                # Linear interpolation for diffusion
+                diff_y_val = np.interp(dens_x_val, interp_x, interp_y)
+                temp_diff.append(diff_y_val)
+            else:
+                diff_y_val = diff_y[diff_bins[0]]
 
-    # Calculate weighted diffusion
-    diff_int = sum([dens_f[i]*diff[i]*(width[i+1]**2-width[i]**2) for i in range(bin_num-1)])
+            # Integrate
+            int_area = (dens_x[dens_bin+1]**2-dens_x[dens_bin]**2)
+            dens_int += int_area*dens_y[dens_bin]
+            diff_int += int_area*dens_y[dens_bin]*diff_y_val
 
     # Normalize
     diff_weight = diff_int/dens_int
 
-    print("Mean Diffusion axial: "+"%.3f" % diff_weight+" 10^-9 m^2s^-1")
+    # Output
+    if is_print:
+        print("Mean Diffusion axial: "+"%.3f" % diff_weight+" 10^-9 m^2s^-1")
 
     return diff_weight
 
@@ -371,7 +379,7 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_check=False):
 ######################################
 # Diffusion - MC - Transition Matrix #
 ######################################
-def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_length=True):
+def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_length=True, limit = 0):
     """This function plots the occupation of a normalized transition matrix as a
     heatmap. To normalize the transition matrix the number of the frame are used.
     This means that all entries in the transition matrix are divided by the
@@ -393,11 +401,8 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
         Set the matrix diagonal to zero
     is_length: bool, optional
         x axis is output in box length
+    limit: float, optional 
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load results from the output object file
     data = utils.load(link)
 
@@ -417,6 +422,26 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
         frame_length = float(model["len_frame"])
         bins = model["bins"]
 
+    # Calculation of the width of the diagonal occupation of the transition matrix
+    results=[]
+    # Loop over the rows of the transition matrix
+    for i in range(len(trans_mat[:])-1):
+        # Right side of the matrix (row)
+        row_right= trans_mat[i][i:]/frame_num
+        # Left side of the matrix (row)
+        row_left = trans_mat[i][:i]/frame_num
+        # If a one element is zero call index
+        if np.where(row_right<=limit)[0].size != 0:
+            results.append(np.min(np.where(row_right<=limit)))
+        if np.where(row_left<=limit)[0].size != 0:
+            results.append(i-np.max(np.where(row_left<=limit)))
+
+    # Get average of index
+    idx_avg = np.mean(results)
+    print("Width of occupancy: " + str(idx_avg))
+
+
+
     # Normalized transition matrix with frame number
     if is_norm:
         trans_mat = trans_mat/frame_num
@@ -425,23 +450,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
     if is_diagonal:
         trans_mat[np.diag_indices_from(trans_mat)] = 0
 
-    # Calculation of the width of the diagonal occupation of the transition matrix
-    results=[]
-    # Loop over the rows of the transition matrix
-    for i in range(len(trans_mat[:])-1):
-        # Right side of the matrix (row)
-        row_right= trans_mat[i][i:]
-        # Left side of the matrix (row)
-        row_left = trans_mat[i][:i]
-        # If a one element is zero call index
-        if np.where(row_right==0)[0].size != 0:
-            results.append(np.min(np.where(row_right==0)))
-        if np.where(row_left==0)[0].size != 0:
-            results.append(i-np.max(np.where(row_left==0)))
 
-    # Get average of index
-    idx_avg = np.mean(results)
-    print("Width of occupancy: " + str(idx_avg))
 
     # Set x axis from bins to box length
     if is_length:
@@ -531,10 +540,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     res : float
         residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the selected lag times
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data
     data = utils.load(link)
 
@@ -787,10 +792,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     res : float
         residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the infinite diffusion profile
     """
-
-    # Check the data type of input
-    utils.check_filetype(link)
-
     # Load data
     data = utils.load(link)
 
