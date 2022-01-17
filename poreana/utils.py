@@ -104,12 +104,10 @@ def save(obj, link):
         Specific link to save object
     """
     # Pickle object file
-    if link[-3:]=="obj":
-        with open(link, "wb") as f:
-            pickle.dump(obj, f)
+
 
     # Hd5 file
-    elif link[-2:]=="h5":
+    if link.split(".")[-1]=="h5":
         # Save results in a hdf5 file
         f = h5py.File(link, 'w')
 
@@ -164,7 +162,13 @@ def save(obj, link):
                     else:
                         data = groups[gkey].create_dataset(str(base), shape=(1,1))
                         data[0] = obj[gkey][base]
+        else:
+            if link.split(".")[-1]!="obj":
+                print("Wrong data type")
+                return
 
+            with open(link, "wb") as f:
+                pickle.dump(obj, f)
 
 def load(link, file_type=""):
     """Load pickled object files, yaml files, and hd5 files.
@@ -183,17 +187,17 @@ def load(link, file_type=""):
         Loaded object
     """
     # Pickle object file
-    if file_type=="obj" or (not file_type and link[-3:]=="obj"):
+    if file_type=="obj" or (not file_type and link.split(".")[-1]=="obj"):
         with open(link, 'rb') as f:
             return pickle.load(f)
 
     # YAML file
-    elif file_type=="yml" or (not file_type and link[-3:]=="yml"):
+    elif file_type=="yml" or (not file_type and link.split(".")[-1]=="yml"):
         with open(link, "r") as file_in:
             return yaml.load(file_in, Loader=yaml.FullLoader)
 
     # Hd5 file
-    elif file_type=="h5" or (not file_type and link[-2:]=="h5"):
+    elif file_type=="h5" or (not file_type and link.split(".")[-1]=="h5"):
         data = h5py.File(link, 'r')
         data_load = {}
 
@@ -519,7 +523,7 @@ def file_to_text(link, link_output, link_dens=[]):
         # Set pandas table for profiles
         data = {}
         data["# Bins [nm]"] = diff[2]
-        for i in diff[1].keys():
+        for i in diff[1]:
             data["D (t={})".format(t*i)] = diff[1][i]
         data["   D (t=∞)"]=diff[0]
         for i in free_energy[0].keys():

@@ -146,8 +146,8 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
 
     ##########
-    # Sample #
-    ##########
+    # # Sample #
+    # ##########
     def test_sample(self):
         # self.skipTest("Temporary")
 
@@ -344,7 +344,8 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         plt.figure()
-        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"))
+        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"), is_check=True)
+        plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
         self.assertEqual(round(mean_s, 2), 1.13)
@@ -543,7 +544,6 @@ class UserModelCase(unittest.TestCase):
 
         # Check transition matrix heatmap
         pa.diffusion.mc_trans_mat("data/check_output.h5",10)
-        pa.diffusion.mc_trans_mat("data/check_output.h5",50)
         pa.diffusion.mc_trans_mat("data/check_output_sample.h5",10)
 
         # Check if box not pore system

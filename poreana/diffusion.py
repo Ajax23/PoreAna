@@ -401,7 +401,8 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
         Set the matrix diagonal to zero
     is_length: bool, optional
         x axis is output in box length
-    limit: float, optional 
+    limit: float, optional
+        Set the lowest occupancy value for calculating the width of occupancy
     """
     # Load results from the output object file
     data = utils.load(link)
@@ -439,7 +440,6 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
     # Get average of index
     idx_avg = np.mean(results)
     print("Width of occupancy: " + str(idx_avg))
-
 
 
     # Normalized transition matrix with frame number
