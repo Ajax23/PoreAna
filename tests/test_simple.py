@@ -40,8 +40,8 @@ class UserModelCase(unittest.TestCase):
         mol_W = pms.Molecule(inp="data/spc216.gro")
         mol_H = pms.Molecule(inp="data/heptane.gro")
 
-        # Sample
-        ## Single core
+        #Sample
+        # Single core
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.h5")
         sample.init_gyration("output/gyr_cyl_s.h5")
@@ -72,9 +72,9 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=False)
-
+        #
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
+        sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=True)
 
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
@@ -145,7 +145,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual([round(x, 4) for x in pa.geom.cross_product(vec_a, vec_b)], [-4, -2, 3])
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
 
-    ##########
+    ############
     # # Sample #
     # ##########
     def test_sample(self):
@@ -165,7 +165,7 @@ class UserModelCase(unittest.TestCase):
 
         # Diffusion
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol, atoms=["C1"])
-        sample.init_diffusion_bin("output/diff_np_s.h5", len_obs=3e-12)
+        sample.init_diffusion_bin("output/diff_np_s.yml", len_obs=3e-12)
 
         sample = pa.Sample([0, 0, 1], "data/traj_cylinder.xtc", mol, atoms=["C1"])
         sample.init_diffusion_bin("output/diff_box_test.h5", len_obs=3e-12)
@@ -371,7 +371,7 @@ class UserModelCase(unittest.TestCase):
         # Check if the initialized profiles are corret
         self.assertTrue(np.array_equal(np.round(model._diff_bin,3), np.array([-3.702] * model._bin_num)))
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
-
+    #
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
 
