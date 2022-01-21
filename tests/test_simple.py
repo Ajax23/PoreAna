@@ -344,7 +344,7 @@ class UserModelCase(unittest.TestCase):
 
         # Mean diffusion based on bins
         plt.figure()
-        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"), is_check=True)
+        mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"))
         plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
