@@ -10,7 +10,7 @@ class Model:
     Parameters
     ----------
     link : string
-        Data link to the h5 data file from :func:`poreana.sample.Sample.init_diffusion_mc`
+        Data link to the hdf5, obj or yml data file from :func:`poreana.sample.Sample.init_diffusion_mc`
 
     """
 

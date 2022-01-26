@@ -49,7 +49,7 @@ class UserModelCase(unittest.TestCase):
         sample.sample(is_parallel=False)
 
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
-        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+        sample.init_density("output/dens_cyl_no_remove.h5", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
@@ -165,7 +165,7 @@ class UserModelCase(unittest.TestCase):
 
         # Diffusion
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol, atoms=["C1"])
-        sample.init_diffusion_bin("output/diff_np_s.yml", len_obs=3e-12)
+        sample.init_diffusion_bin("output/diff_np_s.h5", len_obs=3e-12)
 
         sample = pa.Sample([0, 0, 1], "data/traj_cylinder.xtc", mol, atoms=["C1"])
         sample.init_diffusion_bin("output/diff_box_test.h5", len_obs=3e-12)
@@ -393,15 +393,15 @@ class UserModelCase(unittest.TestCase):
 
         #### Test Single ####
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc.yml", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
-        diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
+        diff = pa.diffusion.mc_fit("output/diff_test_mc.yml")
         plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.h5", section="pore")
+        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.yml", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range

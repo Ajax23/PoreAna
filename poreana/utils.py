@@ -94,7 +94,7 @@ def toc(t, message="", is_print=True):
 
 
 def save(obj, link):
-    """Save an object or hdf5 file using pickle in the specified link.
+    """Save an object files, yaml files, and hd5 files using pickle in the specified link.
 
     Parameters
     ----------
