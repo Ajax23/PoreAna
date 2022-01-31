@@ -214,7 +214,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output h5 data file
+            Link to output hdf5, obj or yml data file
         bin_num : integer, optional
             Number of bins to be used
         remove_pore_from_res : bool, optional
@@ -305,7 +305,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to output hdf5 data file
+            Link to output hdf5, obj or yml data file
         bin_num : integer, optional
             Number of bins to be used
         """
@@ -406,7 +406,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to hdf5 data file
+            Link to hdf5, obj or yml data file
         bin_num : integer, optional
             Number of bins to be used
         len_obs : float, optional
@@ -658,7 +658,7 @@ class Sample:
         Parameters
         ----------
         link_out : string
-            Link to hdf5 data file
+            Link to hdf5, obj or yml data file
         len_step : integer
             Length of the step size between frames
         bin_num : integer, optional

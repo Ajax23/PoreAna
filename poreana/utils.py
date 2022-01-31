@@ -94,7 +94,7 @@ def toc(t, message="", is_print=True):
 
 
 def save(obj, link):
-    """Save an object or hdf5 file using pickle in the specified link.
+    """Save an object files, yaml files, and hd5 files using pickle in the specified link.
 
     Parameters
     ----------
@@ -104,12 +104,10 @@ def save(obj, link):
         Specific link to save object
     """
     # Pickle object file
-    if link[-3:]=="obj":
-        with open(link, "wb") as f:
-            pickle.dump(obj, f)
+
 
     # Hd5 file
-    elif link[-2:]=="h5":
+    if link.split(".")[-1]=="h5":
         # Save results in a hdf5 file
         f = h5py.File(link, 'w')
 
@@ -165,6 +163,16 @@ def save(obj, link):
                         data = groups[gkey].create_dataset(str(base), shape=(1,1))
                         data[0] = obj[gkey][base]
 
+    elif link.split(".")[-1]=="yml":
+        with open(link, "w") as file_out:
+            file_out.write(yaml.dump(obj))
+    else:
+        if link.split(".")[-1]!="obj":
+            print("Wrong data type")
+            return
+
+        with open(link, "wb") as f:
+            pickle.dump(obj, f)
 
 def load(link, file_type=""):
     """Load pickled object files, yaml files, and hd5 files.
@@ -182,18 +190,13 @@ def load(link, file_type=""):
     obj : Object
         Loaded object
     """
-    # Pickle object file
-    if file_type=="obj" or (not file_type and link[-3:]=="obj"):
-        with open(link, 'rb') as f:
-            return pickle.load(f)
-
     # YAML file
-    elif file_type=="yml" or (not file_type and link[-3:]=="yml"):
+    if file_type=="yml" or (not file_type and link.split(".")[-1]=="yml"):
         with open(link, "r") as file_in:
-            return yaml.load(file_in, Loader=yaml.FullLoader)
+            return yaml.load(file_in, Loader=yaml.UnsafeLoader)
 
     # Hd5 file
-    elif file_type=="h5" or (not file_type and link[-2:]=="h5"):
+    elif file_type=="h5" or (not file_type and link.split(".")[-1]=="h5"):
         data = h5py.File(link, 'r')
         data_load = {}
 
@@ -231,8 +234,12 @@ def load(link, file_type=""):
                             data_load[keys][keys2] = data[keys][keys2][:]
         return data_load
     else:
-        print("Unknown file type...")
-        return
+        if link.split(".")[-1]!="obj":
+            print("Wrong data type")
+            return
+        with open(link, 'rb') as f:
+            return pickle.load(f)
+
 
 
 def file_to_text(link, link_output, link_dens=[]):

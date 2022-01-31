@@ -40,8 +40,8 @@ class UserModelCase(unittest.TestCase):
         mol_W = pms.Molecule(inp="data/spc216.gro")
         mol_H = pms.Molecule(inp="data/heptane.gro")
 
-        # Sample
-        ## Single core
+        #Sample
+        # Single core
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.h5")
         sample.init_gyration("output/gyr_cyl_s.h5")
@@ -49,7 +49,7 @@ class UserModelCase(unittest.TestCase):
         sample.sample(is_parallel=False)
 
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
-        sample.init_density("output/dens_cyl_no_remove.obj", remove_pore_from_res=False)
+        sample.init_density("output/dens_cyl_no_remove.h5", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
 
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
@@ -72,9 +72,9 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=False)
-
+        #
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
-        sample.init_diffusion_mc("output/diff_mc_cyl_s.obj", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
+        sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=True)
 
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
@@ -145,9 +145,9 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual([round(x, 4) for x in pa.geom.cross_product(vec_a, vec_b)], [-4, -2, 3])
         self.assertEqual(round(pa.geom.angle(vec_a, vec_b), 4), 37.5714)
 
-    ##########
-    # Sample #
-    ##########
+    ############
+    # # Sample #
+    # ##########
     def test_sample(self):
         # self.skipTest("Temporary")
 
@@ -345,6 +345,7 @@ class UserModelCase(unittest.TestCase):
         # Mean diffusion based on bins
         plt.figure()
         mean_s = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_s.h5"), pa.density.bins("output/dens_cyl_s.h5"))
+        plt.savefig("output/diff_mean_check.pdf", format="pdf", dpi=1000)
         mean_p = pa.diffusion.mean(pa.diffusion.bins("output/diff_cyl_p.h5"), pa.density.bins("output/dens_cyl_p.h5"))
 
         self.assertEqual(round(mean_s, 2), 1.13)
@@ -370,7 +371,7 @@ class UserModelCase(unittest.TestCase):
         # Check if the initialized profiles are corret
         self.assertTrue(np.array_equal(np.round(model._diff_bin,3), np.array([-3.702] * model._bin_num)))
         self.assertEqual(np.array_equal(model._df_bin, np.array([0] * model._bin_num)), True)
-
+    #
     def test_diffusion_mc_mc(self):
         # self.skipTest("Temporary")
 
@@ -392,15 +393,15 @@ class UserModelCase(unittest.TestCase):
 
         #### Test Single ####
         # Do the MC alogirthm
-        pa.MC().run(model,"output/diff_test_mc.h5", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
+        pa.MC().run(model,"output/diff_test_mc.yml", nmc_eq=1000, nmc=2000, is_print=False, is_parallel=False)
 
         # Plot diffusion coefficient over inverse lagtime
-        diff = pa.diffusion.mc_fit("output/diff_test_mc.h5")
+        diff = pa.diffusion.mc_fit("output/diff_test_mc.yml")
         plt.savefig("output/mc_fit.pdf", format="pdf", dpi=1000)
 
         # Plot pore diffusion coefficient over inverse lagtime
         plt.figure()
-        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.h5", section="pore")
+        diff_pore = pa.diffusion.mc_fit("output/diff_test_mc.yml", section="pore")
         plt.savefig("output/mc_fit_pore.pdf", format="pdf", dpi=1000)
 
         # Check if diffusion coefficient is in the range
