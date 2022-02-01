@@ -224,7 +224,7 @@ def load(link, file_type=""):
                         for keys3 in data[keys][keys2].keys():
                             data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
                     # Save second level data
-                    except(ValueError):
+                    except(AttributeError):
                         if len(data[keys][keys2][:])==1:
                             try:
                                 data_load[keys][keys2] = float(data[keys][keys2][0])
