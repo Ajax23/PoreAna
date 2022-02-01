@@ -208,7 +208,7 @@ def load(link, file_type=""):
                 for keys2 in data[keys].keys():
                     try:
                         data_load[keys][int(keys2)] = data[keys][keys2][:]
-                    except(BaseException):
+                    except(ValueError):
                         data_load[keys][keys2] = data[keys][keys2][:]
             # If key type only a string has to be load
             elif keys=="type":
@@ -224,11 +224,11 @@ def load(link, file_type=""):
                         for keys3 in data[keys][keys2].keys():
                             data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
                     # Save second level data
-                    except(BaseException):
+                    except(ValueError):
                         if len(data[keys][keys2][:])==1:
                             try:
                                 data_load[keys][keys2] = float(data[keys][keys2][0])
-                            except(BaseException):
+                            except(ValueError):
                                 data_load[keys][keys2] = str(data[keys][keys2][0], 'utf-8') #.encode().decode("utf-8")
                         else:
                             data_load[keys][keys2] = data[keys][keys2][:]
