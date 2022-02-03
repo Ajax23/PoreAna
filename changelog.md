@@ -3,8 +3,8 @@
 
 # v0.2.2
 * Routines can save and load results in hdf5 or obj format
-* Add a MC result table to compare diffusion coefficients in self-defined box areas
-* Obj. and hdf5 files can be convert in a text file with the most important inputs and results
+* Add an MC result table to compare diffusion coefficients in self-defined box areas
+* Obj. and hdf5 files can be converted into a text file with the most important inputs and results
 * Calculate mean density inside Pore
 * Restructure sample call for new PoreMS logic - now uses YAML file as input
 
