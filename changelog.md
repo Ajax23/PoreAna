@@ -1,4 +1,7 @@
-# v0.2.2 (Upcoming)
+# v0.2.3 (Upcoming)
+* -
+
+# v0.2.2
 * Routines can save and load results in hdf5 or obj format
 * Add a MC result table to compare diffusion coefficients in self-defined box areas
 * Obj. and hdf5 files can be convert in a text file with the most important inputs and results

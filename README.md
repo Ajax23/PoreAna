@@ -2,7 +2,7 @@
 
 --------------------------------------
 
-[![PyPI Version](https://img.shields.io/badge/PyPI-0.2.1-orange)](https://pypi.org/project/PoreAna/)
+[![PyPI Version](https://img.shields.io/badge/PyPI-0.2.2-orange)](https://pypi.org/project/PoreAna/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/Ajax23/PoreAna/blob/master/LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5039999.svg)](https://doi.org/10.5281/zenodo.5039999)
 [![Build Status](https://github.com/Ajax23/PoreAna/actions/workflows/workflow.yml/badge.svg)](https://github.com/Ajax23/PoreAna/actions/workflows/workflow.yml)
@@ -51,4 +51,3 @@ Please submit any reproducible bugs you encounter to the [issue tracker](https:/
 ## How to Cite PoreAna
 
 When citing PoreAna please use the current **Zenodo DOI** corresponding to the used PoreAna version. (Current DOI is listed in the badges.)
-
