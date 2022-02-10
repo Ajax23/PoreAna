@@ -582,6 +582,27 @@ def file_to_text(link, link_output, link_dens=[]):
             # Close file
             file.close()
 
+def num_dens_to_mass_dens(dens):
+    """Convert number density into mass density from the returned dictonary for the
+    :func:`pa.density.bins`.
+
+    Parameters
+    ----------
+    dens : dictonary
+        Dictionary returned from the :func:`pa.density.bins` Function
+
+    Returns
+    -------
+    mass_dens : list
+        Mass density over the simulation box
+    """
+
+    mass_dens = {}
+    mass_dens["ex"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["ex"]]
+    mass_dens["in"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["in"]] if "pore" in dens["sample"] else []
+    return mass_dens
+
+
 def mumol_m2_to_mols(c, A):
     """Convert the concentration in :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`
     to number of molecules.
