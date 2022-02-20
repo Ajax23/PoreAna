@@ -348,6 +348,8 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_print=True):
         if dens_y[dens_bin]>0:
             # Find closest bins in diffusion
             diff_bins = [math.floor(dens_x_val/diff_w), math.ceil(dens_x_val/diff_w)]
+            if diff_bins[1]>=len(diff_y):
+                diff_bins[1] = diff_bins[0]
 
             # Check boundary
             if diff_bins[1] <= len(diff_x):
