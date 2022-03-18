@@ -348,7 +348,7 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_print=True):
         if dens_y[dens_bin]>0:
             # Find closest bins in diffusion
             diff_bins = [math.floor(dens_x_val/diff_w), math.ceil(dens_x_val/diff_w)]
-
+            
             # Check boundary
             if diff_bins[1] <= len(diff_x):
                 interp_x = [diff_x[bin_id] for bin_id in diff_bins]
@@ -463,7 +463,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
     plt.title("Lagtime: "+ str(step * frame_length * 10**12) + " ps", fontsize=10)
 
     # Plot the normalized transition matrix in a heatmap
-    sns.heatmap(trans_mat, **kwargs)
+    sns.heatmap(data = trans_mat, **kwargs)
     if is_length:
         plt.xlabel("Box length (nm)")
 

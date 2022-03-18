@@ -600,6 +600,7 @@ def num_dens_to_mass_dens(dens):
     mass_dens = {}
     mass_dens["ex"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["ex"]]
     mass_dens["in"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["in"]] if "pore" in dens["sample"] else []
+
     return mass_dens
 
 
