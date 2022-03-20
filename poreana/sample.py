@@ -422,15 +422,23 @@ class Sample:
 
         # Define normals
         if not normals:
-            if self._pore and self._pore_props["type"]=="CYLINDER":
-                shape = pms.Cylinder({"centroid": self._pore_props["focal"], "central": [0, 0, 1], "length": self._pore_props["box"][2], "diameter": self._pore_props["diam"]})
-                def normal_in(pos): return shape.normal(pos)
-                def normal_ex(pos): return [0, 0, -1] if pos[2] < self._pore_props["focal"][2] else [0, 0, 1]
+            if self._pore:
+                print("\n\n\n")
+                print(self._pore_props["type"])
+                print("\n\n\n")
 
-                normals = {"in": normal_in, "ex": normal_ex}
+                if self._pore_props["type"]=="CYLINDER":
+                    shape = pms.Cylinder({"centroid": self._pore_props["focal"], "central": [0, 0, 1], "length": self._pore_props["box"][2], "diameter": self._pore_props["diam"]})
+                    def normal_in(pos): return shape.normal(pos)
+                    def normal_ex(pos): return [0, 0, -1] if pos[2] < self._pore_props["focal"][2] else [0, 0, 1]
+                    normals = {"in": normal_in, "ex": normal_ex}
+                else:
+                    print("Angle: Shape normal not predefined yet. Please set the 'normals' variable...")
+                    return
             else:
-                print("Angle: Shape normal not predefined yet. Please set the 'normals' variable...")
-                return
+                def normal_in(pos): return [0, 0, 1]
+                def normal_ex(pos): return [0, 0, 1]
+                normals = {"in": normal_in, "ex": normal_ex}
         self._angle_normals = normals
 
         # Global input
@@ -462,6 +470,8 @@ class Sample:
         """This function calculates the angle between a molecule vector defined
         between two atoms and the surface normal vector at the postition of the
         molecules center of mass. Hereby all angles all summed up per bin.
+
+        If a box system is analyzed, the normal vector is the z-axis.
 
         Parameters
         ----------
