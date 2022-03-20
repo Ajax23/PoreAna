@@ -41,6 +41,7 @@ Analysis
     :toctree: generated/
 
     adsorption
+    angle
     density
     diffusion
     freeenergy
