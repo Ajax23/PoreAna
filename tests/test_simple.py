@@ -40,11 +40,12 @@ class UserModelCase(unittest.TestCase):
         mol_W = pms.Molecule(inp="data/spc216.gro")
         mol_H = pms.Molecule(inp="data/heptane.gro")
 
-        #Sample
-        # Single core
+        # Sample
+        ## Single core
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.h5")
         sample.init_gyration("output/gyr_cyl_s.h5")
+        sample.init_angle("output/angle_cyl.h5", [0, 3])
         sample.init_diffusion_bin("output/diff_cyl_s.h5")
         sample.sample(is_parallel=False)
 
@@ -80,8 +81,8 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
         sample.init_diffusion_mc("output/diff_mc_box.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50])
         sample.sample(shift=[0, 0, 3.3], is_parallel=False, is_pbc=True)
-        #
-        # ## Parallel
+
+        ## Parallel
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_p.h5")
         sample.init_gyration("output/gyr_cyl_p.h5")
@@ -157,6 +158,7 @@ class UserModelCase(unittest.TestCase):
         mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
         mol2 = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
         mol2.add("H", [0, 0, 0])
+        mol3 = pms.Molecule("water", "SOL", inp="data/spc216.gro")
 
         # Sanity checks
         pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol2)
@@ -189,6 +191,16 @@ class UserModelCase(unittest.TestCase):
         # Test direction wrong input
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_mc("output/test.obj", len_step=[1, 2, 5, 10], direction=4)
+
+        # Test angle enabled with parallelization
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
+        sample.init_angle("output/angle_cyl.h5", [0, 3])
+        sample.sample(is_parallel=True, is_pbc=False)
+
+        # Test angle enabled with missing shape
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_slit.xtc", mol3)
+        sample.init_angle("output/angle_cyl.h5", [0, 3])
+
 
     ##############
     # Adsorption #
@@ -321,6 +333,23 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(mean_s["ex"], 2), 0.15)
         self.assertEqual(round(mean_p["in"], 2), 0.13)
         self.assertEqual(round(mean_p["ex"], 2), 0.15)
+
+
+    #########
+    # Angle #
+    #########
+    def test_angle(self):
+        # self.skipTest("Temporary")
+
+        plt.figure()
+        mean_s = pa.angle.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", is_mean=True)
+        plt.savefig("output/angle.pdf", format="pdf", dpi=1000)
+
+        plt.figure()
+        pa.gyration.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="in", is_norm=True)
+        pa.gyration.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="ex", is_norm=True)
+        plt.legend(["Interior", "Exterior"])
+        plt.savefig("output/angle_norm.pdf", format="pdf", dpi=1000)
 
 
     #################

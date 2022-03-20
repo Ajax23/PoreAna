@@ -37,6 +37,14 @@ Sample
     ~Sample._gyration_data
 
 
+  .. rubric:: Angle
+
+  .. autosummary::
+
+    ~Sample.init_angle
+    ~Sample._angle
+    ~Sample._angle_data
+
 
   .. rubric:: Bin Diffusion
 
@@ -46,6 +54,7 @@ Sample
     ~Sample._diffusion_bin
     ~Sample._diffusion_bin_data
     ~Sample._diffusion_bin_step
+
 
   .. rubric:: MC Diffusion
 
