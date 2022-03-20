@@ -346,10 +346,13 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/angle.pdf", format="pdf", dpi=1000)
 
         plt.figure()
-        pa.gyration.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="in", is_norm=True)
-        pa.gyration.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="ex", is_norm=True)
+        pa.angle.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="in", is_norm=True)
+        pa.angle.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="ex", is_norm=True)
         plt.legend(["Interior", "Exterior"])
         plt.savefig("output/angle_norm.pdf", format="pdf", dpi=1000)
+
+        print()
+        pa.angle.bins_plot("output/gyr_cyl_s.h5", "output/dens_cyl_s.h5", intent="DOTA")
 
 
     #################
