@@ -1,5 +1,5 @@
 # v0.2.3 (Upcoming)
-* -
+* New angle routine
 
 # v0.2.2
 * Routines can save and load results in hdf5 or obj format
