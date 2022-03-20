@@ -74,7 +74,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=False)
-        #
+
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=True)
@@ -127,6 +127,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.utils.mols_to_mmol_l(18, 1000), 4), 29.8904)
 
         print()
+        pa.utils.save(file_link, "data/data.DOTA")
         pa.utils.load("data/data.DOTA")
         pa.utils.toc(pa.utils.tic(), message="Test", is_print=True)
         self.assertEqual(round(pa.utils.toc(pa.utils.tic(), is_print=True)), 0)

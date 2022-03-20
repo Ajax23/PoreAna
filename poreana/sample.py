@@ -423,10 +423,6 @@ class Sample:
         # Define normals
         if not normals:
             if self._pore:
-                print("\n\n\n")
-                print(self._pore_props["type"])
-                print("\n\n\n")
-
                 if self._pore_props["type"]=="CYLINDER":
                     shape = pms.Cylinder({"centroid": self._pore_props["focal"], "central": [0, 0, 1], "length": self._pore_props["box"][2], "diameter": self._pore_props["diam"]})
                     def normal_in(pos): return shape.normal(pos)
@@ -1024,10 +1020,10 @@ class Sample:
             inp_angle.update(self._angle_inp)
             inp_angle.pop("output")
             data_angle = output[0]["angle"]
-            for out in output[1:]:
-                if self._pore:
-                    data_angle["in"] = [x+y for x, y in zip(data_angle["in"], out["angle"]["in"])]
-                data_angle["ex"] = [x+y for x, y in zip(data_angle["ex"], out["angle"]["ex"])]
+            # for out in output[1:]:
+            #     if self._pore:
+            #         data_angle["in"] = [x+y for x, y in zip(data_angle["in"], out["angle"]["in"])]
+            #     data_angle["ex"] = [x+y for x, y in zip(data_angle["ex"], out["angle"]["ex"])]
 
             # Pickle
             results = {system["sys"]: system["props"], "inp": inp_angle, "data": data_angle, "type": "angle_bin"}
