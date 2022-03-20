@@ -68,6 +68,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
         sample.init_density("output/dens_box.h5")
         sample.init_gyration("output/gyr_box.h5")
+        sample.init_angle("output/angle_box.h5", [0, 4])
         sample.sample(shift=[0, 0, 3.3], is_parallel=False)
 
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
@@ -126,6 +127,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.utils.mols_to_mmol_l(18, 1000), 4), 29.8904)
 
         print()
+        pa.utils.load("data/data.DOTA")
         pa.utils.toc(pa.utils.tic(), message="Test", is_print=True)
         self.assertEqual(round(pa.utils.toc(pa.utils.tic(), is_print=True)), 0)
 
@@ -198,7 +200,7 @@ class UserModelCase(unittest.TestCase):
         sample.sample(is_parallel=True, is_pbc=False)
 
         # Test angle enabled with missing shape
-        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_slit.xtc", mol3)
+        sample = pa.Sample("data/pore_system_slit.yml", "data/traj_slit.xtc", mol3)
         sample.init_angle("output/angle_cyl.h5", [0, 3])
 
 
