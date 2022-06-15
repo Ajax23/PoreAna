@@ -45,8 +45,9 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.h5")
         sample.init_gyration("output/gyr_cyl_s.h5")
-        sample.init_diffusion_bin("output/diff_cyl_s.h5")
         sample.sample(is_parallel=False)
+        """ sample.init_diffusion_bin("output/diff_cyl_s.h5")
+        
 
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_no_remove.h5", remove_pore_from_res=False)
@@ -203,7 +204,7 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(ads_s["conc"]["mumol_m2"], 2), 0.15)
         self.assertEqual(round(ads_s["num"]["in"], 2), 10.77)
         self.assertEqual(round(ads_p["conc"]["mumol_m2"], 2), 0.15)
-        self.assertEqual(round(ads_p["num"]["in"], 2), 10.77)
+        self.assertEqual(round(ads_p["num"]["in"], 2), 10.77) """
 
 
     ###########
@@ -214,10 +215,12 @@ class UserModelCase(unittest.TestCase):
 
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.h5", target_dens=16)
-        dens_p = pa.density.bins("output/dens_cyl_p.h5", target_dens=16)
+        #dens_p = pa.density.bins("output/dens_cyl_p.h5", target_dens=16)
         dens_s_mean = pa.density.mean(dens_s)
+        pa.density.bins_plot(dens_s, target_dens=0.146, is_mean=True)
+        plt.savefig("output/density.pdf", format="pdf", dpi=1000)
 
-        dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
+    """  dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
 
         dens_slit = pa.density.bins("output/dens_slit.h5", target_dens=997)
         dens_box = pa.density.bins("output/dens_box.h5")
@@ -244,7 +247,7 @@ class UserModelCase(unittest.TestCase):
         pa.density.bins_plot(dens_p, intent="in")
         plt.legend(["Single core", "Parallel"])
         plt.savefig("output/density_in.pdf", format="pdf", dpi=1000)
-        # plt.show()
+        plt.show()
 
         plt.figure()
         pa.density.bins_plot(dens_s, intent="ex")
@@ -265,13 +268,13 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.432)
 
         print()
-        pa.density.bins_plot(dens_s, intent="DOTA")
+        pa.density.bins_plot(dens_s, intent="DOTA") """
 
 
     ############
     # Gyration #
     ############
-    def test_gyration(self):
+    """ def test_gyration(self):
         # self.skipTest("Temporary")
 
         # Plot gyration radius
@@ -550,7 +553,7 @@ class UserModelCase(unittest.TestCase):
         pa.diffusion.mc_fit("data/box_output.h5", section = "pore")
         pa.diffusion.mc_fit("data/box_output.h5", section = "reservoir")
         pa.diffusion.mc_profile("data/box_output.h5", section = "pore")
-        pa.diffusion.mc_profile("data/box_output.h5", section = "reservoir")
+        pa.diffusion.mc_profile("data/box_output.h5", section = "reservoir") """
 
 
 

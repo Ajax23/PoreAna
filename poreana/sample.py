@@ -133,6 +133,26 @@ class Sample:
 
         return {"width": width, "bins": bins}
 
+    def _bin_in_dc(self, bin_num):
+        """This function creates a simple bin structure for the interior of the
+        pore based on the pore diameter.
+
+        Parameters
+        ----------
+        bin_num : integer
+            Number of bins to be used
+
+        Returns
+        -------
+        data : dictionary
+            Dictionary containing a list of the bin width and a data list
+        """
+        # Define bins
+        width = np.geomspace(0.00001,self._pore_props["diam"]/2, bin_num+2)
+        bins = [0 for x in range(bin_num+1)]
+        print(width)
+        return {"width": width, "bins": bins}
+
     def _bin_ex(self, bin_num):
         """This function creates a simple bin structure for the exterior of the
         pore based on the reservoir length.
@@ -208,7 +228,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True):
+    def init_density(self, link_out, bin_num=50, remove_pore_from_res=True, bin_dc = False):
         """Enable density sampling routine.
 
         Parameters
@@ -224,7 +244,7 @@ class Sample:
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
-                          "remove_pore_from_res": remove_pore_from_res}
+                          "remove_pore_from_res": remove_pore_from_res, "bin_dc": bin_dc}
 
     def _density_data(self):
         """Create density data structure.
@@ -243,8 +263,12 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            data["in_width"] = self._bin_in(bin_num)["width"]
-            data["in"] = self._bin_in(bin_num)["bins"]
+            if self._dens_inp["bin_dc"]:
+                data["in_width"] = self._bin_in_dc(bin_num)["width"]
+                data["in"] = self._bin_in_dc(bin_num)["bins"]
+            else:
+                data["in_width"] = self._bin_in(bin_num)["width"]
+                data["in"] = self._bin_in(bin_num)["bins"]
 
         return data
 
@@ -272,10 +296,9 @@ class Sample:
         """
         # Initialize
         bin_num = self._dens_inp["bin_num"]
-
         # Molecule is inside pore
         if region=="in":
-            index = int(dist/data["in_width"][1])
+            index = np.digitize(dist,data["in_width"])
             if index <= bin_num:
                 data["in"][index] += 1
 
