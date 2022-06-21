@@ -10,6 +10,7 @@ import math
 import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
+import scipy
 
 import poreana.utils as utils
 import poreana.geometry as geometry
@@ -148,7 +149,37 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Define bins
-        width = np.geomspace(0.00001,self._pore_props["diam"]/2, bin_num+2)
+        diam = self._pore_props["diam"]
+        pore_surf = (diam)**2
+        bin_num = bin_num + 2
+        surf_per_bin = (pore_surf/bin_num)
+
+        matrix_bins = []
+        for i in range(bin_num):
+            if i == 0:
+                line = [0 for i in range(bin_num)]
+                line[0] = 1
+            elif i == (bin_num-1):
+                line = [0 for i in range(bin_num)]
+                line[-1] = 0
+                line[-2] = 1
+            else:
+                line = [0 for i in range(bin_num)]
+                line[i]= 1
+                line[i-1] = -1
+            matrix_bins.append(line)
+            res_vec = [surf_per_bin for i in range(bin_num)]
+            res_vec[-1] = -surf_per_bin + (diam/2) ** 2
+        print(res_vec)
+        print(np.array(matrix_bins))
+        x = scipy.sparse.linalg.lsmr(np.array(matrix_bins),res_vec)[0]
+        x[-1]=(diam/2)**2
+        width = np.sqrt(x)
+
+
+
+
+
         bins = [0 for x in range(bin_num+1)]
         print(width)
         return {"width": width, "bins": bins}
@@ -228,7 +259,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=50, remove_pore_from_res=True, bin_dc = False):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_dc = True):
         """Enable density sampling routine.
 
         Parameters
