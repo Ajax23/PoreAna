@@ -10,6 +10,7 @@ import math
 import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
+import scipy
 
 import poreana.utils as utils
 import poreana.geometry as geometry
@@ -133,9 +134,9 @@ class Sample:
 
         return {"width": width, "bins": bins}
 
-    def _bin_in_dc(self, bin_num):
-        """This function creates a simple bin structure for the interior of the
-        pore based on the pore diameter.
+    def _bin_in_const_a(self, bin_num):
+        """This function creates a bin structure for the interior of the
+        pore based on the pore diameter so that all bins have the same area.
 
         Parameters
         ----------
@@ -148,9 +149,32 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Define bins
-        width = np.geomspace(0.00001,self._pore_props["diam"]/2, bin_num+2)
+        diam = self._pore_props["diam"]
+        pore_surf = (diam)**2
+        bin_num = bin_num + 2
+        surf_per_bin = (pore_surf/bin_num)
+
+        matrix_bins = []
+        for i in range(bin_num):
+            if i == 0:
+                line = [0 for i in range(bin_num)]
+                line[0] = 1
+            elif i == (bin_num-1):
+                line = [0 for i in range(bin_num)]
+                line[-1] = 0
+                line[-2] = 1
+            else:
+                line = [0 for i in range(bin_num)]
+                line[i]= 1
+                line[i-1] = -1
+            matrix_bins.append(line)
+            res_vec = [surf_per_bin for i in range(bin_num)]
+            res_vec[-1] = -surf_per_bin + (diam/2) ** 2
+        x = scipy.sparse.linalg.lsmr(np.array(matrix_bins),res_vec)[0]
+        x[-1]=(diam/2)**2
+        width = np.sqrt(x)
+
         bins = [0 for x in range(bin_num+1)]
-        print(width)
         return {"width": width, "bins": bins}
 
     def _bin_ex(self, bin_num):
@@ -228,7 +252,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=50, remove_pore_from_res=True, bin_dc = False):
+    def init_density(self, link_out, bin_num=100, remove_pore_from_res=True, bin_const_a = True):
         """Enable density sampling routine.
 
         Parameters
@@ -240,11 +264,13 @@ class Sample:
         remove_pore_from_res : bool, optional
             True to remove an extended pore volume from the reservoirs to only
             consider the reservoir space intersecting the crystal grid
+        bin_const_a : bool, optinal
+            If True all bins has the same surface. Otherwise the bins has the same bin width
         """
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
-                          "remove_pore_from_res": remove_pore_from_res, "bin_dc": bin_dc}
+                          "remove_pore_from_res": remove_pore_from_res, "bin_const_a": bin_const_a}
 
     def _density_data(self):
         """Create density data structure.
@@ -263,9 +289,9 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            if self._dens_inp["bin_dc"]:
-                data["in_width"] = self._bin_in_dc(bin_num)["width"]
-                data["in"] = self._bin_in_dc(bin_num)["bins"]
+            if self._dens_inp["bin_const_a"]:
+                data["in_width"] = self._bin_in_const_a(bin_num)["width"]
+                data["in"] = self._bin_in_const_a(bin_num)["bins"]
             else:
                 data["in_width"] = self._bin_in(bin_num)["width"]
                 data["in"] = self._bin_in(bin_num)["bins"]
