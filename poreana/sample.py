@@ -252,7 +252,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=100, remove_pore_from_res=True, bin_const_a = True):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_a = False):
         """Enable density sampling routine.
 
         Parameters
@@ -324,7 +324,7 @@ class Sample:
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
         if region=="in":
-            index = np.digitize(dist,data["in_width"])
+            index = int(dist/data["in_width"][1])
             if index <= bin_num:
                 data["in"][index] += 1
 

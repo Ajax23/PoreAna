@@ -47,7 +47,7 @@ class UserModelCase(unittest.TestCase):
         sample.init_gyration("output/gyr_cyl_s.h5")
         sample.sample(is_parallel=False)
         sample.init_diffusion_bin("output/diff_cyl_s.h5")
-        
+        sample.sample(is_parallel=False)
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_no_remove.h5", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
@@ -67,7 +67,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=False)
-        #
+        
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
         sample.sample(is_parallel=True)
@@ -181,7 +181,7 @@ class UserModelCase(unittest.TestCase):
 
         # Calculate density
         dens_s = pa.density.bins("output/dens_cyl_s.h5", target_dens=16)
-        #dens_p = pa.density.bins("output/dens_cyl_p.h5", target_dens=16)
+        dens_p = pa.density.bins("output/dens_cyl_p.h5", target_dens=16)
         dens_s_mean = pa.density.mean(dens_s)
         pa.density.bins_plot(dens_s, target_dens=0.146, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)

@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sample &#8212; PoreAna 0.2.2 documentation</title>
+    <title>Sample &#8212; PoreAna 0.2.3 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.2',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -27,10 +27,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head>
   <body>
@@ -154,114 +154,72 @@ analysis</p>
 </tr>
 </tbody>
 </table>
-<p class="rubric">Sampling</p>
+<p class="rubric">Methods</p>
 <table border="1" class="longtable docutils">
 <colgroup>
 <col width="10%" />
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._sample_helper.html#poreana.sample.Sample._sample_helper" title="poreana.sample.Sample._sample_helper"><code class="xref py py-obj docutils literal"><span class="pre">_sample_helper</span></code></a>(self,&nbsp;frame_list,&nbsp;shift,&nbsp;…)</td>
-<td>Helper function for sampling run.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>(self[,&nbsp;shift,&nbsp;np,&nbsp;is_pbc,&nbsp;is_broken,&nbsp;…])</td>
-<td>This function runs all enabled sampling routines.</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Density</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-obj docutils literal"><span class="pre">init_density</span></code></a>(self,&nbsp;link_out[,&nbsp;bin_num,&nbsp;…])</td>
-<td>Enable density sampling routine.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._density.html#poreana.sample.Sample._density" title="poreana.sample.Sample._density"><code class="xref py py-obj docutils literal"><span class="pre">_density</span></code></a>(self,&nbsp;data,&nbsp;region,&nbsp;dist,&nbsp;com)</td>
-<td>This function samples the density inside and outside of the pore.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._density_data.html#poreana.sample.Sample._density_data" title="poreana.sample.Sample._density_data"><code class="xref py py-obj docutils literal"><span class="pre">_density_data</span></code></a>(self)</td>
-<td>Create density data structure.</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Gyration Radius</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_gyration.html#poreana.sample.Sample.init_gyration" title="poreana.sample.Sample.init_gyration"><code class="xref py py-obj docutils literal"><span class="pre">init_gyration</span></code></a>(self,&nbsp;link_out[,&nbsp;bin_num])</td>
-<td>Enable gyration sampling routine.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._gyration.html#poreana.sample.Sample._gyration" title="poreana.sample.Sample._gyration"><code class="xref py py-obj docutils literal"><span class="pre">_gyration</span></code></a>(self,&nbsp;data,&nbsp;region,&nbsp;dist,&nbsp;com,&nbsp;pos)</td>
-<td>This function calculates the gyration radius of molecules inside the pore.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._gyration_data.html#poreana.sample.Sample._gyration_data" title="poreana.sample.Sample._gyration_data"><code class="xref py py-obj docutils literal"><span class="pre">_gyration_data</span></code></a>(self)</td>
-<td>Create gyration data structure.</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Bin Diffusion</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_diffusion_bin.html#poreana.sample.Sample.init_diffusion_bin" title="poreana.sample.Sample.init_diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">init_diffusion_bin</span></code></a>(self,&nbsp;link_out[,&nbsp;…])</td>
-<td>Enable diffusion sampling routine.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin.html#poreana.sample.Sample._diffusion_bin" title="poreana.sample.Sample._diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin</span></code></a>(self,&nbsp;data,&nbsp;region,&nbsp;dist,&nbsp;…)</td>
-<td>This function samples the mean square displacement of a molecule group in a pore in both axial and radial direction separated in radial bins.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin_data.html#poreana.sample.Sample._diffusion_bin_data" title="poreana.sample.Sample._diffusion_bin_data"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin_data</span></code></a>(self)</td>
-<td>Create bin diffusion data structure.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin_step.html#poreana.sample.Sample._diffusion_bin_step" title="poreana.sample.Sample._diffusion_bin_step"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin_step</span></code></a>(self,&nbsp;idx)</td>
-<td>Helper function to define allowed bin step list.</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">MC Diffusion</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-obj docutils literal"><span class="pre">init_diffusion_mc</span></code></a>(self,&nbsp;link_out,&nbsp;len_step)</td>
-<td>Enable diffusion sampling routine with the MC Alogrithm.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_mc_data.html#poreana.sample.Sample._diffusion_mc_data" title="poreana.sample.Sample._diffusion_mc_data"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_mc_data</span></code></a>(self)</td>
-<td>Create mc diffusion data structure.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_mc.html#poreana.sample.Sample._diffusion_mc" title="poreana.sample.Sample._diffusion_mc"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_mc</span></code></a>(self,&nbsp;data,&nbsp;idx_list,&nbsp;com,&nbsp;…)</td>
-<td>This function sample the transition matrix for the diffusion calculation with the Monte Carlo diffusion methode for a cubic simulation box.</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Bin Structure</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_ex.html#poreana.sample.Sample._bin_ex" title="poreana.sample.Sample._bin_ex"><code class="xref py py-obj docutils literal"><span class="pre">_bin_ex</span></code></a>(self,&nbsp;bin_num)</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_ex.html#poreana.sample.Sample._bin_ex" title="poreana.sample.Sample._bin_ex"><code class="xref py py-obj docutils literal"><span class="pre">_bin_ex</span></code></a>(bin_num)</td>
 <td>This function creates a simple bin structure for the exterior of the pore based on the reservoir length.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._bin_in.html#poreana.sample.Sample._bin_in" title="poreana.sample.Sample._bin_in"><code class="xref py py-obj docutils literal"><span class="pre">_bin_in</span></code></a>(self,&nbsp;bin_num)</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._bin_in.html#poreana.sample.Sample._bin_in" title="poreana.sample.Sample._bin_in"><code class="xref py py-obj docutils literal"><span class="pre">_bin_in</span></code></a>(bin_num)</td>
 <td>This function creates a simple bin structure for the interior of the pore based on the pore diameter.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_window.html#poreana.sample.Sample._bin_window" title="poreana.sample.Sample._bin_window"><code class="xref py py-obj docutils literal"><span class="pre">_bin_window</span></code></a>(self,&nbsp;bin_num,&nbsp;len_window)</td>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_in_const_a.html#poreana.sample.Sample._bin_in_const_a" title="poreana.sample.Sample._bin_in_const_a"><code class="xref py py-obj docutils literal"><span class="pre">_bin_in_const_a</span></code></a>(bin_num)</td>
+<td>This function creates a bin structure for the interior of the pore based on the pore diameter so that all bins have the same area.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._bin_mc.html#poreana.sample.Sample._bin_mc" title="poreana.sample.Sample._bin_mc"><code class="xref py py-obj docutils literal"><span class="pre">_bin_mc</span></code></a>(bin_num,&nbsp;direction)</td>
+<td>This function creates a simple bin structure for the pore and resevoir.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._bin_window.html#poreana.sample.Sample._bin_window" title="poreana.sample.Sample._bin_window"><code class="xref py py-obj docutils literal"><span class="pre">_bin_window</span></code></a>(bin_num,&nbsp;len_window)</td>
 <td>This function creates window list for each bin for the interior of the pore based on the pore diameter.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._bin_mc.html#poreana.sample.Sample._bin_mc" title="poreana.sample.Sample._bin_mc"><code class="xref py py-obj docutils literal"><span class="pre">_bin_mc</span></code></a>(self,&nbsp;bin_num,&nbsp;direction)</td>
-<td>This function creates a simple bin structure for the pore and resevoir.</td>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._density.html#poreana.sample.Sample._density" title="poreana.sample.Sample._density"><code class="xref py py-obj docutils literal"><span class="pre">_density</span></code></a>(data,&nbsp;region,&nbsp;dist,&nbsp;com)</td>
+<td>This function samples the density inside and outside of the pore.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._density_data.html#poreana.sample.Sample._density_data" title="poreana.sample.Sample._density_data"><code class="xref py py-obj docutils literal"><span class="pre">_density_data</span></code></a>()</td>
+<td>Create density data structure.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin.html#poreana.sample.Sample._diffusion_bin" title="poreana.sample.Sample._diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin</span></code></a>(data,&nbsp;region,&nbsp;dist,&nbsp;com_list,&nbsp;…)</td>
+<td>This function samples the mean square displacement of a molecule group in a pore in both axial and radial direction separated in radial bins.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin_data.html#poreana.sample.Sample._diffusion_bin_data" title="poreana.sample.Sample._diffusion_bin_data"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin_data</span></code></a>()</td>
+<td>Create bin diffusion data structure.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_bin_step.html#poreana.sample.Sample._diffusion_bin_step" title="poreana.sample.Sample._diffusion_bin_step"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_bin_step</span></code></a>(idx)</td>
+<td>Helper function to define allowed bin step list.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_mc.html#poreana.sample.Sample._diffusion_mc" title="poreana.sample.Sample._diffusion_mc"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_mc</span></code></a>(data,&nbsp;idx_list,&nbsp;com,&nbsp;res_id,&nbsp;…)</td>
+<td>This function sample the transition matrix for the diffusion calculation with the Monte Carlo diffusion methode for a cubic simulation box.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._diffusion_mc_data.html#poreana.sample.Sample._diffusion_mc_data" title="poreana.sample.Sample._diffusion_mc_data"><code class="xref py py-obj docutils literal"><span class="pre">_diffusion_mc_data</span></code></a>()</td>
+<td>Create mc diffusion data structure.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._gyration.html#poreana.sample.Sample._gyration" title="poreana.sample.Sample._gyration"><code class="xref py py-obj docutils literal"><span class="pre">_gyration</span></code></a>(data,&nbsp;region,&nbsp;dist,&nbsp;com,&nbsp;pos)</td>
+<td>This function calculates the gyration radius of molecules inside the pore.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample._gyration_data.html#poreana.sample.Sample._gyration_data" title="poreana.sample.Sample._gyration_data"><code class="xref py py-obj docutils literal"><span class="pre">_gyration_data</span></code></a>()</td>
+<td>Create gyration data structure.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample._sample_helper.html#poreana.sample.Sample._sample_helper" title="poreana.sample.Sample._sample_helper"><code class="xref py py-obj docutils literal"><span class="pre">_sample_helper</span></code></a>(frame_list,&nbsp;shift,&nbsp;is_pbc,&nbsp;…)</td>
+<td>Helper function for sampling run.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-obj docutils literal"><span class="pre">init_density</span></code></a>(link_out[,&nbsp;bin_num,&nbsp;…])</td>
+<td>Enable density sampling routine.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_diffusion_bin.html#poreana.sample.Sample.init_diffusion_bin" title="poreana.sample.Sample.init_diffusion_bin"><code class="xref py py-obj docutils literal"><span class="pre">init_diffusion_bin</span></code></a>(link_out[,&nbsp;bin_num,&nbsp;…])</td>
+<td>Enable diffusion sampling routine.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-obj docutils literal"><span class="pre">init_diffusion_mc</span></code></a>(link_out,&nbsp;len_step[,&nbsp;…])</td>
+<td>Enable diffusion sampling routine with the MC Alogrithm.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="poreana.sample.Sample.init_gyration.html#poreana.sample.Sample.init_gyration" title="poreana.sample.Sample.init_gyration"><code class="xref py py-obj docutils literal"><span class="pre">init_gyration</span></code></a>(link_out[,&nbsp;bin_num])</td>
+<td>Enable gyration sampling routine.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="poreana.sample.Sample.sample.html#poreana.sample.Sample.sample" title="poreana.sample.Sample.sample"><code class="xref py py-obj docutils literal"><span class="pre">sample</span></code></a>([shift,&nbsp;np,&nbsp;is_pbc,&nbsp;is_broken,&nbsp;…])</td>
+<td>This function runs all enabled sampling routines.</td>
 </tr>
 </tbody>
 </table>

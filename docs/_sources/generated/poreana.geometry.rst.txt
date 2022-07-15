@@ -1,7 +1,11 @@
-poreana\.geometry
-=================
+﻿poreana.geometry
+================
 
 .. automodule:: poreana.geometry
+
+   
+   
+   
 
    
    
@@ -25,3 +29,6 @@ poreana\.geometry
    
    
    
+
+
+

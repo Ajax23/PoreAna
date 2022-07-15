@@ -3,14 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Sample.init_diffusion_mc &#8212; PoreAna 0.2.2 documentation</title>
+    <title>Sample.init_diffusion_mc &#8212; PoreAna 0.2.3 documentation</title>
     <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../_static/style.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2.2',
+        VERSION:     '0.2.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -27,10 +27,10 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
   </head>
   <body>
@@ -115,7 +115,7 @@
 <h1>Sample.init_diffusion_mc<a class="headerlink" href="#sample-init-diffusion-mc" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample.init_diffusion_mc">
-<code class="descclassname">Sample.</code><code class="descname">init_diffusion_mc</code><span class="sig-paren">(</span><em>self</em>, <em>link_out</em>, <em>len_step</em>, <em>bin_num=100</em>, <em>len_frame=2e-12</em>, <em>direction=2</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_diffusion_mc" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">init_diffusion_mc</code><span class="sig-paren">(</span><em>link_out</em>, <em>len_step</em>, <em>bin_num=100</em>, <em>len_frame=2e-12</em>, <em>direction=2</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_diffusion_mc" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enable diffusion sampling routine with the MC Alogrithm.</p>
 <p>This function sample the transition matrix for the diffusion
 calculation with the Monte Carlo diffusion methode for a cubic
@@ -157,7 +157,7 @@ this direction.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to hdf5 data file</p>
+<dd><p class="first last">Link to hdf5, obj or yml data file</p>
 </dd>
 <dt><strong>len_step</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
 <dd><p class="first last">Length of the step size between frames</p>

@@ -1,7 +1,11 @@
-poreana\.adsorption
-===================
+﻿poreana.adsorption
+==================
 
 .. automodule:: poreana.adsorption
+
+   
+   
+   
 
    
    
@@ -20,3 +24,6 @@ poreana\.adsorption
    
    
    
+
+
+

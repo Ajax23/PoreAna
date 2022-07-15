@@ -245,7 +245,7 @@ def bins_plot(density, intent="", target_dens=0, is_mean=False, kwargs={}):
         plt.xlim([0, width[intent][-1]])
 
 
-def mean(density, is_print=True, cut=2.3):
+def mean(density, is_print=True, cut=2.5):
     """This function uses the desnity slope obtained from function
     :func:`poreana.density.bins` to calculate a weighted density inside the pore
 
@@ -274,6 +274,8 @@ def mean(density, is_print=True, cut=2.3):
         Density object from the density calculation :func:`bins`
     is_print : bool
         True to print result
+    cut : float
+        upper integration limit
 
     Returns
     -------
