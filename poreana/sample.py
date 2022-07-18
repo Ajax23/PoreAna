@@ -175,6 +175,7 @@ class Sample:
         width = np.sqrt(x)
 
         bins = [0 for x in range(bin_num+1)]
+        print(width)
         return {"width": width, "bins": bins}
 
     def _bin_ex(self, bin_num):
@@ -328,6 +329,7 @@ class Sample:
                 index = np.digitize(dist, data["in_width"])
             else:
                 index = int(dist/data["in_width"][1])
+
             if index <= bin_num:
                 data["in"][index] += 1
 
