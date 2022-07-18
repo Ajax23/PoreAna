@@ -324,7 +324,10 @@ class Sample:
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
         if region=="in":
-            index = int(dist/data["in_width"][1])
+            if self._dens_inp["bin_const_a"]:
+                index = np.digitize(dist, data["in_width"])
+            else:
+                index = int(dist/data["in_width"][1])
             if index <= bin_num:
                 data["in"][index] += 1
 
