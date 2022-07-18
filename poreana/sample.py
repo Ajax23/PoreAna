@@ -7,6 +7,7 @@
 
 import sys
 import math
+from tkinter import W
 import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
@@ -172,10 +173,11 @@ class Sample:
             res_vec[-1] = -surf_per_bin + (diam/2) ** 2
         x = scipy.sparse.linalg.lsmr(np.array(matrix_bins),res_vec)[0]
         x[-1]=(diam/2)**2
-        width = np.sqrt(x)
+        width = list(np.sqrt(x)[:-1])
+        width.insert(0,0)
 
         bins = [0 for x in range(bin_num+1)]
-        print(width)
+
         return {"width": width, "bins": bins}
 
     def _bin_ex(self, bin_num):
