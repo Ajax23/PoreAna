@@ -7,7 +7,6 @@
 
 import sys
 import math
-from tkinter import W
 import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
@@ -16,6 +15,7 @@ import scipy
 import poreana.utils as utils
 import poreana.geometry as geometry
 
+#from tkinter import W
 
 class Sample:
     """This class samples a trajectory to determine different properties.
@@ -255,7 +255,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_a = False):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_A = False):
         """Enable density sampling routine.
 
         Parameters
@@ -267,13 +267,13 @@ class Sample:
         remove_pore_from_res : bool, optional
             True to remove an extended pore volume from the reservoirs to only
             consider the reservoir space intersecting the crystal grid
-        bin_const_a : bool, optinal
-            If True all bins has the same surface. Otherwise the bins has the same bin width
+        bin_const_A : bool, optinal
+            If true, all radial bins will have the same surface area, otherwise the bin-width will be constant
         """
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
-                          "remove_pore_from_res": remove_pore_from_res, "bin_const_a": bin_const_a}
+                          "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A}
 
     def _density_data(self):
         """Create density data structure.
@@ -292,7 +292,7 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            if self._dens_inp["bin_const_a"]:
+            if self._dens_inp["bin_const_A"]:
                 data["in_width"] = self._bin_in_const_a(bin_num)["width"]
                 data["in"] = self._bin_in_const_a(bin_num)["bins"]
             else:
@@ -327,7 +327,7 @@ class Sample:
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
         if region=="in":
-            if self._dens_inp["bin_const_a"]:
+            if self._dens_inp["bin_const_A"]:
                 index = np.digitize(dist, data["in_width"][1:])
             else:
                 index = int(dist/data["in_width"][1])

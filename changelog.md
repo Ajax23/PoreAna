@@ -1,5 +1,6 @@
 # v0.2.3 (Upcoming)
-* -
+* Add option to calculate density in pore with a constant bin area.
+* Add option to specify a upper integration limit when calculating the mean density
 
 # v0.2.2
 * Routines can save and load results in hdf5 or obj format
