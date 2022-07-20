@@ -377,7 +377,7 @@ class UserModelCase(unittest.TestCase):
         diff = pa.diffusion.mc_fit("output/diff_test_mc_box.h5")
         plt.savefig("output/diffusion_fit_box.pdf", format="pdf", dpi=1000)
         # Check if diffusion coefficient is in the range
-        self.assertEqual(abs(diff[0] - (10.5) ) < 0.7, True)
+        self.assertEqual(abs(diff[0] - (10.5) ) < 1.7, True)
     #####################
     # Transition Matrix #
     #####################
