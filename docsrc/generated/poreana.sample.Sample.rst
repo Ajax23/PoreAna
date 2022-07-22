@@ -37,6 +37,15 @@ Sample
     ~Sample._gyration_data
 
 
+  .. rubric:: Angle
+
+  .. autosummary::
+
+    ~Sample.init_angle
+    ~Sample._angle
+    ~Sample._angle_data
+
+
   .. rubric:: Bin Diffusion
 
   .. autosummary::

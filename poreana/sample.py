@@ -9,6 +9,7 @@ import sys
 import math
 import scipy
 import numpy as np
+import porems as pms
 import chemfiles as cf
 import multiprocessing as mp
 
@@ -58,6 +59,7 @@ class Sample:
         # Set analysis routines
         self._is_density = False
         self._is_gyration = False
+        self._is_angle = False
         self._is_diffusion_bin = False
         self._is_diffusion_mc = False
 
@@ -104,7 +106,7 @@ class Sample:
             self._pore_props["focal"] = self._pore["centroid"]
             self._pore_props["box"] = self._pore["dimensions"]
 
-            # Get pore diameter
+            # Get pore diameter and define shape
             if self._pore_props["type"] == "CYLINDER":
                 self._pore_props["diam"] = self._pore["diameter"]
             elif self._pore_props["type"] == "SLIT":
@@ -450,6 +452,123 @@ class Sample:
 
             if is_add:
                 data["ex"][index] += r_g
+
+
+    #########
+    # Angle #
+    #########
+    def init_angle(self, link_out, vector_atoms, bin_num=150, normals={}):
+        """Enable angle sampling routine.
+
+        Parameters
+        ----------
+        link_out : string
+            Link to output hdf5, obj or yml data file
+        vector_atoms : list
+            List of two atom ids to define the molecule vector
+        bin_num : integer, optional
+            Number of bins to be used
+        normals : dictionary, optional
+            Dictionary defining surface normal vector functions of the interior
+            *in* and exterior *ex* surcace - {"in": def normal_in(pos): return ..., ...}
+        """
+        # Initialize
+        self._is_angle = True
+
+        # Define normals
+        if not normals:
+            if self._pore:
+                if self._pore_props["type"]=="CYLINDER":
+                    shape = pms.Cylinder({"centroid": self._pore_props["focal"], "central": [0, 0, 1], "length": self._pore_props["box"][2], "diameter": self._pore_props["diam"]})
+                    def normal_in(pos): return shape.normal(pos)
+                    def normal_ex(pos): return [0, 0, -1] if pos[2] < self._pore_props["focal"][2] else [0, 0, 1]
+                    normals = {"in": normal_in, "ex": normal_ex}
+                else:
+                    print("Angle: Shape normal not predefined yet. Please set the 'normals' variable...")
+                    return
+            else:
+                def normal_in(pos): return [0, 0, 1]
+                def normal_ex(pos): return [0, 0, 1]
+                normals = {"in": normal_in, "ex": normal_ex}
+        self._angle_normals = normals
+
+        # Global input
+        self._angle_inp = {"output": link_out, "vector_atoms": vector_atoms, "bin_num": bin_num}
+
+    def _angle_data(self):
+        """Create angle data structure.
+
+        Returns
+        -------
+        data : dictionary
+            Angle data structure
+        """
+        # Initialize
+        bin_num = self._angle_inp["bin_num"]
+        data = {}
+
+        # Fill dictionary
+        data["ex_width"] = self._bin_ex(bin_num)["width"]
+        data["ex"] = self._bin_ex(bin_num)["bins"]
+
+        if self._pore:
+            data["in_width"] = self._bin_in(bin_num)["width"]
+            data["in"] = self._bin_in(bin_num)["bins"]
+
+        return data
+
+    def _angle(self, data, region, dist, com, pos):
+        """This function calculates the angle between a molecule vector defined
+        between two atoms and the surface normal vector at the postition of the
+        molecules center of mass. Hereby all angles all summed up per bin.
+
+        If a box system is analyzed, the normal vector is the z-axis.
+
+        Parameters
+        ----------
+        data : dictionary
+            Data dictionary containing bins for the pore interior and exterior
+        region : string
+            Indicator wether molecule is inside or outside pore
+        dist : float
+            Distance of center of mass to pore surface area
+        com : list
+            Center of mass of current molecule
+        pos : list
+            List of atom positions of current molecule
+        """
+        # Initialize
+        bin_num = self._angle_inp["bin_num"]
+        vector_atoms = self._angle_inp["vector_atoms"]
+        normals = self._angle_normals
+
+        # Calculate angle between molecule vector and surface normal
+        if region in ["in", "ex"]:
+            # Determine molecule vector
+            vec = geometry.vector(pos[vector_atoms[0]], pos[vector_atoms[1]])
+            # Calculate angle
+            angle = geometry.angle(vec, normals[region](com))
+
+        # Add molecule to bin
+        if region=="in":
+            index = int(dist/data["in_width"][1])
+            if index <= bin_num:
+                data["in"][index] += angle
+
+        elif region=="ex":
+            # Calculate distance to crystobalit and apply perodicity
+            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] > self._pore_props["box"][2]/2 else com[2]
+            index = int(lentgh/data["ex_width"][1])
+
+            # Only consider reservoir space in vicinity of crystobalit
+            # Remove an extended pore volume from the reservoir
+            if self._pore:
+                is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
+            else:
+                is_add = index <= bin_num
+
+            if is_add:
+                data["ex"][index] += angle
 
 
     #############
@@ -879,6 +998,11 @@ class Sample:
         # Get number of cores
         np = np if np and np<=mp.cpu_count() else mp.cpu_count()
 
+        # Error message
+        if is_parallel and self._is_angle:
+            print("Currently the angle routine cannot be parallelized...")
+            return
+
         # Run sampling helper
         if is_parallel:
             # Divide number of frames on processors
@@ -932,7 +1056,6 @@ class Sample:
             results = {system["sys"]: system["props"], "inp": inp_dens, "data": data_dens, "type": "dens_bin"}
             utils.save(results, self._dens_inp["output"])
 
-
         if self._is_gyration:
             inp_gyr = inp.copy()
             inp_gyr.update(self._gyr_inp)
@@ -946,6 +1069,20 @@ class Sample:
             # Pickle
             results = {system["sys"]: system["props"], "inp": inp_gyr, "data": data_gyr, "type": "gyr_bin"}
             utils.save(results, self._gyr_inp["output"])
+
+        if self._is_angle:
+            inp_angle = inp.copy()
+            inp_angle.update(self._angle_inp)
+            inp_angle.pop("output")
+            data_angle = output[0]["angle"]
+            # for out in output[1:]:
+            #     if self._pore:
+            #         data_angle["in"] = [x+y for x, y in zip(data_angle["in"], out["angle"]["in"])]
+            #     data_angle["ex"] = [x+y for x, y in zip(data_angle["ex"], out["angle"]["ex"])]
+
+            # Pickle
+            results = {system["sys"]: system["props"], "inp": inp_angle, "data": data_angle, "type": "angle_bin"}
+            utils.save(results, self._angle_inp["output"])
 
         if self._is_diffusion_bin:
             inp_diff = inp.copy()
@@ -1017,6 +1154,8 @@ class Sample:
             output["density"] = self._density_data()
         if self._is_gyration:
             output["gyration"] = self._gyration_data()
+        if self._is_angle:
+            output["angle"] = self._angle_data()
         if self._is_diffusion_bin:
             output["diffusion_bin"] = self._diffusion_bin_data()
         if self._is_diffusion_mc:
@@ -1095,6 +1234,8 @@ class Sample:
                         self._density(output["density"], region, dist, com)
                     if self._is_gyration:
                         self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
+                    if self._is_angle:
+                        self._angle(output["angle"], region, dist, com, pos)
                 if self._is_diffusion_bin:
                     self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:

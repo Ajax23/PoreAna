@@ -142,6 +142,77 @@ of radius and distance inside and outside the pore respectively
   :name: fig1
 
 
+Angle
+-----
+
+The angle can be calculated by sampling the angles between a molecule vector,
+defined by two atom ids, and the surface normal vector inside and outside the
+pore using the angle routine. The density routine is also needed for weighting
+the angle based on the bin density
+
+.. code-block:: python
+
+    import porems as pms
+    import poreana as pa
+
+    mol = pms.Molecule(inp="data/benzene.gro")
+
+    sample = pa.Sample("data/pore_system_cylinder.obj", "data/traj_cylinder.xtc", mol, [])
+    sample.init_density("output/dens.h5")
+    sample.init_angle("output/angle.h5", [0, 3])
+    sample.sample(is_parallel=False)
+
+
+``Finished frame 2001/2001...``
+
+Note that the angle routine cannot be parallelized. Optionally, or if the pore
+shape has not been implemented, the PoreMS *Shape* module can be used for
+determining the normal vectors
+
+.. code-block:: python
+
+    shape = pms.Cylinder({"centroid": centroid, "central": [0, 0, 1], "length": length, "diameter": diameter})
+    def normal_in(pos): return shape.normal(pos)
+    def normal_ex(pos): return [0, 0, -1] if pos[2] < centroid[2] else [0, 0, 1]
+    normals = {"in": normal_in, "ex": normal_ex}
+
+    sample.init_angle("output/angle.h5", [0, 3], normals=normals)
+
+
+For more information on shapes, visit the `PoreMS documentation
+<https://ajax23.github.io/PoreMS/api.html#shape>`_.
+The angles can then be calculated and visualized as a function
+of distance inside and outside the pore respectively
+
+.. code-block:: python
+
+    import matplotlib.pyplot as plt
+
+    plt.figure(figsize=(13, 4))
+
+    ylim = [0, 0.2]
+
+    plt.subplot(121)
+    pa.angle.bins_plot("output/angle.h5", "output/dens.h5", intent="in")
+    plt.xlim([0, 2])
+    plt.ylim(ylim)
+    plt.xlabel("Distance from pore center (nm)")
+    plt.ylabel(r"Angle (deg)")
+
+    plt.subplot(122)
+    pa.angle.bins_plot("output/angle.h5", "output/dens.h5", intent="ex")
+    plt.xlim([0, 5])
+    plt.ylim(ylim)
+    plt.xlabel("Distance from reservoir end (nm)")
+    plt.ylabel(r"Angle (deg)")
+
+
+.. figure::  /pics/angle_01.svg
+  :align: center
+  :width: 100%
+  :name: fig2
+
+
 .. raw:: html
 
         </div>

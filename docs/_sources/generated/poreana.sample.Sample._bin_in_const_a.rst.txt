@@ -10,4 +10,4 @@ Sample\.\_bin\_in\_const\_A
 
 .. currentmodule:: poreana.sample
 
-.. automethod:: Sample._bin_in_const_a
+.. automethod:: Sample._bin_in_const_A

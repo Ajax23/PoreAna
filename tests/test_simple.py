@@ -40,15 +40,18 @@ class UserModelCase(unittest.TestCase):
         mol_W = pms.Molecule(inp="data/spc216.gro")
         mol_H = pms.Molecule(inp="data/heptane.gro")
 
-        #Sample
-        # Single core
+        # Sample
+        ## Single core
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s.h5")
         sample.init_gyration("output/gyr_cyl_s.h5")
+        sample.init_angle("output/angle_cyl.h5", [0, 3])
+
         sample.sample(is_parallel=False)
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s_const_a.h5", bin_const_A=True)
         sample.sample(is_parallel=False)
+        
         sample.init_diffusion_bin("output/diff_cyl_s.h5")
         sample.sample(is_parallel=False)
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
@@ -66,6 +69,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample([6.00035, 6.00035, 19.09191], "data/traj_box.xtc", mol_H)
         sample.init_density("output/dens_box.h5")
         sample.init_gyration("output/gyr_box.h5")
+        sample.init_angle("output/angle_box.h5", [0, 4])
         sample.sample(shift=[0, 0, 3.3], is_parallel=False)
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_diffusion_mc("output/diff_mc_cyl_s.h5", len_step=[1, 2, 5, 10, 20, 30, 40, 50, 100, 200, 250, 300, 350])
@@ -115,6 +119,8 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(pa.utils.mmol_l_to_mols(30, 1000), 4), 18.066)
         self.assertEqual(round(pa.utils.mols_to_mmol_l(18, 1000), 4), 29.8904)
         print()
+        pa.utils.save(file_link, "data/data.DOTA")
+        pa.utils.load("data/data.DOTA")
         pa.utils.toc(pa.utils.tic(), message="Test", is_print=True)
         self.assertEqual(round(pa.utils.toc(pa.utils.tic(), is_print=True)), 0)
 
@@ -145,6 +151,8 @@ class UserModelCase(unittest.TestCase):
         mol = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
         mol2 = pms.Molecule("benzene", "BEN", inp="data/benzene.gro")
         mol2.add("H", [0, 0, 0])
+        mol3 = pms.Molecule("water", "SOL", inp="data/spc216.gro")
+
         # Sanity checks
         pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol2)
         pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol, atoms=["C1"], masses=[1, 1])
@@ -169,6 +177,15 @@ class UserModelCase(unittest.TestCase):
         # Test direction wrong input
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
         sample.init_diffusion_mc("output/test.obj", len_step=[1, 2, 5, 10], direction=4)
+
+        # Test angle enabled with parallelization
+        sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol)
+        sample.init_angle("output/angle_cyl.h5", [0, 3])
+        sample.sample(is_parallel=True, is_pbc=False)
+
+        # Test angle enabled with missing shape
+        sample = pa.Sample("data/pore_system_slit.yml", "data/traj_slit.xtc", mol3)
+        sample.init_angle("output/angle_cyl.h5", [0, 3])
 
 
     ##############
@@ -199,45 +216,55 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
 
         dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
+        
         dens_slit = pa.density.bins("output/dens_slit.h5", target_dens=997)
         dens_box = pa.density.bins("output/dens_box.h5")
+
         # Plot density
         plt.figure()
         pa.density.bins_plot(dens_s, target_dens=0.146)
         pa.density.bins_plot(dens_s, target_dens=0.146, is_mean=True)
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
         # plt.show()
+
         plt.figure()
         pa.density.bins_plot(dens_no_remove)
         plt.savefig("output/density_no_remove.pdf", format="pdf", dpi=1000)
         # plt.show()
+
         plt.figure()
         pa.density.bins_plot(dens_slit, is_mean=True)
         plt.savefig("output/density_slit.pdf", format="pdf", dpi=1000)
         # plt.show()
+
         plt.figure()
         pa.density.bins_plot(dens_s, intent="in")
         pa.density.bins_plot(dens_p, intent="in")
         plt.legend(["Single core", "Parallel"])
         plt.savefig("output/density_in.pdf", format="pdf", dpi=1000)
         # plt.show()
+
         plt.figure()
         pa.density.bins_plot(dens_s, intent="ex")
         pa.density.bins_plot(dens_p, intent="ex")
         plt.legend(["Single core", "Parallel"])
         plt.savefig("output/density_ex.pdf", format="pdf", dpi=1000)
         # plt.show()
+
         plt.figure()
         pa.density.bins_plot(dens_box, intent="ex")
         plt.savefig("output/density_box.pdf", format="pdf", dpi=1000)
         # plt.show()
+
         # Run tests
         self.assertEqual(round(dens_s["dens"]["in"], 3), 12.982)
         self.assertEqual(round(dens_s["dens"]["ex"], 3), 16.432)
         self.assertEqual(round(dens_p["dens"]["in"], 3), 12.982)
         self.assertEqual(round(dens_p["dens"]["ex"], 3), 16.432)
+
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")
+
 
 
     ############
@@ -284,6 +311,26 @@ class UserModelCase(unittest.TestCase):
         self.assertEqual(round(mean_s["ex"], 2), 0.15)
         self.assertEqual(round(mean_p["in"], 2), 0.13)
         self.assertEqual(round(mean_p["ex"], 2), 0.15)
+
+
+    #########
+    # Angle #
+    #########
+    def test_angle(self):
+        # self.skipTest("Temporary")
+
+        plt.figure()
+        mean_s = pa.angle.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", is_mean=True)
+        plt.savefig("output/angle.pdf", format="pdf", dpi=1000)
+
+        plt.figure()
+        pa.angle.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="in", is_norm=True)
+        pa.angle.bins_plot("output/angle_cyl.h5", "output/dens_cyl_s.h5", intent="ex", is_norm=True)
+        plt.legend(["Interior", "Exterior"])
+        plt.savefig("output/angle_norm.pdf", format="pdf", dpi=1000)
+
+        print()
+        pa.angle.bins_plot("output/gyr_cyl_s.h5", "output/dens_cyl_s.h5", intent="DOTA")
 
 
     #################

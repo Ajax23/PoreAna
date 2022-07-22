@@ -83,6 +83,7 @@
 <li><a class="reference internal" href="#">Further Properties</a><ul>
 <li><a class="reference internal" href="#adsorption">Adsorption</a></li>
 <li><a class="reference internal" href="#radius-of-gyration">Radius of Gyration</a></li>
+<li><a class="reference internal" href="#angle">Angle</a></li>
 </ul>
 </li>
 </ul>
@@ -224,6 +225,63 @@ of radius and distance inside and outside the pore respectively</p>
 </div>
 <div class="figure align-center" id="fig1">
 <a class="reference internal image-reference" href="_images/gyration_01.svg"><img alt="_images/gyration_01.svg" src="_images/gyration_01.svg" width="100%" /></a>
+</div>
+</div>
+<div class="section" id="angle">
+<h2>Angle<a class="headerlink" href="#angle" title="Permalink to this headline">¶</a></h2>
+<p>The angle can be calculated by sampling the angles between a molecule vector,
+defined by two atom ids, and the surface normal vector inside and outside the
+pore using the angle routine. The density routine is also needed for weighting
+the angle based on the bin density</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
+<span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
+
+<span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
+
+<span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="p">[])</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">init_angle</span><span class="p">(</span><span class="s2">&quot;output/angle.h5&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">is_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+<p>Note that the angle routine cannot be parallelized. Optionally, or if the pore
+shape has not been implemented, the PoreMS <em>Shape</em> module can be used for
+determining the normal vectors</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">shape</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Cylinder</span><span class="p">({</span><span class="s2">&quot;centroid&quot;</span><span class="p">:</span> <span class="n">centroid</span><span class="p">,</span> <span class="s2">&quot;central&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;length&quot;</span><span class="p">:</span> <span class="n">length</span><span class="p">,</span> <span class="s2">&quot;diameter&quot;</span><span class="p">:</span> <span class="n">diameter</span><span class="p">})</span>
+<span class="k">def</span> <span class="nf">normal_in</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span> <span class="k">return</span> <span class="n">shape</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">normal_ex</span><span class="p">(</span><span class="n">pos</span><span class="p">):</span> <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">centroid</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">else</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+<span class="n">normals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;in&quot;</span><span class="p">:</span> <span class="n">normal_in</span><span class="p">,</span> <span class="s2">&quot;ex&quot;</span><span class="p">:</span> <span class="n">normal_ex</span><span class="p">}</span>
+
+<span class="n">sample</span><span class="o">.</span><span class="n">init_angle</span><span class="p">(</span><span class="s2">&quot;output/angle.h5&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">normals</span><span class="o">=</span><span class="n">normals</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For more information on shapes, visit the <a class="reference external" href="https://ajax23.github.io/PoreMS/api.html#shape">PoreMS documentation</a>.
+The angles can then be calculated and visualized as a function
+of distance inside and outside the pore respectively</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+
+<span class="n">ylim</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">angle</span><span class="o">.</span><span class="n">bins_plot</span><span class="p">(</span><span class="s2">&quot;output/angle.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;output/dens.h5&quot;</span><span class="p">,</span> <span class="n">intent</span><span class="o">=</span><span class="s2">&quot;in&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distance from pore center (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Angle (deg)&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+<span class="n">pa</span><span class="o">.</span><span class="n">angle</span><span class="o">.</span><span class="n">bins_plot</span><span class="p">(</span><span class="s2">&quot;output/angle.h5&quot;</span><span class="p">,</span> <span class="s2">&quot;output/dens.h5&quot;</span><span class="p">,</span> <span class="n">intent</span><span class="o">=</span><span class="s2">&quot;ex&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Distance from reservoir end (nm)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Angle (deg)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="fig2">
+<a class="reference internal image-reference" href="_images/angle_01.svg"><img alt="_images/angle_01.svg" src="_images/angle_01.svg" width="100%" /></a>
 </div>
       </div>
     </div>
