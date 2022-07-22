@@ -3,16 +3,11 @@
 
 .. automodule:: poreana.utils
 
-   
-   
-   
 
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
-   
+
       column
       file_to_text
       load
@@ -26,16 +21,3 @@
       save
       tic
       toc
-   
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

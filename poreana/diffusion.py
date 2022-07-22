@@ -229,7 +229,6 @@ def bins(link, ax_area=[0.2, 0.8], is_norm=False):
     len_step = inp["len_step"]
     len_frame = inp["len_frame"]
 
-
     # Normalize
     msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(len_window)] for i in range(int(inp["bin_num"])+1)]
 
@@ -427,6 +426,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
 
     # Calculation of the width of the diagonal occupation of the transition matrix
     results=[]
+
     # Loop over the rows of the transition matrix
     for i in range(len(trans_mat[:])-1):
         # Right side of the matrix (row)
@@ -443,7 +443,6 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
     idx_avg = np.mean(results)
     print("Width of occupancy: " + str(idx_avg))
 
-
     # Normalized transition matrix with frame number
     if is_norm:
         trans_mat = trans_mat/frame_num
@@ -451,8 +450,6 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
     # Set diagonal elements of the transition matrix to zero
     if is_diagonal:
         trans_mat[np.diag_indices_from(trans_mat)] = 0
-
-
 
     # Set x axis from bins to box length
     if is_length:
@@ -527,7 +524,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     kwargs_line: dict, optional
         Dictionary with plotting parameters for the fitting line
 
-
     Returns
     -------
     diffusion: float
@@ -545,7 +541,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     # Load data
     data = utils.load(link)
 
-
     results = data["output"]
     diff_bin = results["diff_profile"]
     model = data["model"]
@@ -553,7 +548,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     dt = model["len_frame"]
     diff_unit = model["diffusion unit"]
 
-    # If no specific step length is chosen take the step length from the object file
+    # If no specific step length is chosen use step length from the object file
     if not len_step:
         len_step = model["len_step"]
 
@@ -618,7 +613,7 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
 
     # Calculate mean diffusion coefficient and standard deviation
-    # Mean diffusion means the averaged of all possible fourth tuple fitting results
+    # Mean diffusion - average of all possible fourth tuple fitting results
     if is_std:
         len_step_all = len_step
 
@@ -636,7 +631,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
 
             # Calculate the mean diffusion (m^2/s) over all bins
             D_mean = [np.mean(np.exp([diff_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10**3 for i in rand]
-
 
             # Calculate the inverse lag time for the linear fit
             lagtime_inverse = [1 / (i * dt * 10**-12) for i in rand]
@@ -744,7 +738,6 @@ def mc_fit(link, len_step=[], section=[], is_std=True, is_print=True, is_plot=Tr
     return diffusion, diffusion_mean, diff_table, float(res[1][0])
 
 
-
 def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True, kwargs={}):
     """This function plots the diffusion profile for an infinity
     lag time (:math:`\\Delta t_{\\alpha} \\rightarrow \\infty`) over the box
@@ -784,15 +777,16 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     Returns
     -------
     diff_profile_fit : list
-        Diffusion profile :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for an infinite
-        lag time
+        Diffusion profile :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for an
+        infinite lag time
     diff_profiles : dict
-        Diffusion profiles :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for every
-        calculated lag time
+        Diffusion profiles :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for
+        every calculated lag time
     bins : list
         bins over the box length
     res : float
-        residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the infinite diffusion profile
+        residual :math:`\\left(10^{-9} \\frac{m^2}{s}\\right)` for fitting the
+        infinite diffusion profile
     """
     # Load data
     data = utils.load(link)
@@ -817,13 +811,11 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         res = pore["res"]
         box = pore["box"]
 
-
     # Set dictionaries
     legend = []
     diff_bin_vec = {}
     diff_profile_fit = []
     res_list = []
-
 
     # Pore
     if isinstance(section, str) and section== "pore":
@@ -891,7 +883,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         diff_profiles[i] = [np.exp(diff_bin_vec[i][j] + diff_unit) * 10 ** 3 for j in range(len(bins))]
 
     # If infty_profile is false the profiles for the different lag times are plotted
-
     if not infty_profile:
         # Plot the profiles for the
         if is_plot:
@@ -904,7 +895,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     # If infty_profile is True the diffusion profile for a infinity lag times is shwon
     if len(len_step) >= 2 and infty_profile:
         # Initialize fit vector
-
         # Calculate the mean diffusion over all bins
         for i in range(len(bins)):
             diff = [np.exp(diff_bin_vec[step][i] + diff_unit) * 10 ** 3 for step in len_step]   # Diffusion in m^2/s
@@ -923,13 +913,12 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
 
         # Plot fitted diffusion profile
         if is_plot:
-            sns.lineplot(x=bins, y=diff_profile_fit, **kwargs)       # Diffusion in m^2/s
+            sns.lineplot(x=bins, y=diff_profile_fit, **kwargs)   # m^2/s
 
     # Set legend for lag times
     if is_plot:
         if not infty_profile and len(len_step) >= 2:
             legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
-
 
         # Set plot properties
         # Plot axis title for a entire system
@@ -946,8 +935,6 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         np.mean(res_list)
 
     return diff_profile_fit, diff_profiles, bins, res_list
-
-
 
 
 ###########################

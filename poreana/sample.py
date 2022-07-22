@@ -7,15 +7,14 @@
 
 import sys
 import math
+import scipy
 import numpy as np
 import chemfiles as cf
 import multiprocessing as mp
-import scipy
 
 import poreana.utils as utils
 import poreana.geometry as geometry
 
-#from tkinter import W
 
 class Sample:
     """This class samples a trajectory to determine different properties.
@@ -135,7 +134,7 @@ class Sample:
 
         return {"width": width, "bins": bins}
 
-    def _bin_in_const_a(self, bin_num):
+    def _bin_in_const_A(self, bin_num):
         """This function creates a bin structure for the interior of the
         pore based on the pore diameter so that all bins have the same area.
 
@@ -255,7 +254,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_A = False):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_A=False):
         """Enable density sampling routine.
 
         Parameters
@@ -293,8 +292,8 @@ class Sample:
 
         if self._pore:
             if self._dens_inp["bin_const_A"]:
-                data["in_width"] = self._bin_in_const_a(bin_num)["width"]
-                data["in"] = self._bin_in_const_a(bin_num)["bins"]
+                data["in_width"] = self._bin_in_const_A(bin_num)["width"]
+                data["in"] = self._bin_in_const_A(bin_num)["bins"]
             else:
                 data["in_width"] = self._bin_in(bin_num)["width"]
                 data["in"] = self._bin_in(bin_num)["bins"]
