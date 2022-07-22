@@ -62,6 +62,6 @@ Sample
 
     ~Sample._bin_ex
     ~Sample._bin_in
-    ~Sample._bin_in_const_A
+    ~Sample._bin_in_const_a
     ~Sample._bin_window
     ~Sample._bin_mc

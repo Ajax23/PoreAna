@@ -27,9 +27,9 @@
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js "></script>
 <script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js "></script>
 <script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
 
   </head>
@@ -115,7 +115,7 @@
 <h1>Sample.init_density<a class="headerlink" href="#sample-init-density" title="Permalink to this headline">¶</a></h1>
 <dl class="method">
 <dt id="poreana.sample.Sample.init_density">
-<code class="descclassname">Sample.</code><code class="descname">init_density</code><span class="sig-paren">(</span><em>link_out</em>, <em>bin_num=150</em>, <em>remove_pore_from_res=True</em>, <em>bin_const_A=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_density" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">Sample.</code><code class="descname">init_density</code><span class="sig-paren">(</span><em>link_out</em>, <em>bin_num=150</em>, <em>remove_pore_from_res=True</em>, <em>bin_const_a=False</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.sample.Sample.init_density" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enable density sampling routine.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -132,8 +132,8 @@
 <dd><p class="first last">True to remove an extended pore volume from the reservoirs to only
 consider the reservoir space intersecting the crystal grid</p>
 </dd>
-<dt><strong>bin_const_A</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optinal</span></dt>
-<dd><p class="first last">If true, all radial bins will have the same surface area, otherwise the bin-width will be constant</p>
+<dt><strong>bin_const_a</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optinal</span></dt>
+<dd><p class="first last">If True all bins has the same surface. Otherwise the bins has the same bin width</p>
 </dd>
 </dl>
 </td>

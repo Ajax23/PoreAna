@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 import poreana.utils as utils
 
-from this import s
+
 
 
 def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
