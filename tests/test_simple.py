@@ -51,7 +51,7 @@ class UserModelCase(unittest.TestCase):
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
         sample.init_density("output/dens_cyl_s_const_a.h5", bin_const_A=True)
         sample.sample(is_parallel=False)
-        
+
         sample.init_diffusion_bin("output/diff_cyl_s.h5")
         sample.sample(is_parallel=False)
         sample = pa.Sample("data/pore_system_cylinder.yml", "data/traj_cylinder.xtc", mol_B)
@@ -216,7 +216,7 @@ class UserModelCase(unittest.TestCase):
         plt.savefig("output/density.pdf", format="pdf", dpi=1000)
 
         dens_no_remove = pa.density.bins("output/dens_cyl_no_remove.obj")
-        
+
         dens_slit = pa.density.bins("output/dens_slit.h5", target_dens=997)
         dens_box = pa.density.bins("output/dens_box.h5")
 
@@ -264,7 +264,6 @@ class UserModelCase(unittest.TestCase):
 
         print()
         pa.density.bins_plot(dens_s, intent="DOTA")
-
 
 
     ############
