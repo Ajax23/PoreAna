@@ -294,9 +294,10 @@ def mean(density, is_print=True, int_limit=2.5):
     num_dens_int = 0
     sum_surf = 0
     for i in range(bin_num-1):
-        if num_dens[i]>0.5 or width[i]<int_limit:
-            num_dens_int += num_dens[i]*(width[i+1]**2-width[i]**2)
-            sum_surf += (width[i+1]**2-width[i]**2)
+        if num_dens[i]>0: 
+            if (width[i]<int_limit):
+                num_dens_int += num_dens[i]*(width[i+1]**2-width[i]**2)
+                sum_surf += (width[i+1]**2-width[i]**2)
 
     # Normalize
     num_dens_weight = num_dens_int/sum_surf
