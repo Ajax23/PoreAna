@@ -1,5 +1,5 @@
-poreana\.diffusion
-==================
+﻿poreana.diffusion
+=================
 
 .. automodule:: poreana.diffusion
 
@@ -21,3 +21,16 @@ poreana\.diffusion
       mc_fit
       mc_profile
       mc_trans_mat
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

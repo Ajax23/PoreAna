@@ -1,7 +1,11 @@
-poreana\.freeenergy
-===================
+﻿poreana.freeenergy
+==================
 
 .. automodule:: poreana.freeenergy
+
+   
+   
+   
 
    
    
@@ -20,3 +24,6 @@ poreana\.freeenergy
    
    
    
+
+
+

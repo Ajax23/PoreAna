@@ -174,6 +174,7 @@ def save(obj, link):
         with open(link, "wb") as f:
             pickle.dump(obj, f)
 
+
 def load(link, file_type=""):
     """Load pickled object files, yaml files, and hd5 files.
 
@@ -239,7 +240,6 @@ def load(link, file_type=""):
             return
         with open(link, 'rb') as f:
             return pickle.load(f)
-
 
 
 def file_to_text(link, link_output, link_dens=[]):
@@ -518,7 +518,6 @@ def file_to_text(link, link_output, link_dens=[]):
             df_system = pd.DataFrame(data, index=list(["Box dimension (nm)"]), columns=list(["Value"]))
             df_system = df_system.rename_axis('# Identifier', axis=1)
 
-
         # Get profiles
         diff = pa.diffusion.mc_profile(link, is_plot = False, infty_profile=True)
         free_energy= pa.freeenergy.mc_profile(link, is_plot = False)
@@ -532,7 +531,6 @@ def file_to_text(link, link_output, link_dens=[]):
         for i in free_energy[0].keys():
             data["Free energy [-]"]= free_energy[0][i][1:]
         df_data = pd.DataFrame(data)
-
 
         # Set pandas tables
         df_inputs = pa.tables.mc_inputs(link, print_con=False)
@@ -581,6 +579,35 @@ def file_to_text(link, link_output, link_dens=[]):
 
             # Close file
             file.close()
+
+
+def num_dens_to_mass_dens(dens):
+    """Convert number density
+    :math:`\\rho \\left(\\frac{\\text{#}}{\\text{nm}^3}\\right)`
+    into mass density
+    :math:`\\rho_{\\text{m}} \\left(\\frac{\\text{kg}}{\\text{m}^3}\\right)`
+    from the dictonary from function :func:`pa.density.bins` with
+
+    .. math::
+
+        \\rho_{m}=\\frac{M \\cdot 10}{6.022\\cdot \\rho}.
+
+    Parameters
+    ----------
+    dens : dictonary
+        Dictionary returned from the :func:`pa.density.bins` Function
+
+    Returns
+    -------
+    mass_dens : list
+        Mass density over the simulation box
+    """
+    mass_dens = {}
+    mass_dens["ex"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["ex"]]
+    mass_dens["in"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["in"]] if "pore" in dens["sample"] else []
+
+    return mass_dens
+
 
 def mumol_m2_to_mols(c, A):
     """Convert the concentration in :math:`\\frac{\\mu\\text{mol}}{\\text{m}^2}`

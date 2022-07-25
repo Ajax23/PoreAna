@@ -7,6 +7,7 @@
 
 import sys
 import math
+import scipy
 import numpy as np
 import porems as pms
 import chemfiles as cf
@@ -135,6 +136,51 @@ class Sample:
 
         return {"width": width, "bins": bins}
 
+    def _bin_in_const_A(self, bin_num):
+        """This function creates a bin structure for the interior of the
+        pore based on the pore diameter so that all bins have the same area.
+
+        Parameters
+        ----------
+        bin_num : integer
+            Number of bins to be used
+
+        Returns
+        -------
+        data : dictionary
+            Dictionary containing a list of the bin width and a data list
+        """
+        # Define bins
+        diam = self._pore_props["diam"]
+        pore_surf = (diam)**2
+        bin_num = bin_num + 2
+        surf_per_bin = (pore_surf/bin_num)
+
+        matrix_bins = []
+        for i in range(bin_num):
+            if i == 0:
+                line = [0 for i in range(bin_num)]
+                line[0] = 1
+            elif i == (bin_num-1):
+                line = [0 for i in range(bin_num)]
+                line[-1] = 0
+                line[-2] = 1
+            else:
+                line = [0 for i in range(bin_num)]
+                line[i]= 1
+                line[i-1] = -1
+            matrix_bins.append(line)
+            res_vec = [surf_per_bin for i in range(bin_num)]
+            res_vec[-1] = -surf_per_bin + (diam/2) ** 2
+        x = scipy.sparse.linalg.lsmr(np.array(matrix_bins),res_vec)[0]
+        x[-1]=(diam/2)**2
+        width = list(np.sqrt(x)[:-1])
+        width.insert(0,0)
+
+        bins = [0 for x in range(bin_num+1)]
+
+        return {"width": width, "bins": bins}
+
     def _bin_ex(self, bin_num):
         """This function creates a simple bin structure for the exterior of the
         pore based on the reservoir length.
@@ -210,7 +256,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_A=False):
         """Enable density sampling routine.
 
         Parameters
@@ -222,11 +268,13 @@ class Sample:
         remove_pore_from_res : bool, optional
             True to remove an extended pore volume from the reservoirs to only
             consider the reservoir space intersecting the crystal grid
+        bin_const_A : bool, optinal
+            If true, all radial bins will have the same surface area, otherwise the bin-width will be constant
         """
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
-                          "remove_pore_from_res": remove_pore_from_res}
+                          "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A}
 
     def _density_data(self):
         """Create density data structure.
@@ -245,8 +293,12 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            data["in_width"] = self._bin_in(bin_num)["width"]
-            data["in"] = self._bin_in(bin_num)["bins"]
+            if self._dens_inp["bin_const_A"]:
+                data["in_width"] = self._bin_in_const_A(bin_num)["width"]
+                data["in"] = self._bin_in_const_A(bin_num)["bins"]
+            else:
+                data["in_width"] = self._bin_in(bin_num)["width"]
+                data["in"] = self._bin_in(bin_num)["bins"]
 
         return data
 
@@ -274,10 +326,13 @@ class Sample:
         """
         # Initialize
         bin_num = self._dens_inp["bin_num"]
-
         # Molecule is inside pore
         if region=="in":
-            index = int(dist/data["in_width"][1])
+            if self._dens_inp["bin_const_A"]:
+                index = np.digitize(dist, data["in_width"][1:])
+            else:
+                index = int(dist/data["in_width"][1])
+
             if index <= bin_num:
                 data["in"][index] += 1
 
