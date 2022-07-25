@@ -582,8 +582,11 @@ def file_to_text(link, link_output, link_dens=[]):
 
 
 def num_dens_to_mass_dens(dens):
-    """Convert number density :math:`\\rho \\left(\\frac{\\text{#}}{\\text{nm}^3}\\right)` into mass density :math:`\\rho_{\\text{m}} \\left(\\frac{\\text{kg}}{\\text{m}^3}\\right)` from the returned dictonary for the
-    :func:`pa.density.bins` with
+    """Convert number density
+    :math:`\\rho \\left(\\frac{\\text{#}}{\\text{nm}^3}\\right)`
+    into mass density
+    :math:`\\rho_{\\text{m}} \\left(\\frac{\\text{kg}}{\\text{m}^3}\\right)`
+    from the dictonary from function :func:`pa.density.bins` with
 
     .. math::
 
@@ -599,7 +602,6 @@ def num_dens_to_mass_dens(dens):
     mass_dens : list
         Mass density over the simulation box
     """
-
     mass_dens = {}
     mass_dens["ex"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["ex"]]
     mass_dens["in"] = [dens["sample"]["inp"]["mass"]*10/6.022*density for density in dens["num_dens"]["in"]] if "pore" in dens["sample"] else []

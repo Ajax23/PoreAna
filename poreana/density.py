@@ -13,8 +13,6 @@ import matplotlib.pyplot as plt
 import poreana.utils as utils
 
 
-
-
 def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     """This function calculates the density inside and outside of the pore.
     This is done by calculating the number density :math:`\\rho_n` and using the
@@ -294,7 +292,7 @@ def mean(density, is_print=True, int_limit=2.5):
     num_dens_int = 0
     sum_surf = 0
     for i in range(bin_num-1):
-        if num_dens[i]>0: 
+        if num_dens[i]>0:
             if (width[i]<int_limit):
                 num_dens_int += num_dens[i]*(width[i+1]**2-width[i]**2)
                 sum_surf += (width[i+1]**2-width[i]**2)
