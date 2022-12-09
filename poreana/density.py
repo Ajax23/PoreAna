@@ -157,7 +157,10 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     dens["ex"] = mass*10/6.022*mean["ex"]
 
     # Calculate difference to target density
-    num_diff = (target_dens/mass/10*6.022-mean["ex"])*box[0]*box[1]*res*2 if target_dens else 0
+    if is_pore:
+        num_diff = (target_dens/mass/10*6.022-mean["ex"])*box[0]*box[1]*res*2 if target_dens else 0
+    else: 
+        num_diff = (target_dens/mass/10*6.022-mean["ex"])*box[0]*box[1]*box[2]*2 if target_dens else 0
 
     # Output
     if is_print:
