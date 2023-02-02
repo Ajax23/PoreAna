@@ -101,16 +101,23 @@ class Sample:
         # Get pore properties
         self._pore_props = {}
         if self._pore:
-            self._pore_props["type"] = self._pore["shape"]
-            self._pore_props["res"] = self._pore["reservoir"]
-            self._pore_props["focal"] = self._pore["centroid"]
-            self._pore_props["box"] = self._pore["dimensions"]
+            for pore_id in self._pore.keys():
+                if pore_id[0]=="p":
+                    self._pore_props[pore_id] = {}
+                    self._pore_props[pore_id]["type"] = self._pore[pore_id]["shape"]
+                    self._pore_props[pore_id]["focal"] = self._pore[pore_id]["centroid"]
+                    self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
 
-            # Get pore diameter and define shape
-            if self._pore_props["type"] == "CYLINDER":
-                self._pore_props["diam"] = self._pore["diameter"]
-            elif self._pore_props["type"] == "SLIT":
-                self._pore_props["diam"] = self._pore["height"]
+                    # Get pore diameter and define shape
+                    if self._pore_props[pore_id]["type"] == "CYLINDER":
+                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
+                    elif self._pore_props[pore_id]["type"] == "SLIT":
+                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
+            self._pore_props["box"] = {}
+            self._pore_props["box"]["dimensions"] = self._pore["box"]["dimensions"]
+            self._pore_props["box"]["res"] = self._pore["box"]["reservoir"]
+            self._pore_props["box"]["numbers_pore"] = self._pore["box"]["numbers_pore"]
+
 
 
     ########
@@ -131,9 +138,15 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Define bins
-        width = [self._pore_props["diam"]/2/bin_num*x for x in range(bin_num+2)]
+        width = {}
+        print(self._pore_props)
+        for pore_id in self._pore_props.keys():
+            if pore_id[0]=="p":
+                print(pore_id)
+                width[pore_id]=[]
+                width[pore_id] = [self._pore_props[pore_id]["diam"]/2/bin_num*x for x in range(bin_num+2)]
         bins = [0 for x in range(bin_num+1)]
-
+        print(width)
         return {"width": width, "bins": bins}
 
     def _bin_in_const_A(self, bin_num):
@@ -196,7 +209,7 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Process system
-        z_length = self._pore_props["res"] if self._pore_props else self._box[2]
+        z_length = self._pore_props["box"]["res"] if self._pore_props else self._box[2]
 
         # Define bins
         width = [z_length/bin_num*x for x in range(bin_num+1)]
@@ -328,19 +341,22 @@ class Sample:
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
         if region=="in":
-            if self._dens_inp["bin_const_A"]:
-                index = np.digitize(dist, data["in_width"][1:])
-            else:
-                index = int(dist/data["in_width"][1])
+            for pore_id in self._pore.keys():
+                if pore_id[0]=="p":
+            
+                    if self._dens_inp["bin_const_A"]:
+                        index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
+                    else:
+                        index = int(dist[pore_id]/data[pore_id]["in_width"][1])
 
-            if index <= bin_num:
-                data["in"][index] += 1
+                    if index <= bin_num:
+                        data["in"][index] += 1
 
         # Molecule is in the reservoir
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] > self._pore_props["box"][2]/2 else com[2]
-            index = int(lentgh/data["ex_width"][1])
+            length = abs(com[2]-self._pore_props["box"]["dimensions"][2]) if self._pore and com[2] > self._pore_props["box"]["dimensions"][2]/2 else com[2]
+            index = int(length/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit
             # Remove an extended pore volume from the reservoir
@@ -1143,8 +1159,8 @@ class Sample:
             Dictionary containing all sampled data
         """
         # Initialize
-        box = self._pore_props["box"] if self._pore else self._box
-        res = self._pore_props["res"] if self._pore else 0
+        box = self._pore_props["box"]["dimensions"] if self._pore else self._box
+        res = self._pore_props["box"]["res"] if self._pore else 0
         com_list = []
         idx_list = []
 
@@ -1208,10 +1224,13 @@ class Sample:
 
                 # Calculate distance towards center axis
                 if self._pore:
-                    if self._pore_props["type"]=="CYLINDER":
-                        dist = geometry.length(geometry.vector([self._pore_props["focal"][0], self._pore_props["focal"][1], com[2]], com))
-                    elif self._pore_props["type"]=="SLIT":
-                        dist = abs(self._pore_props["focal"][1]-com[1])
+                    dist = {}
+                    for pore_id in self._pore.keys():
+                        if pore_id[0]=="p":
+                            if self._pore_props[pore_id]["type"]=="CYLINDER":
+                                dist[pore_id] = geometry.length(geometry.vector([self._pore_props[pore_id]["focal"][0], self._pore_props[pore_id]["focal"][1], com[2]], com))
+                            elif self._pore_props[pore_id]["type"]=="SLIT":
+                                dist[pore_id] = abs(self._pore_props[pore_id]["focal"][1]-com[1])
                 else:
                     dist = 0
 
