@@ -49,10 +49,13 @@ class UserModelCase(unittest.TestCase):
         # Sample
         ## Single core
         sample = pa.Sample("data/pore.yml", "data/traj_test.xtc", mol_W)
-        sample.init_density("output/dens_cyl_s.h5", remove_pore_from_res=False)
+        sample.init_density("output/dens_cyl_s.obj", remove_pore_from_res=False)
         sample.sample(is_parallel=False)
-        dens_s = pa.density.bins("output/dens_cyl_s.h5", target_dens=16)
-        pa.density.bins_plot(dens_s, target_dens=0.146, is_mean=True)
+        dens_s = pa.density.bins("output/dens_cyl_s.obj", target_dens=997.806040)
+        #pa.density.bins_plot(dens_s, pore_id="pore1",is_mean=True)
+        #pa.density.bins_plot(dens_s, pore_id="pore2",is_mean=True)
+        pa.density.mean(dens_s)
+        plt.show()
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

@@ -139,14 +139,12 @@ class Sample:
         """
         # Define bins
         width = {}
-        print(self._pore_props)
         for pore_id in self._pore_props.keys():
             if pore_id[0]=="p":
-                print(pore_id)
                 width[pore_id]=[]
                 width[pore_id] = [self._pore_props[pore_id]["diam"]/2/bin_num*x for x in range(bin_num+2)]
         bins = [0 for x in range(bin_num+1)]
-        print(width)
+
         return {"width": width, "bins": bins}
 
     def _bin_in_const_A(self, bin_num):
@@ -306,12 +304,15 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            if self._dens_inp["bin_const_A"]:
-                data["in_width"] = self._bin_in_const_A(bin_num)["width"]
-                data["in"] = self._bin_in_const_A(bin_num)["bins"]
-            else:
-                data["in_width"] = self._bin_in(bin_num)["width"]
-                data["in"] = self._bin_in(bin_num)["bins"]
+            for pore_id in self._pore.keys():
+                if pore_id[0]=="p":
+                    data[pore_id]={}
+                    if self._dens_inp["bin_const_A"]:
+                        data[pore_id]["in_width"] = self._bin_in_const_A(bin_num)["width"][pore_id]
+                        data[pore_id]["in"] = self._bin_in_const_A(bin_num)["bins"]
+                    else:
+                        data[pore_id]["in_width"] = self._bin_in(bin_num)["width"][pore_id]
+                        data[pore_id]["in"] = self._bin_in(bin_num)["bins"]
 
         return data
 
@@ -350,7 +351,7 @@ class Sample:
                         index = int(dist[pore_id]/data[pore_id]["in_width"][1])
 
                     if index <= bin_num:
-                        data["in"][index] += 1
+                        data[pore_id]["in"][index] += 1
 
         # Molecule is in the reservoir
         elif region=="ex":
