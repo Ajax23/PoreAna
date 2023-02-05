@@ -1066,7 +1066,9 @@ class Sample:
             data_dens = output[0]["density"]
             for out in output[1:]:
                 if self._pore:
-                    data_dens["in"] = [x+y for x, y in zip(data_dens["in"], out["density"]["in"])]
+                    for pore_id in output[0]["density"].keys():
+                        if pore_id[0]=="p":
+                            data_dens[pore_id]["in"] = [x+y for x, y in zip(data_dens[pore_id]["in"], out["density"][pore_id]["in"])]
                 data_dens["ex"] = [x+y for x, y in zip(data_dens["ex"], out["density"]["ex"])]
 
             # Pickle
