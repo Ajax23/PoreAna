@@ -1,0 +1,57 @@
+pore1: 
+  centroid:
+  - 5
+  - 5
+  - 2.5
+  length: 5
+  central:
+  - 0
+  - 0
+  - 1
+  diameter: 3
+  roughness:
+    in:
+    - 0.6952135442696056
+  shape: CYLINDER 
+pore2:
+  centroid:
+  - 5
+  - 5
+  - 7.5
+  length: 5
+  central:
+  - 0
+  - 0
+  - 1
+  diameter: 7
+  roughness:
+    in:
+    - 0.14599566928776522
+  shape: CYLINDER
+pore3:
+  centroid:
+  - 5
+  - 5
+  - 12.5
+  length: 5
+  central:
+  - 0
+  - 0
+  - 1
+  diameter: 3.800358568044097
+  roughness:
+    in:
+    - 0.602035097562722
+  shape: CYLINDER
+box:
+  dimensions:
+  - 10.119670910131394
+  - 9.64674470794871
+  - 35.66376207086526
+  reservoir: 10
+  ex: 1.871778343747781e-15
+  surface:
+    ex: 143.68290470135264
+    in: 694.5481380956445
+  volume: 936.1850978944551
+  numbers_pore: 3

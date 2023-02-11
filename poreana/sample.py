@@ -34,7 +34,7 @@ class Sample:
     ----------
     system : string, list
         Link to poresystem object file or a list of dimensions for a simple box
-        analysis
+        analysisd
     link_traj : string
         Link to trajectory file (trr or xtc)
     mol : Molecule
@@ -107,7 +107,7 @@ class Sample:
                     self._pore_props[pore_id]["type"] = self._pore[pore_id]["shape"]
                     self._pore_props[pore_id]["focal"] = self._pore[pore_id]["centroid"]
                     self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
-
+                    self._pore_props[pore_id]["length"] = self._pore[pore_id]["length"]
                     # Get pore diameter and define shape
                     if self._pore_props[pore_id]["type"] == "CYLINDER":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
@@ -316,7 +316,7 @@ class Sample:
 
         return data
 
-    def _density(self, data, region, dist, com):
+    def _density(self, data, region, dist, com, pore_id):
         """This function samples the density inside and outside of the pore.
 
         All atoms are sampled each frame if they are inside or outside the
@@ -342,16 +342,13 @@ class Sample:
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
         if region=="in":
-            for pore_id in self._pore.keys():
-                if pore_id[0]=="p":
-            
-                    if self._dens_inp["bin_const_A"]:
-                        index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
-                    else:
-                        index = int(dist[pore_id]/data[pore_id]["in_width"][1])
+            if self._dens_inp["bin_const_A"]:
+                index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
+            else:
+                index = int(dist[pore_id]/data[pore_id]["in_width"][1])
 
-                    if index <= bin_num:
-                        data[pore_id]["in"][index] += 1
+            if index <= bin_num:
+                data[pore_id]["in"][index] += 1
 
         # Molecule is in the reservoir
         elif region=="ex":
@@ -1241,8 +1238,25 @@ class Sample:
                 region = ""
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
+                    z_now=res+self._entry
+                    for pore_id in self._pore.keys():
+                        if pore_id[0]=="p": 
+                            
+                            z = res + self._entry + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2
+                            if z_now <= com[2] <= z:
+                                print("len")
+                                #print(z_now)
+
+                                if dist[pore_id]<=self._pore_props[pore_id]["diam"]/2:
+                                    pore_in = pore_id
+                                #print(pore_id)
+                            z_now =  res + self._entry + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2             
+
+                            
+
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
+                    pore_in = 0
 
                 # Remove window filling instances except from first processor
                 if self._is_diffusion_bin:
@@ -1253,7 +1267,7 @@ class Sample:
                 # Sampling routines
                 if is_sample:
                     if self._is_density:
-                        self._density(output["density"], region, dist, com)
+                        self._density(output["density"], region, dist, com, pore_in)
                     if self._is_gyration:
                         self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
                     if self._is_angle:
