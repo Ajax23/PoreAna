@@ -99,7 +99,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     bins = {}
     for pore_id in sample["data"].keys():
         print(pore_id)
-        if pore_id[0]=="p":
+        if pore_id[:5]=="shape":
             bins[pore_id] = {}
             bins[pore_id]["in"] = sample["data"][pore_id]["in"] if is_pore else []
     bins["ex"] = sample["data"]["ex"]
@@ -107,7 +107,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     # Load width
     width = {}
     for pore_id in sample["data"].keys():
-        if pore_id[0]=="p":
+        if pore_id[:5]=="shape":
             width[pore_id] = {}
             width[pore_id]["in"] = sample["data"][pore_id]["in_width"] if is_pore else []
     width["ex"] = sample["data"]["ex_width"]
@@ -124,7 +124,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     pore_props = {}
     if is_pore:
         for pore_id in sample["data"].keys():     
-            if pore_id[0]=="p":
+            if pore_id[:5]=="shape":
                 pore_props[pore_id] = {}
                 pore = sample["pore"]
                 pore_props[pore_id]["pore_type"] = pore[pore_id]["type"]
@@ -314,7 +314,7 @@ def mean(density, is_print=True, int_limit=2.5):
 
     # Loop over different pores
     for pore_id in density["sample"]["pore"].keys():     
-            if pore_id[0]=="p":
+            if pore_id[:5]=="shape":
                 print(pore_id)
                 bin_num = len(density["sample"]["data"][pore_id]["in_width"][:-1])
                 width = density["sample"]["data"][pore_id]["in_width"][:-1]
