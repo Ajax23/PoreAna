@@ -108,11 +108,10 @@ class Sample:
                     print("hi")
                     self._pore_props[pore_id]["type"] = self._pore[pore_id]["shape"]
                     self._pore_props[pore_id]["focal"] = self._pore[pore_id]["parameter"]["centroid"]
-                    self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
                     self._pore_props[pore_id]["length"] = self._pore[pore_id]["parameter"]["length"]
                     # Get pore diameter and define shape
                     if self._pore_props[pore_id]["type"] == "CYLINDER":
-                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
+                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["parameter"]["diameter"]
                     elif self._pore_props[pore_id]["type"] == "SLIT":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
             self._pore_props["box"] = {}
@@ -1230,7 +1229,8 @@ class Sample:
                     for pore_id in self._pore.keys():
                         if pore_id[:5]=="shape":
                             if self._pore_props[pore_id]["type"]=="CYLINDER":
-                                dist[pore_id] = geometry.length(geometry.vector([self._pore_props[pore_id]["focal"][0], self._pore_props[pore_id]["focal"][1], com[2]], com))
+                                dist[pore_id] = geometry.length(geometry.vector([self._pore_props[pore_id]["focal"][0], self._pore_props[pore_id]["focal"][1]], [com[0],com[1]]))
+                                #print("dist",dist,com,self._pore_props[pore_id]["focal"])
                             elif self._pore_props[pore_id]["type"]=="SLIT":
                                 dist[pore_id] = abs(self._pore_props[pore_id]["focal"][1]-com[1])
                 else:
@@ -1238,28 +1238,26 @@ class Sample:
 
                 # Set region - in-interior, ex-exterior
                 region = ""
+                
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
                     z_now=res+self._entry
                     for pore_id in self._pore.keys():
                         if pore_id[:5]=="shape": 
                             print(pore_id, box[2]-res-self._entry)
-                            z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2 -0.3
-                            z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2 +0.3
-                            x_pore_min =  self._pore_props[pore_id]["focal"][0]-self._pore_props[pore_id]["diam"]/2 - 0.3
-                            x_pore_max =  self._pore_props[pore_id]["focal"][0]+self._pore_props[pore_id]["diam"]/2 +0.3
-                            y_pore_min =  self._pore_props[pore_id]["focal"][1]-self._pore_props[pore_id]["diam"]/2 -0.3
-                            y_pore_max =  self._pore_props[pore_id]["focal"][1]+self._pore_props[pore_id]["diam"]/2 +0.3
-                            print(self._pore_props[pore_id]["diam"])
-                            print(self._pore_props[pore_id]["focal"],self._pore_props[pore_id]["diam"])
-                            print(x_pore_min,x_pore_max,y_pore_min,y_pore_max, z_min,z_max)
-                            print(com)
-                            if (z_min <= com[2] <= z_max) and (x_pore_min <= com[0] <= x_pore_max)and (y_pore_min<= com[1] <= y_pore_max):    
-                                pore_in = pore_id
-                                print(pore_id)
-                                     
-
+                            z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2 - self._entry
+                            z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2 + self._entry
                             
+                            #print(self._pore_props[pore_id]["diam"])
+                            #print(self._pore_props[pore_id]["focal"],self._pore_props[pore_id]["diam"])
+                            print(z_min,z_max,self._pore_props[pore_id]["diam"]/2)
+                            print(com,dist[pore_id])
+                            #print(pore_id)
+                            if (z_min <= com[2] <= z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]/2)):    
+                                pore_in = pore_id
+                                #print(pore_id)
+                            
+                                     
 
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
