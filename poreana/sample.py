@@ -100,9 +100,10 @@ class Sample:
             self._res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in self._atoms]
 
         # Get pore properties
+        pore = pms.utils.load("data/pore_system.obj")
         self._pore_props = {}
         if self._pore:
-            for pore_id in self._pore.keys():
+            for pore_id,obj in zip(self._pore.keys(), pore.shape()):
                 if pore_id[:5]=="shape":
                     self._pore_props[pore_id] = {}
                     print("hi")
@@ -111,13 +112,16 @@ class Sample:
                     self._pore_props[pore_id]["length"] = self._pore[pore_id]["parameter"]["length"]
                     # Get pore diameter and define shape
                     if self._pore_props[pore_id]["type"] == "CYLINDER":
-                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["parameter"]["diameter"]
+                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
                     elif self._pore_props[pore_id]["type"] == "SLIT":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
+                    self._pore_props[pore_id]["obj"] = obj[1]
             self._pore_props["box"] = {}
             self._pore_props["box"]["dimensions"] = self._pore["system"]["dimensions"]
             self._pore_props["box"]["res"] = self._pore["system"]["reservoir"]
     
+
+
 
 
 
@@ -1241,24 +1245,16 @@ class Sample:
                 
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
-                    z_now=res+self._entry
                     for pore_id in self._pore.keys():
-                        if pore_id[:5]=="shape": 
-                            print(pore_id, box[2]-res-self._entry)
-                            z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2 - self._entry
-                            z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2 + self._entry
-                            
-                            #print(self._pore_props[pore_id]["diam"])
-                            #print(self._pore_props[pore_id]["focal"],self._pore_props[pore_id]["diam"])
-                            print(z_min,z_max,self._pore_props[pore_id]["diam"]/2)
-                            print(com,dist[pore_id])
-                            #print(pore_id)
-                            if (z_min <= com[2] <= z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]/2)):    
-                                pore_in = pore_id
-                                #print(pore_id)
-                            
-                                     
-
+                        if pore_id[:5]=="shape":
+                            print([com[0],com[1], com[2]-10])
+                            is_in = self._pore_props[pore_id]["obj"].is_in([com[0],com[1], com[2]-10])
+                            print(5/2,dist[pore_id])
+                            print(is_in)
+                            if is_in:
+                                pore_in=pore_id
+                        
+                
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
                     pore_in = 0
