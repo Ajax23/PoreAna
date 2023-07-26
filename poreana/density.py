@@ -143,7 +143,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
         for pore_id in pore_props.keys():     
             volume[pore_id] = {}
             if pore_props[pore_id]["pore_type"]=="CYLINDER":
-                volume[pore_id]["in"] = [math.pi*pore_props[pore_id]["length"]*(width[pore_id]["in"][i+1]**2-width[pore_id]["in"][i]**2) for i in range(0, bin_num+1)]
+                volume[pore_id]["in"] = [math.pi*(pore_props[pore_id]["length"]-2*entry)*(width[pore_id]["in"][i+1]**2-width[pore_id]["in"][i]**2) for i in range(0, bin_num+1)]
             elif pore_props[pore_id]["pore_type"]=="SLIT":
                 volume[pore_id]["in"] = [box[0]*(box[2]-2*res-2*entry)*(width[pore_id]["in"][i+1]-width[pore_id]["in"][i])*2 for i in range(0, bin_num+1)]
     

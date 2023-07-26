@@ -100,13 +100,14 @@ class Sample:
             self._res_list[res_id] = [res_id*mol.get_num()+atom for atom in range(mol.get_num()) if atom in self._atoms]
 
         # Get pore properties
-        pore = pms.utils.load("data/pore_system.obj")
+        #pore = pms.utils.load("data/pore_system.obj")
         self._pore_props = {}
+
         if self._pore:
-            for pore_id,obj in zip(self._pore.keys(), pore.shape()):
+            for pore_id in self._pore.keys():
+                print(pore_id)
                 if pore_id[:5]=="shape":
                     self._pore_props[pore_id] = {}
-                    print("hi")
                     self._pore_props[pore_id]["type"] = self._pore[pore_id]["shape"]
                     self._pore_props[pore_id]["focal"] = self._pore[pore_id]["parameter"]["centroid"]
                     self._pore_props[pore_id]["length"] = self._pore[pore_id]["parameter"]["length"]
@@ -115,12 +116,12 @@ class Sample:
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
                     elif self._pore_props[pore_id]["type"] == "SLIT":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
-                    self._pore_props[pore_id]["obj"] = obj[1]
+                    #self._pore_props[pore_id]["obj"] = obj[1]
             self._pore_props["box"] = {}
             self._pore_props["box"]["dimensions"] = self._pore["system"]["dimensions"]
             self._pore_props["box"]["res"] = self._pore["system"]["reservoir"]
     
-
+        print(self._pore_props)
 
 
 
@@ -149,7 +150,6 @@ class Sample:
                 width[pore_id]=[]
                 width[pore_id] = [self._pore_props[pore_id]["diam"]/2/bin_num*x for x in range(bin_num+2)]
         bins = [0 for x in range(bin_num+1)]
-
         return {"width": width, "bins": bins}
 
     def _bin_in_const_A(self, bin_num):
@@ -237,7 +237,11 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Define bins
-        width = [self._pore_props["diam"]/2/bin_num*x for x in range(bin_num+2)]
+        width = {}
+        for pore_id in self._pore_props.keys():
+            if pore_id[:5]=="shape":
+                width[pore_id] = []
+                width[pore_id] = [self._pore_props[pore_id]["diam"]/2/bin_num*x for x in range(bin_num+2)]
         bins = [[0 for y in range(len_window)] for x in range(bin_num+1)]
 
         return {"width": width, "bins": bins}
@@ -645,15 +649,19 @@ class Sample:
             Bin diffusion data structure
         """
         # Initialize
+        print(self._diff_bin_inp)
         bin_num = self._diff_bin_inp["bin_num"]
         len_window = self._diff_bin_inp["len_window"]
 
         # Create dictionary
         data = {}
-        data["width"] = self._bin_window(bin_num, len_window)["width"]
-        bins = ["z", "r", "n", "z_tot", "r_tot", "n_tot"]
-        for bin in bins:
-            data[bin] = self._bin_window(bin_num, len_window)["bins"]
+        for pore_id in self._pore.keys():
+            if pore_id[:5]=="shape":
+                data[pore_id] = {}
+                data[pore_id]["width"] = self._bin_window(bin_num, len_window)["width"][pore_id]
+                bins = ["z", "r", "n", "z_tot", "r_tot", "n_tot"]
+                for bin in bins:
+                    data[pore_id][bin] = self._bin_window(bin_num, len_window)["bins"]
 
         return data
 
@@ -670,7 +678,7 @@ class Sample:
         out_list += [idx-x for x in range(1, self._diff_bin_inp["bin_step_size"]+1)]
         return out_list
 
-    def _diffusion_bin(self, data, region, dist, com_list, idx_list, res_id, com):
+    def _diffusion_bin(self, data, region, pore_in, dist, com_list, idx_list, res_id, com):
         """This function samples the mean square displacement of a molecule
         group in a pore in both axial and radial direction separated in radial
         bins.
@@ -739,17 +747,17 @@ class Sample:
         # Only sample diffusion inside the pore
         if region == "in":
             # Calculate bin index
-            index = math.floor(dist/data["width"][1])
+            index = math.floor(dist[pore_in]/data[pore_in]["width"][1])
 
             # Add com and bin index to global lists
-            com_list[-1][res_id] = com
-            idx_list[-1][res_id] = index
+            com_list[pore_in][-1][res_id] = com
+            idx_list[pore_in][-1][res_id] = index
 
             # Start sampling when initial window is filled
             if len(com_list) == len_window*len_step and res_id in com_list[0]:
                 # Set reference position
-                pos_ref = com_list[0][res_id]
-                idx_ref = idx_list[0][res_id]
+                pos_ref = com_list[pore_in][0][res_id]
+                idx_ref = idx_list[pore_in][0][res_id]
 
                 # Create temporary msd lists
                 msd_z = [0 for x in range(len_window)]
@@ -760,10 +768,10 @@ class Sample:
                 # Run through position list to sample msd
                 for step in range(0, len_window*len_step, len_step):
                     # Check if com is inside pore
-                    if res_id in com_list[step]:
+                    if res_id in com_list[pore_in][step]:
                         # Initialize step information
-                        pos_step = com_list[step][res_id]
-                        idx_step = idx_list[step][res_id]
+                        pos_step = com_list[pore_in][step][res_id]
+                        idx_step = idx_list[pore_in][step][res_id]
 
                         # Get window index
                         win_idx = int(step/len_step)
@@ -788,15 +796,15 @@ class Sample:
                 if idx_ref <= bin_num:
                     for i in range(len_window):
                         # Add to total list
-                        data["z_tot"][idx_ref][i] += msd_z[i]
-                        data["r_tot"][idx_ref][i] += msd_r[i]
-                        data["n_tot"][idx_ref][i] += norm[i]
+                        data[pore_in]["z_tot"][idx_ref][i] += msd_z[i]
+                        data[pore_in]["r_tot"][idx_ref][i] += msd_r[i]
+                        data[pore_in]["n_tot"][idx_ref][i] += norm[i]
 
                         # Add to bin calculation list if msd is permissible
-                        if len_msd == len_window:
-                            data["z"][idx_ref][i] += msd_z[i]
-                            data["r"][idx_ref][i] += msd_r[i]
-                            data["n"][idx_ref][i] += norm[i]
+                        if len_msd[pore_in] == len_window:
+                            data[pore_in]["z"][idx_ref][i] += msd_z[i]
+                            data[pore_in]["r"][idx_ref][i] += msd_r[i]
+                            data[pore_in]["n"][idx_ref][i] += norm[i]
 
 
     ################
@@ -1111,14 +1119,17 @@ class Sample:
             inp_diff.pop("output")
             data_diff = output[0]["diffusion_bin"]
             for out in output[1:]:
-                for i in range(self._diff_bin_inp["bin_num"]):
-                    for j in range(self._diff_bin_inp["len_window"]):
-                        data_diff["z"][i][j] += out["diffusion_bin"]["z"][i][j]
-                        data_diff["r"][i][j] += out["diffusion_bin"]["r"][i][j]
-                        data_diff["n"][i][j] += out["diffusion_bin"]["n"][i][j]
-                        data_diff["z_tot"][i][j] += out["diffusion_bin"]["z_tot"][i][j]
-                        data_diff["r_tot"][i][j] += out["diffusion_bin"]["r_tot"][i][j]
-                        data_diff["n_tot"][i][j] += out["diffusion_bin"]["n_tot"][i][j]
+                if self._pore:
+                    for pore_id in output[0]["diffusion_bin"].keys():
+                        if pore_id[:5]=="shape":
+                            for i in range(self._diff_bin_inp["bin_num"]):
+                                for j in range(self._diff_bin_inp["len_window"]):
+                                    data_diff[pore_id]["z"][i][j] += out["diffusion_bin"][pore_id]["z"][i][j]
+                                    data_diff[pore_id]["r"][i][j] += out["diffusion_bin"][pore_id]["r"][i][j]
+                                    data_diff[pore_id]["n"][i][j] += out["diffusion_bin"][pore_id]["n"][i][j]
+                                    data_diff[pore_id]["z_tot"][i][j] += out["diffusion_bin"][pore_id]["z_tot"][i][j]
+                                    data_diff[pore_id]["r_tot"][i][j] += out["diffusion_bin"][pore_id]["r_tot"][i][j]
+                                    data_diff[pore_id]["n_tot"][i][j] += out["diffusion_bin"][pore_id]["n_tot"][i][j]
 
             # Pickle
             results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_bin"}
@@ -1166,9 +1177,12 @@ class Sample:
         # Initialize
         box = self._pore_props["box"]["dimensions"] if self._pore else self._box
         res = self._pore_props["box"]["res"] if self._pore else 0
-        com_list = []
-        idx_list = []
-
+        com_list = {}
+        idx_list = {}
+        for pore_id in self._pore.keys():
+            if pore_id[:5]=="shape":
+                com_list[pore_id] = []
+                idx_list[pore_id] = []
         # Create local data structures
         output = {}
         if self._is_density:
@@ -1201,11 +1215,13 @@ class Sample:
             positions = frame.positions
 
             # Add new dictionaries and remove unneeded references
-            if len(com_list) >= len_fill:
-                idx_list.pop(0)
-                com_list.pop(0)
-            idx_list.append({})
-            com_list.append({})
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    if len(com_list[pore_id]) >= len_fill:
+                        idx_list[pore_id].pop(0)
+                        com_list[pore_id].pop(0)
+                    idx_list[pore_id].append({})
+                    com_list[pore_id].append({})
 
             # Run through residues
             for res_id in self._res_list:
@@ -1242,22 +1258,32 @@ class Sample:
 
                 # Set region - in-interior, ex-exterior
                 region = ""
-                
+                pore_in = 1
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
                     for pore_id in self._pore.keys():
                         if pore_id[:5]=="shape":
-                            print([com[0],com[1], com[2]-10])
-                            is_in = self._pore_props[pore_id]["obj"].is_in([com[0],com[1], com[2]-10])
-                            print(5/2,dist[pore_id])
-                            print(is_in)
-                            if is_in:
-                                pore_in=pore_id
-                        
+                            z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2+self._entry
+                            z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
+                            #print(self._pore_props[pore_id]["diam"]/2)
+                            #print(com,dist,z_min,z_max, res, box[2]-res)
+
+                            #print(self._pore_props[pore_id]["diam"])
+                            #print(self._pore_props[pore_id]["focal"],self._pore_props[pore_id]["diam"])
+                            #print(pore_id)
+                            if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
+                                pore_in = pore_id
+                                #print(pore_id)
+                
                 
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
                     pore_in = 0
+       
+                
+                # else:
+                #     pore_in =  None
+                #     print("Hii")
 
                 # Remove window filling instances except from first processor
                 if self._is_diffusion_bin:
@@ -1267,14 +1293,14 @@ class Sample:
 
                 # Sampling routines
                 if is_sample:
-                    if self._is_density:
+                    if (self._is_density) and (pore_in != 1):
                         self._density(output["density"], region, dist, com, pore_in)
                     if self._is_gyration:
                         self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
                     if self._is_angle:
                         self._angle(output["angle"], region, dist, com, pos)
-                if self._is_diffusion_bin:
-                    self._diffusion_bin(output["diffusion_bin"], region, dist, com_list, idx_list, res_id, com)
+                if self._is_diffusion_bin and (pore_in != 1):
+                    self._diffusion_bin(output["diffusion_bin"], region,pore_in, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:
                     self._diffusion_mc(output["diffusion_mc"], idx_list, com, res_id, frame_list, frame_id)
 

@@ -219,32 +219,36 @@ def bins(link, ax_area=[0.2, 0.8], is_norm=False):
     """
     # Load data object
     sample = utils.load(link)
-
+    width = {}
+    diff = {}
+    print(sample["pore"])
     # Load data
-    inp = sample["inp"]
-    width = sample["data"]["width"]
-    msd_z = sample["data"]["z"]
-    norm = sample["data"]["n"]
-    len_window = int(inp["len_window"])
-    len_step = inp["len_step"]
-    len_frame = inp["len_frame"]
+    for pore_id in sample["pore"]:
+        if pore_id[:5]=="shape":
+            inp = sample["inp"]
+            width[pore_id] = sample["data"][pore_id]["width"]
+            msd_z = sample["data"][pore_id]["z"]
+            norm = sample["data"][pore_id]["n"]
+            len_window = int(inp["len_window"])
+            len_step = inp["len_step"]
+            len_frame = inp["len_frame"]
 
-    # Normalize
-    msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(len_window)] for i in range(int(inp["bin_num"])+1)]
+            # Normalize
+            msd_norm = [[msd_z[i][j]/norm[i][j] if norm[i][j] > 0 else 0 for j in range(len_window)] for i in range(int(inp["bin_num"])+1)]
 
-    # Calculate slope
-    f_start = int(ax_area[0]*len_window)
-    f_end = int(ax_area[1]*len_window)
-    time_ax = [x*len_step*len_frame for x in range(len_window)]
-    slope = [(msd_norm[i][f_end]-msd_norm[i][f_start])/(time_ax[f_end]-time_ax[f_start]) for i in range(int(inp["bin_num"])+1)]
+            # Calculate slope
+            f_start = int(ax_area[0]*len_window)
+            f_end = int(ax_area[1]*len_window)
+            time_ax = [x*len_step*len_frame for x in range(len_window)]
+            slope = [(msd_norm[i][f_end]-msd_norm[i][f_start])/(time_ax[f_end]-time_ax[f_start]) for i in range(int(inp["bin_num"])+1)]
 
-    # Calculate diffusion coefficient
-    diff = [msd*1e-9**2/2*1e2**2*1e5 for msd in slope]  # 10^-9 m^2s^-1
+            # Calculate diffusion coefficient
+            diff[pore_id] = [msd*1e-9**2/2*1e2**2*1e5 for msd in slope]  # 10^-9 m^2s^-1
 
     return {"width": width, "diff": diff, "is_norm": is_norm}
 
 
-def bins_plot(data, intent="plot", kwargs={}):
+def bins_plot(data, intent="plot", kwargs={}, pore_id="shape_00"):
     """This function calculates the axial plots the diffusion profile calculated
     by the function :func:`poreana.diffusion.bins`.
 
@@ -259,8 +263,8 @@ def bins_plot(data, intent="plot", kwargs={}):
         Dictionary with plotting parameters
     """
     # Initialize
-    width = data["width"]
-    diff = data["diff"]
+    width = data["width"][pore_id]
+    diff = data["diff"][pore_id]
     is_norm = data["is_norm"]
 
     # Normalize x-axis
