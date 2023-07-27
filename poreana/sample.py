@@ -630,7 +630,7 @@ class Sample:
         if not len_window == int(len_window):
             obs_u = (math.ceil(len_window)-1)*len_step*len_frame
             obs_d = (math.floor(len_window)-1)*len_step*len_frame
-            print("Observation length not possible with current inputs. Alternatively use len_obs="+"%.1e" % obs_u+" or len_obs="+"%.1e" % obs_d+".")
+            print("vi  not possible with current inputs. Alternatively use len_obs="+"%.1e" % obs_u+" or len_obs="+"%.1e" % obs_d+".")
             return
         else:
             len_window = int(len_window)
@@ -649,7 +649,6 @@ class Sample:
             Bin diffusion data structure
         """
         # Initialize
-        print(self._diff_bin_inp)
         bin_num = self._diff_bin_inp["bin_num"]
         len_window = self._diff_bin_inp["len_window"]
 
@@ -754,7 +753,7 @@ class Sample:
             idx_list[pore_in][-1][res_id] = index
 
             # Start sampling when initial window is filled
-            if len(com_list) == len_window*len_step and res_id in com_list[0]:
+            if len(com_list[pore_in]) == len_window*len_step and res_id in com_list[pore_in][0]:
                 # Set reference position
                 pos_ref = com_list[pore_in][0][res_id]
                 idx_ref = idx_list[pore_in][0][res_id]
@@ -801,7 +800,7 @@ class Sample:
                         data[pore_in]["n_tot"][idx_ref][i] += norm[i]
 
                         # Add to bin calculation list if msd is permissible
-                        if len_msd[pore_in] == len_window:
+                        if len_msd == len_window:
                             data[pore_in]["z"][idx_ref][i] += msd_z[i]
                             data[pore_in]["r"][idx_ref][i] += msd_r[i]
                             data[pore_in]["n"][idx_ref][i] += norm[i]
@@ -1287,7 +1286,9 @@ class Sample:
 
                 # Remove window filling instances except from first processor
                 if self._is_diffusion_bin:
-                    is_sample = len(com_list)==len_fill or frame_id<=len_fill
+                    for pore_id in self._pore.keys():
+                        if pore_id[:5]=="shape":
+                            is_sample = len(com_list[pore_id])==len_fill or frame_id<=len_fill
                 else:
                     is_sample = True
 
