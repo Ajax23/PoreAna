@@ -248,6 +248,7 @@ class MC:
         list_diff_profile = {}
         list_diff_coeff = {}
         list_diff_fluc = {}
+        diff_fluc_per_bin = {}
         nacc_diff_mean = {}
 
         # ## Radial diffusion
@@ -260,6 +261,7 @@ class MC:
         list_df_profile = {}
         list_df_coeff = {}
         list_df_fluc = {}
+        df_fluc_per_bin = {}
         nacc_df_mean = {}
 
         # Loop over the different step_length (lag times) (-> for every lag time a MC Calculation have to run)
@@ -297,8 +299,10 @@ class MC:
             df_profile_flk = np.float64(np.zeros(model._bin_num))
             # mean_diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
             self._fluctuation_diff = 0
+            self._fluctuation_diff_bin = np.zeros(model._bin_num)
             self._fluctuation_diff_radial = 0
             self._fluctuation_df = 0
+            self._fluctuation_df_bin = np.zeros(model._bin_num)
 
             ######################
             # Start MC Algorithm #
@@ -331,12 +335,16 @@ class MC:
                     mean_df_profile_flk = [df_profile_flk[i] / ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
 
                     # Calculate the difference between the current profile and the mean of all profiles
-                    delta_diff = ((model._diff_bin) - mean_diff_profile_flk)**2
-                    delta_df = ((model._df_bin) - mean_df_profile_flk)**2
+                    delta_diff = np.abs((model._diff_bin) - mean_diff_profile_flk)**2
+                    delta_df = np.abs((model._df_bin) - mean_df_profile_flk)**2
 
                     # Determine the fluctuation
-                    self._fluctuation_diff = np.sqrt((self._fluctuation_diff + np.mean(delta_diff))/(imc+1))
-                    self._fluctuation_df = np.sqrt((self._fluctuation_df + np.mean(delta_df))/(imc+1))
+                    self._fluctuation_diff = np.sqrt((self._fluctuation_diff + np.mean(delta_diff))/(imc-self._nmc_eq+1))
+                    self._fluctuation_df = np.sqrt((self._fluctuation_df + np.mean(delta_df))/(imc-self._nmc_eq+1))
+
+
+                    self._fluctuation_diff_bin = [np.sqrt((self._fluctuation_diff_bin[i] + delta_diff[i])/(imc-self._nmc_eq+1)) for i in range(model._bin_num)]
+                    self._fluctuation_df_bin = [np.sqrt((self._fluctuation_df_bin[i] + delta_df[i])/(imc-self._nmc_eq+1)) for i in range(model._bin_num)]
 
                     # Start to print the output after the Equilibrium phase and if _print_output is true
                     if imc == self._nmc_eq and self._print_output:
@@ -369,6 +377,9 @@ class MC:
             # Mean over all lag times calculations
             nacc_df_mean[self._len_step] = copy.deepcopy(self._nacc_df)
             nacc_diff_mean[self._len_step] = copy.deepcopy(self._nacc_diff)
+            
+            diff_fluc_per_bin[self._len_step] = self._fluctuation_diff_bin
+            df_fluc_per_bin[self._len_step] = self._fluctuation_df_bin
 
             #############################
             # Start Radial MC Algorithm #
@@ -455,7 +466,7 @@ class MC:
 
 
         # Set output data
-        output = {"diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc, "list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
+        output = {"diff_profile": list_diff_profile, "df_profile": list_df_profile, "diff_coeff": list_diff_coeff,  "df_coeff": list_df_coeff, "nacc_df": nacc_df_mean, "nacc_diff": nacc_diff_mean, "fluc_df": list_df_fluc, "fluc_diff": list_diff_fluc,"fluc_diff_bin": diff_fluc_per_bin,"fluc_df_bin": df_fluc_per_bin,"list_diff_coeff": list_diff_profile, "list_df_coeff":  list_df_profile}
 
         return output
 

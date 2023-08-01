@@ -264,7 +264,7 @@ class Sample:
         """
         # Ask for system type (box or pore system)
         if self._pore:
-            z_length = self._pore_props["box"][direction]
+            z_length = self._pore_props["box"]["dimensions"][direction]
         else:
             z_length = self._box[direction]
 
@@ -1176,12 +1176,18 @@ class Sample:
         # Initialize
         box = self._pore_props["box"]["dimensions"] if self._pore else self._box
         res = self._pore_props["box"]["res"] if self._pore else 0
-        com_list = {}
-        idx_list = {}
-        for pore_id in self._pore.keys():
-            if pore_id[:5]=="shape":
-                com_list[pore_id] = []
-                idx_list[pore_id] = []
+
+        if self._is_diffusion_bin:
+            com_list = {}
+            idx_list = {}
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    com_list[pore_id] = []
+                    idx_list[pore_id] = []
+        elif self._is_diffusion_mc:
+            com_list = []
+            idx_list = []
+
         # Create local data structures
         output = {}
         if self._is_density:
@@ -1214,13 +1220,20 @@ class Sample:
             positions = frame.positions
 
             # Add new dictionaries and remove unneeded references
-            for pore_id in self._pore.keys():
-                if pore_id[:5]=="shape":
-                    if len(com_list[pore_id]) >= len_fill:
-                        idx_list[pore_id].pop(0)
-                        com_list[pore_id].pop(0)
-                    idx_list[pore_id].append({})
-                    com_list[pore_id].append({})
+            if self._is_diffusion_bin:
+                for pore_id in self._pore.keys():
+                    if pore_id[:5]=="shape":
+                        if len(com_list[pore_id]) >= len_fill:
+                            idx_list[pore_id].pop(0)
+                            com_list[pore_id].pop(0)
+                        idx_list[pore_id].append({})
+                        com_list[pore_id].append({})
+            elif self._is_diffusion_mc:
+                if len(com_list) >= len_fill:
+                    idx_list.pop(0)
+                    com_list.pop(0)
+                idx_list.append({})
+                com_list.append({})
 
             # Run through residues
             for res_id in self._res_list:
