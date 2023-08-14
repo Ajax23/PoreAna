@@ -387,7 +387,7 @@ def mean(diff_data, dens_data, ax_area=[0.2, 0.8], is_print=True):
 ######################################
 # Diffusion - MC - Transition Matrix #
 ######################################
-def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_length=True, limit = 0):
+def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_length=True, limit = 0, pore_id="shape_00"):
     """This function plots the occupation of a normalized transition matrix as a
     heatmap. To normalize the transition matrix the number of the frame are used.
     This means that all entries in the transition matrix are divided by the
@@ -417,7 +417,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
 
     # Sample obj file is loaded
     if "data" in data:
-        trans_mat = data["data"][step]
+        trans_mat = data["data"][pore_id][step]
         inp = data["inp"]
         frame_num = inp["num_frame"]
         frame_length = float(inp["len_frame"])
@@ -478,7 +478,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
 ##################
 # Diffusion - MC #
 ##################
-def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=True, kwargs_scatter={}, kwargs_line={}):
+def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=True, is_error=True, kwargs_scatter={}, kwargs_line={}):
     """This function uses the diffusion profiles over box length which are
     calculated in the function :func:`poreana.mc.MC.run` to estimate
     the final diffusion coefficient. For that a line is fitted of the averaged
@@ -526,6 +526,8 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
         Print diffusion coefficient
     is_plot : bool, optional
         Show the fitting plot
+    is_error : bool, optional
+        Show error area containing the error for fitting to an infity lag time and the fluctuation of the MC run 
     kwargs_scatter: dict, optional
         Dictionary with plotting parameters for the points
     kwargs_line: dict, optional
@@ -719,8 +721,8 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
             print("Standard deviation: "+"%.4e" % (std * 10 **-9) + " m^2/s\n")
 
     # Set data frame for the used lag times
-    data = [str("%.2f" % D_mean[i] ) for i in range(len(len_step))]
-    diff_table = pd.DataFrame(data, index=list(len_step), columns=list(['$D_\mathrm{mean} \ (10^{-9} \mathrm{m^2s^{-1}})$']))
+    data = {"$D_\mathrm{mean} \ (10^{-9} \mathrm{m^2s^{-1}})$": [str("%.2f" % D_mean[i] ) for i in range(len(len_step))],"Fluctuation $(10^{-9} \mathrm{m^2s^{-1}})$": [ str("%.2e" % (diff_profiles_error_up[i]-D_mean[i])) for i in range(len(len_step))]}
+    diff_table = pd.DataFrame(data, index=list(len_step))
     diff_table = pd.DataFrame(diff_table.rename_axis('Step Length', axis=1))
     styler = diff_table.style.set_caption('Selected step length')
     diff_table = styler.set_properties(**{'text-align': 'right'})
@@ -730,7 +732,7 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
     D_mean_vec = [D_mean[i] for i in range(len(lagtime_inverse))]
     lag_time_vec = [1 / (len_step[i] * dt * 10 **(-12)) for i in range(len(len_step))]
     x_vec = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
-    print(x_vec)
+
     # Fit a linear line and calculated diffusion coefficent
     fit = sp.stats.linregress(lagtime_inverse, D_mean)
     diffusion = fit.intercept
@@ -739,8 +741,12 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
         # Plot the results
         plt.xlim(0, 1.5*max(lag_time_vec))
         plt.ylim(0, 1.5*max(fit.intercept + fit.slope*x_vec))
-        #sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_scatter)
-        plt.errorbar(x=lag_time_vec, y=D_mean_vec, yerr=[D_mean_vec[i]-diff_profiles_error_up[i] for i in range(len(D_mean_vec))], fmt="o", **kwargs_scatter)
+        if is_error:
+            plt.errorbar(x=lag_time_vec, y=D_mean_vec, yerr=[diff_profiles_error_up[i]-D_mean_vec[i] for i in range(len(D_mean_vec))], fmt="o", **kwargs_scatter)
+        else:
+            sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_scatter)
+            plt.errorbar(x=lag_time_vec, y=D_mean_vec, yerr=[diff_profiles_error_up[i]-D_mean_vec[i] for i in range(len(D_mean_vec))], fmt="o", **kwargs_scatter)
+        plt.errorbar(x=0, y=fit.intercept, yerr=fit.intercept_stderr, fmt="o", **kwargs_scatter)
         sns.lineplot(x=x_vec, y=(fit.intercept + fit.slope*x_vec), **kwargs_line)
         legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\\Delta t_{\\alpha})$"]
         plt.legend(legend)
@@ -784,7 +790,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     is_plot : bool, optional
         Show diffusion profile
     is_error : bool, optional
-        Show error area 
+        Show error area containing the error for fitting to an infity lag time and the fluctuation of the MC run 
     kwargs: dict, optional
         Dictionary with plotting parameters
 
@@ -806,7 +812,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     results = data["output"]
     diff_bin = results["diff_profile"]
     diff_fluc_bin = results["fluc_diff_bin"]
-    print(diff_fluc_bin)
+
     # Load model inputs
     model = data["model"]
     diff_unit = model["diffusion unit"]
@@ -947,7 +953,8 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         if not infty_profile and len(len_step) >= 2:
             legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
         if is_error and infty_profile:
-            legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps", "Error")
+            legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
+            legend.append("Error")
         # Set plot properties
         # Plot axis title for a entire system
         plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")

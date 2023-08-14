@@ -5,6 +5,7 @@
 ################################################################################
 
 
+from curses import endwin
 from re import X
 import sys
 import math
@@ -105,7 +106,6 @@ class Sample:
 
         if self._pore:
             for pore_id in self._pore.keys():
-                print(pore_id)
                 if pore_id[:5]=="shape":
                     self._pore_props[pore_id] = {}
                     self._pore_props[pore_id]["type"] = self._pore[pore_id]["shape"]
@@ -121,11 +121,6 @@ class Sample:
             self._pore_props["box"]["dimensions"] = self._pore["system"]["dimensions"]
             self._pore_props["box"]["res"] = self._pore["system"]["reservoir"]
     
-        print(self._pore_props)
-
-
-
-
     ########
     # Bins #
     ########
@@ -809,7 +804,7 @@ class Sample:
     ################
     # MC Diffusion #
     ################
-    def init_diffusion_mc(self, link_out, len_step, bin_num=100, len_frame=2e-12, direction = 2):
+    def init_diffusion_mc(self, link_out, len_step, bin_num=100, len_frame=2e-12, direction = 2, is_para=False):
         """Enable diffusion sampling routine with the MC Alogrithm.
 
         This function sample the transition matrix for the diffusion
@@ -868,6 +863,7 @@ class Sample:
         direction : integer, optional
             Direction of descretization of the simulation box (**0** (x-axis);
             **1** (y-axis); **2** (z-axis))
+        is_para: boolean, optional
         """
         # Initialize
         if self._is_diffusion_bin:
@@ -890,7 +886,7 @@ class Sample:
         # Create input dictionalry
         self._diff_mc_inp = {"output": link_out, "bins": bins,
                               "bin_num": bin_num, "len_step": len_step,
-                              "len_frame": len_frame, "is_pbc": True, "direction" : int(direction)}
+                              "len_frame": len_frame, "is_pbc": True, "direction" : int(direction), "para": is_para}
 
     def _diffusion_mc_data(self):
         """Create mc diffusion data structure.
@@ -908,12 +904,18 @@ class Sample:
         data = {}
 
         # Initialize transition matrix
-        for step in len_step:
-            data[step] = np.zeros((bin_num+2, bin_num+2), int)
-
+        if not self._diff_mc_inp["para"]:
+            for step in len_step:
+                data[step] = np.zeros((bin_num+2, bin_num+2), int)
+        else:
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    data[pore_id] = {}
+                    for step in len_step:
+                        data[pore_id][step] = np.zeros((bin_num+2, bin_num+2), int)
         return data
 
-    def _diffusion_mc(self, data, idx_list, com, res_id, frame_list, frame_id):
+    def _diffusion_mc(self, data, idx_list, com, res_id, frame_list, frame_id, pore_in, region):
         """This function sample the transition matrix for the diffusion
         calculation with the Monte Carlo diffusion methode for a cubic
         simulation box. The sample of the transition matrix is to be run on
@@ -975,13 +977,35 @@ class Sample:
         idx_list[-1][res_id] = np.digitize(com[direction], bins)
 
         # Sample the transition matrix for the len_step
-        if frame_list[0]==0:
-            for step in len_step:
-                if len(idx_list) >= (step+1):
-                    # Calculate transition matrix in z direction
-                    start = idx_list[-(step+1)][res_id]
-                    end = idx_list[-1][res_id]
-                    data[step][end, start] += 1
+        if self._diff_mc_inp["para"]:
+            if region == "in":
+                if frame_list[0]==0:
+                    for step in len_step:
+                        if len(idx_list) >= (step+1):
+                            # Calculate transition matrix in z direction
+                            start = idx_list[-(step+1)][res_id]
+                            end = idx_list[-1][res_id]
+                            #print(region,start,end, pore_in)
+                            data[pore_in][step][end, start] += 1
+            if region == "ex":
+                if frame_list[0]==0:
+                    for step in len_step:
+                        if len(idx_list) >= (step+1):
+                            # Calculate transition matrix in z direction
+                            start = idx_list[-(step+1)][res_id]
+                            end = idx_list[-1][res_id]
+                            #print(region,start,end)
+                            for pore_id in self._pore.keys():
+                                if pore_id[:5]=="shape":
+                                    data[pore_id][step][end, start] += 1
+        else:
+            if frame_list[0]==0:
+                for step in len_step:
+                    if len(idx_list) >= (step+1):
+                        # Calculate transition matrix in z direction
+                        start = idx_list[-(step+1)][res_id]
+                        end = idx_list[-1][res_id]
+                        data[step][end, start] += 1
 
         # For parallel calculation
         if frame_list[0]!=0 and frame_id>=(frame_list[0] + self._diff_mc_inp["len_step"][-1]):
@@ -1139,13 +1163,17 @@ class Sample:
             inp_diff.update(self._diff_mc_inp)
             inp_diff.pop("output")
             data_diff = output[0]["diffusion_mc"]
-            for step in self._diff_mc_inp["len_step"]:
-                data_diff[step] = data_diff[step]
-                for out in output[1:]:
-                    data_diff[step] += out["diffusion_mc"][step]
-
-            for step in self._diff_mc_inp["len_step"]:
-                data_diff[step] = data_diff[step][1:-1,1:-1]
+            print(data_diff)
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    for step in self._diff_mc_inp["len_step"]:
+                        data_diff[pore_id][step] = data_diff[pore_id][step]
+                        for out in output[1:]:
+                            data_diff[pore_id][step] += out["diffusion_mc"][pore_id][step]
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    for step in self._diff_mc_inp["len_step"]:
+                        data_diff[pore_id][step] = data_diff[pore_id][step][1:-1,1:-1]
 
             # Save results in dictionary
             results = {system["sys"]: system["props"], "inp": inp_diff, "data": data_diff, "type": "diff_mc"}
@@ -1261,7 +1289,7 @@ class Sample:
                     for pore_id in self._pore.keys():
                         if pore_id[:5]=="shape":
                             if self._pore_props[pore_id]["type"]=="CYLINDER":
-                                dist[pore_id] = geometry.length(geometry.vector([self._pore_props[pore_id]["focal"][0], self._pore_props[pore_id]["focal"][1]], [com[0],com[1]]))
+                                dist[pore_id] = geometry.length(geometry.vector([self._pore_props[pore_id]["focal"][0], self._pore_props[pore_id]["focal"][1], com[2]], [com[0],com[1], com[2]]))
                                 #print("dist",dist,com,self._pore_props[pore_id]["focal"])
                             elif self._pore_props[pore_id]["type"]=="SLIT":
                                 dist[pore_id] = abs(self._pore_props[pore_id]["focal"][1]-com[1])
@@ -1271,6 +1299,7 @@ class Sample:
                 # Set region - in-interior, ex-exterior
                 region = ""
                 pore_in = 1
+                self._entry= 0
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
                     for pore_id in self._pore.keys():
@@ -1279,18 +1308,23 @@ class Sample:
                             z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
                             #print(self._pore_props[pore_id]["diam"]/2)
                             #print(com,dist,z_min,z_max, res, box[2]-res)
-
+                            #print(dist[pore_id],self._pore_props[pore_id]["diam"]*1.01/2, com)
                             #print(self._pore_props[pore_id]["diam"])
                             #print(self._pore_props[pore_id]["focal"],self._pore_props[pore_id]["diam"])
                             #print(pore_id)
                             if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
                                 pore_in = pore_id
                                 #print(pore_id)
+                            if (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2) and self._is_diffusion_mc:
+                                pore_in_mc = pore_id
+                            else: 
+                                region = "ex"
                 
                 
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
                     pore_in = 0
+                    pore_in_mc = 0
        
                 
                 # else:
@@ -1316,7 +1350,7 @@ class Sample:
                 if self._is_diffusion_bin and (pore_in != 1):
                     self._diffusion_bin(output["diffusion_bin"], region,pore_in, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:
-                    self._diffusion_mc(output["diffusion_mc"], idx_list, com, res_id, frame_list, frame_id)
+                    self._diffusion_mc(output["diffusion_mc"], idx_list, com, res_id, frame_list, frame_id, pore_in_mc,region)
 
             # Progress
             if (frame_id+1)%10==0 or frame_id==0 or frame_id==self._num_frame-1:
