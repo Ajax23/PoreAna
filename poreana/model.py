@@ -29,14 +29,23 @@ class Model:
         self._direction = int(inp["direction"])
         self._trans_mat= sample["data"]                # transition matrix
         self._pbc = inp["is_pbc"]                    # pbc or nopbc
+        print(sample["pore"])
 
         self._sys_props = {}
         if "pore" in sample:
-            self._sys_props["type"] = sample["pore"]["type"]
-            self._sys_props["res"] = float(sample["pore"]["res"])
-            self._sys_props["focal"] = sample["pore"]["focal"]
-            self._sys_props["box"] = sample["pore"]["box"]
-            self._sys_props["diam"] = float(sample["pore"]["diam"])
+            for pore_id in sample["pore"].keys():
+                if pore_id[:5]=="shape":
+                    self._sys_props[pore_id] = {}
+                    self._sys_props[pore_id]["type"] = sample["pore"][pore_id]["type"]
+                    self._sys_props[pore_id]["focal"] = sample["pore"][pore_id]["focal"]
+                    self._sys_props[pore_id]["diam"] = float(sample["pore"][pore_id]["diam"])
+                    if self._sys_props[pore_id]["type"] == "CYLINDER":
+                        self._sys_props[pore_id]["diam"] = sample["pore"][pore_id]["diam"]
+                    elif self._sys_props[pore_id]["type"] == "SLIT":
+                        self._sys_props[pore_id]["diam"] = sample["pore"][pore_id]["height"]
+            self._sys_props["box"] = {}
+            self._sys_props["box"]["dimensions"] = sample["pore"]["box"]["dimensions"]
+            self._sys_props["box"]["res"] = sample["pore"]["box"]["res"]
             self._system = "pore"
         if "box" in sample:
             self._system = "box"

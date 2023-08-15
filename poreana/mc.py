@@ -30,7 +30,7 @@ class MC:
     ##############
     # MC - Cylce #
     ##############
-    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, np=0, print_freq=100, is_print=False, do_radial=False, is_parallel=True):
+    def run(self, model, link_out, nmc_eq=50000, nmc=100000, delta_df=0.05, delta_diff=0.05,  num_mc_update=10, temp=1, np=0, print_freq=100, is_print=False, do_radial=False, is_parallel=True, pore_id="shape_00"):
         """This function do the MC Cycle to calculate the diffusion and free
         energy profile over the bins and save the results in an output hdf5
         file. This happens with the adjustment of the coefficient from the model
@@ -111,6 +111,8 @@ class MC:
         self._num_mc_update = num_mc_update                  # MC steps before update delta
         self._temp = temp                                    # Temperature for acceptance criterion
 
+        self._pore_id = pore_id
+
         # Set output/print options
         # Bool (If False nothing will be printed in the konsole)
         self._print_output = is_print
@@ -178,7 +180,9 @@ class MC:
                     output["nacc_df"][step] = out["nacc_df"][step]
                     output["nacc_diff"][step] = out["nacc_diff"][step]
                     output["fluc_diff"][step] = out["fluc_diff"][step]
+                    output["fluc_diff_bin"][step] = out["fluc_diff_bin"][step]
                     output["fluc_df"][step] = out["fluc_df"][step]
+                    output["fluc_df_bin"][step] = out["fluc_df_bin"][step]
                     output["list_df_coeff"][step] = out["list_df_coeff"][step]
                     output["list_diff_coeff"][step] = out["list_diff_coeff"][step]
         else:
@@ -264,6 +268,9 @@ class MC:
         df_fluc_per_bin = {}
         nacc_df_mean = {}
 
+        sample_int = 0 
+
+
         # Loop over the different step_length (lag times) (-> for every lag time a MC Calculation have to run)
         for self._len_step in len_step:
             # Print that a new calculation with a new lag time starts
@@ -299,6 +306,8 @@ class MC:
             df_profile_flk = np.float64(np.zeros(model._bin_num))
             # mean_diff_radial_profile_flk = np.float64(np.zeros(model._bin_num))
             self._fluctuation_diff = 0
+            delta_diff_sum = np.zeros(model._bin_num)
+            delta_df_sum = np.zeros(model._bin_num)
             self._fluctuation_diff_bin = np.zeros(model._bin_num)
             self._fluctuation_diff_radial = 0
             self._fluctuation_df = 0
@@ -325,26 +334,26 @@ class MC:
 
                 # Calculate the fluctuation and start the production
                 if imc >= self._nmc_eq:
+                    if (imc % 100 == 0):
+                        sample_int = sample_int + 1
+                        # Add all profiles
+                        diff_profile_flk += copy.deepcopy(model._diff_bin)
+                        df_profile_flk += copy.deepcopy(model._df_bin)
 
-                    # Add all profiles
-                    diff_profile_flk += copy.deepcopy(model._diff_bin)
-                    df_profile_flk += copy.deepcopy(model._df_bin)
+                        # Calculate the mean profile over all runs
+                        mean_diff_profile_flk = [diff_profile_flk[i] / (sample_int) for i in range(model._bin_num)]
+                        mean_df_profile_flk = [df_profile_flk[i] / (sample_int) for i in range(model._bin_num)]
 
-                    # Calculate the mean profile over all runs
-                    mean_diff_profile_flk = [diff_profile_flk[i] / ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
-                    mean_df_profile_flk = [df_profile_flk[i] / ((imc-self._nmc_eq)+1) for i in range(model._bin_num)]
+                        # Calculate the difference between the current profile and the mean of all profiles and sum it up over all steps
+                        delta_diff_sum += np.abs(copy.deepcopy(model._diff_bin) - mean_diff_profile_flk)**2
+                        delta_df_sum += np.abs(copy.deepcopy(model._df_bin) - mean_df_profile_flk)**2
 
-                    # Calculate the difference between the current profile and the mean of all profiles
-                    delta_diff = np.abs((model._diff_bin) - mean_diff_profile_flk)**2
-                    delta_df = np.abs((model._df_bin) - mean_df_profile_flk)**2
+                        # Determine the fluctuation
+                        self._fluctuation_diff = np.sqrt((np.mean(delta_diff_sum))/(sample_int))
+                        self._fluctuation_df = np.sqrt((np.mean(delta_df_sum))/(sample_int))
 
-                    # Determine the fluctuation
-                    self._fluctuation_diff = np.sqrt((self._fluctuation_diff + np.mean(delta_diff))/(imc-self._nmc_eq+1))
-                    self._fluctuation_df = np.sqrt((self._fluctuation_df + np.mean(delta_df))/(imc-self._nmc_eq+1))
-
-
-                    self._fluctuation_diff_bin = [np.sqrt((self._fluctuation_diff_bin[i] + delta_diff[i])/(imc-self._nmc_eq+1)) for i in range(model._bin_num)]
-                    self._fluctuation_df_bin = [np.sqrt((self._fluctuation_df_bin[i] + delta_df[i])/(imc-self._nmc_eq+1)) for i in range(model._bin_num)]
+                        self._fluctuation_diff_bin = [np.sqrt((delta_diff_sum[i])/(sample_int)) for i in range(model._bin_num)]
+                        self._fluctuation_df_bin = [np.sqrt((delta_df_sum[i])/(sample_int)) for i in range(model._bin_num)]
 
                     # Start to print the output after the Equilibrium phase and if _print_output is true
                     if imc == self._nmc_eq and self._print_output:
@@ -848,7 +857,7 @@ class MC:
 
         # Calculate likelihood
         tiny = 1e-10
-        mat = model._trans_mat[self._len_step] * np.log(propagator.clip(tiny))
+        mat = model._trans_mat[self._pore_id][self._len_step] * np.log(propagator.clip(tiny))
         log_like = np.sum(mat)
 
         return log_like
