@@ -44,6 +44,7 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
     # Load results
     results = data["output"]
     df_bin = results["df_profile"]
+    df_bin_fluc = results["fluc_df_bin"]
 
     # Load model inputs
     model = data["model"]
@@ -62,7 +63,7 @@ def mc_profile(link, len_step=[], is_plot=True, kwargs={}):
     if is_plot:
         for i in len_step:
             sns.lineplot(x=bins, y=(df_bin[i]), **kwargs)
-
+            plt.fill_between(bins, [df_bin[i][j]-df_bin_fluc[i][j] for j in range(len(bins))],  [df_bin[i][j]+df_bin_fluc[i][j] for j in range(len(bins))], alpha=0.3)
         # Plot options
         plt.xlabel("Box length (nm)")
         plt.ylabel("Free energy (-)")

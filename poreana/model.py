@@ -23,13 +23,12 @@ class Model:
         self._bin_num = int(inp["bin_num"])               # number of bins z-direction
         self._frame_num = int(inp["num_frame"])             # number of frames
         self._len_step = inp["len_step"]                 # step length
-        self._dt = float(inp["len_frame"]) * 10**12             # frame length [ps]
+        self._dt = float(inp["len_frame"]) * 10**12             # frame length [ps]git 
         self._bins = inp["bins"]                      # bins [nm]
         self._bin_width = self._bins[1] - self._bins[0]  # bin width [nm]
         self._direction = int(inp["direction"])
         self._trans_mat= sample["data"]                # transition matrix
         self._pbc = inp["is_pbc"]                    # pbc or nopbc
-        print(sample["pore"])
 
         self._sys_props = {}
         if "pore" in sample:

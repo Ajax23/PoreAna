@@ -98,7 +98,6 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     # Load bins
     bins = {}
     for pore_id in sample["data"].keys():
-        print(pore_id)
         if pore_id[:5]=="shape":
             bins[pore_id] = {}
             bins[pore_id]["in"] = sample["data"][pore_id]["in"] if is_pore else []
@@ -146,14 +145,14 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
                 volume[pore_id]["in"] = [math.pi*(pore_props[pore_id]["length"]-2*entry)*(width[pore_id]["in"][i+1]**2-width[pore_id]["in"][i]**2) for i in range(0, bin_num+1)]
             elif pore_props[pore_id]["pore_type"]=="SLIT":
                 volume[pore_id]["in"] = [box[0]*(box[2]-2*res-2*entry)*(width[pore_id]["in"][i+1]-width[pore_id]["in"][i])*2 for i in range(0, bin_num+1)]
-    
-            ## Exterior  ###Update fehlt hier noch 
-            if remove_pore_from_res and pore_props[pore_id]["pore_type"]=="CYLINDER":
-                volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(pore_props[pore_id]["diam"]/2)**2) for i in range(bin_num+1)]
-            elif remove_pore_from_res and pore_props[pore_id]["pore_type"]=="SLIT":
-                volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-pore_props[pore_id]["diam"]) for i in range(bin_num+1)]
-            else:
-                volume["ex"] = [2*width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
+
+        ## Exterior  ###Update fehlt hier noch 
+        if remove_pore_from_res and pore_props[pore_id]["pore_type"]=="CYLINDER":
+            volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(pore_props[pore_id]["diam"]/2)**2) for i in range(bin_num+1)]
+        elif remove_pore_from_res and pore_props[pore_id]["pore_type"]=="SLIT":
+            volume["ex"] = [2*width["ex"][1]*box[0]*(box[1]-pore_props[pore_id]["diam"]) for i in range(bin_num+1)]
+        else:
+            volume["ex"] = [2*width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
     else:
         volume["ex"] = [width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
 
@@ -316,7 +315,6 @@ def mean(density, is_print=True, int_limit=2.5):
     # Loop over different pores
     for pore_id in density["sample"]["pore"].keys():     
             if pore_id[:5]=="shape":
-                print(pore_id)
                 bin_num = len(density["sample"]["data"][pore_id]["in_width"][:-1])
                 width = density["sample"]["data"][pore_id]["in_width"][:-1]
                 num_dens = density["num_dens"][pore_id]["in"]
@@ -339,7 +337,6 @@ def mean(density, is_print=True, int_limit=2.5):
 
     if is_print:
         for pore_id in num_dens_weight.keys():
-            print(pore_id)
             print("Mean Density ("+pore_id+"): "+"%.3f" % num_dens_weight[pore_id]+" #/nm^3; "+"%.3f" % dens_weight[pore_id]+" kg/m^3")
 
     return {"num_dens": num_dens_weight, "dens": dens_weight}
