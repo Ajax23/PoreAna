@@ -620,7 +620,7 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
 
     for i in len_step:
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
-        diff_fluc_bin_vec[i] = [diff_fluc_bin[i][j] for j in range(index_start, index_end)]
+        #diff_fluc_bin_vec[i] = [diff_fluc_bin[i][j] for j in range(index_start, index_end)]
         
     # Calculate mean diffusion coefficient and standard deviation
     # Mean diffusion - average of all possible fourth tuple fitting results
@@ -659,7 +659,7 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
 
     # Calculate the mean diffusion (m^2/s) over all bins
     D_mean = [np.mean(np.exp([diff_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10**3 for i in len_step]
-    diff_profiles_error_up = [np.mean(np.exp([diff_bin_vec[i][j] + diff_fluc_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10 ** 3  for i in len_step]
+    #diff_profiles_error_up = [np.mean(np.exp([diff_bin_vec[i][j] + diff_fluc_bin_vec[i][j] + diff_unit for j in range(len(diff_bin_vec[i]))])) * 10 ** 3  for i in len_step]
     
     
     # Calculate the inverse lag time (1/s) for the linear fit
@@ -730,7 +730,6 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
     D_mean_vec = [D_mean[i] for i in range(len(lagtime_inverse))]
     lag_time_vec = [1 / (len_step[i] * dt * 10 **(-12)) for i in range(len(len_step))]
     x_vec = np.arange(0, max(lag_time_vec) * 2, (max(lag_time_vec) * 2) / 5)
-    print(x_vec)
     # Fit a linear line and calculated diffusion coefficent
     fit = sp.stats.linregress(lagtime_inverse, D_mean)
     diffusion = fit.intercept
@@ -740,7 +739,7 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
         plt.xlim(0, 1.5*max(lag_time_vec))
         plt.ylim(0, 1.5*max(fit.intercept + fit.slope*x_vec))
         #sns.scatterplot(x=lag_time_vec, y=D_mean_vec, **kwargs_scatter)
-        plt.errorbar(x=lag_time_vec, y=D_mean_vec, yerr=[D_mean_vec[i]-diff_profiles_error_up[i] for i in range(len(D_mean_vec))], fmt="o", **kwargs_scatter)
+        #plt.errorbar(x=lag_time_vec, y=D_mean_vec, yerr=[D_mean_vec[i]-diff_profiles_error_up[i] for i in range(len(D_mean_vec))], fmt="o", **kwargs_scatter)
         sns.lineplot(x=x_vec, y=(fit.intercept + fit.slope*x_vec), **kwargs_line)
         legend = ["$D_{\mathrm{fit}}$", "$D_{\mathrm{mean}}(\\Delta t_{\\alpha})$"]
         plt.legend(legend)
@@ -885,7 +884,7 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     # Save for all lag times the cutted profile
     for i in len_step:
         diff_bin_vec[i] = [diff_bin[i][j] for j in range(index_start, index_end)]
-        diff_fluc_bin_vec[i] = [diff_fluc_bin[i][j] for j in range(index_start, index_end)]
+        #diff_fluc_bin_vec[i] = [diff_fluc_bin[i][j] for j in range(index_start, index_end)]
 
     # Set bin list
     bins = [bins[i] for i in range(index_start, index_end)]
@@ -901,8 +900,8 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
 
     for i in len_step:
         diff_profiles[i] = [np.exp(diff_bin_vec[i][j] + diff_unit) * 10 ** 3 for j in range(len(bins))]
-        diff_profiles_error_up[i] = [np.exp((diff_bin_vec[i][j] + diff_fluc_bin_vec[i][j] + diff_unit))* 10 ** 3 for j in range(len(bins))]
-        diff_profiles_error_down[i] = [np.exp((diff_bin_vec[i][j] - diff_fluc_bin_vec[i][j] + diff_unit))* 10 ** 3 for j in range(len(bins))]
+        #diff_profiles_error_up[i] = [np.exp((diff_bin_vec[i][j] + diff_fluc_bin_vec[i][j] + diff_unit))* 10 ** 3 for j in range(len(bins))]
+        #diff_profiles_error_down[i] = [np.exp((diff_bin_vec[i][j] - diff_fluc_bin_vec[i][j] + diff_unit))* 10 ** 3 for j in range(len(bins))]
  
     # If infty_profile is false the profiles for the different lag times are plotted
     if not infty_profile:
@@ -923,16 +922,16 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         # Calculate the mean diffusion over all bins
         for i in range(len(bins)):
             diff = [np.exp(diff_bin_vec[step][i] + diff_unit) * 10 ** 3 for step in len_step]   # Diffusion in m^2/s
-            fluc_up = [(np.exp(diff_fluc_bin_vec[step][i] + diff_unit) * 10 ** 3) for step in len_step]
-            fluc_down = [(np.exp(diff_fluc_bin_vec[step][i] + diff_unit) * 10 ** 3) for step in len_step]
+            #fluc_up = [(np.exp(diff_fluc_bin_vec[step][i] + diff_unit) * 10 ** 3) for step in len_step]
+            #fluc_down = [(np.exp(diff_fluc_bin_vec[step][i] + diff_unit) * 10 ** 3) for step in len_step]
 
             # fit a linear line
             fit = sp.stats.linregress(lagtime_inverse, diff)
 
             # Append diffusion at t-> infty
             diff_profile_fit.append(fit.intercept)
-            diff_fluc_profile_fit_up.append(np.mean(fluc_up))
-            diff_fluc_profile_fit_down.append(np.mean(fluc_down))
+            #diff_fluc_profile_fit_up.append(np.mean(fluc_up))
+            #diff_fluc_profile_fit_down.append(np.mean(fluc_down))
             diff_error_bin.append(fit.intercept_stderr)
 
 
@@ -946,8 +945,8 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     if is_plot:
         if not infty_profile and len(len_step) >= 2:
             legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
-        if is_error and infty_profile:
-            legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps", "Error")
+        if (not is_error) and infty_profile:
+            legend.append("$\\Delta t_{\\alpha} \\rightarrow \\infty$ ps")
         # Set plot properties
         # Plot axis title for a entire system
         plt.ylabel(r"Diff. coeff. ($10^{-9} \ \mathrm{m^2s^{-1}}$)")
