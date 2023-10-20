@@ -467,7 +467,7 @@ def mc_trans_mat(link, step, kwargs={}, is_norm=False, is_diagonal=False, is_len
 
 
     # Set title with selected lag time
-    plt.title("Lagtime: "+ str(step * frame_length * 10**12) + " ps", fontsize=10)
+    plt.title("Lagtime: "+ str(step * frame_length) + " ps", fontsize=10)
 
     # Plot the normalized transition matrix in a heatmap
     sns.heatmap(data=trans_mat, **kwargs)
@@ -550,7 +550,7 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
 
     results = data["output"]
     diff_bin = results["diff_profile"]
-    diff_fluc_bin = results["fluc_diff_bin"]
+    #diff_fluc_bin = results["fluc_diff_bin"]
     model = data["model"]
     bins = model["bins"]
     dt = model["len_frame"]
@@ -563,8 +563,8 @@ def mc_fit(link, len_step=[], section=[], is_std=False, is_print=True, is_plot=T
     # If a pore system is considered
     if "pore" in data:
         pore = data["pore"]
-        res = float(pore["res"])
-        box = pore["box"]
+        res = float(pore["box"]["res"])
+        box = pore["box"]["dimensions"]
 
     # Set vector
     diff_bin_vec = {}
@@ -804,8 +804,8 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     # Load results
     results = data["output"]
     diff_bin = results["diff_profile"]
-    diff_fluc_bin = results["fluc_diff_bin"]
-    print(diff_fluc_bin)
+    #diff_fluc_bin = results["fluc_diff_bin"]
+    #print(diff_fluc_bin)
     # Load model inputs
     model = data["model"]
     diff_unit = model["diffusion unit"]
@@ -939,7 +939,9 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
         if is_plot:
             sns.lineplot(x=bins, y=diff_profile_fit, **kwargs)   # m^2/s
             if is_error:
-                plt.fill_between(bins, [(diff_profile_fit[i]-diff_error_bin[i]) for i in range(len(diff_profile_fit))], [(diff_profile_fit[i]+diff_error_bin[i]) for i in range(len(diff_profile_fit))], color='b', alpha=0.3)
+                if "label" in kwargs:
+                    del kwargs["label"]
+                plt.fill_between(bins, [(diff_profile_fit[i]-diff_error_bin[i]) for i in range(len(diff_profile_fit))], [(diff_profile_fit[i]+diff_error_bin[i]) for i in range(len(diff_profile_fit))],alpha=0.3, **kwargs)
                 
     # Set legend for lag times
     if is_plot:

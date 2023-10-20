@@ -98,7 +98,6 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     # Load bins
     bins = {}
     for pore_id in sample["data"].keys():
-        print(pore_id)
         if pore_id[:5]=="shape":
             bins[pore_id] = {}
             bins[pore_id]["in"] = sample["data"][pore_id]["in"] if is_pore else []
@@ -201,7 +200,7 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
     return  {"sample": sample, "num_dens": num_dens, "mean": mean, "dens": dens, "diff": num_diff}
 
 
-def bins_plot(density, pore_id="", intent="", target_dens=0, is_mean=False, kwargs={}):
+def bins_plot(density, pore_id="shape_00", intent="", target_dens=0, is_mean=False, kwargs={}):
     """This function plots the density of the given object. If an intent is
     given instead, only a plot-function will be called. Available options
     for ``intent`` are
@@ -225,6 +224,7 @@ def bins_plot(density, pore_id="", intent="", target_dens=0, is_mean=False, kwar
     """
     # Define bins
     width = {}
+    print("HEY", density["sample"]["data"].keys())
     width["in"] = density["sample"]["data"][pore_id]["in_width"][:-1] if "pore" in density["sample"] else []
     width["ex"] = density["sample"]["data"]["ex_width"][:]
 
@@ -266,9 +266,12 @@ def bins_plot(density, pore_id="", intent="", target_dens=0, is_mean=False, kwar
         if intent not in ["in", "ex"]:
             print("Invalid intent. Check documentation for available options.")
             return
-
-        sns.lineplot(x=width[intent], y=density["num_dens"][intent], **kwargs)
-        plt.xlim([0, width[intent][-1]])
+        elif intent=="in":
+            sns.lineplot(x=width[intent], y=density["num_dens"][pore_id][intent], **kwargs)
+            plt.xlim([0, width[intent][-1]])
+        else:
+            sns.lineplot(x=width[intent], y=density["num_dens"][intent], **kwargs)
+            plt.xlim([0, width[intent][-1]])
 
 
 def mean(density, is_print=True, int_limit=2.5):
@@ -316,7 +319,6 @@ def mean(density, is_print=True, int_limit=2.5):
     # Loop over different pores
     for pore_id in density["sample"]["pore"].keys():     
             if pore_id[:5]=="shape":
-                print(pore_id)
                 bin_num = len(density["sample"]["data"][pore_id]["in_width"][:-1])
                 width = density["sample"]["data"][pore_id]["in_width"][:-1]
                 num_dens = density["num_dens"][pore_id]["in"]
@@ -339,7 +341,6 @@ def mean(density, is_print=True, int_limit=2.5):
 
     if is_print:
         for pore_id in num_dens_weight.keys():
-            print(pore_id)
             print("Mean Density ("+pore_id+"): "+"%.3f" % num_dens_weight[pore_id]+" #/nm^3; "+"%.3f" % dens_weight[pore_id]+" kg/m^3")
 
     return {"num_dens": num_dens_weight, "dens": dens_weight}

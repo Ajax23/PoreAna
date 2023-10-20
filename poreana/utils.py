@@ -118,7 +118,7 @@ def save(obj, link):
         # Create groups for the keys in the obj file
         for key in obj.keys():
             groups[key] = f.create_group(key)
-
+            print(key)
             # If key "box" only a value is on frist key level
             if not key in ["box","type"]:
             # For all other key read the second level keys
@@ -136,6 +136,7 @@ def save(obj, link):
             # Loop over second level keys
             else:
                 for base in data_base[gkey]:
+                    print(base)
                     # Check if a third level exists
                     if isinstance(obj[gkey][base], dict):
                         # If a third level exists create new group in first level groups
@@ -145,6 +146,11 @@ def save(obj, link):
                             # Check if third level key is a matrix
                             if isinstance(obj[gkey][base][base2], (list, np.ndarray)):
                                 data.create_dataset(str(base2), data=obj[gkey][base][base2])
+                            elif isinstance(obj[gkey][base][base2],str):
+                                print("hi",obj[gkey][base][base2])
+                                dt = h5py.special_dtype(vlen=str)
+                                string = groups[gkey].create_dataset(str(base2), (1), dtype=dt)
+                                string[0] = obj[gkey][base][base2]
                             # Else is a vlaue (int/float)
                             else:
                                 value = data.create_dataset(str(base2), shape=(1,1))
@@ -207,23 +213,37 @@ def load(link, file_type=""):
             # If sample file is load
             if keys=="data":
                 for keys2 in data[keys].keys():
-                    try:
-                        data_load[keys][int(keys2)] = data[keys][keys2][:]
-                    except(ValueError):
-                        data_load[keys][keys2] = data[keys][keys2][:]
-            # If key type only a string has to be load
-            elif keys=="type":
-                data_load[keys] = str(data[keys][keys][0], 'utf-8') #data[keys][keys][0].encode().decode("utf-8")
+                    print("key2",keys2)
+                    if keys2[:5]=="shape":
+                        for keys3 in data[keys][keys2].keys():
+                            data_load[keys][keys2] = {}
+                            try:
+                                data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
+                            except(ValueError):
+                                print(data[keys][keys2][keys3])
+                                data_load[keys][keys2][keys3] = data[keys][keys2][keys3][:]
+                    # If key type only a string has to be load
+                    elif keys=="type":
+                        data_load[keys] = str(data[keys][keys][0], 'utf-8') #data[keys][keys][0].encode().decode("utf-8")
+                    else:
+                        try:
+                            print(data[keys][keys2])
+                            data_load[keys][int(keys2)] = data[keys][keys2][:]
+                        except(ValueError):
+                            data_load[keys][keys2] = data[keys][keys2][:]
+
             # other keys
             else:
                 # Load second level keys
                 for keys2 in data[keys].keys():
+                    print(keys2)
                     data_load[keys][keys2] = {}
                     # Try if a thrid level exist
                     try:
                         # load thrid level
                         for keys3 in data[keys][keys2].keys():
-                            data_load[keys][keys2][int(keys3)] = data[keys][keys2][keys3][:]
+                            print(data[keys][keys2][keys3])
+                            data_load[keys][keys2][keys3] = data[keys][keys2][keys3][:]
                     # Save second level data
                     except(AttributeError):
                         if len(data[keys][keys2][:])==1:

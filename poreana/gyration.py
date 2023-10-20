@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import poreana.utils as utils
 
 
-def bins_plot(data_link_gyr, data_link_dens, intent="", is_mean=False, is_norm=False, kwargs={}):
+def bins_plot(data_link_gyr, data_link_dens, intent="", pore_id = "shape_00", is_mean=False, is_norm=False, kwargs={}):
     """This function plots the gyration radius. If an intent is
     given instead, only a plot-function will be called. Available
     options for ``intent`` are
@@ -48,7 +48,9 @@ def bins_plot(data_link_gyr, data_link_dens, intent="", is_mean=False, is_norm=F
 
     is_pore = "pore" in gyr
     width = {}
-    width["in"] = gyr["data"]["in_width"][:-1] if is_pore else []
+    print("HEY",gyr["data"].keys())
+
+    width["in"] = gyr["data"][pore_id]["in_width"][:-1] if is_pore else []
     width["ex"] = gyr["data"]["ex_width"]
 
     if is_norm:
@@ -59,8 +61,9 @@ def bins_plot(data_link_gyr, data_link_dens, intent="", is_mean=False, is_norm=F
     areas = ["in", "ex"] if is_pore else ["ex"]
 
     # Divide gyration radius by density in bins
-    gyration = {area: [gyr["data"][area][i]/dens["data"][area][i] if dens["data"][area][i] else 0 for i in range(len(gyr["data"][area]))] for area in areas}
-
+    gyration = {"ex": [], "in": []}
+    gyration["in"] = [gyr["data"][pore_id]["in"][i]/dens["data"][pore_id]["in"][i] if dens["data"][pore_id]["in"][i] else 0 for i in range(len(gyr["data"][pore_id]["in"]))] if is_pore else []
+    gyration["ex"] = [gyr["data"]["ex"][i]/dens["data"]["ex"][i] if dens["data"]["ex"][i] else 0 for i in range(len(gyr["data"]["ex"]))]
     # Calculate mean gyration radius
     mean = {area: sum(gyration[area])/len(gyration[area]) for area in areas}
 

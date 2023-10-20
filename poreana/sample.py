@@ -105,26 +105,21 @@ class Sample:
 
         if self._pore:
             for pore_id in self._pore.keys():
-                print(pore_id)
                 if pore_id[:5]=="shape":
                     self._pore_props[pore_id] = {}
                     self._pore_props[pore_id]["type"] = self._pore[pore_id]["shape"]
                     self._pore_props[pore_id]["focal"] = self._pore[pore_id]["parameter"]["centroid"]
                     self._pore_props[pore_id]["length"] = self._pore[pore_id]["parameter"]["length"]
+
                     # Get pore diameter and define shape
                     if self._pore_props[pore_id]["type"] == "CYLINDER":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
                     elif self._pore_props[pore_id]["type"] == "SLIT":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
-                    #self._pore_props[pore_id]["obj"] = obj[1]
             self._pore_props["box"] = {}
             self._pore_props["box"]["dimensions"] = self._pore["system"]["dimensions"]
             self._pore_props["box"]["res"] = self._pore["system"]["reservoir"]
     
-        print(self._pore_props)
-
-
-
 
     ########
     # Bins #
@@ -167,33 +162,37 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Define bins
-        diam = self._pore_props["diam"]
-        pore_surf = (diam)**2
-        bin_num = bin_num + 2
-        surf_per_bin = (pore_surf/bin_num)
+        width = {}
+        for pore_id in self._pore.keys():
+            if pore_id[:5]=="shape":
+                width[pore_id] = []
+                diam = self._pore_props[pore_id]["diam"]
+                pore_surf = (diam)**2
+                bin_num = bin_num + 2
+                surf_per_bin = (pore_surf/bin_num)
 
-        matrix_bins = []
-        for i in range(bin_num):
-            if i == 0:
-                line = [0 for i in range(bin_num)]
-                line[0] = 1
-            elif i == (bin_num-1):
-                line = [0 for i in range(bin_num)]
-                line[-1] = 0
-                line[-2] = 1
-            else:
-                line = [0 for i in range(bin_num)]
-                line[i]= 1
-                line[i-1] = -1
-            matrix_bins.append(line)
-            res_vec = [surf_per_bin for i in range(bin_num)]
-            res_vec[-1] = -surf_per_bin + (diam/2) ** 2
-        x = scipy.sparse.linalg.lsmr(np.array(matrix_bins),res_vec)[0]
-        x[-1]=(diam/2)**2
-        width = list(np.sqrt(x)[:-1])
-        width.insert(0,0)
+                matrix_bins = []
+                for i in range(bin_num):
+                    if i == 0:
+                        line = [0 for i in range(bin_num)]
+                        line[0] = 1
+                    elif i == (bin_num-1):
+                        line = [0 for i in range(bin_num)]
+                        line[-1] = 0
+                        line[-2] = 1
+                    else:
+                        line = [0 for i in range(bin_num)]
+                        line[i]= 1
+                        line[i-1] = -1
+                    matrix_bins.append(line)
+                    res_vec = [surf_per_bin for i in range(bin_num)]
+                    res_vec[-1] = -surf_per_bin + (diam/2) ** 2
+                x = scipy.sparse.linalg.lsmr(np.array(matrix_bins),res_vec)[0]
+                x[-1]=(diam/2)**2
+                width[pore_id] = list(np.sqrt(x)[:-1])
+                width[pore_id].insert(0,0)
 
-        bins = [0 for x in range(bin_num+1)]
+                bins = [0 for x in range(bin_num+1)]
 
         return {"width": width, "bins": bins}
 
@@ -276,7 +275,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=True, bin_const_A=False):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False):
         """Enable density sampling routine.
 
         Parameters
@@ -350,7 +349,7 @@ class Sample:
         # Initialize
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
-        if region=="in":
+        if region=="in" and pore_id!=0:
             if self._dens_inp["bin_const_A"]:
                 index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
             else:
@@ -367,8 +366,8 @@ class Sample:
 
             # Only consider reservoir space in vicinity of crystobalit
             # Remove an extended pore volume from the reservoir
-            if self._pore and self._dens_inp["remove_pore_from_res"]:
-                is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
+            if self._pore and self._dens_inp["remove_pore_from_res"] and pore_id=="shape_00":
+                is_add = index <= bin_num and dist[pore_id] > self._pore_props[pore_id]["diam"]/2 and com[2]<=self._pore_props["box"][2]
             else:
                 is_add = index <= bin_num
 
@@ -410,12 +409,15 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            data["in_width"] = self._bin_in(bin_num)["width"]
-            data["in"] = self._bin_in(bin_num)["bins"]
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    data[pore_id] = {}
+                    data[pore_id]["in_width"] = self._bin_in(bin_num)["width"][pore_id]
+                    data[pore_id]["in"] = self._bin_in(bin_num)["bins"]
 
         return data
 
-    def _gyration(self, data, region, dist, com, pos):
+    def _gyration(self, data, region, dist, com, pos, pore_id):
         """This function calculates the gyration radius of molecules inside the
         pore.
 
@@ -456,20 +458,20 @@ class Sample:
         r_g = (sum([geometry.length(geometry.vector(pos[atom_id], com))**2*self._masses[atom_id] for atom_id in range(len(self._atoms))])/self._sum_masses)**0.5
 
         # Add molecule to bin
-        if region=="in":
-            index = int(dist/data["in_width"][1])
+        if region=="in" and pore_id!=0:
+            index = int(dist[pore_id]/data[pore_id]["in_width"][1])
             if index <= bin_num:
-                data["in"][index] += r_g
+                data[pore_id]["in"][index] += r_g
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] > self._pore_props["box"][2]/2 else com[2]
+            lentgh = abs(com[2]-self._pore_props["box"]["dimensions"][2]) if self._pore and com[2] > self._pore_props["box"]["dimensions"][2]/2 else com[2]
             index = int(lentgh/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit
             # Remove an extended pore volume from the reservoir
-            if self._pore:
-                is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
+            if self._pore and pore_id!=0:
+                is_add = index <= bin_num and dist[pore_id] > self._pore_props[pore_id]["diam"]/2 and com[2]<=self._pore_props["box"]["dimensions"][2]
             else:
                 is_add = index <= bin_num
 
@@ -500,21 +502,26 @@ class Sample:
 
         # Define normals
         if not normals:
+            normals = {}
             if self._pore:
-                if self._pore_props["type"]=="CYLINDER":
-                    shape = pms.Cylinder({"centroid": self._pore_props["focal"], "central": [0, 0, 1], "length": self._pore_props["box"][2], "diameter": self._pore_props["diam"]})
-                    def normal_in(pos): return shape.normal(pos)
-                    def normal_ex(pos): return [0, 0, -1] if pos[2] < self._pore_props["focal"][2] else [0, 0, 1]
-                    normals = {"in": normal_in, "ex": normal_ex}
-                else:
-                    print("Angle: Shape normal not predefined yet. Please set the 'normals' variable...")
-                    return
+                for pore_id in self._pore.keys():
+                    if pore_id[:5]=="shape":
+                        normals[pore_id] = {}
+                        if self._pore_props[pore_id]["type"]=="CYLINDER":
+                            shape = pms.Cylinder({"centroid": self._pore_props[pore_id]["focal"], "central": [0, 0, 1], "length": self._pore_props["box"]["dimensions"][2], "diameter": self._pore_props[pore_id]["diam"]})
+                            def normal_in(pos): return shape.normal(pos)
+                            def normal_ex(pos): return [0, 0, -1] if pos[2] < (self._pore_props["box"]["dimensions"][2]-self._pore_props["box"]["res"]) else [0, 0, 1]
+                            normals[pore_id] = {"in": normal_in}
+                            normals["ex"] = normal_ex
+                        else:
+                            print("Angle: Shape normal not predefined yet. Please set the 'normals' variable...")
+                            return
             else:
                 def normal_in(pos): return [0, 0, 1]
                 def normal_ex(pos): return [0, 0, 1]
                 normals = {"in": normal_in, "ex": normal_ex}
         self._angle_normals = normals
-
+        print(self._angle_normals)
         # Global input
         self._angle_inp = {"output": link_out, "vector_atoms": vector_atoms, "bin_num": bin_num}
 
@@ -535,12 +542,14 @@ class Sample:
         data["ex"] = self._bin_ex(bin_num)["bins"]
 
         if self._pore:
-            data["in_width"] = self._bin_in(bin_num)["width"]
-            data["in"] = self._bin_in(bin_num)["bins"]
-
+            for pore_id in self._pore.keys():
+                if pore_id[:5]=="shape":
+                    data[pore_id] = {}
+                    data[pore_id]["in_width"] = self._bin_in(bin_num)["width"][pore_id]
+                    data[pore_id]["in"] = self._bin_in(bin_num)["bins"]
         return data
 
-    def _angle(self, data, region, dist, com, pos):
+    def _angle(self, data, region, dist, com, pos, pore_id):
         """This function calculates the angle between a molecule vector defined
         between two atoms and the surface normal vector at the postition of the
         molecules center of mass. Hereby all angles all summed up per bin.
@@ -566,27 +575,33 @@ class Sample:
         normals = self._angle_normals
 
         # Calculate angle between molecule vector and surface normal
-        if region in ["in", "ex"]:
+        if region in ["in"] and pore_id !=0:
             # Determine molecule vector
             vec = geometry.vector(pos[vector_atoms[0]], pos[vector_atoms[1]])
             # Calculate angle
-            angle = geometry.angle(vec, normals[region](com))
+            angle = geometry.angle(vec, normals[pore_id]["in"](com))
+        elif region=="ex":
+            # Determine molecule vector
+            vec = geometry.vector(pos[vector_atoms[0]], pos[vector_atoms[1]])
+            # Calculate angle
+            angle = geometry.angle(vec, normals["ex"](com))
 
         # Add molecule to bin
-        if region=="in":
-            index = int(dist/data["in_width"][1])
+        if region=="in" and pore_id !=0:
+            index = int(dist[pore_id]/data[pore_id]["in_width"][1])
             if index <= bin_num:
-                data["in"][index] += angle
+                data[pore_id]["in"][index] += angle
 
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            lentgh = abs(com[2]-self._pore_props["box"][2]) if self._pore and com[2] > self._pore_props["box"][2]/2 else com[2]
+            lentgh = abs(com[2]-self._pore_props["box"]["dimensions"][2]) if self._pore and com[2] > self._pore_props["box"]["dimensions"][2]/2 else com[2]
             index = int(lentgh/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit
             # Remove an extended pore volume from the reservoir
-            if self._pore:
-                is_add = index <= bin_num and dist > self._pore_props["diam"]/2 and com[2]<=self._pore_props["box"][2]
+            if self._pore and pore_id!=0:
+                print(self._pore_props, pore_id)
+                is_add = index <= bin_num and dist > self._pore_props[pore_id]["diam"]/2 and com[2]<=self._pore_props["box"]["dimensions"][2]
             else:
                 is_add = index <= bin_num
 
@@ -1091,7 +1106,9 @@ class Sample:
             data_gyr = output[0]["gyration"]
             for out in output[1:]:
                 if self._pore:
-                    data_gyr["in"] = [x+y for x, y in zip(data_gyr["in"], out["gyration"]["in"])]
+                    for pore_id in output[0]["gyration"].keys():
+                        if pore_id[:5]=="shape":
+                            data_gyr[pore_id]["in"] = [x+y for x, y in zip(data_gyr[pore_id]["in"], out["gyration"][pore_id]["in"])]
                 data_gyr["ex"] = [x+y for x, y in zip(data_gyr["ex"], out["gyration"]["ex"])]
 
             # Pickle
@@ -1277,25 +1294,16 @@ class Sample:
                         if pore_id[:5]=="shape":
                             z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2+self._entry
                             z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
-                            #print(self._pore_props[pore_id]["diam"]/2)
-                            #print(com,dist,z_min,z_max, res, box[2]-res)
 
-                            #print(self._pore_props[pore_id]["diam"])
-                            #print(self._pore_props[pore_id]["focal"],self._pore_props[pore_id]["diam"])
-                            #print(pore_id)
                             if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
                                 pore_in = pore_id
-                                #print(pore_id)
-                
-                
+
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
                     pore_in = 0
-       
-                
-                # else:
-                #     pore_in =  None
-                #     print("Hii")
+                else:
+                    pore_in = 1
+
 
                 # Remove window filling instances except from first processor
                 if self._is_diffusion_bin:
@@ -1309,10 +1317,10 @@ class Sample:
                 if is_sample:
                     if (self._is_density) and (pore_in != 1):
                         self._density(output["density"], region, dist, com, pore_in)
-                    if self._is_gyration:
-                        self._gyration(output["gyration"], region, dist, com_no_pbc, pos)
-                    if self._is_angle:
-                        self._angle(output["angle"], region, dist, com, pos)
+                    if self._is_gyration and (pore_in != 1):
+                        self._gyration(output["gyration"], region, dist, com_no_pbc, pos, pore_in)
+                    if self._is_angle and (pore_in != 1):
+                        self._angle(output["angle"], region, dist, com, pos, pore_in)
                 if self._is_diffusion_bin and (pore_in != 1):
                     self._diffusion_bin(output["diffusion_bin"], region,pore_in, dist, com_list, idx_list, res_id, com)
                 if self._is_diffusion_mc:
