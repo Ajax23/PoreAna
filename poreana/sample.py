@@ -114,6 +114,8 @@ class Sample:
                     # Get pore diameter and define shape
                     if self._pore_props[pore_id]["type"] == "CYLINDER":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
+                    elif self._pore_props[pore_id]["type"] == "CONE":
+                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
                     elif self._pore_props[pore_id]["type"] == "SLIT":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
             self._pore_props["box"] = {}
@@ -1277,7 +1279,7 @@ class Sample:
                     dist = {}
                     for pore_id in self._pore.keys():
                         if pore_id[:5]=="shape":
-                            if self._pore_props[pore_id]["type"]=="CYLINDER":
+                            if self._pore_props[pore_id]["type"] in ["CYLINDER","CONE"]:
                                 dist[pore_id] = geometry.length(geometry.vector([self._pore_props[pore_id]["focal"][0], self._pore_props[pore_id]["focal"][1]], [com[0],com[1]]))
                                 #print("dist",dist,com,self._pore_props[pore_id]["focal"])
                             elif self._pore_props[pore_id]["type"]=="SLIT":
