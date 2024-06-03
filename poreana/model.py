@@ -29,19 +29,15 @@ class Model:
         self._direction = int(inp["direction"])
         self._trans_mat= sample["data"]                # transition matrix
         self._pbc = inp["is_pbc"]                    # pbc or nopbc
+        self._type = sample["type"]
 
         self._sys_props = {}
         if "pore" in sample:
-            for pore_id in sample["pore"].keys():
-                if pore_id[:5]=="shape":
-                    print("pooooore", pore_id,sample["pore"].keys())
-                    self._sys_props[pore_id] = {}
-                    self._sys_props[pore_id]["type"] = sample["pore"][pore_id]["type"]
-                    self._sys_props[pore_id]["focal"] = sample["pore"][pore_id]["focal"]
-                    self._sys_props[pore_id]["diam"] = float(sample["pore"][pore_id]["diam"])
-            self._sys_props["box"] = {}        
-            self._sys_props["box"]["dimensions"] = sample["pore"]["box"]["dimensions"]
-            self._sys_props["box"]["res"] = float(sample["pore"]["box"]["res"])
+            self._sys_props["type"] = sample["pore"]["type"]
+            self._sys_props["res"] = float(sample["pore"]["res"])
+            self._sys_props["focal"] = sample["pore"]["focal"]
+            self._sys_props["box"] = sample["pore"]["box"]
+            self._sys_props["diam"] = float(sample["pore"]["diam"])
             self._system = "pore"
         if "box" in sample:
             self._system = "box"
@@ -61,8 +57,12 @@ class Model:
         self._diff_bin = np.float64(np.zeros(self._bin_num))  # in dz**2/dt
 
         # Initialize the diffusion profile
-        self._diff_bin += (np.log(self._d0) - self._diff_unit)
-
+        if type(self._d0) == float:
+            self._diff_bin += (np.log(self._d0) - self._diff_unit)
+        elif type(self._d0) == list:
+            for i in range(len(self._d0)):
+                self._diff_bin[i] = np.log(self._d0[i]) - self._diff_unit
+                
     def _calc_profile(self, coeff, basis):
         """This function calculates the diffusion and free energy profile over
         the bins. It is used to initialize the system at the beginning of the
@@ -161,7 +161,10 @@ class CosineModel(Model):
         self._n_diff = n_diff
         self._n_diff_radial = n_diff_radial
         self._print_output = is_print
-        self._d0 = d0 * (10**9)/(10**12)                # guess init profile [A^2/ps]
+        if type(d0) == float:
+            self._d0 = d0 * (10**9)/(10**12)                # guess init profile [A^2/ps]
+        elif type(d0) == list:
+            self._d0 = [d * (10**9)/(10**12) for d in d0]
 
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles
