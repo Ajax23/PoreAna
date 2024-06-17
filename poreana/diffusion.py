@@ -819,8 +819,8 @@ def mc_profile(link, len_step=[], section=[], infty_profile=True,  is_plot=True,
     # If a pore system is considered
     if "pore" in data:
         pore = data["pore"]
-        res = pore["res"]
-        box = pore["box"]
+        res = pore["box"]["res"]
+        box = pore["box"]["dimensions"]
 
     # Set dictionaries
     legend = []
