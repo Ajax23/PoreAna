@@ -117,7 +117,7 @@ class Sample:
                     elif self._pore_props[pore_id]["type"] == "CONE":
                         self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
                     elif self._pore_props[pore_id]["type"] == "SLIT":
-                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["height"]
+                        self._pore_props[pore_id]["diam"] = self._pore[pore_id]["diameter"]
             self._pore_props["box"] = {}
             self._pore_props["box"]["dimensions"] = self._pore["system"]["dimensions"]
             self._pore_props["box"]["res"] = self._pore["system"]["reservoir"]
@@ -148,6 +148,31 @@ class Sample:
                 width[pore_id] = [self._pore_props[pore_id]["diam"]/2/bin_num*x for x in range(bin_num+2)]
         bins = [0 for x in range(bin_num+1)]
         return {"width": width, "bins": bins}
+    
+    def _bin_in_slit(self, bin_num):
+        """This function creates a simple bin structure for the interior of the
+        pore based on the pore diameter.
+
+        Parameters
+        ----------
+        bin_num : integer
+            Number of bins to be used
+
+        Returns
+        -------
+        data : dictionary
+            Dictionary containing a list of the bin width and a data list
+        """
+        # Define bins
+        width = {}
+        for pore_id in self._pore_props.keys():
+            if pore_id[:5]=="shape":
+                width[pore_id]=[]
+                width[pore_id] = [self._pore_props["box"]["dimensions"][1]/bin_num*x for x in range(bin_num+2)]
+
+        bins = [0 for x in range(bin_num+1)]
+        return {"width": width, "bins": bins}
+
 
     def _bin_in_const_A(self, bin_num):
         """This function creates a bin structure for the interior of the
@@ -277,7 +302,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False, avg_slit=False):
         """Enable density sampling routine.
 
         Parameters
@@ -291,12 +316,13 @@ class Sample:
             consider the reservoir space intersecting the crystal grid
         bin_const_A : bool, optinal
             If true, all radial bins will have the same surface area, otherwise the bin-width will be constant
+        avg_slit : bool, optional
+            If False the density profile over the height of the slit pore will calculated
         """
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
-                          "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A}
-
+                          "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A, "avg_slit": avg_slit}                   
     def _density_data(self):
         """Create density data structure.
 
@@ -320,6 +346,9 @@ class Sample:
                     if self._dens_inp["bin_const_A"]:
                         data[pore_id]["in_width"] = self._bin_in_const_A(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in_const_A(bin_num)["bins"]
+                    elif self._dens_inp["avg_slit"]==False:
+                        data[pore_id]["in_width"] = self._bin_in_slit(bin_num)["width"][pore_id]
+                        data[pore_id]["in"] = self._bin_in_slit(bin_num)["bins"]
                     else:
                         data[pore_id]["in_width"] = self._bin_in(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in(bin_num)["bins"]
@@ -354,6 +383,8 @@ class Sample:
         if region=="in" and pore_id!=0:
             if self._dens_inp["bin_const_A"]:
                 index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
+            elif self._dens_inp["avg_slit"]==False:
+                index = np.digitize(com[1],data[pore_id]["in_width"][1:])
             else:
                 index = int(dist[pore_id]/data[pore_id]["in_width"][1])
 
