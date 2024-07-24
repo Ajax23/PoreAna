@@ -248,7 +248,7 @@ def bins(link, ax_area=[0.2, 0.8], is_norm=False):
     return {"width": width, "diff": diff, "is_norm": is_norm}
 
 
-def bins_plot(data, intent="plot", kwargs={}, pore_id="shape_00"):
+def bins_plot(data, pore_id="shape_00" ,intent="plot", kwargs={}):
     """This function calculates the axial plots the diffusion profile calculated
     by the function :func:`poreana.diffusion.bins`.
 
@@ -256,10 +256,12 @@ def bins_plot(data, intent="plot", kwargs={}, pore_id="shape_00"):
     ----------
     data : string
         Data dictionary from function func:`poreana.diffusion.bins`
+    pore_id : string, optional
+        If there is more than one shape in the structure, select the shape you want the results to be.
     intent : string, optional
         Set to **plot**, for plotting or set to **line** to only return the
         lineplot, leave empty for nothing
-    kwargs: dict, optional
+    kwargs : dict, optional
         Dictionary with plotting parameters
     """
     # Initialize

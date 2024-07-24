@@ -137,15 +137,18 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
 
     # Calculate bin volume
     volume = {}
+
     ## Interior
     if is_pore:
         for pore_id in pore_props.keys():     
             volume[pore_id] = {}
             if pore_props[pore_id]["pore_type"] in ["CYLINDER","CONE"]:
                 volume[pore_id]["in"] = [math.pi*(pore_props[pore_id]["length"]-2*entry)*(width[pore_id]["in"][i+1]**2-width[pore_id]["in"][i]**2) for i in range(0, bin_num+1)]
-            elif pore_props[pore_id]["pore_type"]=="SLIT":
+            elif pore_props[pore_id]["pore_type"]=="SLIT" and inp["avg_slit"]:
                 volume[pore_id]["in"] = [box[0]*(box[2]-2*res-2*entry)*(width[pore_id]["in"][i+1]-width[pore_id]["in"][i])*2 for i in range(0, bin_num+1)]
-    
+            elif pore_props[pore_id]["pore_type"]=="SLIT" and not inp["avg_slit"]:
+                volume[pore_id]["in"] = [box[0]*(box[2]-2*res-2*entry)*(width[pore_id]["in"][i+1]-width[pore_id]["in"][i]) for i in range(0, bin_num+1)]
+
             ## Exterior  ###Update fehlt hier noch 
             if remove_pore_from_res and pore_props[pore_id]["pore_type"] in ["CYLINDER","CONE"]:
                 volume["ex"] = [2*width["ex"][1]*(box[0]*box[1]-math.pi*(pore_props[pore_id]["diam"]/2)**2) for i in range(bin_num+1)]
@@ -213,6 +216,8 @@ def bins_plot(density, pore_id="shape_00", intent="", target_dens=0, is_mean=Fal
     ----------
     density : dictionary
         Density object from the density calculation :func:`bins`
+    pore_id : string, optional
+        If there is more than one shape in the structure, select the shape you want the results to be.
     intent : string, optional
         Intent for plotting
     target_dens : float, optional
@@ -224,7 +229,6 @@ def bins_plot(density, pore_id="shape_00", intent="", target_dens=0, is_mean=Fal
     """
     # Define bins
     width = {}
-    print("HEY", density["sample"]["data"].keys())
     width["in"] = density["sample"]["data"][pore_id]["in_width"][:-1] if "pore" in density["sample"] else []
     width["ex"] = density["sample"]["data"]["ex_width"][:]
 

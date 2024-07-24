@@ -238,10 +238,10 @@ class Sample:
             Dictionary containing a list of the bin width and a data list
         """
         # Process system
-        z_length = self._pore_props["box"]["res"] if self._pore_props else self._box[2]
+        length = self._pore_props["box"]["res"] if self._pore_props else self._box[self._dens_inp["direction"]]
 
         # Define bins
-        width = [z_length/bin_num*x for x in range(bin_num+1)]
+        width = [length/bin_num*x for x in range(bin_num+1)]
         bins = [0 for x in range(bin_num+1)]
 
         return {"width": width, "bins": bins}
@@ -302,7 +302,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False, avg_slit=False):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False, avg_slit=False, direction=2):
         """Enable density sampling routine.
 
         Parameters
@@ -317,12 +317,12 @@ class Sample:
         bin_const_A : bool, optinal
             If true, all radial bins will have the same surface area, otherwise the bin-width will be constant
         avg_slit : bool, optional
-            If False the density profile over the height of the slit pore will calculated
+            If False the density profile over the height of the slit pore will calculated.
         """
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
-                          "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A, "avg_slit": avg_slit}                   
+                          "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A, "avg_slit": avg_slit, "direction": direction}                   
     def _density_data(self):
         """Create density data structure.
 
@@ -346,7 +346,7 @@ class Sample:
                     if self._dens_inp["bin_const_A"]:
                         data[pore_id]["in_width"] = self._bin_in_const_A(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in_const_A(bin_num)["bins"]
-                    elif self._dens_inp["avg_slit"]==False:
+                    elif self._dens_inp["avg_slit"]==True:
                         data[pore_id]["in_width"] = self._bin_in_slit(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in_slit(bin_num)["bins"]
                     else:
@@ -394,7 +394,7 @@ class Sample:
         # Molecule is in the reservoir
         elif region=="ex":
             # Calculate distance to crystobalit and apply perodicity
-            length = abs(com[2]-self._pore_props["box"]["dimensions"][2]) if self._pore and com[2] > self._pore_props["box"]["dimensions"][2]/2 else com[2]
+            length = abs(com[2]-self._pore_props["box"]["dimensions"][2]) if self._pore and com[2] > self._pore_props["box"]["dimensions"][2]/2 else com[self._dens_inp["direction"]]
             index = int(length/data["ex_width"][1])
 
             # Only consider reservoir space in vicinity of crystobalit

@@ -46,7 +46,7 @@ extensions = ['sphinx.ext.autodoc',
               'numpydoc']
 
 # Generate the API documentation when building
-autosummary_generate = True
+autosummary_generate = False
 numpydoc_show_class_members = False
 
 # Hide numbering
@@ -210,5 +210,3 @@ texinfo_documents = [
 # examples, originally taken from scikit-learn's doc/conf.py
 
 
-def setup(app):
-    app.add_stylesheet('style.css')
