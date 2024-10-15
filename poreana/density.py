@@ -157,7 +157,15 @@ def bins(link_data, area=[[10, 90], [10, 90]], target_dens=0, is_print=True):
             else:
                 volume["ex"] = [2*width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
     else:
-        volume["ex"] = [width["ex"][1]*box[0]*box[1] for i in range(bin_num+1)]
+        # For calculating density over one box length
+        try:
+            direction = inp["direction"]
+            directions = [i for i in range(3) if i!= direction]
+            surface = box[directions[0]]*box[directions[1]]
+        # Except to ensure compliance with older calculations 
+        except:
+            surface = box[0]*box[1]
+        volume["ex"] = [width["ex"][1]*surface for i in range(bin_num+1)]
 
     # Calculate the number density
     num_dens = {}
@@ -249,7 +257,6 @@ def bins_plot(density, pore_id="shape_00", intent="", target_dens=0, is_mean=Fal
         plt.legend(["Density", "Mean"])
 
         plt.subplot(212)
-        #
         sns.lineplot(x=width["ex"], y=density["num_dens"]["ex"])
         if is_mean:
             sns.lineplot(x=width["ex"], y=[density["mean"]["ex"] for x in width["ex"]])

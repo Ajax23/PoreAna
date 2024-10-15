@@ -118,7 +118,6 @@ def save(obj, link):
         # Create groups for the keys in the obj file
         for key in obj.keys():
             groups[key] = f.create_group(key)
-            print(key)
             # If key "box" only a value is on frist key level
             if not key in ["box","type"]:
             # For all other key read the second level keys
@@ -136,7 +135,6 @@ def save(obj, link):
             # Loop over second level keys
             else:
                 for base in data_base[gkey]:
-                    print(base)
                     # Check if a third level exists
                     if isinstance(obj[gkey][base], dict):
                         # If a third level exists create new group in first level groups
@@ -147,7 +145,6 @@ def save(obj, link):
                             if isinstance(obj[gkey][base][base2], (list, np.ndarray)):
                                 data.create_dataset(str(base2), data=obj[gkey][base][base2])
                             elif isinstance(obj[gkey][base][base2],str):
-                                print("hi",obj[gkey][base][base2])
                                 dt = h5py.special_dtype(vlen=str)
                                 string = groups[gkey].create_dataset(str(base2), (1), dtype=dt)
                                 string[0] = obj[gkey][base][base2]

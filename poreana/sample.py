@@ -318,11 +318,15 @@ class Sample:
             If true, all radial bins will have the same surface area, otherwise the bin-width will be constant
         avg_slit : bool, optional
             If False the density profile over the height of the slit pore will calculated.
+            For all other systems/shapes the bool has to be True.
+        direction : int, optional
+            Direction to calculate density of a box system (x=0, y=1, z=2)
         """
         # Initialize
         self._is_density = True
         self._dens_inp = {"output": link_out, "bin_num": bin_num,
                           "remove_pore_from_res": remove_pore_from_res, "bin_const_A": bin_const_A, "avg_slit": avg_slit, "direction": direction}                   
+    
     def _density_data(self):
         """Create density data structure.
 
@@ -346,10 +350,10 @@ class Sample:
                     if self._dens_inp["bin_const_A"]:
                         data[pore_id]["in_width"] = self._bin_in_const_A(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in_const_A(bin_num)["bins"]
-                    elif self._dens_inp["avg_slit"]==True:
+                    elif self._dens_inp["avg_slit"]==False:
                         data[pore_id]["in_width"] = self._bin_in_slit(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in_slit(bin_num)["bins"]
-                    else:
+                    elif self._dens_inp["avg_slit"]==True:
                         data[pore_id]["in_width"] = self._bin_in(bin_num)["width"][pore_id]
                         data[pore_id]["in"] = self._bin_in(bin_num)["bins"]
 
@@ -385,7 +389,7 @@ class Sample:
                 index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
             elif self._dens_inp["avg_slit"]==False:
                 index = np.digitize(com[1],data[pore_id]["in_width"][1:])
-            else:
+            elif self._dens_inp["avg_slit"]==True:
                 index = int(dist[pore_id]/data[pore_id]["in_width"][1])
 
             if index <= bin_num:
@@ -1323,18 +1327,21 @@ class Sample:
                 pore_in = 1
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
-                    for pore_id in self._pore.keys():
-                        if pore_id[:5]=="shape":
-                            z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2+self._entry
-                            z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
+                    if list(self._pore.keys()) == ["shape_00", "system"]:
+                        pore_in = "shape_00"
+                    else:
+                        for pore_id in self._pore.keys():
+                            if pore_id[:5]=="shape":
+                                z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2+self._entry
+                                z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
 
-                            if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
-                                pore_in = pore_id
+                                if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
+                                    pore_in = pore_id
 
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
                     pore_in = 0
-                else:
+                elif self._pore:
                     pore_in = 1
 
 

@@ -62,7 +62,6 @@ def bins_plot(data_link_angle, data_link_dens, pore_id="shape_00", intent="", is
 
     # Divide angle by density in bins
     angle = {"ex": [], "in": []}
-    print("hih",angle.keys())
     angle["in"] = [agl["data"][pore_id]["in"][i]/dens["data"][pore_id]["in"][i] if dens["data"][pore_id]["in"][i] else 0 for i in range(len(agl["data"][pore_id]["in"]))]
     angle["ex"] = [agl["data"]["ex"][i]/dens["data"]["ex"][i] if dens["data"]["ex"][i] else 0 for i in range(len(agl["data"]["ex"]))] 
 

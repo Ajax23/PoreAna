@@ -48,8 +48,6 @@ def bins_plot(data_link_gyr, data_link_dens, intent="", pore_id = "shape_00", is
 
     is_pore = "pore" in gyr
     width = {}
-    print("HEY",gyr["data"].keys())
-
     width["in"] = gyr["data"][pore_id]["in_width"][:-1] if is_pore else []
     width["ex"] = gyr["data"]["ex_width"]
 
