@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="../">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>MC &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -80,7 +70,10 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">MC</a></li>
+<li><a class="reference internal" href="#">MC</a><ul>
+<li><a class="reference internal" href="#poreana.mc.MC"><code class="docutils literal notranslate"><span class="pre">MC</span></code></a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -108,54 +101,149 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">MC</a><ul>
+<li><a class="reference internal" href="#poreana.mc.MC"><code class="docutils literal notranslate"><span class="pre">MC</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div id="sourcelink">
+  <a href="../_sources/generated/poreana.mc.MC.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="mc">
-<h1>MC<a class="headerlink" href="#mc" title="Permalink to this headline">¶</a></h1>
-<dl class="class">
-<dt id="poreana.mc.MC">
-<em class="property">class </em><code class="descclassname">poreana.mc.</code><code class="descname">MC</code><a class="headerlink" href="#poreana.mc.MC" title="Permalink to this definition">¶</a></dt>
+<div class=col-md-9 content><section id="mc">
+<h1>MC<a class="headerlink" href="#mc" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="poreana.mc.MC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">poreana.mc.</span></span><span class="sig-name descname"><span class="pre">MC</span></span><a class="headerlink" href="#poreana.mc.MC" title="Link to this definition">¶</a></dt>
 <dd><p>This class contains the Monte Carlo part of the diffusion calculation.
 The class initializes the MC (Monte Carlo) and contains all
 functions to execute the MC cycle part of the diffusion calculation.</p>
-<p>The MC calculation can be started with <a class="reference internal" href="poreana.mc.MC.run.html#poreana.mc.MC.run" title="poreana.mc.MC.run"><code class="xref py py-func docutils literal"><span class="pre">run()</span></code></a>.</p>
+<p>The MC calculation can be started with <a class="reference internal" href="poreana.mc.MC.run.html#poreana.mc.MC.run" title="poreana.mc.MC.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a>.</p>
 <p class="rubric">Methods</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._init_rate_matrix_pbc.html#poreana.mc.MC._init_rate_matrix_pbc" title="poreana.mc.MC._init_rate_matrix_pbc"><code class="xref py py-obj docutils literal"><span class="pre">_init_rate_matrix_pbc</span></code></a>(bin_num,&nbsp;diff_bin,&nbsp;df_bin)</td>
-<td>This function estimates the rate Matrix R for the current free energy and log diffusion profiles over the bins for periodic boundary conditions.</td>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__class__</span></code></p></td>
+<td><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC._init_stats.html#poreana.mc.MC._init_stats" title="poreana.mc.MC._init_stats"><code class="xref py py-obj docutils literal"><span class="pre">_init_stats</span></code></a>(model)</td>
-<td>This function sets the MC statistic counters to zero after every MC run.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__delattr__</span></code>(name, /)</p></td>
+<td><p>Implement delattr(self, name).</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-obj docutils literal"><span class="pre">_log_likelihood_z</span></code></a>(model[,&nbsp;temp])</td>
-<td>This function estimate the likelihood of the current free energy or diffusion profile over the bins in a simulation box.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dict__</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-obj docutils literal"><span class="pre">_mcmove_df</span></code></a>(model)</td>
-<td>This function does the MC move for the free energy profile and adjust the coefficents of the model.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__dir__</span></code>(/)</p></td>
+<td><p>Default dir() implementation.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-obj docutils literal"><span class="pre">_mcmove_diffusion</span></code></a>(model)</td>
-<td>This function does the MC move for the diffusion profile and adjust one coefficient of the model.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__doc__</span></code></p></td>
+<td><p></p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC._run_helper.html#poreana.mc.MC._run_helper" title="poreana.mc.MC._run_helper"><code class="xref py py-obj docutils literal"><span class="pre">_run_helper</span></code></a>(model,&nbsp;len_step,&nbsp;do_radial)</td>
-<td>Helper function for MC run</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__eq__</span></code>(value, /)</p></td>
+<td><p>Return self==value.</p></td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.mc.MC._update_movewidth_mc.html#poreana.mc.MC._update_movewidth_mc" title="poreana.mc.MC._update_movewidth_mc"><code class="xref py py-obj docutils literal"><span class="pre">_update_movewidth_mc</span></code></a>(imc[,&nbsp;radial])</td>
-<td>This function sets a new MC move width after a define number of MC steps <span class="math">\(n_\text{MC,update}\)</span>.</td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__format__</span></code>(format_spec, /)</p></td>
+<td><p>Default object formatter.</p></td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.mc.MC.run.html#poreana.mc.MC.run" title="poreana.mc.MC.run"><code class="xref py py-obj docutils literal"><span class="pre">run</span></code></a>(model,&nbsp;link_out[,&nbsp;nmc_eq,&nbsp;nmc,&nbsp;…])</td>
-<td>This function do the MC Cycle to calculate the diffusion and free energy profile over the bins and save the results in an output hdf5 file.</td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ge__</span></code>(value, /)</p></td>
+<td><p>Return self&gt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getattribute__</span></code>(name, /)</p></td>
+<td><p>Return getattr(self, name).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__gt__</span></code>(value, /)</p></td>
+<td><p>Return self&gt;value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__hash__</span></code>(/)</p></td>
+<td><p>Return hash(self).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init_subclass__</span></code></p></td>
+<td><p>This method is called when a class is subclassed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__le__</span></code>(value, /)</p></td>
+<td><p>Return self&lt;=value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__lt__</span></code>(value, /)</p></td>
+<td><p>Return self&lt;value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__module__</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__ne__</span></code>(value, /)</p></td>
+<td><p>Return self!=value.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__new__</span></code>(*args, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__reduce__</span></code>(/)</p></td>
+<td><p>Helper for pickle.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__reduce_ex__</span></code>(protocol, /)</p></td>
+<td><p>Helper for pickle.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__repr__</span></code>(/)</p></td>
+<td><p>Return repr(self).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__setattr__</span></code>(name, value, /)</p></td>
+<td><p>Implement setattr(self, name, value).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__sizeof__</span></code>(/)</p></td>
+<td><p>Size of object in memory, in bytes.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__str__</span></code>(/)</p></td>
+<td><p>Return str(self).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__subclasshook__</span></code></p></td>
+<td><p>Abstract classes can override this to customize issubclass().</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">__weakref__</span></code></p></td>
+<td><p>list of weak references to the object (if defined)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.mc.MC._init_rate_matrix_pbc.html#poreana.mc.MC._init_rate_matrix_pbc" title="poreana.mc.MC._init_rate_matrix_pbc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_rate_matrix_pbc</span></code></a>(bin_num, diff_bin, df_bin)</p></td>
+<td><p>This function estimates the rate Matrix R for the current free energy and log diffusion profiles over the bins for periodic boundary conditions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.mc.MC._init_stats.html#poreana.mc.MC._init_stats" title="poreana.mc.MC._init_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_init_stats</span></code></a>(model)</p></td>
+<td><p>This function sets the MC statistic counters to zero after every MC run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_log_likelihood_z</span></code></a>(model[, temp])</p></td>
+<td><p>This function estimate the likelihood of the current free energy or diffusion profile over the bins in a simulation box.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mcmove_df</span></code></a>(model)</p></td>
+<td><p>This function does the MC move for the free energy profile and adjust the coefficents of the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_mcmove_diffusion</span></code></a>(model)</p></td>
+<td><p>This function does the MC move for the diffusion profile and adjust one coefficient of the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.mc.MC._run_helper.html#poreana.mc.MC._run_helper" title="poreana.mc.MC._run_helper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_run_helper</span></code></a>(model, len_step, do_radial)</p></td>
+<td><p>Helper function for MC run</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.mc.MC._update_movewidth_mc.html#poreana.mc.MC._update_movewidth_mc" title="poreana.mc.MC._update_movewidth_mc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_update_movewidth_mc</span></code></a>(imc[, radial])</p></td>
+<td><p>This function sets a new MC move width after a define number of MC steps <span class="math notranslate nohighlight">\(n_\text{MC,update}\)</span>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.mc.MC.run.html#poreana.mc.MC.run" title="poreana.mc.MC.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>(model, link_out[, nmc_eq, nmc, ...])</p></td>
+<td><p>This function do the MC Cycle to calculate the diffusion and free energy profile over the bins and save the results in an output hdf5 file.</p></td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -170,7 +258,7 @@ functions to execute the MC cycle part of the diffusion calculation.</p>
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>

@@ -302,7 +302,7 @@ class Sample:
     ###########
     # Density #
     ###########
-    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False, avg_slit=False, direction=2):
+    def init_density(self, link_out, bin_num=150, remove_pore_from_res=False, bin_const_A=False, avg_slit=True, direction=2):
         """Enable density sampling routine.
 
         Parameters
@@ -384,7 +384,7 @@ class Sample:
         # Initialize
         bin_num = self._dens_inp["bin_num"]
         # Molecule is inside pore
-        if region=="in" and pore_id!=0:
+        if (region=="in" and pore_id!=0):
             if self._dens_inp["bin_const_A"]:
                 index = np.digitize(dist[pore_id], data[pore_id]["in_width"][1:])
             elif self._dens_inp["avg_slit"]==False:
@@ -1266,7 +1266,7 @@ class Sample:
         # Load trajectory
         traj = cf.Trajectory(self._traj)
         frame_form = "%"+str(len(str(self._num_frame)))+"i"
-
+        skip = 0
         # Run through frames
         for frame_id in frame_list:
             # Read frame
@@ -1327,22 +1327,17 @@ class Sample:
                 pore_in = 1
                 if self._pore and com[2] > res+self._entry and com[2] < box[2]-res-self._entry:
                     region = "in"
-                    if list(self._pore.keys()) == ["shape_00", "system"]:
-                        pore_in = "shape_00"
-                    else:
-                        for pore_id in self._pore.keys():
-                            if pore_id[:5]=="shape":
-                                z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2+self._entry
-                                z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
+                    for pore_id in self._pore.keys():
+                        if pore_id[:5]=="shape":
+                            z_min = res  + self._pore_props[pore_id]["focal"][2]-self._pore_props[pore_id]["length"]/2+self._entry
+                            z_max = res  + self._pore_props[pore_id]["focal"][2]+self._pore_props[pore_id]["length"]/2-self._entry
 
-                                if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
-                                    pore_in = pore_id
+                            if ((z_min<com[2]<z_max) and (dist[pore_id]<(self._pore_props[pore_id]["diam"]*1.01)/2)):
+                                pore_in = pore_id
 
                 elif not self._pore or com[2] < res or com[2] > box[2]-res:
                     region = "ex"
                     pore_in = 0
-                elif self._pore:
-                    pore_in = 1
 
 
                 # Remove window filling instances except from first processor

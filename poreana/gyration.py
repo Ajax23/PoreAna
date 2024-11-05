@@ -30,6 +30,8 @@ def bins_plot(data_link_gyr, data_link_dens, intent="", pore_id = "shape_00", is
         :func:`poreana.sample.Sample.init_gyration`
     intent : string, optional
         Intent for plotting
+    pore_id : string, optional
+        If there is more than one shape in the structure, select the shape you want the results to be.
     is_mean : bool, optional
         True to plot mean values
     is_norm : bool, optional

@@ -1,39 +1,28 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="../">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>bins_plot &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -80,7 +69,10 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">bins_plot</a></li>
+<li><a class="reference internal" href="#">bins_plot</a><ul>
+<li><a class="reference internal" href="#poreana.gyration.bins_plot"><code class="docutils literal notranslate"><span class="pre">bins_plot()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -108,62 +100,74 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">bins_plot</a><ul>
+<li><a class="reference internal" href="#poreana.gyration.bins_plot"><code class="docutils literal notranslate"><span class="pre">bins_plot()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div id="sourcelink">
+  <a href="../_sources/generated/poreana.gyration.bins_plot.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="bins-plot">
-<h1>bins_plot<a class="headerlink" href="#bins-plot" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="poreana.gyration.bins_plot">
-<code class="descclassname">poreana.gyration.</code><code class="descname">bins_plot</code><span class="sig-paren">(</span><em>data_link_gyr</em>, <em>data_link_dens</em>, <em>intent=''</em>, <em>is_mean=False</em>, <em>is_norm=False</em>, <em>kwargs={}</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.gyration.bins_plot" title="Permalink to this definition">¶</a></dt>
+<div class=col-md-9 content><section id="bins-plot">
+<h1>bins_plot<a class="headerlink" href="#bins-plot" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="poreana.gyration.bins_plot">
+<span class="sig-prename descclassname"><span class="pre">poreana.gyration.</span></span><span class="sig-name descname"><span class="pre">bins_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_link_gyr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_link_dens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pore_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shape_00'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_norm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.gyration.bins_plot" title="Link to this definition">¶</a></dt>
 <dd><p>This function plots the gyration radius. If an intent is
 given instead, only a plot-function will be called. Available
-options for <code class="docutils literal"><span class="pre">intent</span></code> are</p>
+options for <code class="docutils literal notranslate"><span class="pre">intent</span></code> are</p>
 <ul class="simple">
-<li>empty string - Create subplots for the density inside and outside the pore</li>
-<li><strong>in</strong> - Create plot for the density inside pore</li>
-<li><strong>ex</strong> - Create plot for the density outside pore</li>
+<li><p>empty string - Create subplots for the density inside and outside the pore</p></li>
+<li><p><strong>in</strong> - Create plot for the density inside pore</p></li>
+<li><p><strong>ex</strong> - Create plot for the density outside pore</p></li>
 </ul>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>data_link_dens</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to density hdf5, obj or yml data file generated by the sample rountine
-<a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_density()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>data_link_dens</strong><span class="classifier">string</span></dt><dd><p>Link to density hdf5, obj or yml data file generated by the sample rountine
+<a class="reference internal" href="poreana.sample.Sample.init_density.html#poreana.sample.Sample.init_density" title="poreana.sample.Sample.init_density"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.sample.Sample.init_density()</span></code></a></p>
 </dd>
-<dt><strong>data_link_gyr</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to gyration data object generated by the sample routine
-<a class="reference internal" href="poreana.sample.Sample.init_gyration.html#poreana.sample.Sample.init_gyration" title="poreana.sample.Sample.init_gyration"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_gyration()</span></code></a></p>
+<dt><strong>data_link_gyr</strong><span class="classifier">string</span></dt><dd><p>Link to gyration data object generated by the sample routine
+<a class="reference internal" href="poreana.sample.Sample.init_gyration.html#poreana.sample.Sample.init_gyration" title="poreana.sample.Sample.init_gyration"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.sample.Sample.init_gyration()</span></code></a></p>
 </dd>
-<dt><strong>intent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string, optional</span></dt>
-<dd><p class="first last">Intent for plotting</p>
+<dt><strong>intent</strong><span class="classifier">string, optional</span></dt><dd><p>Intent for plotting</p>
 </dd>
-<dt><strong>is_mean</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to plot mean values</p>
+<dt><strong>pore_id</strong><span class="classifier">string, optional</span></dt><dd><p>If there is more than one shape in the structure, select the shape you want the results to be.</p>
 </dd>
-<dt><strong>is_norm</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to normalize x-axis</p>
+<dt><strong>is_mean</strong><span class="classifier">bool, optional</span></dt><dd><p>True to plot mean values</p>
 </dd>
-<dt><strong>kwargs: dict, optional</strong></dt>
-<dd><p class="first last">Dictionary with plotting parameters (only with given intent)</p>
+<dt><strong>is_norm</strong><span class="classifier">bool, optional</span></dt><dd><p>True to normalize x-axis</p>
+</dd>
+<dt><strong>kwargs: dict, optional</strong></dt><dd><p>Dictionary with plotting parameters (only with given intent)</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>mean</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dictionary</span></dt>
-<dd><p class="first last">Mean value of the radius of gyration inside and outside the pore in nm</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mean</strong><span class="classifier">dictionary</span></dt><dd><p>Mean value of the radius of gyration inside and outside the pore in nm</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -178,7 +182,7 @@ options for <code class="docutils literal"><span class="pre">intent</span></code
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>

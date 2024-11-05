@@ -4,11 +4,6 @@
 .. automodule:: poreana.tables
 
    
-   
-   
-
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
@@ -19,15 +14,3 @@
       mc_results
       mc_statistics
    
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

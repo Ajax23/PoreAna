@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="../">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>StepModel._calc_profile &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -80,7 +70,10 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">StepModel._calc_profile</a></li>
+<li><a class="reference internal" href="#">StepModel._calc_profile</a><ul>
+<li><a class="reference internal" href="#poreana.model.StepModel._calc_profile"><code class="docutils literal notranslate"><span class="pre">StepModel._calc_profile()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -108,61 +101,74 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">StepModel._calc_profile</a><ul>
+<li><a class="reference internal" href="#poreana.model.StepModel._calc_profile"><code class="docutils literal notranslate"><span class="pre">StepModel._calc_profile()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div id="sourcelink">
+  <a href="../_sources/generated/poreana.model.StepModel._calc_profile.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="stepmodel-calc-profile">
-<h1>StepModel._calc_profile<a class="headerlink" href="#stepmodel-calc-profile" title="Permalink to this headline">¶</a></h1>
-<dl class="method">
-<dt id="poreana.model.StepModel._calc_profile">
-<code class="descclassname">StepModel.</code><code class="descname">_calc_profile</code><span class="sig-paren">(</span><em>coeff</em>, <em>basis</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.StepModel._calc_profile" title="Permalink to this definition">¶</a></dt>
+<div class=col-md-9 content><section id="stepmodel-calc-profile">
+<h1>StepModel._calc_profile<a class="headerlink" href="#stepmodel-calc-profile" title="Link to this heading">¶</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="poreana.model.StepModel._calc_profile">
+<span class="sig-prename descclassname"><span class="pre">StepModel.</span></span><span class="sig-name descname"><span class="pre">_calc_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coeff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">basis</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.model.StepModel._calc_profile" title="Link to this definition">¶</a></dt>
 <dd><p>This function calculates the diffusion and free energy profile over
 the bins. It is used to initialize the system at the beginning of the
 calculation/MC run. Additionally, it is needed to update the profiles
 in the Monte Carlo part after the adjustment of a profile coefficient.</p>
 <p>The profile is determining with the basis and the coefficients for the
 diffusion with</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[\ln D_i = a_0 + \sum_{k} a_{k} \cdot \mathrm{basis}_{\text{F}},\]</div>
 <p>and for the free energy with</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[F_i = \sum_{k} a_{k} \cdot \mathrm{basis}_{\text{D}}.\]</div>
 <p>The diffusion is calculated between to bins on the bin border and the free energy
 in the center of a bin.
 The basis is received by the create basis function for the selected model:</p>
-<dl class="docutils">
-<dt><strong>CosineModel</strong></dt>
-<dd><ul class="first last simple">
-<li><a class="reference internal" href="poreana.model.CosineModel._create_basis_center.html#poreana.model.CosineModel._create_basis_center" title="poreana.model.CosineModel._create_basis_center"><code class="xref py py-func docutils literal"><span class="pre">CosineModel._create_basis_center()</span></code></a></li>
-<li><a class="reference internal" href="poreana.model.CosineModel._create_basis_border.html#poreana.model.CosineModel._create_basis_border" title="poreana.model.CosineModel._create_basis_border"><code class="xref py py-func docutils literal"><span class="pre">CosineModel._create_basis_border()</span></code></a></li>
+<dl class="simple">
+<dt><strong>CosineModel</strong></dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="poreana.model.CosineModel._create_basis_center.html#poreana.model.CosineModel._create_basis_center" title="poreana.model.CosineModel._create_basis_center"><code class="xref py py-func docutils literal notranslate"><span class="pre">CosineModel._create_basis_center()</span></code></a></p></li>
+<li><p><a class="reference internal" href="poreana.model.CosineModel._create_basis_border.html#poreana.model.CosineModel._create_basis_border" title="poreana.model.CosineModel._create_basis_border"><code class="xref py py-func docutils literal notranslate"><span class="pre">CosineModel._create_basis_border()</span></code></a></p></li>
 </ul>
 </dd>
-<dt><strong>StepModel</strong></dt>
-<dd><ul class="first last simple">
-<li><a class="reference internal" href="poreana.model.StepModel._create_basis_center.html#poreana.model.StepModel._create_basis_center" title="poreana.model.StepModel._create_basis_center"><code class="xref py py-func docutils literal"><span class="pre">StepModel._create_basis_center()</span></code></a></li>
-<li><a class="reference internal" href="poreana.model.StepModel._create_basis_border.html#poreana.model.StepModel._create_basis_border" title="poreana.model.StepModel._create_basis_border"><code class="xref py py-func docutils literal"><span class="pre">StepModel._create_basis_border()</span></code></a></li>
+<dt><strong>StepModel</strong></dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="poreana.model.StepModel._create_basis_center.html#poreana.model.StepModel._create_basis_center" title="poreana.model.StepModel._create_basis_center"><code class="xref py py-func docutils literal notranslate"><span class="pre">StepModel._create_basis_center()</span></code></a></p></li>
+<li><p><a class="reference internal" href="poreana.model.StepModel._create_basis_border.html#poreana.model.StepModel._create_basis_border" title="poreana.model.StepModel._create_basis_border"><code class="xref py py-func docutils literal notranslate"><span class="pre">StepModel._create_basis_border()</span></code></a></p></li>
 </ul>
 </dd>
 </dl>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>coeff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">list of coefficients</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coeff</strong><span class="classifier">list</span></dt><dd><p>list of coefficients</p>
 </dd>
-<dt><strong>basis</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">list of the basis part of model</p>
+<dt><strong>basis</strong><span class="classifier">list</span></dt><dd><p>list of the basis part of model</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -177,7 +183,7 @@ The basis is received by the create basis function for the selected model:</p>
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>
