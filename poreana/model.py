@@ -32,12 +32,21 @@ class Model:
         self._type = sample["type"]
 
         self._sys_props = {}
+        self._sys_props = {}
         if "pore" in sample:
-            self._sys_props["type"] = sample["pore"]["type"]
-            self._sys_props["res"] = float(sample["pore"]["res"])
-            self._sys_props["focal"] = sample["pore"]["focal"]
-            self._sys_props["box"] = sample["pore"]["box"]
-            self._sys_props["diam"] = float(sample["pore"]["diam"])
+            for pore_id in sample["pore"].keys():
+                if pore_id[:5]=="shape":
+                    self._sys_props[pore_id] = {}
+                    self._sys_props[pore_id]["type"] = sample["pore"][pore_id]["type"]
+                    self._sys_props[pore_id]["focal"] = sample["pore"][pore_id]["focal"]
+                    self._sys_props[pore_id]["diam"] = float(sample["pore"][pore_id]["diam"])
+                    if self._sys_props[pore_id]["type"] == "CYLINDER":
+                        self._sys_props[pore_id]["diam"] = sample["pore"][pore_id]["diam"]
+                    elif self._sys_props[pore_id]["type"] == "SLIT":
+                        self._sys_props[pore_id]["diam"] = sample["pore"][pore_id]["height"]
+            self._sys_props["box"] = {}
+            self._sys_props["box"]["dimensions"] = sample["pore"]["box"]["dimensions"]
+            self._sys_props["box"]["res"] = sample["pore"]["box"]["res"]
             self._system = "pore"
         if "box" in sample:
             self._system = "box"
@@ -57,8 +66,12 @@ class Model:
         self._diff_bin = np.float64(np.zeros(self._bin_num))  # in dz**2/dt
 
         # Initialize the diffusion profile
-        self._diff_bin += (np.log(self._d0) - self._diff_unit)
-
+        if type(self._d0) == float:
+            self._diff_bin += (np.log(self._d0) - self._diff_unit)
+        elif type(self._d0) == list:
+            for i in range(len(self._d0)):
+                self._diff_bin[i] = np.log(self._d0[i]) - self._diff_unit
+            print(self._diff_bin[i])                    
     def _calc_profile(self, coeff, basis):
         """This function calculates the diffusion and free energy profile over
         the bins. It is used to initialize the system at the beginning of the
@@ -145,20 +158,24 @@ class CosineModel(Model):
         True to print output
     """
 
-    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1, is_print=False):
+    def __init__(self, data_link, n_diff=6, n_df=10, n_diff_radial=6, d0=1.0, is_print=False, coeff = []):
 
         # Inherit the variables from Model class
         super(CosineModel, self).__init__(data_link)
 
         # Set the model type
         self._model = "CosineModel"
-
+        self._coeff = coeff
         self._n_df = n_df
         self._n_diff = n_diff
         self._n_diff_radial = n_diff_radial
         self._print_output = is_print
-        self._d0 = d0 * (10**9)/(10**12)                # guess init profile [A^2/ps]
-
+        print(type(d0))
+        if type(d0) == float:
+            self._d0 = d0 * (10**9)/(10**12)                # guess init profile [A^2/ps]
+        elif type(d0) == list:
+            self._d0 = [d * (10**9)/(10**12) for d in d0]
+            print(self._d0)
         self._init_model()     # Initial model
         self._init_profiles()  # Initial Profiles
         self._cosine_model()   # Set basis of Fourier series
@@ -177,8 +194,10 @@ class CosineModel(Model):
         self._diff_coeff = np.zeros((self._n_diff), float)
 
         # Initialize diffusion profile with the guess value [A^2/ps]
-        self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)
-
+        if type(self._d0) == float:
+            self._diff_coeff[0] += (np.log(self._d0) - self._diff_unit)
+        elif type(self._d0) == list:
+            self._diff_coeff = self._coeff
     def _cosine_model(self):
         """This function sets a Fourier Cosine Series Model for the MC Diffusion
         Calculation and determines the initialize profiles.

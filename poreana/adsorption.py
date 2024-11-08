@@ -44,20 +44,29 @@ def calculate(link_data, res_cutoff=1, is_normalize=True):
 
     # Load pore properties
     pore = sample["pore"]
-    res = pore["res"]
-    diam = pore["diam"]
-    box = pore["box"]
+    res = pore["box"]["res"]
+    box = pore["box"]["dimensions"]
     box[2] -= 2*res
 
     # Load bins
     bins = {}
-    bins["in"] = sample["data"]["in"]
     bins["ex"] = sample["data"]["ex"]
+    bins["in"] = {}
+    print(sample["data"].keys())
+    for pore_id in sample["pore"].keys():
+        if pore_id[:5]=="shape":
+            print(sample["data"][pore_id].keys())
+            bins["in"][pore_id] = sample["data"][pore_id]["in"]
+            
 
     # Load Width
     width = {}
-    width["in"] = sample["data"]["in_width"]
     width["ex"] = sample["data"]["ex_width"]
+    width["in"] = {}
+    for pore_id in sample["pore"].keys():
+        if pore_id[:5]=="shape":
+            width["in"][pore_id] = sample["data"][pore_id]["in_width"]
+    
 
     # Load input data
     inp = sample["inp"]
@@ -66,20 +75,32 @@ def calculate(link_data, res_cutoff=1, is_normalize=True):
 
     # Calculate number of molecules
     num = {}
-    num["in"] = sum(bins["in"])
     num["ex"] = sum([num_mol for i, num_mol in enumerate(bins["ex"]) if width["ex"][i] <= res-res_cutoff and width["ex"][i] >= res_cutoff])
+    for pore_id in sample["pore"].keys():
+        if pore_id[:5]=="shape":
+            num[pore_id] = {}
+            num[pore_id]["in"] = sum(bins["in"][pore_id])
+    
 
     # Normalize number of instances by the number of frames
-    num["in"] /= num_frames if is_normalize else 1
     num["ex"] /= num_frames if is_normalize else 1
+    for pore_id in sample["pore"].keys():
+        if pore_id[:5]=="shape":
+            num[pore_id]["in"] /= num_frames if is_normalize else 1
 
     # Calculate surface and volume
-    surface = 2*np.pi*(diam)/2*(box[2]-2*entry)
+    surface = {}
+    for pore_id in sample["pore"].keys():
+        if pore_id[:5]=="shape": 
+            surface[pore_id] = 2*np.pi*(sample["pore"][pore_id]["diam"])/2*(box[2]-2*entry)
     volume = 2*(res-2*res_cutoff)*box[0]*box[1]
 
     # Convert to concentrations
     conc = {}
-    conc["mumol_m2"] = utils.mols_to_mumol_m2(num["in"], surface)
+    for pore_id in sample["pore"].keys():
+        if pore_id[:5]=="shape":
+            conc[pore_id] = {}
+            conc[pore_id]["mumol_m2"] = utils.mols_to_mumol_m2(num[pore_id]["in"], surface[pore_id])
     conc["mmol_l"] = utils.mols_to_mmol_l(num["ex"], volume)
 
     return {"conc": conc, "num": num}

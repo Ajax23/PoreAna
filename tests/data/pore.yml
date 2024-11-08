@@ -1,0 +1,49 @@
+shape_00:
+  diameter: 7.997062288149945
+  parameter:
+    central:
+    - 0
+    - 0
+    - 1
+    centroid:
+    - 3
+    - 3
+    - 5
+    diameter: 5.05
+    length: 10
+  roughness: 1.7001568565388812
+  shape: CYLINDER
+  surface: 249.22524037673833
+  volume: 498.26744276797984
+shape_01:
+  diameter: 7.997062288149945
+  parameter:
+    central:
+    - 0
+    - 0
+    - 1
+    centroid:
+    - 8
+    - 8
+    - 5
+    diameter: 5.05
+    length: 10
+  roughness: 1.7001568565388812
+  shape: CYLINDER
+  surface: 249.22524037673833
+  volume: 498.26744276797984
+system:
+  centroid:
+  - 5.5447426267254345
+  - 5.688194403854167
+  - 4.916944444441781
+  dimensions:
+  - 11.131670910131392
+  - 11.400744707948709
+  - 30.703762070865267
+  reservoir: 10
+  surface:
+    ex: 153.37471828064923
+    in: 498.45048075347665
+  volume: 996.5348855359597
+

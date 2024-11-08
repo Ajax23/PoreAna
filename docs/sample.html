@@ -1,39 +1,28 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="./">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Sampling Trajectory Files &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="_static/documentation_options.js?v=a47416a6"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -108,31 +97,49 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">Sampling Trajectory Files</a></li>
+</ul>
+
+<div id="sourcelink">
+  <a href="_sources/sample.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   <div class="container-fluid">
   <div class="row">
     <div class="col-md-10">
-      <div style="text-align: justify; text-justify: inter-word;"><div class="section" id="sampling-trajectory-files">
-<h1>Sampling Trajectory Files<a class="headerlink" href="#sampling-trajectory-files" title="Permalink to this headline">¶</a></h1>
+      <div style="text-align: justify; text-justify: inter-word;"><section id="sampling-trajectory-files">
+<h1>Sampling Trajectory Files<a class="headerlink" href="#sampling-trajectory-files" title="Link to this heading">¶</a></h1>
 <p>The used GROMACS trajectory is sampled using the ChemFiles package. In
 order to avoid artefacts due to periodic boundary conditions, molecules
 are joined using the <em>-pbc mol</em> command in GROMACS which places the center
 of mass of the molecules into the box. Furthermore, PoreAna only analyses
 one molecule type per routine, that’s why the desired molecule type has
 to be extracted first</p>
-<div class="code bash highlight-default"><div class="highlight"><pre><span></span><span class="n">gmx_mpi</span> <span class="n">trjconv</span> <span class="o">-</span><span class="n">f</span> <span class="n">traj</span><span class="o">.</span><span class="n">xtc</span> <span class="o">-</span><span class="n">s</span> <span class="n">topol</span><span class="o">.</span><span class="n">tpr</span> <span class="o">-</span><span class="n">o</span> <span class="n">traj_mol</span><span class="o">.</span><span class="n">xtc</span> <span class="o">-</span><span class="n">pbc</span> <span class="n">mol</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>gmx_mpi<span class="w"> </span>trjconv<span class="w"> </span>-f<span class="w"> </span>traj.xtc<span class="w"> </span>-s<span class="w"> </span>topol.tpr<span class="w"> </span>-o<span class="w"> </span>traj_mol.xtc<span class="w"> </span>-pbc<span class="w"> </span>mol
 </pre></div>
 </div>
 <p>The sampling routine uses the molecule structure defined by the PoreMS
 package</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">porems</span> <span class="k">as</span> <span class="nn">pms</span>
 
 <span class="n">mol</span> <span class="o">=</span> <span class="n">pms</span><span class="o">.</span><span class="n">Molecule</span><span class="p">(</span><span class="n">inp</span><span class="o">=</span><span class="s2">&quot;data/benzene.gro&quot;</span><span class="p">)</span>
 <span class="n">mol</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span>    <span class="n">Residue</span> <span class="n">Name</span> <span class="n">Type</span>      <span class="n">x</span>      <span class="n">y</span>      <span class="n">z</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">Residue</span> <span class="n">Name</span> <span class="n">Type</span>      <span class="n">x</span>      <span class="n">y</span>      <span class="n">z</span>
 <span class="mi">0</span>         <span class="mi">0</span>   <span class="n">C1</span>    <span class="n">C</span>  <span class="mf">0.196</span>  <span class="mf">0.108</span>  <span class="mf">0.109</span>
 <span class="mi">1</span>         <span class="mi">0</span>   <span class="n">C2</span>    <span class="n">C</span>  <span class="mf">0.300</span>  <span class="mf">0.048</span>  <span class="mf">0.181</span>
 <span class="mi">2</span>         <span class="mi">0</span>   <span class="n">C3</span>    <span class="n">C</span>  <span class="mf">0.295</span>  <span class="mf">0.046</span>  <span class="mf">0.320</span>
@@ -151,7 +158,7 @@ package</p>
 created with the pore system (<em>pore_syste.obj</em> file provided by PoreMS),
 trajectory file, the corresponding molecule object and a list of atoms
 names to be considered (empty list for all)</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">poreana</span> <span class="k">as</span> <span class="nn">pa</span>
 
 <span class="n">sample</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Sample</span><span class="p">(</span><span class="s2">&quot;data/pore_system_cylinder.obj&quot;</span><span class="p">,</span> <span class="s2">&quot;data/traj_cylinder.xtc&quot;</span><span class="p">,</span> <span class="n">mol</span><span class="p">,</span> <span class="p">[])</span>
 </pre></div>
@@ -159,7 +166,7 @@ names to be considered (empty list for all)</p>
 <p>The next step is activating the analysis routines to be used during the
 sampling process using the initialize functions with their corresponding
 inputs</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">init_gyration</span><span class="p">(</span><span class="s2">&quot;output/gyr.h5&quot;</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_bin</span><span class="p">(</span><span class="s2">&quot;output/diff.h5&quot;</span><span class="p">)</span>
 </pre></div>
@@ -167,7 +174,7 @@ inputs</p>
 <p>If you would like to calculated the diffusion and the free energy profile
 you have to set the MC Diffusion initalize function instead of the Bin Diffusion.
 Attention currently only the initialization of one diffusion calculation method is possible.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">init_density</span><span class="p">(</span><span class="s2">&quot;output/dens.h5&quot;</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">init_gyration</span><span class="p">(</span><span class="s2">&quot;output/gyr.h5&quot;</span><span class="p">)</span>
 <span class="n">sample</span><span class="o">.</span><span class="n">init_diffusion_mc</span><span class="p">(</span><span class="s2">&quot;output/diff.h5&quot;</span><span class="p">)</span>
 </pre></div>
@@ -175,14 +182,14 @@ Attention currently only the initialization of one diffusion calculation method 
 <p>Finally, the sample function is initiated with the
 option to run in parallel and deactivating the periodic boundary
 conditions</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">is_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_pbc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sample</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">is_parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">is_pbc</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">Finished</span> <span class="pre">frame</span> <span class="pre">2001/2001...</span></code></p>
       </div>
     </div>
   </div>
-</div></div>
+</div></section>
 
 
     </div>
@@ -197,7 +204,7 @@ conditions</p>
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>

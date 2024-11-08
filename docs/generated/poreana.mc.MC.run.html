@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="../">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>MC.run &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -80,7 +70,10 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">MC.run</a></li>
+<li><a class="reference internal" href="#">MC.run</a><ul>
+<li><a class="reference internal" href="#poreana.mc.MC.run"><code class="docutils literal notranslate"><span class="pre">MC.run()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -108,14 +101,35 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">MC.run</a><ul>
+<li><a class="reference internal" href="#poreana.mc.MC.run"><code class="docutils literal notranslate"><span class="pre">MC.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div id="sourcelink">
+  <a href="../_sources/generated/poreana.mc.MC.run.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="mc-run">
-<h1>MC.run<a class="headerlink" href="#mc-run" title="Permalink to this headline">¶</a></h1>
-<dl class="method">
-<dt id="poreana.mc.MC.run">
-<code class="descclassname">MC.</code><code class="descname">run</code><span class="sig-paren">(</span><em>model</em>, <em>link_out</em>, <em>nmc_eq=50000</em>, <em>nmc=100000</em>, <em>delta_df=0.05</em>, <em>delta_diff=0.05</em>, <em>num_mc_update=10</em>, <em>temp=1</em>, <em>np=0</em>, <em>print_freq=100</em>, <em>is_print=False</em>, <em>do_radial=False</em>, <em>is_parallel=True</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC.run" title="Permalink to this definition">¶</a></dt>
+<div class=col-md-9 content><section id="mc-run">
+<h1>MC.run<a class="headerlink" href="#mc-run" title="Link to this heading">¶</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="poreana.mc.MC.run">
+<span class="sig-prename descclassname"><span class="pre">MC.</span></span><span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmc_eq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nmc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_mc_update</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">np</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_print</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_radial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC.run" title="Link to this definition">¶</a></dt>
 <dd><p>This function do the MC Cycle to calculate the diffusion and free
 energy profile over the bins and save the results in an output hdf5
 file. This happens with the adjustment of the coefficient from the model
@@ -124,80 +138,63 @@ results for all lag times for which a transition matrix was calculated.
 The results can be displayed with the post process functions.
 The MC Algorithm is divided in two parts. Frist ab equilibrium MC run starts
 to adjust the profile. The number of the equilibrium runs can be set with
-<span class="math">\(\text{nmc\_eq}\)</span>. After the equilibrium phase the sampling of the diffusion
+<span class="math notranslate nohighlight">\(\text{nmc\_eq}\)</span>. After the equilibrium phase the sampling of the diffusion
 profile can start. In this part the MC Algorithm calculates in every step
 a new diffusion profile. The average over all profiles which are yields in
 MC production will be determined. The received profile gives the final
 result. The MC algorithm calculates a diffusion profile for each step length
 previously specified in the sampling
-(<a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-func docutils literal"><span class="pre">poreana.sample.Sample.init_diffusion_mc()</span></code></a>) and thus, for each lag
+(<a class="reference internal" href="poreana.sample.Sample.init_diffusion_mc.html#poreana.sample.Sample.init_diffusion_mc" title="poreana.sample.Sample.init_diffusion_mc"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.sample.Sample.init_diffusion_mc()</span></code></a>) and thus, for each lag
 time. Here you have to set also step the move width of a MC step.</p>
 <p><strong>More information about a MC step can be found in</strong></p>
 <ul class="simple">
-<li><a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_diffusion()</span></code></a></li>
-<li><a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-func docutils literal"><span class="pre">_mcmove_df()</span></code></a></li>
+<li><p><a class="reference internal" href="poreana.mc.MC._mcmove_diffusion.html#poreana.mc.MC._mcmove_diffusion" title="poreana.mc.MC._mcmove_diffusion"><code class="xref py py-func docutils literal notranslate"><span class="pre">_mcmove_diffusion()</span></code></a></p></li>
+<li><p><a class="reference internal" href="poreana.mc.MC._mcmove_df.html#poreana.mc.MC._mcmove_df" title="poreana.mc.MC._mcmove_df"><code class="xref py py-func docutils literal notranslate"><span class="pre">_mcmove_df()</span></code></a></p></li>
 </ul>
 <p>The MC accepted criterium for a MC step is define as</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[r &lt; \exp \left ( \frac{L_\text{new} - L_\text{old}}{T}  \right)\]</div>
-<p>with <span class="math">\(T\)</span> as the temperature, <span class="math">\(r\)</span> as a random number between
-<span class="math">\(0\)</span> and <span class="math">\(1\)</span> and <span class="math">\(L_\text{new}\)</span> and
-<span class="math">\(L_\text{old}\)</span> as the likelihood for the current and the last
-step. The likelihood is calculated with <a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-func docutils literal"><span class="pre">_log_likelihood_z()</span></code></a>
+<p>with <span class="math notranslate nohighlight">\(T\)</span> as the temperature, <span class="math notranslate nohighlight">\(r\)</span> as a random number between
+<span class="math notranslate nohighlight">\(0\)</span> and <span class="math notranslate nohighlight">\(1\)</span> and <span class="math notranslate nohighlight">\(L_\text{new}\)</span> and
+<span class="math notranslate nohighlight">\(L_\text{old}\)</span> as the likelihood for the current and the last
+step. The likelihood is calculated with <a class="reference internal" href="poreana.mc.MC._log_likelihood_z.html#poreana.mc.MC._log_likelihood_z" title="poreana.mc.MC._log_likelihood_z"><code class="xref py py-func docutils literal notranslate"><span class="pre">_log_likelihood_z()</span></code></a>
 function.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>model</strong> <span class="classifier-delimiter">:</span> <span class="classifier">class</span></dt>
-<dd><p class="first last">Model object which set before with the model class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>model</strong><span class="classifier">class</span></dt><dd><p>Model object which set before with the model class</p>
 </dd>
-<dt><strong>link_out</strong> <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd><p class="first last">Link to output hdf5 data file</p>
+<dt><strong>link_out</strong><span class="classifier">string</span></dt><dd><p>Link to output hdf5 data file</p>
 </dd>
-<dt><strong>nmc_eq</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of equilibrium MC steps</p>
+<dt><strong>nmc_eq</strong><span class="classifier">integer, optional</span></dt><dd><p>Number of equilibrium MC steps</p>
 </dd>
-<dt><strong>nmc</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of production MC steps</p>
+<dt><strong>nmc</strong><span class="classifier">integer, optional</span></dt><dd><p>Number of production MC steps</p>
 </dd>
-<dt><strong>delta_df</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Potential MC move width</p>
+<dt><strong>delta_df</strong><span class="classifier">float, optional</span></dt><dd><p>Potential MC move width</p>
 </dd>
-<dt><strong>delta_diff</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">ln(diffusion) MC move width</p>
+<dt><strong>delta_diff</strong><span class="classifier">float, optional</span></dt><dd><p>ln(diffusion) MC move width</p>
 </dd>
-<dt><strong>num_mc_update</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of moves between MC step width adjustments (=0 if no adjustment
+<dt><strong>num_mc_update</strong><span class="classifier">integer, optional</span></dt><dd><p>Number of moves between MC step width adjustments (=0 if no adjustment
 is required)</p>
 </dd>
-<dt><strong>temp</strong> <span class="classifier-delimiter">:</span> <span class="classifier">float, optional</span></dt>
-<dd><p class="first last">Temperature in Monte Carlo acceptance criterium</p>
+<dt><strong>temp</strong><span class="classifier">float, optional</span></dt><dd><p>Temperature in Monte Carlo acceptance criterium</p>
 </dd>
-<dt><strong>np</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Number of cores to use</p>
+<dt><strong>np</strong><span class="classifier">integer, optional</span></dt><dd><p>Number of cores to use</p>
 </dd>
-<dt><strong>print_freq</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer, optional</span></dt>
-<dd><p class="first last">Print MC step every print_freq</p>
+<dt><strong>print_freq</strong><span class="classifier">integer, optional</span></dt><dd><p>Print MC step every print_freq</p>
 </dd>
-<dt><strong>is_print</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to print output</p>
+<dt><strong>is_print</strong><span class="classifier">bool, optional</span></dt><dd><p>True to print output</p>
 </dd>
-<dt><strong>do_radial</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to calculate the radial diffusion</p>
+<dt><strong>do_radial</strong><span class="classifier">bool, optional</span></dt><dd><p>True to calculate the radial diffusion</p>
 </dd>
-<dt><strong>is_parallel</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
-<dd><p class="first last">True to run parallelized sampling</p>
+<dt><strong>is_parallel</strong><span class="classifier">bool, optional</span></dt><dd><p>True to run parallelized sampling</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -212,7 +209,7 @@ is required)</p>
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>

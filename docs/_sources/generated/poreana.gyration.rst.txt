@@ -4,26 +4,9 @@
 .. automodule:: poreana.gyration
 
    
-   
-   
-
-   
-   
    .. rubric:: Functions
 
    .. autosummary::
    
       bins_plot
    
-   
-
-   
-   
-   
-
-   
-   
-   
-
-
-

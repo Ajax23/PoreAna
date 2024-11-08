@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import poreana.utils as utils
 
 
-def bins_plot(data_link_angle, data_link_dens, intent="", is_mean=False, is_norm=False, kwargs={}):
+def bins_plot(data_link_angle, data_link_dens, pore_id="shape_00", intent="", is_mean=False, is_norm=False, kwargs={}):
     """This function plots the angle. If an intent is given instead, only a
     plot-function will be called. Available options for ``intent`` are
 
@@ -42,13 +42,16 @@ def bins_plot(data_link_angle, data_link_dens, intent="", is_mean=False, is_norm
         Mean value of the angle inside and outside the pore in nm
     """
     # Load data
-    angle = utils.load(data_link_angle)
+    agl = utils.load(data_link_angle)
     dens = utils.load(data_link_dens)
 
-    is_pore = "pore" in angle
+    is_pore = "pore" in agl
     width = {}
-    width["in"] = angle["data"]["in_width"][:-1] if is_pore else []
-    width["ex"] = angle["data"]["ex_width"]
+    if is_pore:
+        width["in"] = agl["data"][pore_id]["in_width"][:-1] #
+    else:
+        width["in"] = []
+    width["ex"] = agl["data"]["ex_width"]
 
     if is_norm:
         for key, val in width.items():
@@ -58,7 +61,9 @@ def bins_plot(data_link_angle, data_link_dens, intent="", is_mean=False, is_norm
     areas = ["in", "ex"] if is_pore else ["ex"]
 
     # Divide angle by density in bins
-    angle = {area: [angle["data"][area][i]/dens["data"][area][i] if dens["data"][area][i] else 0 for i in range(len(angle["data"][area]))] for area in areas}
+    angle = {"ex": [], "in": []}
+    angle["in"] = [agl["data"][pore_id]["in"][i]/dens["data"][pore_id]["in"][i] if dens["data"][pore_id]["in"][i] else 0 for i in range(len(agl["data"][pore_id]["in"]))]
+    angle["ex"] = [agl["data"]["ex"][i]/dens["data"]["ex"][i] if dens["data"]["ex"][i] else 0 for i in range(len(agl["data"]["ex"]))] 
 
     # Calculate mean angle
     mean = {area: sum(angle[area])/len(angle[area]) for area in areas}

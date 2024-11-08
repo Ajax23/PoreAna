@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="../">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>MC._init_rate_matrix_pbc &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -80,7 +70,10 @@
   <ul class="dropdown-menu localtoc"
       role="menu"
       aria-labelledby="dLabelLocalToc"><ul>
-<li><a class="reference internal" href="#">MC._init_rate_matrix_pbc</a></li>
+<li><a class="reference internal" href="#">MC._init_rate_matrix_pbc</a><ul>
+<li><a class="reference internal" href="#poreana.mc.MC._init_rate_matrix_pbc"><code class="docutils literal notranslate"><span class="pre">MC._init_rate_matrix_pbc()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </ul>
 </li>
@@ -108,69 +101,82 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">MC._init_rate_matrix_pbc</a><ul>
+<li><a class="reference internal" href="#poreana.mc.MC._init_rate_matrix_pbc"><code class="docutils literal notranslate"><span class="pre">MC._init_rate_matrix_pbc()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div id="sourcelink">
+  <a href="../_sources/generated/poreana.mc.MC._init_rate_matrix_pbc.rst.txt"
+     rel="nofollow">Source</a>
+</div>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
       
   </div>
-<div class=col-md-9 content><div class="section" id="mc-init-rate-matrix-pbc">
-<h1>MC._init_rate_matrix_pbc<a class="headerlink" href="#mc-init-rate-matrix-pbc" title="Permalink to this headline">¶</a></h1>
-<dl class="method">
-<dt id="poreana.mc.MC._init_rate_matrix_pbc">
-<code class="descclassname">MC.</code><code class="descname">_init_rate_matrix_pbc</code><span class="sig-paren">(</span><em>bin_num</em>, <em>diff_bin</em>, <em>df_bin</em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC._init_rate_matrix_pbc" title="Permalink to this definition">¶</a></dt>
+<div class=col-md-9 content><section id="mc-init-rate-matrix-pbc">
+<h1>MC._init_rate_matrix_pbc<a class="headerlink" href="#mc-init-rate-matrix-pbc" title="Link to this heading">¶</a></h1>
+<dl class="py method">
+<dt class="sig sig-object py" id="poreana.mc.MC._init_rate_matrix_pbc">
+<span class="sig-prename descclassname"><span class="pre">MC.</span></span><span class="sig-name descname"><span class="pre">_init_rate_matrix_pbc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bin_num</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diff_bin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_bin</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#poreana.mc.MC._init_rate_matrix_pbc" title="Link to this definition">¶</a></dt>
 <dd><p>This function estimates the rate Matrix R for the current free energy
 and log diffusion profiles over the bins for periodic boundary
-conditions. The dimension of the matrix is <span class="math">\(n \times n\)</span>
-with <span class="math">\(n\)</span> as number of the bins.
+conditions. The dimension of the matrix is <span class="math notranslate nohighlight">\(n \times n\)</span>
+with <span class="math notranslate nohighlight">\(n\)</span> as number of the bins.
 The calculation of the secondary diagonal elements in the rate
-matrix <span class="math">\(R\)</span> happen with the following equations</p>
-<div class="math">
+matrix <span class="math notranslate nohighlight">\(R\)</span> happen with the following equations</p>
+<div class="math notranslate nohighlight">
 \[R_{i+1,i} = \exp  \underbrace{\left( \ln \left( \frac{D_{i+\frac{1}{2}}}{\Delta z^2}\right) \right)}_{\mathrm{diff}_\mathrm{bin}} - 0.5(\beta(F(\Delta z_{i+1})-F(\Delta z_{i})\]</div>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[R_{i,i+1} = \exp \left( \ln \left( \frac{D_{i+\frac{1}{2}}}{\Delta z^2}\right) \right) + 0.5(\beta(F(\Delta z_{i+1})-F(\Delta z_{i})\]</div>
-<p>with <span class="math">\(\Delta z\)</span> as the bin width, <span class="math">\(D_{i+\frac{1}{2}}\)</span>
-as the diffusion between to bins and <span class="math">\(F_i\)</span> as free energy in
+<p>with <span class="math notranslate nohighlight">\(\Delta z\)</span> as the bin width, <span class="math notranslate nohighlight">\(D_{i+\frac{1}{2}}\)</span>
+as the diffusion between to bins and <span class="math notranslate nohighlight">\(F_i\)</span> as free energy in
 the bin center. The diagonal elements can be calculated with the
 secondary elements determine with the equations above.</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[R_{i,i} = -R_{i-1,i}-R_{i+1,i}\]</div>
 <p>The corner of the rate matrix is set with:</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[R_{1,1} = - R_{2,1} - R_{N,1}\]</div>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[R_{N,N} = - R_{N-1,N} - R_{1,N}\]</div>
 <p>The periodic boundary conditions are implemeted with</p>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[R_{1,N} = \exp \left( \ln \left( \frac{D_{N+\frac{1}{2}}}{\Delta z^2}\right) \right) - 0.5(\beta(F(\Delta z_{1})-F(\Delta z_{N}))\]</div>
-<div class="math">
+<div class="math notranslate nohighlight">
 \[R_{N,1} = \exp \left( \ln \left( \frac{D_{N+\frac{1}{2}}}{\Delta z^2}\right) \right) + 0.5(\beta(F(\Delta z_{1})-F(\Delta z_{N}))\]</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
-<dt><strong>bin_num</strong> <span class="classifier-delimiter">:</span> <span class="classifier">integer</span></dt>
-<dd><p class="first last">Number of bins</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>bin_num</strong><span class="classifier">integer</span></dt><dd><p>Number of bins</p>
 </dd>
-<dt><strong>diff_bin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">Ln diffusion profile over the bins</p>
+<dt><strong>diff_bin</strong><span class="classifier">list</span></dt><dd><p>Ln diffusion profile over the bins</p>
 </dd>
-<dt><strong>df_bin</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list</span></dt>
-<dd><p class="first last">Free energy profile over the bins</p>
+<dt><strong>df_bin</strong><span class="classifier">list</span></dt><dd><p>Free energy profile over the bins</p>
 </dd>
 </dl>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>rate matrix</strong> <span class="classifier-delimiter">:</span> <span class="classifier">array</span></dt>
-<dd><p class="first last">Rate matrix for the current free energy and ln diffusion profile</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>rate matrix</strong><span class="classifier">array</span></dt><dd><p>Rate matrix for the current free energy and ln diffusion profile</p>
 </dd>
 </dl>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
-</div>
+</section>
 
 
     </div>
@@ -185,7 +191,7 @@ secondary elements determine with the equations above.</p>
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>

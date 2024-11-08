@@ -1,39 +1,29 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" data-content_root="../">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>poreana.diffusion &#8212; PoreAna 0.2.3 documentation</title>
-    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/style.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '0.2.3',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/bootstrap-sphinx.css?v=cab96e3b" />
+    <script src="../_static/documentation_options.js?v=a47416a6"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js "></script>
-<script type="text/javascript" src="../_static/js/jquery-fix.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-3.3.7/js/bootstrap.min.js "></script>
-<script type="text/javascript" src="../_static/bootstrap-sphinx.js "></script>
+<script type="text/javascript" src="../_static/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
 
-  </head>
-  <body>
+  </head><body>
 
   <div id="navbar" class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -108,51 +98,56 @@
 
 <div class="container">
   <div class="row">
-    <div class="body col-md-12 content" role="main">
-      
-  <div class="section" id="module-poreana.diffusion">
-<span id="poreana-diffusion"></span><h1>poreana.diffusion<a class="headerlink" href="#module-poreana.diffusion" title="Permalink to this headline">¶</a></h1>
-<p>Analyse diffusion in a pore.</p>
-<p class="rubric">Bin Method</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-obj docutils literal"><span class="pre">bins</span></code></a>(link[,&nbsp;ax_area,&nbsp;is_norm])</td>
-<td>This function calculates the axial (z-axis) diffusion coefficient as a function of the radial distance.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.bins_plot.html#poreana.diffusion.bins_plot" title="poreana.diffusion.bins_plot"><code class="xref py py-obj docutils literal"><span class="pre">bins_plot</span></code></a>(data[,&nbsp;intent,&nbsp;kwargs])</td>
-<td>This function calculates the axial plots the diffusion profile calculated by the function <a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-func docutils literal"><span class="pre">poreana.diffusion.bins()</span></code></a>.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.cui.html#poreana.diffusion.cui" title="poreana.diffusion.cui"><code class="xref py py-obj docutils literal"><span class="pre">cui</span></code></a>(link[,&nbsp;z_dist,&nbsp;ax_area,&nbsp;intent,&nbsp;is_fit,&nbsp;…])</td>
-<td>This function samples and calculates the diffusion coefficient of a molecule group in a pore in both axial and radial direction, as described in the paper of <a class="reference external" href="https://doi.org/10.1063/1.1989314">Cui</a>.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.mean.html#poreana.diffusion.mean" title="poreana.diffusion.mean"><code class="xref py py-obj docutils literal"><span class="pre">mean</span></code></a>(diff_data,&nbsp;dens_data[,&nbsp;ax_area,&nbsp;is_print])</td>
-<td>This function uses the diffusion coefficient slope obtained from</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">MC Method</p>
-<table border="1" class="longtable docutils">
-<colgroup>
-<col width="10%" />
-<col width="90%" />
-</colgroup>
-<tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.mc_fit.html#poreana.diffusion.mc_fit" title="poreana.diffusion.mc_fit"><code class="xref py py-obj docutils literal"><span class="pre">mc_fit</span></code></a>(link[,&nbsp;len_step,&nbsp;section,&nbsp;is_std,&nbsp;…])</td>
-<td>This function uses the diffusion profiles over box length which are calculated in the function <a class="reference internal" href="poreana.mc.MC.run.html#poreana.mc.MC.run" title="poreana.mc.MC.run"><code class="xref py py-func docutils literal"><span class="pre">poreana.mc.MC.run()</span></code></a> to estimate the final diffusion coefficient.</td>
-</tr>
-<tr class="row-even"><td><a class="reference internal" href="poreana.diffusion.mc_profile.html#poreana.diffusion.mc_profile" title="poreana.diffusion.mc_profile"><code class="xref py py-obj docutils literal"><span class="pre">mc_profile</span></code></a>(link[,&nbsp;len_step,&nbsp;section,&nbsp;…])</td>
-<td>This function plots the diffusion profile for an infinity lag time (<span class="math">\(\Delta t_{\alpha} \rightarrow \infty\)</span>) over the box fitted with the specified <span class="math">\(\mathrm{len}\_\mathrm{step}\)</span> list.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="poreana.diffusion.mc_trans_mat.html#poreana.diffusion.mc_trans_mat" title="poreana.diffusion.mc_trans_mat"><code class="xref py py-obj docutils literal"><span class="pre">mc_trans_mat</span></code></a>(link,&nbsp;step[,&nbsp;kwargs,&nbsp;is_norm,&nbsp;…])</td>
-<td>This function plots the occupation of a normalized transition matrix as a heatmap.</td>
-</tr>
-</tbody>
-</table>
+      <div class="col-md-3">
+        <div id="sidebar" class="bs-sidenav" role="complementary"><ul>
+<li><a class="reference internal" href="#">poreana.diffusion</a></li>
+</ul>
+
+<div id="sourcelink">
+  <a href="../_sources/generated/poreana.diffusion.rst.txt"
+     rel="nofollow">Source</a>
 </div>
+<form action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+    <div class="body col-md-9 content" role="main">
+      
+  <section id="module-poreana.diffusion">
+<span id="poreana-diffusion"></span><h1>poreana.diffusion<a class="headerlink" href="#module-poreana.diffusion" title="Link to this heading">¶</a></h1>
+<p>Analyse diffusion in a pore.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bins</span></code></a>(link[, ax_area, is_norm])</p></td>
+<td><p>This function calculates the axial (z-axis) diffusion coefficient as a function of the radial distance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.diffusion.bins_plot.html#poreana.diffusion.bins_plot" title="poreana.diffusion.bins_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bins_plot</span></code></a>(data[, pore_id, intent, kwargs])</p></td>
+<td><p>This function calculates the axial plots the diffusion profile calculated by the function <a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.diffusion.bins()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.diffusion.cui.html#poreana.diffusion.cui" title="poreana.diffusion.cui"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cui</span></code></a>(link[, pore_id, z_dist, ax_area, ...])</p></td>
+<td><p>This function samples and calculates the diffusion coefficient of a molecule group in a pore in both axial and radial direction, as described in the paper of <a class="reference external" href="https://doi.org/10.1063/1.1989314">Cui</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.diffusion.mc_fit.html#poreana.diffusion.mc_fit" title="poreana.diffusion.mc_fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mc_fit</span></code></a>(link[, len_step, section, is_std, ...])</p></td>
+<td><p>This function uses the diffusion profiles over box length which are calculated in the function <a class="reference internal" href="poreana.mc.MC.run.html#poreana.mc.MC.run" title="poreana.mc.MC.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.mc.MC.run()</span></code></a> to estimate the final diffusion coefficient.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.diffusion.mc_profile.html#poreana.diffusion.mc_profile" title="poreana.diffusion.mc_profile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mc_profile</span></code></a>(link[, len_step, section, ...])</p></td>
+<td><p>This function plots the diffusion profile for an infinity lag time (<span class="math notranslate nohighlight">\(\Delta t_{\alpha} \rightarrow \infty\)</span>) over the box fitted with the specified <span class="math notranslate nohighlight">\(\mathrm{len}\_\mathrm{step}\)</span> list.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="poreana.diffusion.mc_trans_mat.html#poreana.diffusion.mc_trans_mat" title="poreana.diffusion.mc_trans_mat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mc_trans_mat</span></code></a>(link, step[, kwargs, is_norm, ...])</p></td>
+<td><p>This function plots the occupation of a normalized transition matrix as a heatmap.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="poreana.diffusion.mean.html#poreana.diffusion.mean" title="poreana.diffusion.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a>(diff_data, dens_data[, ax_area, is_print])</p></td>
+<td><p>This function uses the diffusion coefficient slope obtained from function <a class="reference internal" href="poreana.diffusion.bins.html#poreana.diffusion.bins" title="poreana.diffusion.bins"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.diffusion.bins()</span></code></a> and the density slope of function <a class="reference internal" href="poreana.density.bins.html#poreana.density.bins" title="poreana.density.bins"><code class="xref py py-func docutils literal notranslate"><span class="pre">poreana.density.bins()</span></code></a> to calculate a weighted diffusion coefficient inside the pore</p></td>
+</tr>
+</tbody>
+</table>
+</section>
 
 
     </div>
@@ -167,7 +162,7 @@
     </p>
     <p>
         &copy; Copyright 2021, Hamzeh Kraus.<br/>
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.6.<br/>
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 7.4.6.<br/>
     </p>
   </div>
 </footer>
