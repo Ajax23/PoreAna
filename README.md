@@ -1,3 +1,10 @@
+# ⚠️ This repository is no longer maintained
+
+The development of this project has moved to:  
+👉 [https://github.com/PoreMS/PoreAna](https://github.com/PoreMS/PoreAna)
+
+Please submit issues and pull requests there.
+
 <img src="https://github.com/Ajax23/PoreAna/blob/master/docsrc/pics/logo_text_sub.svg" width="60%">
 
 --------------------------------------
